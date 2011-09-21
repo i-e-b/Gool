@@ -1,0 +1,10 @@
+bin
+obj
+*.user
+*.suo
+*.cache
+_ReSharper.Phantom
+/TestBed/obj
+/TestBed/bin
+/Phantom/obj
+/Phantom/bin
