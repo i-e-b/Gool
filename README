@@ -1,1 +1,14 @@
 Phantom 2 is a lexer-less parser for C#
+
+TODO
+====
+ - Roll in a full set of unit tests
+ - Provide a good normal fluent interface as well as BNFish one
+ - Binary and uniary parsers that can have associativiy and priority
+ - Grouping parser that applies a shunting-yard infix-to-(?post/pre)fix manipulation
+ 
+Demos
+=====
+ - Finish Pascal parser, make a simple interpreter
+ - XML parser
+ - JSON parser
