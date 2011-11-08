@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Phantom;
-using Phantom.Scanners;
 using Phantom.Parsers;
 using System.Text.RegularExpressions;
 
@@ -33,7 +30,7 @@ namespace Testbed {
 			Parser open_tag = Atom.Wrap("<" > identifier > (!attribute) > ">");
 			Parser close_tag = Atom.Wrap("</" > identifier > ">");
 
-			HoldingParser xml_tree = new HoldingParser();
+			var xml_tree = new HoldingParser();
 			Parser content = (open_tag > -(xml_tree | text) > close_tag);
 			xml_tree.HeldParser = !content;
 

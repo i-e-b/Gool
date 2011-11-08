@@ -1,14 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using Phantom;
 using Phantom.Scanners;
 using Phantom.Parsers;
-using System.Text.RegularExpressions;
 
 namespace Testbed {
 	public partial class Form1 : Form {

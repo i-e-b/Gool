@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Phantom;
-using Phantom.Scanners;
 using Phantom.Parsers;
 using System.Text.RegularExpressions;
 
@@ -49,8 +47,8 @@ namespace Testbed {
 
 			#region types
 			// Mutual dependence requires a holding parser (so the object reference stays the same);
-			HoldingParser field_list_h = new HoldingParser();
-			HoldingParser p_type_h = new HoldingParser();
+			var field_list_h = new HoldingParser();
+			var p_type_h = new HoldingParser();
 			Parser pt_setof = (@"#set\s" > ((Parser)@"#of\s") > simple_type);
 			Parser pt_array = (@"#array\s" > ((Parser)'[') > (simple_type % ',') > ']' > ((Parser)@"#of\s") > p_type_h);
 			Parser pt_recrd = (@"#record\s" > field_list_h > @"#end");
@@ -65,7 +63,7 @@ namespace Testbed {
 			#endregion
 
 			#region expressions
-			HoldingParser factor_h = new HoldingParser();
+			var factor_h = new HoldingParser();
 			Parser compares = ((Parser)"<" | "<=" | "=" | "<>" | ">=" | ">" | (Parser)@"#in\s");
 			Parser operators = ((Parser)'*' | '/' | @"#div\s" | @"#mod\s" | (Parser)@"#in\s");
 			Parser p_term = (factor_h % operators)[act];
