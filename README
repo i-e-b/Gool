@@ -12,3 +12,5 @@ Demos
  - Finish Pascal parser, make a simple interpreter
  - XML parser
  - JSON parser
+
+See also https://gist.github.com/3904903
