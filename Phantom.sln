@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom", "Phantom\Phantom.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testbed", "Testbed\Testbed.csproj", "{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3306E773-9AEF-4FD3-A8B4-7963912A7AD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom.Unit.Tests", "Phantom.Unit.Tests\Phantom.Unit.Tests.csproj", "{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,8 +23,15 @@ Global
 		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B} = {3306E773-9AEF-4FD3-A8B4-7963912A7AD8}
 	EndGlobalSection
 EndGlobal

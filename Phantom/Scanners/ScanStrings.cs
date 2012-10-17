@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Phantom.Scanners {
 	public class ScanStrings: IScanner {
-		private string input_string;
+		private readonly string input_string;
 		private int scanner_offset;
-		private string right_most_match = null;
+		private string right_most_match;
 		private int right_most_point;
 		private ITransform transform;
 		private bool skip_whitespace;
@@ -72,12 +71,12 @@ namespace Phantom.Scanners {
 		}
 
 		public List<string> ListFailures() {
-			List<string> lst = new List<string>();
+			var lst = new List<string>();
 
 			foreach (ParserPoint p in failure_points) {
 				string chunk = input_string.Substring(p.pos);
 				if (chunk.Length > 5) chunk = chunk.Substring(0, 5);
-				lst.Add(p.parser.ToString() + " --> " + chunk);
+				lst.Add(p.parser + " --> " + chunk);
 			}
 
 			return lst;
@@ -125,14 +124,13 @@ namespace Phantom.Scanners {
 		public char Peek() {
 			if (transform == null)
 				return input_string[scanner_offset];
-			else
-				return transform.Transform(input_string[scanner_offset]);
+			return transform.Transform(input_string[scanner_offset]);
 		}
 
 		public void Normalise() {
 			if (EOF) return;
 			if (skip_whitespace)
-				while (Char.IsWhiteSpace(Peek())) { if (!Read()) break; };
+				while (Char.IsWhiteSpace(Peek())) { if (!Read()) break; }
 		}
 
 		public int Offset {
@@ -141,20 +139,20 @@ namespace Phantom.Scanners {
 			}
 			set {
 				if (value < 0 || value > input_string.Length)
-					throw new ArgumentOutOfRangeException("Scanner offset out of bounds");
+					throw new Exception("Scanner offset out of bounds");
 				scanner_offset = value;
 			}
 		}
 
 		public void Seek(int offset) {
 			if (offset < 0 || offset > input_string.Length + 1)
-				throw new ArgumentOutOfRangeException("Scanner seek offset out of bounds");
+				throw new Exception("Scanner seek offset out of bounds");
 
 			scanner_offset = offset;
 		}
 
 		public string Substring(int offset, int length) {
-			string str = input_string.Substring(offset, (int)Math.Min(length, input_string.Length - offset));
+			string str = input_string.Substring(offset, Math.Min(length, input_string.Length - offset));
 
 			if (transform != null)
 				str = transform.Transform(str);
@@ -180,15 +178,15 @@ namespace Phantom.Scanners {
 			}
 		}
 
-		public Phantom.Parsers.ParserMatch NoMatch {
+		public Parsers.ParserMatch NoMatch {
 			get { return new Parsers.ParserMatch(null, this, 0, -1); }
 		}
 
-		public Phantom.Parsers.ParserMatch EmptyMatch {
+		public Parsers.ParserMatch EmptyMatch {
 			get { return new Parsers.ParserMatch(null, this, 0, 0); }
 		}
 
-		public Phantom.Parsers.ParserMatch CreateMatch(Parsers.Parser source, int offset, int length) {
+		public Parsers.ParserMatch CreateMatch(Parsers.Parser source, int offset, int length) {
 			if ((offset + length) > right_most_point) {
 				right_most_point = offset + length;
 				right_most_match = InputString.Substring(offset, length);

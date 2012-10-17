@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Phantom.Scanners {
 	public class TransformToLower: ITransform {
-		#region ITransform Members
-
 		/// <summary>
 		/// Convert irregular cased input to lowercased input
 		/// </summary>
@@ -19,7 +13,5 @@ namespace Phantom.Scanners {
 		char ITransform.Transform(char c) {
 			return c.ToString().ToLower()[0];
 		}
-
-		#endregion
 	}
 }
