@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Phantom.Parsers {
@@ -28,7 +26,7 @@ namespace Phantom.Parsers {
 		/// <summary>Core parsing method</summary>
 		/// <param name="scan">Scanner to parse from</param>
 		/// <returns>Match (success of failure) of the parser against the scanner</returns>
-		public abstract Parsers.ParserMatch ParseMain(Scanners.IScanner scan);
+		public abstract ParserMatch ParseMain(Scanners.IScanner scan);
 
 		/// <summary>
 		/// Public scanner method. Test scanner input for this parser's patterns.
@@ -36,7 +34,7 @@ namespace Phantom.Parsers {
 		/// <remarks>Most parsers won't need to override this method</remarks>
 		/// <param name="scan">Scanner to parse from</param>
 		/// <returns>Match (success of failure) of the parser against the scanne</returns>
-		public virtual Parsers.ParserMatch Parse(Scanners.IScanner scan) {
+		public virtual ParserMatch Parse(Scanners.IScanner scan) {
 			scan.Normalise();
 
 			/**/ //System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
@@ -46,7 +44,7 @@ namespace Phantom.Parsers {
 				if (!(this is HoldingParser))
 					return scan.NoMatch;
 			
-			Parsers.ParserMatch m = this.ParseMain(scan);
+			ParserMatch m = this.ParseMain(scan);
 			if (m.Success) {
 				scan.ClearFailures();
 			} else {
@@ -96,7 +94,7 @@ namespace Phantom.Parsers {
 		public Parser this[RegexOptions opts] {
 			get {
 				if (this is Terminals.LiteralString) {
-					Terminals.LiteralString incoming = (Terminals.LiteralString)this;
+					var incoming = (Terminals.LiteralString)this;
 					return new Terminals.RegularExpression(incoming.MatchLiteral, opts);
 				} else if (this is Terminals.RegularExpression) {
 					return this;

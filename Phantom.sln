@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom", "Phantom\Phantom.csproj", "{158158B0-FD79-46EE-879C-835479C5EA2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testbed", "Testbed\Testbed.csproj", "{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3306E773-9AEF-4FD3-A8B4-7963912A7AD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom.Unit.Tests", "Phantom.Unit.Tests\Phantom.Unit.Tests.csproj", "{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom.Integration.Tests", "Phantom.Integration.Tests\Phantom.Integration.Tests.csproj", "{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{19E922EF-E839-4CC3-9AF3-1BB26D76CB36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesGrammars", "SamplesGrammars\SamplesGrammars.csproj", "{DC74055E-B49F-488F-9C6E-4FBE95052875}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,19 +23,25 @@ Global
 		{158158B0-FD79-46EE-879C-835479C5EA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{158158B0-FD79-46EE-879C-835479C5EA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{158158B0-FD79-46EE-879C-835479C5EA2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{956C5FD2-BAEF-4130-A4FB-45A89047CEDF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B} = {3306E773-9AEF-4FD3-A8B4-7963912A7AD8}
+		{E994E8FF-A78B-45BC-AEAC-08EE6C350B79} = {3306E773-9AEF-4FD3-A8B4-7963912A7AD8}
+		{DC74055E-B49F-488F-9C6E-4FBE95052875} = {19E922EF-E839-4CC3-9AF3-1BB26D76CB36}
 	EndGlobalSection
 EndGlobal

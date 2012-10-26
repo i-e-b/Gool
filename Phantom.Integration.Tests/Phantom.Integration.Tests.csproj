@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}</ProjectGuid>
+    <ProjectGuid>{E994E8FF-A78B-45BC-AEAC-08EE6C350B79}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Phantom.Unit.Tests</RootNamespace>
-    <AssemblyName>Phantom.Unit.Tests</AssemblyName>
+    <RootNamespace>Phantom.Integration.Tests</RootNamespace>
+    <AssemblyName>Phantom.Integration.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,9 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.1.12217, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.1\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Scanners\TransformingStreamsToLowerCase.cs" />
+    <Compile Include="PascalLanguageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +54,10 @@
     <ProjectReference Include="..\Phantom\Phantom.csproj">
       <Project>{158158B0-FD79-46EE-879C-835479C5EA2F}</Project>
       <Name>Phantom</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SamplesGrammars\SamplesGrammars.csproj">
+      <Project>{DC74055E-B49F-488F-9C6E-4FBE95052875}</Project>
+      <Name>SamplesGrammars</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

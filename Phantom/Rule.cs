@@ -44,14 +44,12 @@ namespace Phantom {
 			if (scanner == null) throw new NullReferenceException("Tried to parse without a valid scanner.");
 			if (top_level_parser != null) {
 				return top_level_parser.Parse(scanner);
-			} else {
-				if (this is Parsers.Parser) {
-					Parsers.Parser p = (Parsers.Parser)this;
-					return p.Parse(scanner);
-				} else {
-					throw new ArgumentException("Failed to provide a parser to compare with.");
-				}
 			}
+			if (this is Parsers.Parser) {
+				var p = (Parsers.Parser)this;
+				return p.Parse(scanner);
+			}
+			throw new ArgumentException("Failed to provide a parser to compare with.");
 		}
 	}
 }
