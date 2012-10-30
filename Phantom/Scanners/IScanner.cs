@@ -1,14 +1,27 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
+using Phantom.Parsers;
 
-namespace Phantom.Scanners {
+namespace Phantom.Scanners
+{
 	/// <summary>
 	/// Scanners provide an interface to the input stream to be parsed
 	/// </summary>
-	public interface IScanner {
+	public interface IScanner
+	{
 		/// <summary>Returns true when all input is consumed.</summary>
-		bool EOF { get;}
+		bool EOF { get; }
+
+		/// <summary>Get or set the position of the cursor relative to the start of the input.</summary>
+		int Offset { get; set; }
+
+		/// <summary>Get or set the current input transform.</summary>
+		ITransform Transform { get; set; }
+
+		/// <summary>Return a failure match.</summary>
+		ParserMatch NoMatch { get; }
+
+		/// <summary>Return an empty success match</summary>
+		ParserMatch EmptyMatch { get; }
 
 		/// <summary>Advance one position through the input</summary>
 		/// <returns>Returns true while there is unconsumed input remaining</returns>
@@ -22,9 +35,6 @@ namespace Phantom.Scanners {
 		/// This is mainly used for whitespace skipping.
 		/// </summary>
 		void Normalise();
-
-		/// <summary>Get or set the position of the cursor relative to the start of the input.</summary>
-		int Offset{get;set;}
 
 		/// <summary>Set the position of the cursor relative to the start of the input.</summary>
 		void Seek(int offset);
@@ -40,17 +50,8 @@ namespace Phantom.Scanners {
 		/// <returns>String of remaining data</returns>
 		string RemainingData();
 
-		/// <summary>Get or set the current input transform.</summary>
-		ITransform Transform { get;set;}
-
-		/// <summary>Return a failure match.</summary>
-		Parsers.ParserMatch NoMatch { get;}
-
-		/// <summary>Return an empty success match</summary>
-		Parsers.ParserMatch EmptyMatch { get;}
-
 		/// <summary>Return a match from a substring of the input</summary>
-		Parsers.ParserMatch CreateMatch(Parsers.Parser source, int offset, int length);
+		ParserMatch CreateMatch(Parser source, int offset, int length);
 
 		/// <summary>
 		/// Stores the combination of 'accessor' and 'offset'
@@ -59,6 +60,7 @@ namespace Phantom.Scanners {
 		bool RecursionCheck(object accessor, int offset);
 
 		#region Debug Functions
+
 		/// <summary>
 		/// Returns a string of the match that had the highest value of (offset+length)
 		/// </summary>
@@ -92,6 +94,7 @@ namespace Phantom.Scanners {
 		/// <param name="CurrentDepth">Current stack depth</param>
 		/// <returns>Max Stack depth</returns>
 		int StackStats(int CurrentDepth);
+
 		#endregion
 	}
 }

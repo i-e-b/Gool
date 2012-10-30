@@ -1,26 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Phantom.Scanners;
 
-namespace Phantom.Parsers.Composite {
+namespace Phantom.Parsers.Composite
+{
 	/// <summary>
 	/// Creates a delimited list parser from two sub-parsers.
 	/// The list expects at least one of left parser, optionally
 	/// seperated by single occurances of right parser.
 	/// </summary>
-	class DelimitedList : Binary, ICompositeParser {
+	class DelimitedList : Binary, ICompositeParser
+	{
 		public DelimitedList(Parser item, Parser delimiter)
-			: base(item, delimiter) { }
+			: base(item, delimiter)
+		{
+		}
 
-		public override ParserMatch ParseMain(Phantom.Scanners.IScanner scan) {
+		public override ParserMatch ParseMain(IScanner scan)
+		{
 			int offset = scan.Offset;
 			ParserMatch a = scan.NoMatch;
 			ParserMatch b = scan.NoMatch;
 
 			ParserMatch m = scan.NoMatch;
 			a = bLeftParser.Parse(scan);
-			
-			if (!a.Success) {
+
+			if (!a.Success)
+			{
 				scan.Seek(offset);
 				return scan.NoMatch;
 			}
@@ -28,19 +32,22 @@ namespace Phantom.Parsers.Composite {
 			m = new ParserMatch(this, scan, a.Offset, a.Length);
 			m.AddSubmatch(a);
 
-			while (!scan.EOF) {
+			while (!scan.EOF)
+			{
 				offset = scan.Offset;
 
 				b = bRightParser.Parse(scan);
 
-				if (!b.Success) {
+				if (!b.Success)
+				{
 					scan.Seek(offset);
 					return m;
 				}
 
 				a = bLeftParser.Parse(scan);
 
-				if (!a.Success) {
+				if (!a.Success)
+				{
 					scan.Seek(offset);
 					return m;
 				}
@@ -52,9 +59,9 @@ namespace Phantom.Parsers.Composite {
 			return m;
 		}
 
-		public override string ToString() {
-			return LeftParser.ToString() + "%" + RightParser.ToString();
+		public override string ToString()
+		{
+			return LeftParser + "%" + RightParser;
 		}
-
 	}
 }

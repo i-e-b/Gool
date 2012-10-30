@@ -1,34 +1,43 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Phantom.Scanners;
 
-namespace Phantom.Parsers.Composite {
+namespace Phantom.Parsers.Composite
+{
 	/// <summary>
 	/// Create an Intersection parser from two sub-parsers.
 	/// </summary>
-	class Intersection : Binary, ICompositeParser {
+	class Intersection : Binary, ICompositeParser
+	{
 		public Intersection(Parser first, Parser second)
-			: base(first, second) { }
+			: base(first, second)
+		{
+		}
 
-		public override ParserMatch ParseMain(Phantom.Scanners.IScanner scan) {
+		public override ParserMatch ParseMain(IScanner scan)
+		{
 			int offset = scan.Offset;
 			//ParserMatch m = scan.NoMatch;
 
 			ParserMatch left = bLeftParser.Parse(scan);
 
 
-			if (left.Success) {
+			if (left.Success)
+			{
 				ParserMatch right = bRightParser.Parse(scan);
-				if (right.Success) {
+				if (right.Success)
+				{
 					//m.Concat(m2);
 					return ParserMatch.Concat(this, left, right);
 				}
-			} else {
+			}
+			else
+			{
 				scan.Seek(offset);
 				left = bRightParser.Parse(scan);
-				if (left.Success) {
+				if (left.Success)
+				{
 					ParserMatch right = bLeftParser.Parse(scan);
-					if (right.Success) {
+					if (right.Success)
+					{
 						//m.Concat(m2);
 						return ParserMatch.Concat(this, left, right);
 					}
@@ -39,8 +48,9 @@ namespace Phantom.Parsers.Composite {
 			return scan.NoMatch;
 		}
 
-		public override string ToString() {
-			return LeftParser.ToString() + "&" + RightParser.ToString();
+		public override string ToString()
+		{
+			return LeftParser + "&" + RightParser;
 		}
 	}
 }

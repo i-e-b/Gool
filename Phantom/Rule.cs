@@ -1,8 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Phantom.Parsers;
+using Phantom.Scanners;
 
-namespace Phantom {
+namespace Phantom
+{
 	/// <summary>
 	/// Template for Semantic Action event handler
 	/// </summary>
@@ -13,40 +14,49 @@ namespace Phantom {
 	/// <summary>
 	/// Superclass of parsers. Provides some convenience routines.
 	/// </summary>
-	public class Rule {
-		protected Scanners.IScanner scanner;
-		protected Parsers.Parser top_level_parser;
+	public class Rule
+	{
+		protected IScanner scanner;
+		protected Parser top_level_parser;
 
-		public Scanners.IScanner ScannerInput {
-			set { scanner = value; }
-		}
-
-		public Parsers.Parser PatternParser {
-			set { top_level_parser = value; }
-		}
-
-		public Rule() {
+		public Rule()
+		{
 			scanner = null;
 			top_level_parser = null;
 		}
 
-		public Rule(Scanners.IScanner InputScanner) {
+		public Rule(IScanner InputScanner)
+		{
 			scanner = InputScanner;
 			top_level_parser = null;
 		}
 
-		public Rule(Scanners.IScanner InputScanner, Parsers.Parser Pattern) {
+		public Rule(IScanner InputScanner, Parser Pattern)
+		{
 			scanner = InputScanner;
 			top_level_parser = Pattern;
 		}
 
-		public Parsers.ParserMatch Compare() {
+		public IScanner ScannerInput
+		{
+			set { scanner = value; }
+		}
+
+		public Parser PatternParser
+		{
+			set { top_level_parser = value; }
+		}
+
+		public ParserMatch Compare()
+		{
 			if (scanner == null) throw new NullReferenceException("Tried to parse without a valid scanner.");
-			if (top_level_parser != null) {
+			if (top_level_parser != null)
+			{
 				return top_level_parser.Parse(scanner);
 			}
-			if (this is Parsers.Parser) {
-				var p = (Parsers.Parser)this;
+			if (this is Parser)
+			{
+				var p = (Parser) this;
 				return p.Parse(scanner);
 			}
 			throw new ArgumentException("Failed to provide a parser to compare with.");

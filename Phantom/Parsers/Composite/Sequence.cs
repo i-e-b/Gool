@@ -1,16 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Phantom.Scanners;
 
-namespace Phantom.Parsers.Composite {
+namespace Phantom.Parsers.Composite
+{
 	/// <summary>
 	/// A parser which matches a left parser then a right parser.
 	/// </summary>
-	class Sequence : Binary, ICompositeParser {
+	class Sequence : Binary, ICompositeParser
+	{
 		public Sequence(Parser left, Parser right)
-			: base(left, right) { }
+			: base(left, right)
+		{
+		}
 
-		public override ParserMatch ParseMain(Phantom.Scanners.IScanner scan) {
+		public override ParserMatch ParseMain(IScanner scan)
+		{
 			// save scanner state
 			int offset = scan.Offset;
 			ParserMatch m = scan.NoMatch;
@@ -19,12 +22,16 @@ namespace Phantom.Parsers.Composite {
 			ParserMatch left = bLeftParser.Parse(scan);
 
 			// if left successful, do right
-			if (left.Success) {
+			if (left.Success)
+			{
 				ParserMatch right = bRightParser.Parse(scan);
 
-				if (right.Success) {
+				if (right.Success)
+				{
 					m = ParserMatch.Concat(this, left, right);
-				} else {
+				}
+				else
+				{
 					m = scan.NoMatch;
 				}
 			}
@@ -36,8 +43,9 @@ namespace Phantom.Parsers.Composite {
 			return m;
 		}
 
-		public override string ToString() {
-			return "(" + LeftParser.ToString() + " " + RightParser.ToString() + ")";
+		public override string ToString()
+		{
+			return "(" + LeftParser + " " + RightParser + ")";
 		}
 	}
 }

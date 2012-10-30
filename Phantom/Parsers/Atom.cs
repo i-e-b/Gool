@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Phantom.Parsers {
-
+namespace Phantom.Parsers
+{
 	/// <summary>
 	/// Represents the smallest sematically important parser match
 	/// chunk in a tree of parsers.
@@ -18,34 +17,42 @@ namespace Phantom.Parsers {
 	/// marked atomic for an ExpressionParser, and statements containing these 
 	/// expressions can also be atomic to allow clean compositing of statements.
 	/// </remarks>
-	public class Atom {
+	public class Atom
+	{
 		public event SemanticAction AtomMatched;
 
-		public static Parser Wrap (Parser p) {
+		public static Parser Wrap(Parser p)
+		{
 			if (p == null) throw new ArgumentException("'Atom' can't wrap a null object", "p");
 			p.AtomFlag = new Atom();
 			return p;
 		}
 
-		public void FireActions (ParserMatch m) {
-			if (AtomMatched != null) {
-				SemanticActionArgs args = new SemanticActionArgs(m);
+		public void FireActions(ParserMatch m)
+		{
+			if (AtomMatched != null)
+			{
+				var args = new SemanticActionArgs(m);
 				AtomMatched(this, args);
 			}
 		}
 
-		public void FireActions (ParserMatch m, object typedValue) {
-			if (AtomMatched != null) {
-				SemanticActionArgs args = new SemanticActionArgs(m, typedValue);
+		public void FireActions(ParserMatch m, object typedValue)
+		{
+			if (AtomMatched != null)
+			{
+				var args = new SemanticActionArgs(m, typedValue);
 				AtomMatched(this, args);
 			}
 		}
 
-		public static List<Parser> GetTopLevelAtoms (Parser p) {
-			List<Parser> l = new List<Parser>();
+		public static List<Parser> GetTopLevelAtoms(Parser p)
+		{
+			var l = new List<Parser>();
 
-			ICompositeParser cp = p as ICompositeParser;
-			if (cp == null) {
+			var cp = p as ICompositeParser;
+			if (cp == null)
+			{
 				if (p.AtomFlag != null) l.Add(p);
 				return l;
 			}

@@ -1,21 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Phantom.Scanners;
 
-namespace Phantom.Parsers.Terminals {
-	public class LiteralCharacter:Parser {
-		private char test;
+namespace Phantom.Parsers.Terminals
+{
+	public class LiteralCharacter : Parser
+	{
+		readonly char test;
 
-		public LiteralCharacter(char c) {
+		public LiteralCharacter(char c)
+		{
 			test = c;
 		}
 
-		public override ParserMatch ParseMain(Phantom.Scanners.IScanner scan) {
+		public override ParserMatch ParseMain(IScanner scan)
+		{
 			int offset = scan.Offset;
 
 			if (scan.EOF) return scan.NoMatch;
 
-			char c = (char)scan.Peek();
+			char c = scan.Peek();
 
 			if (c != test) return scan.NoMatch;
 
@@ -29,7 +31,8 @@ namespace Phantom.Parsers.Terminals {
 			return m;
 		}
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return test.ToString();
 		}
 	}
