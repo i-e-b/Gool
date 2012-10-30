@@ -14,35 +14,29 @@ namespace Phantom.Scanners
 		int right_most_point;
 		int scanner_offset;
 		bool skip_whitespace;
-		ITransform transform;
 
 		/// <summary>
 		/// Create a new scanner from an input string.
 		/// </summary>
 		/// <param name="Input">String to scan</param>
-		public ScanStrings(string Input)
-		{
-			right_most_point = 0;
-			input_string = Input;
-			scanner_offset = max_stack_depth = 0;
-			transform = null;
-			skip_whitespace = false;
-		}
+		public ScanStrings(string Input):this(Input, 0) { }
 
 		/// <summary>
 		/// Create a new scanner from an input string with an initial offset
 		/// </summary>
 		/// <param name="Input">String to scan</param>
 		/// <param name="InitialOffset">offset from start of input</param>
-		public ScanStrings(String Input, int InitialOffset)
+		public ScanStrings(string Input, int InitialOffset)
 		{
 			right_most_point = 0;
+			input_string = Input;
+
 			if (scanner_offset >= input_string.Length)
 				throw new ArgumentException("Initial offset beyond string end");
-			input_string = Input;
+
 			max_stack_depth = 0;
 			scanner_offset = InitialOffset;
-			transform = null;
+			Transform = new NoTransform();
 			skip_whitespace = false;
 		}
 
@@ -144,19 +138,21 @@ namespace Phantom.Scanners
 
 		public char Peek()
 		{
-			if (transform == null)
-				return input_string[scanner_offset];
-			return transform.Transform(input_string[scanner_offset]);
+			return Transform.Transform(input_string[scanner_offset]);
 		}
 
+		/// <summary>
+		/// If skip whitespace is set and current position is whitespace,
+		/// seek forward until on non-whitespace position or EOF.
+		/// </summary>
 		public void Normalise()
 		{
+			if (!skip_whitespace) return;
 			if (EOF) return;
-			if (skip_whitespace)
-				while (Char.IsWhiteSpace(Peek()))
-				{
-					if (!Read()) break;
-				}
+			while (Char.IsWhiteSpace(Peek()))
+			{
+				if (!Read()) break;
+			}
 		}
 
 		public int Offset
@@ -180,29 +176,15 @@ namespace Phantom.Scanners
 
 		public string Substring(int offset, int length)
 		{
-			string str = input_string.Substring(offset, Math.Min(length, input_string.Length - offset));
-
-			if (transform != null)
-				str = transform.Transform(str);
-
-			return str;
+			return  Transform.Transform(input_string.Substring(offset, Math.Min(length, input_string.Length - offset)));
 		}
 
 		public string RemainingData()
 		{
-			string rems = input_string.Substring(Offset);
-
-			if (transform != null)
-				rems = transform.Transform(rems);
-
-			return rems;
+			return Transform.Transform(input_string.Substring(Offset));
 		}
 
-		public ITransform Transform
-		{
-			get { return transform; }
-			set { transform = value; }
-		}
+		public ITransform Transform { get; set; }
 
 		public ParserMatch NoMatch
 		{

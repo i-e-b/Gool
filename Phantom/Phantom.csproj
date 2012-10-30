@@ -84,6 +84,7 @@
     <Compile Include="Rule.cs" />
     <Compile Include="Scanners\IScanner.cs" />
     <Compile Include="Scanners\ITransform.cs" />
+    <Compile Include="Scanners\NoTransform.cs" />
     <Compile Include="Scanners\ParserPoint.cs" />
     <Compile Include="Scanners\ScanStrings.cs" />
     <Compile Include="Scanners\TransformToLower.cs" />

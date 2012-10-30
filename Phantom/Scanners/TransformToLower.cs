@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Phantom.Scanners
 {
 	public class TransformToLower : ITransform
@@ -17,7 +19,7 @@ namespace Phantom.Scanners
 		/// </summary>
 		char ITransform.Transform(char c)
 		{
-			return c.ToString().ToLower()[0];
+			return c.ToString(CultureInfo.InvariantCulture).ToLower()[0];
 		}
 
 		#endregion
