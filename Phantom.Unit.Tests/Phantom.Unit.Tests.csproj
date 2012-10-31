@@ -51,6 +51,9 @@
     <Compile Include="Scanners\StringScanner_Creation.cs" />
     <Compile Include="Scanners\StringScanner_Normalising_with_whitespace_skipped.cs" />
     <Compile Include="Scanners\StringScanner_ReadingAndPeekingWithATransformer.cs" />
+    <Compile Include="Scanners\StringScanner_ReadingAndSeeking.cs" />
+    <Compile Include="Scanners\StringScanning_DebugFunctions.cs" />
+    <Compile Include="Scanners\StringScanning_MatchesAndSubstrings.cs" />
     <Compile Include="Scanners\TransformingStreamsToLowerCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
