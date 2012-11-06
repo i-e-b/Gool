@@ -193,7 +193,7 @@ namespace Phantom.Scanners
 
 		public ParserMatch EmptyMatch
 		{
-			get { return new ParserMatch(null, this, 0, 0); }
+			get { return new ParserMatch(null, this, Offset, 0); }
 		}
 
 		public ParserMatch CreateMatch(Parser source, int offset, int length)
