@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using Phantom.Parsers;
+using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
 namespace Phantom.Unit.Tests.Scanners
@@ -8,18 +10,46 @@ namespace Phantom.Unit.Tests.Scanners
 	{
 		const string Input = "This is some input";
 		IScanner subject;
+		Parser dummy_parser;
 
 		[SetUp]
 		public void a_string_scanner_with_an_input_string()
 		{
 			subject = new ScanStrings(Input);
+			dummy_parser = new Empty();
 		}
 
-		[Test, Ignore("Not written yet")]
-		public void create_match_gives_a_successful_scanner_match_with_a_relevant_substring_and_source_parser()
+		[Test]
+		[TestCase(0, 0, "")]
+		[TestCase(0, 18, "This is some input")]
+		[TestCase(10, 0, "")]
+		[TestCase(5, 5, "is so")]
+		[TestCase(2, 16, "is is some input")]
+		[TestCase(17, 1, "t")]
+		public void create_match_gives_a_successful_scanner_match_with_a_relevant_substring_and_source_parser(int offset, int length, string expectedSubstring)
 		{
-			// ...
+			var result = subject.CreateMatch(dummy_parser, offset, length);
+
+			Assert.That(result.SourceParser, Is.EqualTo(dummy_parser));
+			Assert.That(result.Offset, Is.EqualTo(offset));
+			Assert.That(result.Length, Is.EqualTo(length));
+			Assert.That(result.Scanner, Is.EqualTo(subject));
+			Assert.That(result.ToString(), Is.EqualTo(expectedSubstring));
 		}
+
+		[Test]
+		public void empty_matches_are_successful ()
+		{
+			var result = subject.CreateMatch(dummy_parser, 0, 0);
+			Assert.That(result.Success, Is.True);
+		}
+
+		[Test]
+		public void matches_with_negative_length_are_failures ()
+		{
+			var result = subject.CreateMatch(dummy_parser, 0, -1);
+			Assert.That(result.Success, Is.False);
+		}
 
 		[Test]
 		public void scanner_NoMatch_returns_an_empty_ParserMatch_with_success_of_false()

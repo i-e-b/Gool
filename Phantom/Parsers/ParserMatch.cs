@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers
@@ -8,7 +9,7 @@ namespace Phantom.Parsers
 	/// <summary>
 	/// Creates and stores parser matches.
 	/// </summary>
-	public class ParserMatch : IEnumerable
+	public class ParserMatch : IEnumerable<ParserMatch>
 	{
 		readonly IScanner match_scanner;
 
@@ -19,13 +20,10 @@ namespace Phantom.Parsers
 		/// <summary>
 		/// Builds a new match
 		/// </summary>
-		/// <param name="scanner"></param>
-		/// <param name="offset"></param>
-		/// <param name="length"></param>
 		public ParserMatch(Parser source, IScanner scanner, int offset, int length)
 		{
 			if (scanner == null)
-				throw new ArgumentNullException("Tried to create a match from a null scanner.");
+				throw new ArgumentNullException("scanner", "Tried to create a match from a null scanner.");
 
 			SourceParser = source;
 
@@ -39,11 +37,7 @@ namespace Phantom.Parsers
 		/// </summary>
 		public List<ParserMatch> ChildMatches
 		{
-			get
-			{
-				if (child_matches == null) child_matches = new List<ParserMatch>();
-				return child_matches;
-			}
+			get { return child_matches ?? (child_matches = new List<ParserMatch>()); }
 		}
 
 		/// <summary>
@@ -113,8 +107,19 @@ namespace Phantom.Parsers
 
 		public IEnumerator GetEnumerator()
 		{
-			if (ChildMatches == null) return null;
-			return ChildMatches.GetEnumerator();
+			if (ChildMatches == null) yield break;
+			foreach (var childMatch in child_matches)
+			{
+				yield return childMatch;
+			}
+		}
+		IEnumerator<ParserMatch> IEnumerable<ParserMatch>.GetEnumerator()
+		{
+			if (ChildMatches == null) yield break;
+			foreach (var childMatch in child_matches)
+			{
+				yield return childMatch;
+			}
 		}
 
 		#endregion
@@ -144,6 +149,7 @@ namespace Phantom.Parsers
 			}
 		}
 
+
 		public override string ToString()
 		{
 			return Value;
@@ -152,19 +158,17 @@ namespace Phantom.Parsers
 		/// <summary>
 		/// Create a new match by joining a pair of existing matches
 		/// </summary>
-		/// <param name="left">left-side of the match</param>
-		/// <param name="right">right-side of the match</param>
 		/// <returns>Match covering and containing both left and right</returns>
-		public static ParserMatch Concat(Parser Source, ParserMatch left, ParserMatch right)
+		public static ParserMatch Concat(Parser source, ParserMatch left, ParserMatch right)
 		{
 			if (left == null || right == null)
-				throw new ArgumentNullException("Can't concatenate null match");
+				throw new NullReferenceException("Can't concatenate null match");
 			if (!left.Success || !right.Success)
 				throw new ArgumentException("Can't concatenate to failure match");
 			if (left.Scanner != right.Scanner)
 				throw new ArgumentException("Can't concatenate between different scanners");
 
-			var m = new ParserMatch(Source, left.Scanner, left.Offset, left.Length);
+			var m = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
 			m.AddSubmatch(left);
 			m.AddSubmatch(right);
 
@@ -178,7 +182,7 @@ namespace Phantom.Parsers
 		public void AddSubmatch(ParserMatch m)
 		{
 			if (m == null)
-				throw new ArgumentNullException("Can't add null match.");
+				throw new ArgumentNullException("m", "Can't add null match.");
 			if (!m.Success)
 				throw new ArgumentException("Can't add failure match.");
 
@@ -239,9 +243,8 @@ namespace Phantom.Parsers
 		{
 			foreach (ParserMatch m in this)
 			{
-				foreach (ParserMatch m2 in TopLevelAtoms(m)) yield return m2;
+				foreach (var m2 in TopLevelAtoms(m)) yield return m2;
 			}
-			yield break;
 		}
 
 		IEnumerable<ParserMatch> TopLevelAtoms(ParserMatch node)
@@ -253,10 +256,9 @@ namespace Phantom.Parsers
 				yield break; // is atomic, so hide any sub-results
 			}
 			if (node.ChildMatches == null) yield break;
-			foreach (ParserMatch child in node.ChildMatches)
+			foreach (var m in node.ChildMatches.SelectMany(TopLevelAtoms))
 			{
-				foreach (ParserMatch m in TopLevelAtoms(child))
-					yield return m;
+				yield return m;
 			}
 		}
 
@@ -270,9 +272,8 @@ namespace Phantom.Parsers
 		{
 			foreach (ParserMatch m in this)
 			{
-				foreach (ParserMatch m2 in BottomLevelMatches(m)) yield return m2;
+				foreach (var m2 in BottomLevelMatches(m)) yield return m2;
 			}
-			yield break;
 		}
 
 		IEnumerable<ParserMatch> BottomLevelMatches(ParserMatch node)
@@ -283,18 +284,16 @@ namespace Phantom.Parsers
 				yield return node; // this match
 				yield break; // is atomic, so hide any sub-results
 			}
+
 			if (node.ChildMatches == null || node.ChildMatches.Count < 1)
 			{
 				yield return node; // no children, so yield self (this is the bottom level)
 				yield break;
 			}
-			else
+			
+			foreach (var m in node.ChildMatches.SelectMany(BottomLevelMatches))
 			{
-				foreach (ParserMatch child in node.ChildMatches)
-				{
-					foreach (ParserMatch m in BottomLevelMatches(child))
-						yield return m;
-				}
+				yield return m;
 			}
 		}
 	}
