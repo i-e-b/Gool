@@ -8,8 +8,8 @@
     <ProjectGuid>{DC74055E-B49F-488F-9C6E-4FBE95052875}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SamplesGrammars</RootNamespace>
-    <AssemblyName>SamplesGrammars</AssemblyName>
+    <RootNamespace>SampleGrammars</RootNamespace>
+    <AssemblyName>SampleGrammars</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

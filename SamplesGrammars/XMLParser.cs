@@ -1,19 +1,14 @@
-﻿using System;
-using Phantom;
-using Phantom.Parsers;
+﻿using Phantom.Parsers;
 using System.Text.RegularExpressions;
 
-namespace Testbed {
-	class XMLParser {
+namespace SampleGrammars {
+	public class XMLParser {
 		protected Parser root;
 
 		public Parser TheParser { get { return root; } }
 
 		public XMLParser () {
 			root = Xml();
-		}
-
-		public void act (Object sender, SemanticActionArgs args) {
 		}
 
 		protected RegexOptions ops() {

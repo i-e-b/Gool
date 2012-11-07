@@ -11,7 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom.Integration.Tests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{19E922EF-E839-4CC3-9AF3-1BB26D76CB36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesGrammars", "SamplesGrammars\SamplesGrammars.csproj", "{DC74055E-B49F-488F-9C6E-4FBE95052875}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGrammars", "SamplesGrammars\SampleGrammars.csproj", "{DC74055E-B49F-488F-9C6E-4FBE95052875}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{6EAF4DB0-7CBE-4E53-B22C-6CE21C36B08C}"
+	ProjectSection(SolutionItems) = preProject
+		README = README
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="XmlTests.cs" />
     <Compile Include="PascalLanguageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,9 +56,9 @@
       <Project>{158158B0-FD79-46EE-879C-835479C5EA2F}</Project>
       <Name>Phantom</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SamplesGrammars\SamplesGrammars.csproj">
+    <ProjectReference Include="..\SamplesGrammars\SampleGrammars.csproj">
       <Project>{DC74055E-B49F-488F-9C6E-4FBE95052875}</Project>
-      <Name>SamplesGrammars</Name>
+      <Name>SampleGrammars</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

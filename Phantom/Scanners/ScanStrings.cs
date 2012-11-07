@@ -7,7 +7,7 @@ namespace Phantom.Scanners
 	public class ScanStrings : IScanner
 	{
 		readonly string input_string;
-		List<ParserPoint> failure_points;
+		readonly List<ParserPoint> failure_points;
 		int max_stack_depth;
 		Dictionary<object, int> parser_points; // Parser => Offset
 		string right_most_match;
@@ -38,6 +38,7 @@ namespace Phantom.Scanners
 			scanner_offset = InitialOffset;
 			Transform = new NoTransform();
 			skip_whitespace = false;
+			failure_points = new List<ParserPoint>();
 		}
 
 		/// <summary>
@@ -67,7 +68,6 @@ namespace Phantom.Scanners
 
 		public void AddFailure(object tester, int position)
 		{
-			if (failure_points == null) failure_points = new List<ParserPoint>();
 			failure_points.Add(new ParserPoint(tester, position));
 		}
 
@@ -80,9 +80,9 @@ namespace Phantom.Scanners
 		{
 			var lst = new List<string>();
 
-			foreach (ParserPoint p in failure_points)
+			foreach (var p in failure_points)
 			{
-				string chunk = input_string.Substring(p.pos);
+				var chunk = input_string.Substring(p.pos);
 				if (chunk.Length > 5) chunk = chunk.Substring(0, 5);
 				lst.Add(p.parser + " --> " + chunk);
 			}
@@ -92,7 +92,7 @@ namespace Phantom.Scanners
 
 		public string BadPatch(int length)
 		{
-			int l = length + (InputString.Length - (right_most_point + length));
+			int l = Math.Min(InputString.Length, (right_most_point + length)) - right_most_point;
 			return InputString.Substring(right_most_point, l);
 		}
 

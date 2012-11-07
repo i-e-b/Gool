@@ -17,7 +17,7 @@ namespace Phantom.Parsers.Terminals
 
 		public override string ToString()
 		{
-			return "";
+			return "(empty)";
 		}
 	}
 }

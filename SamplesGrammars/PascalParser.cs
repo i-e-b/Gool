@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Phantom;
+﻿using System.Text.RegularExpressions;
 using Phantom.Parsers;
 
-namespace SamplesGrammars
+namespace SampleGrammars
 {
 	/// <summary>
 	/// Builds a parser for old-fashioned Pascal files, using the Phantom parser system.
@@ -12,18 +9,11 @@ namespace SamplesGrammars
 	/// </summary>
 	public class PascalParser {
 		protected Parser root;
-		protected List<string> langStack;
 
 		public Parser TheParser { get { return root; } }
-		public List<string> ResultList { get { return langStack; } }
 
 		public PascalParser() {
-			langStack = new List<string>();
 			root = Pascal();
-		}
-
-		public void act (Object sender, SemanticActionArgs args) {
-			langStack.Add(args.Value);
 		}
 
 		protected RegexOptions ops() {
@@ -63,7 +53,7 @@ namespace SamplesGrammars
 			var factor_h = new HoldingParser();
 			var compares = ((Parser)"<" | "<=" | "=" | "<>" | ">=" | ">" | @"#in\s");
 			var operators = ((Parser)'*' | '/' | @"#div\s" | @"#mod\s" | @"#in\s");
-			var p_term = (factor_h % operators)[act];
+			var p_term = (factor_h % operators);
 			var simp_expr = -(!(plus_minus) > (p_term % @"#or\s"));
 			var p_expression = simp_expr > !(compares > simp_expr);
 			var p_variable = ident > !(-(('[' > (p_expression % '.') > ']')
