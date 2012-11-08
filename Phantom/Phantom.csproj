@@ -73,7 +73,7 @@
     <Compile Include="Parsers\ParserMatch.cs" />
     <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Parsers\Terminals\AnyCharacter.cs" />
-    <Compile Include="Parsers\Terminals\Empty.cs" />
+    <Compile Include="Parsers\Terminals\EmptyMatch.cs" />
     <Compile Include="Parsers\Terminals\EndOfInput.cs" />
     <Compile Include="Parsers\Terminals\EndOfLine.cs" />
     <Compile Include="Parsers\Terminals\LiteralCharacter.cs" />

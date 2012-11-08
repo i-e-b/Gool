@@ -4,7 +4,7 @@ namespace Phantom.Parsers.Terminals
 {
 	public class EndOfInput : Parser
 	{
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			if (scan.EOF) return scan.EmptyMatch;
 

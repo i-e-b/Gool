@@ -1,3 +1,4 @@
+using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -15,7 +16,7 @@ namespace Phantom.Parsers.Composite
 		{
 		}
 
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 			ParserMatch a = scan.NoMatch;

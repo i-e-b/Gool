@@ -16,7 +16,7 @@ namespace Phantom.Unit.Tests.Scanners
 		public void a_string_scanner_with_some_text ()
 		{
 			subject = new ScanStrings(Input);
-			dummy_parser = new Empty();
+			dummy_parser = new EmptyMatch();
 		}
 
 		[Test]

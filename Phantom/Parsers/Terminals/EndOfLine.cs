@@ -4,7 +4,7 @@ namespace Phantom.Parsers.Terminals
 {
 	public class EndOfLine : Parser
 	{
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 			int len = 0;

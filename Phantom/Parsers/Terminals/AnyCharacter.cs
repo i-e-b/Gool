@@ -7,7 +7,7 @@ namespace Phantom.Parsers.Terminals
 	/// </summary>
 	public class AnyCharacter : Parser
 	{
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 			ParserMatch m = scan.CreateMatch(this, offset, 1);

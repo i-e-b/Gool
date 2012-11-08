@@ -1,4 +1,5 @@
 using System;
+using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -35,7 +36,7 @@ namespace Phantom.Parsers.Composite
 			m_UpperBound = ub;
 		}
 
-		public override ParserMatch ParseMain(IScanner scanner)
+		public override ParserMatch TryMatch(IScanner scanner)
 		{
 			if (Parser == this) return scanner.NoMatch;
 

@@ -19,7 +19,7 @@ namespace Phantom.Parsers.Terminals
 			get { return test; }
 		}
 
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 

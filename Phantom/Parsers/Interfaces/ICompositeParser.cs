@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Phantom.Parsers
+namespace Phantom.Parsers.Interfaces
 {
 	interface ICompositeParser
 	{

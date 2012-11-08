@@ -22,10 +22,10 @@ namespace Phantom.Parsers
 			}
 		}
 
-		public override ParserMatch ParseMain(IScanner scan)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
 			if (held_parser == null)  throw new Exception("Empty holding parser!!!");
-			return held_parser.ParseMain(scan);
+			return held_parser.TryMatch(scan);
 		}
 
 		public override ParserMatch Parse(IScanner scan)
@@ -35,7 +35,7 @@ namespace Phantom.Parsers
 			if (scan.RecursionCheck(this, scan.Offset))
 				return scan.NoMatch;
 
-			var m = ParseMain(scan);
+			var m = TryMatch(scan);
 			if (m.Success)
 			{
 				scan.ClearFailures();

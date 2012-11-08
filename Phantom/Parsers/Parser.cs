@@ -27,7 +27,7 @@ namespace Phantom.Parsers
 		/// <summary>Core parsing method</summary>
 		/// <param name="scan">Scanner to parse from</param>
 		/// <returns>Match (success of failure) of the parser against the scanner</returns>
-		public abstract ParserMatch ParseMain(IScanner scan);
+		public abstract ParserMatch TryMatch(IScanner scan);
 
 		/// <summary>
 		/// Public scanner method. Test scanner input for this parser's patterns.
@@ -46,7 +46,7 @@ namespace Phantom.Parsers
 				if (!(this is HoldingParser))
 					return scan.NoMatch;
 
-			ParserMatch m = ParseMain(scan);
+			var m = TryMatch(scan);
 			if (m.Success)
 			{
 				scan.ClearFailures();
@@ -136,9 +136,9 @@ namespace Phantom.Parsers
 		public static Parser operator >(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of sequence parser is null");
+				throw new ArgumentNullException("a", "Left side of sequence parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of sequence parser is null");
+				throw new ArgumentNullException("b", "Right side of sequence parser is null");
 
 			return new Sequence(a, b);
 		}
@@ -150,9 +150,9 @@ namespace Phantom.Parsers
 		public static Parser operator <(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of list parser is null");
+				throw new ArgumentNullException("a", "Left side of list parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of list parser is null");
+				throw new ArgumentNullException("b", "Right side of list parser is null");
 
 			return new TerminatedList(a, b);
 		}
@@ -167,7 +167,7 @@ namespace Phantom.Parsers
 		public static Parser operator -(Parser a)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Loop parser is null");
+				throw new ArgumentNullException("a", "Loop parser is null");
 
 			return new Repetition(a, 0, uint.MaxValue);
 		}
@@ -178,7 +178,7 @@ namespace Phantom.Parsers
 		public static Parser operator +(Parser a)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Loop parser is null");
+				throw new ArgumentNullException("a", "Loop parser is null");
 
 			return new Repetition(a, 1, uint.MaxValue);
 		}
@@ -189,7 +189,7 @@ namespace Phantom.Parsers
 		public static Parser operator !(Parser a)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Option parser is null");
+				throw new ArgumentNullException("a", "Option parser is null");
 
 			return new Repetition(a, 0, 1);
 		}
@@ -200,9 +200,9 @@ namespace Phantom.Parsers
 		public static Parser operator %(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of list parser is null");
+				throw new ArgumentNullException("a", "Left side of list parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of list parser is null");
+				throw new ArgumentNullException("b", "Right side of list parser is null");
 
 			return new DelimitedList(a, b);
 		}
@@ -217,9 +217,9 @@ namespace Phantom.Parsers
 		public static Parser operator |(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of union parser is null");
+				throw new ArgumentNullException("a", "Left side of union parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of union parser is null");
+				throw new ArgumentNullException("b", "Right side of union parser is null");
 
 			return new Union(a, b);
 		}
@@ -230,9 +230,9 @@ namespace Phantom.Parsers
 		public static Parser operator &(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of intersection parser is null");
+				throw new ArgumentNullException("a", "Left side of intersection parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of intersection parser is null");
+				throw new ArgumentNullException("b", "Right side of intersection parser is null");
 
 			return new Intersection(a, b);
 		}
@@ -243,9 +243,9 @@ namespace Phantom.Parsers
 		public static Parser operator ^(Parser a, Parser b)
 		{
 			if (a == null)
-				throw new ArgumentNullException("Left side of Exclusive-Or parser is null");
+				throw new ArgumentNullException("a", "Left side of Exclusive-Or parser is null");
 			if (b == null)
-				throw new ArgumentNullException("Right side of Exclusive-Or parser is null");
+				throw new ArgumentNullException("b", "Right side of Exclusive-Or parser is null");
 
 			return new Exclusive(a, b);
 		}

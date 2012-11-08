@@ -57,6 +57,7 @@
     <Compile Include="Scanners\StringScanning_MatchesAndSubstrings.cs" />
     <Compile Include="Scanners\TransformingStreamsToLowerCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TerminalParsers\EmptyMatchTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
