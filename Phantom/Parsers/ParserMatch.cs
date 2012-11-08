@@ -41,11 +41,6 @@ namespace Phantom.Parsers
 		}
 
 		/// <summary>
-		/// Action arguments passed to and from this match's actions.
-		/// </summary>
-		public SemanticActionArgs ActionArguments { get; private set; }
-
-		/// <summary>
 		/// The parser that generated this match
 		/// </summary>
 		public Parser SourceParser { get; private set; }
@@ -123,32 +118,6 @@ namespace Phantom.Parsers
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Fire all the source parser's actions
-		/// </summary>
-		public void FireActions()
-		{
-			if (SourceParser == null) return;
-			ActionArguments = SourceParser.OnAction(this);
-
-			if (SourceParser.AtomFlag != null)
-			{
-				SourceParser.AtomFlag.FireActions(this);
-			}
-		}
-
-		/// <summary>
-		/// Fire the source's AtomFlag actions, if any.
-		/// </summary>
-		public void FireAtomicActions()
-		{
-			if (SourceParser.AtomFlag != null)
-			{
-				SourceParser.AtomFlag.FireActions(this);
-			}
-		}
-
 
 		public override string ToString()
 		{

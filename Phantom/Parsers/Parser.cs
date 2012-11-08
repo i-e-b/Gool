@@ -24,11 +24,6 @@ namespace Phantom.Parsers
 			get { return AtomFlag != null; }
 		}
 
-		/// <summary>
-		/// Parser triggered event handler
-		/// </summary>
-		public event SemanticAction Actor;
-
 		/// <summary>Core parsing method</summary>
 		/// <param name="scan">Scanner to parse from</param>
 		/// <returns>Match (success of failure) of the parser against the scanner</returns>
@@ -58,24 +53,9 @@ namespace Phantom.Parsers
 			}
 			else
 			{
-				//scan.AddFailure(this, scan.Offset);
+				scan.AddFailure(this, scan.Offset);
 			}
 			return m;
-		}
-
-		/// <summary>
-		/// Fires this parser's action (if any) with the given match data.
-		/// </summary>
-		/// <param name="m">Parser match that fired the event</param>
-		public virtual SemanticActionArgs OnAction(ParserMatch m)
-		{
-			if (Actor != null)
-			{
-				var args = new SemanticActionArgs(m);
-				Actor(this, args);
-				return args;
-			}
-			return null;
 		}
 
 		#region Operators
@@ -84,22 +64,6 @@ namespace Phantom.Parsers
 		// restrictions in C#.
 		//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
 		//   2) * replaced with -			(C# has no pointer math, so no unary * )
-
-		/// <summary>
-		/// Specify an action for a parser.
-		/// </summary>
-		/// <example>
-		/// Create a new paser than calls myaction() when it matches 'A':
-		/// Parser MyParser = Terminals.LiteralCharater('A')[myaction];
-		/// </example>
-		public Parser this[SemanticAction action]
-		{
-			get
-			{
-				Actor += action; // add the handler
-				return this; // return the whole parser (we're not really indexing, remember?)
-			}
-		}
 
 		/// <summary>
 		/// Convert a LiteralString parser into a Regular expression parser, using the given options.
@@ -115,14 +79,11 @@ namespace Phantom.Parsers
 					var incoming = (LiteralString) this;
 					return new RegularExpression(incoming.MatchLiteral, opts);
 				}
-				else if (this is RegularExpression)
+				if (this is RegularExpression)
 				{
 					return this;
 				}
-				else
-				{
-					throw new ArgumentException("Tried to convert a non-string terminal into a Regular Expression");
-				}
+				throw new ArgumentException("Tried to convert a non-string terminal into a Regular Expression");
 			}
 		}
 

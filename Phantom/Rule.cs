@@ -5,13 +5,6 @@ using Phantom.Scanners;
 namespace Phantom
 {
 	/// <summary>
-	/// Template for Semantic Action event handler
-	/// </summary>
-	/// <param name="sender">Object sending the message</param>
-	/// <param name="args">Parser match details</param>
-	public delegate void SemanticAction(Object sender, SemanticActionArgs args);
-
-	/// <summary>
 	/// Superclass of parsers. Provides some convenience routines.
 	/// </summary>
 	public class Rule

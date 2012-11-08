@@ -19,31 +19,11 @@ namespace Phantom.Parsers
 	/// </remarks>
 	public class Atom
 	{
-		public event SemanticAction AtomMatched;
-
 		public static Parser Wrap(Parser p)
 		{
 			if (p == null) throw new ArgumentException("'Atom' can't wrap a null object", "p");
 			p.AtomFlag = new Atom();
 			return p;
-		}
-
-		public void FireActions(ParserMatch m)
-		{
-			if (AtomMatched != null)
-			{
-				var args = new SemanticActionArgs(m);
-				AtomMatched(this, args);
-			}
-		}
-
-		public void FireActions(ParserMatch m, object typedValue)
-		{
-			if (AtomMatched != null)
-			{
-				var args = new SemanticActionArgs(m, typedValue);
-				AtomMatched(this, args);
-			}
 		}
 
 		public static List<Parser> GetTopLevelAtoms(Parser p)

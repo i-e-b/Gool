@@ -79,7 +79,6 @@
     <Compile Include="Parsers\Terminals\LiteralCharacter.cs" />
     <Compile Include="Parsers\Terminals\LiteralString.cs" />
     <Compile Include="Parsers\Terminals\RegularExpression.cs" />
-    <Compile Include="Parsers\Transforms\ExpressionParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rule.cs" />
     <Compile Include="Scanners\IScanner.cs" />
@@ -89,7 +88,6 @@
     <Compile Include="Scanners\ParserPoint.cs" />
     <Compile Include="Scanners\ScanStrings.cs" />
     <Compile Include="Scanners\TransformToLower.cs" />
-    <Compile Include="SemanticActionArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Ghoul.ico" />
