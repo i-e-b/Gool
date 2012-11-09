@@ -60,6 +60,7 @@
     <Compile Include="TerminalParsers\AnyCharacterTests.cs" />
     <Compile Include="TerminalParsers\EndOfInputTests.cs" />
     <Compile Include="TerminalParsers\EmptyMatchTests.cs" />
+    <Compile Include="TerminalParsers\EndOfLineTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

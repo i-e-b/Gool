@@ -22,7 +22,7 @@ namespace Phantom.Parsers.Terminals
 			if (c != test) return scan.NoMatch;
 
 			// if we arrive at this point, we have a match
-			ParserMatch m = scan.CreateMatch(this, offset, 1);
+			var m = scan.CreateMatch(this, offset, 1);
 
 			// updating offset
 			scan.Read();
