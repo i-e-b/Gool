@@ -49,5 +49,14 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			var result = subject.TryMatch(scanner);
 			Assert.That(result.SourceParser, Is.EqualTo(subject));
 		}
+
+		[Test]
+		public void scanner_offset_does_not_change_after_match ()
+		{
+			var before = scanner.Offset;
+			subject.TryMatch(scanner);
+			var after = scanner.Offset;
+			Assert.That(after, Is.EqualTo(before));
+		}
 	}
 }

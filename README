@@ -7,7 +7,6 @@ TODO
  - Binary and uniary parsers that can have associativiy and priority
  - Grouping parser that applies a shunting-yard infix-to-(?post/pre)fix manipulation
      * Then associativity & precedence to rearrange AST.
- - Remove semantic action crap
  - Proper AST output
  
 Demos
