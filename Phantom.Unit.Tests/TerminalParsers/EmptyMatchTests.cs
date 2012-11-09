@@ -9,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class EmptyMatchTests
 	{
 		IScanner scanner;
-		Parser subject;
+		IParser subject;
 		const string Input = "This is my input";
 
 		[SetUp]

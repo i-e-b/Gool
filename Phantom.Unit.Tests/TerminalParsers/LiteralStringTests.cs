@@ -6,22 +6,22 @@ using Phantom.Scanners;
 namespace Phantom.Unit.Tests.TerminalParsers
 {
 	[TestFixture]
-	public class LiteralCharacterTests
+	public class LiteralStringTests
 	{
 		IScanner scanner;
 		IParser subject;
 		const string Input = "This is my input";
-		readonly int[] matchOffsets = new[]{2, 5, 11};
+		readonly int[] matchOffsets = new[]{2, 5};
 
 		[SetUp]
 		public void a_string_scanner_with_some_text ()
 		{
 			scanner = new ScanStrings(Input);
-			subject = new LiteralCharacter('i');
+			subject = new LiteralString("is");
 		}
 
 		[Test]
-		public void successful_if_current_position_is_same_character_as_target ()
+		public void successful_if_current_position_has_same_substring_as_target ()
 		{
 			scanner.Offset = 2;
 			var result = subject.TryMatch(scanner);
@@ -37,13 +37,13 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		}
 
 		[Test]
-		public void successful_result_length_is_always_one ()
+		public void successful_result_length_is_always_equal_to_target_substring ()
 		{
 			foreach (var offset in matchOffsets)
 			{
 				scanner.Offset = offset;
 				var result = subject.TryMatch(scanner);
-				Assert.That(result.Length, Is.EqualTo(1));
+				Assert.That(result.Length, Is.EqualTo(2));
 			}
 		}
 
@@ -62,7 +62,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		{
 			scanner.Offset = 2;
 			subject.TryMatch(scanner);
-			Assert.That(scanner.Offset, Is.EqualTo(3));
+			Assert.That(scanner.Offset, Is.EqualTo(4));
 		}
 
 		[Test]
@@ -71,6 +71,14 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			scanner.Offset = 1;
 			subject.TryMatch(scanner);
 			Assert.That(scanner.Offset, Is.EqualTo(1));
+		}
+		
+		[Test]
+		public void captures_source_substring ()
+		{
+			scanner.Offset = 2;
+			var result = subject.TryMatch(scanner);
+			Assert.That(result.Value, Is.EqualTo("is"));
 		}
 	}
 }

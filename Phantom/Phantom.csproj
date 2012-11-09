@@ -70,6 +70,7 @@
     <Compile Include="Parsers\Composite\Union.cs" />
     <Compile Include="Parsers\HoldingParser.cs" />
     <Compile Include="Parsers\Interfaces\ICompositeParser.cs" />
+    <Compile Include="Parsers\IParser.cs" />
     <Compile Include="Parsers\ParserMatch.cs" />
     <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Parsers\Terminals\AnyCharacter.cs" />
