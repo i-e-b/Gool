@@ -58,6 +58,7 @@
     <Compile Include="Scanners\TransformingStreamsToLowerCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TerminalParsers\AnyCharacterTests.cs" />
+    <Compile Include="TerminalParsers\EndOfInputTests.cs" />
     <Compile Include="TerminalParsers\EmptyMatchTests.cs" />
   </ItemGroup>
   <ItemGroup>

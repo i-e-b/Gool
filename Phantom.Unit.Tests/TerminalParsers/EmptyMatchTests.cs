@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Phantom.Parsers;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
@@ -8,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class EmptyMatchTests
 	{
 		IScanner scanner;
-		EmptyMatch subject;
+		Parser subject;
 		const string Input = "This is my input";
 
 		[SetUp]

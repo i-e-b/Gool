@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Phantom.Parsers;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
@@ -8,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class AnyCharacterTests
 	{
 		IScanner scanner;
-		AnyCharacter subject;
+		Parser subject;
 		const string Input = "This is my input";
 
 		[SetUp]
@@ -47,6 +48,16 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			{
 				var result = subject.TryMatch(scanner);
 				Assert.IsTrue(result.Success);
+			}
+		}
+		
+		[Test]
+		public void successful_result_length_is_always_one ()
+		{
+			for (int i = 0; i < Input.Length; i++)
+			{
+				var result = subject.TryMatch(scanner);
+				Assert.That(result.Length, Is.EqualTo(1));
 			}
 		}
 
