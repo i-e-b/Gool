@@ -6,7 +6,6 @@ namespace Phantom.Parsers.Terminals
 	/// <summary>
 	/// Parse for a regular expression match.
 	/// NOTE: It's best to keep the regular expressions simple, and deal with any recursion in the Parser structure.
-	/// TODO: Extend Parsers.Match to cope with backreferences.
 	/// </summary>
 	public class RegularExpression : Parser
 	{
@@ -58,22 +57,16 @@ namespace Phantom.Parsers.Terminals
 		{
 			int offset = scan.Offset;
 
-			//TODO: Find a more elegant was of parsing for regular expressions.
 			string remains = scan.RemainingData();
-
-			Match result = test.Match(remains);
+			var result = test.Match(remains);
 
 			if (result.Success && result.Index == 0)
 			{
-				//TODO: It would probably be useful to have access to Groups and backrefs in the returned match.
 				scan.Seek(offset + result.Length);
 				return scan.CreateMatch(this, offset, result.Length);
 			}
-			else
-			{
-				scan.Seek(offset);
-				return scan.NoMatch;
-			}
+
+			return scan.NoMatch;
 		}
 
 		public override string ToString()
