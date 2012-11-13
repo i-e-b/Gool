@@ -9,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class LiteralStringTests
 	{
 		IScanner scanner;
-		IParser subject;
+		ITerminal subject;
 		const string Input = "This is my input";
 		readonly int[] matchOffsets = new[]{2, 5};
 

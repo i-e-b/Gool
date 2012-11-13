@@ -68,6 +68,7 @@
     <Compile Include="Parsers\Composite\TerminatedList.cs" />
     <Compile Include="Parsers\Composite\Unary.cs" />
     <Compile Include="Parsers\Composite\Union.cs" />
+    <Compile Include="Parsers\ITerminal.cs" />
     <Compile Include="Parsers\HoldingParser.cs" />
     <Compile Include="Parsers\Interfaces\ICompositeParser.cs" />
     <Compile Include="Parsers\IParser.cs" />

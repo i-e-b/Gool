@@ -2,7 +2,7 @@ using Phantom.Scanners;
 
 namespace Phantom.Parsers.Terminals
 {
-	public class EndOfLine : Parser
+	public class EndOfLine : Parser, ITerminal
 	{
 		public override ParserMatch TryMatch(IScanner scan)
 		{

@@ -2,7 +2,7 @@ using Phantom.Scanners;
 
 namespace Phantom.Parsers.Terminals
 {
-	public class LiteralString : Parser
+	public class LiteralString : Parser, ITerminal
 	{
 		readonly string test;
 

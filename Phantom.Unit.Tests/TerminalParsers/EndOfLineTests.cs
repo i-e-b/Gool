@@ -9,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class EndOfLineTests
 	{
 		IScanner unix, windows, oldMac, twoUnix, twoWindows, mangledTwo;
-		IParser subject;
+		ITerminal subject;
 		string oneLineInput = "Just some normal input";
 		ScanStrings oneLineScanner;
 

@@ -9,7 +9,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class EndOfInputTests
 	{
 		IScanner scanner;
-		IParser subject;
+		ITerminal subject;
 		const string Input = "This is my input";
 
 		[SetUp]

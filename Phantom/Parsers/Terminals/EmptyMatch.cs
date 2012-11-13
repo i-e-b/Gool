@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Terminals
 	/// Parser that represents no input.
 	/// Always returns an empty success match
 	/// </summary>
-	public class EmptyMatch : Parser
+	public class EmptyMatch : Parser, ITerminal
 	{
 		public override ParserMatch TryMatch(IScanner scan)
 		{

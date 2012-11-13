@@ -70,7 +70,7 @@ namespace Phantom.Unit.Tests.CompositeParsers
 		[Test]
 		public void uses_parse_method_of_child_parsers ()
 		{
-			var parser = Substitute.For<IParser>();
+			var parser = Substitute.For<ITerminal>();
 			parser.TryMatch(scanner).Returns(scanner.NoMatch);
 			parser.Parse(scanner).Returns(scanner.NoMatch);
 

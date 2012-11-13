@@ -5,7 +5,7 @@ namespace Phantom.Parsers.Terminals
 	/// <summary>
 	/// Parser that will match any one character.
 	/// </summary>
-	public class AnyCharacter : Parser
+	public class AnyCharacter : Parser, ITerminal
 	{
 		public override ParserMatch TryMatch(IScanner scan)
 		{
