@@ -116,7 +116,7 @@ namespace Phantom.Parsers
 				pattern = s.Substring(1);
 				if (!pattern.StartsWith("#"))
 				{
-					return new RegularExpression(pattern, false);
+					return new RegularExpression(pattern);
 				}
 			}
 			else

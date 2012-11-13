@@ -21,24 +21,6 @@ namespace Phantom.Parsers.Terminals
 		}
 
 		/// <summary>
-		/// Create a regular expression parser with either
-		/// default options or a common set-up.
-		/// </summary>
-		/// <param name="pattern">Regex pattern to match</param>
-		/// <param name="CompiledMultiline">If true, the Regex will be compiled and use Multi-line syntax</param>
-		public RegularExpression(string pattern, bool CompiledMultiline)
-		{
-			if (CompiledMultiline)
-			{
-				test = new Regex(pattern, RegexOptions.Multiline | RegexOptions.Compiled);
-			}
-			else
-			{
-				test = new Regex(pattern);
-			}
-		}
-
-		/// <summary>
 		/// Create a regular expression parser with customised options
 		/// </summary>
 		/// <param name="pattern">Regex pattern to match</param>

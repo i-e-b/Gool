@@ -24,7 +24,7 @@ namespace Phantom.Parsers
 
 		public override ParserMatch TryMatch(IScanner scan)
 		{
-			if (held_parser == null)  throw new Exception("Empty holding parser!!!");
+			if (held_parser == null)  throw new Exception("Empty holding parser");
 			return held_parser.TryMatch(scan);
 		}
 

@@ -1,5 +1,4 @@
 using System;
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -7,12 +6,12 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// Create a generalised repetition parser from a single subparser
 	/// </summary>
-	class Repetition : Unary, ICompositeParser
+	class Repetition : Unary
 	{
 		uint m_LowerBound;
 		uint m_UpperBound;
 
-		public Repetition(Parser parser, uint lowerBound, uint upperBound)
+		public Repetition(IParser parser, uint lowerBound, uint upperBound)
 			: base(parser)
 		{
 			SetBounds(lowerBound, upperBound);
@@ -36,23 +35,23 @@ namespace Phantom.Parsers.Composite
 			m_UpperBound = ub;
 		}
 
-		public override ParserMatch TryMatch(IScanner scanner)
+		public override ParserMatch TryMatch(IScanner scan)
 		{
-			if (Parser == this) return scanner.NoMatch;
+			if (Parser == this) return scan.NoMatch;
 
 			// save scanner state
-			int offset = scanner.Offset;
+			int offset = scan.Offset;
 
-			var m = new ParserMatch(this, scanner, 0, 0); // empty match with this parser
-			ParserMatch m_temp = null;
+			var m = new ParserMatch(this, scan, 0, 0); // empty match with this parser
+			ParserMatch m_temp;
 
 			// execution bound
 			int count = 0;
 
 			// lower bound, minimum number of executions
-			while (count < LowerBound && !scanner.EOF)
+			while (count < LowerBound && !scan.EOF)
 			{
-				m_temp = Parser.Parse(scanner);
+				m_temp = Parser.TryMatch(scan);
 				if (!m_temp.Success) break; // stop if not successful
 				count++;
 				m.AddSubmatch(m_temp);
@@ -60,9 +59,9 @@ namespace Phantom.Parsers.Composite
 
 			if (count == LowerBound)
 			{
-				while (count < UpperBound && !scanner.EOF)
+				while (count < UpperBound && !scan.EOF)
 				{
-					m_temp = Parser.Parse(scanner);
+					m_temp = Parser.TryMatch(scan);
 					if (!m_temp.Success) break; // stop if not successful
 					count++;
 					m.AddSubmatch(m_temp);
@@ -70,13 +69,13 @@ namespace Phantom.Parsers.Composite
 			}
 			else
 			{
-				m = scanner.NoMatch;
+				m = scan.NoMatch;
 			}
 
-			if (m == null) m = scanner.NoMatch;
+			if (m == null) m = scan.NoMatch;
 
 			// restoring parser failed, rewind scanner
-			if (!m.Success) scanner.Seek(offset);
+			if (!m.Success) scan.Seek(offset);
 
 			return m;
 		}

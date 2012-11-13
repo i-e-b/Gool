@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -6,7 +5,7 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// Create an Exclusive-OR parser from two sub-parsers.
 	/// </summary>
-	class Exclusive : Binary, ICompositeParser
+	class Exclusive : Binary
 	{
 		public Exclusive(Parser first, Parser second)
 			: base(first, second)
@@ -19,17 +18,14 @@ namespace Phantom.Parsers.Composite
 			int offset = scan.Offset;
 
 			// apply the first parser
-			ParserMatch m1 = scan.NoMatch;
-
-			m1 = bLeftParser.Parse(scan);
+			var m1 = bLeftParser.TryMatch(scan);
 			int m1off = scan.Offset;
 
 			// Go back and try the second
 			scan.Seek(offset);
 
 			// apply the second parser
-			ParserMatch m2 = scan.NoMatch;
-			m2 = bRightParser.Parse(scan);
+			var m2 = bRightParser.TryMatch(scan);
 			int m2off = scan.Offset;
 
 			if (m2.Success && m1.Success)
@@ -45,7 +41,7 @@ namespace Phantom.Parsers.Composite
 				scan.Seek(m1off);
 				return m1;
 			}
-			else if (m2.Success)
+			if (m2.Success)
 			{
 				scan.Seek(m2off);
 				return m2;

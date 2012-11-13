@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -9,9 +8,9 @@ namespace Phantom.Parsers.Composite
 	/// terminated by a single occourance of the right parser.
 	/// The final element may include or exclude it's terminator.
 	/// </summary>
-	class TerminatedList : Binary, ICompositeParser
+	class TerminatedList : Binary
 	{
-		public TerminatedList(Parser item, Parser terminator)
+		public TerminatedList(IParser item, IParser terminator)
 			: base(item, terminator)
 		{
 		}
@@ -19,11 +18,8 @@ namespace Phantom.Parsers.Composite
 		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
-			ParserMatch a = scan.NoMatch;
-			ParserMatch b = scan.NoMatch;
 
-			ParserMatch m = scan.NoMatch;
-			a = bLeftParser.Parse(scan);
+			ParserMatch a = bLeftParser.TryMatch(scan);
 
 			if (!a.Success)
 			{
@@ -31,14 +27,14 @@ namespace Phantom.Parsers.Composite
 				return scan.NoMatch;
 			}
 
-			m = new ParserMatch(this, scan, a.Offset, a.Length);
+			var m = new ParserMatch(this, scan, a.Offset, a.Length);
 			m.AddSubmatch(a);
 
 			while (!scan.EOF)
 			{
 				offset = scan.Offset;
 
-				b = bRightParser.Parse(scan);
+				ParserMatch b = bRightParser.TryMatch(scan);
 
 				if (!b.Success)
 				{
@@ -48,7 +44,7 @@ namespace Phantom.Parsers.Composite
 
 				m.AddSubmatch(b);
 
-				a = bLeftParser.Parse(scan);
+				a = bLeftParser.TryMatch(scan);
 
 				if (!a.Success)
 				{

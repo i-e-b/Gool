@@ -6,14 +6,14 @@ namespace Phantom.Parsers.Composite
 {
 	public abstract class Unary : Parser, ICompositeParser
 	{
-		protected Parser uParser;
+		protected IParser uParser;
 
-		public Unary(Parser parser)
+		protected Unary(IParser parser)
 		{
 			Parser = parser;
 		}
 
-		public Parser Parser
+		public IParser Parser
 		{
 			get { return uParser; }
 			set
@@ -24,15 +24,12 @@ namespace Phantom.Parsers.Composite
 			}
 		}
 
-		#region ICompositeParser Members
-
-		public List<Parser> ChildParsers()
+		public List<IParser> ChildParsers()
 		{
-			var c = new List<Parser>();
+			var c = new List<IParser>();
 			c.Add(uParser);
 			return c;
 		}
 
-		#endregion
 	}
 }

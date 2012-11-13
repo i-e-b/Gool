@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// A parser which matches a left parser then a right parser.
 	/// </summary>
-	class Sequence : Binary, ICompositeParser
+	class Sequence : Binary
 	{
 		public Sequence(Parser left, Parser right)
 			: base(left, right)
@@ -20,12 +20,12 @@ namespace Phantom.Parsers.Composite
 			ParserMatch m = scan.NoMatch;
 
 			// apply the first parser
-			ParserMatch left = bLeftParser.Parse(scan);
+			ParserMatch left = bLeftParser.TryMatch(scan);
 
 			// if left successful, do right
 			if (left.Success)
 			{
-				ParserMatch right = bRightParser.Parse(scan);
+				ParserMatch right = bRightParser.TryMatch(scan);
 
 				if (right.Success)
 				{

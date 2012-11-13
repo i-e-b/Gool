@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -6,7 +5,7 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// Create an Difference parser from two sub-parsers.
 	/// </summary>
-	class Difference : Binary, ICompositeParser
+	class Difference : Binary
 	{
 		public Difference(Parser left, Parser right)
 			: base(left, right)
@@ -17,9 +16,7 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			ParserMatch m = scan.NoMatch;
-
-			m = bLeftParser.Parse(scan);
+			var m = bLeftParser.TryMatch(scan);
 
 			int goodOffset = scan.Offset;
 
@@ -31,8 +28,7 @@ namespace Phantom.Parsers.Composite
 
 			// doing difference
 			scan.Seek(offset);
-			ParserMatch m2 = scan.NoMatch;
-			m2 = bRightParser.Parse(scan);
+			var m2 = bRightParser.TryMatch(scan);
 			if (m2.Success)
 			{
 				// fail: must match left but NOT right

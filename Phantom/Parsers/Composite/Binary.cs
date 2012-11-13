@@ -9,10 +9,10 @@ namespace Phantom.Parsers.Composite
 	/// </summary>
 	public abstract class Binary : Parser, ICompositeParser
 	{
-		protected Parser bLeftParser;
-		protected Parser bRightParser;
+		protected IParser bLeftParser;
+		protected IParser bRightParser;
 
-		public Binary(Parser left, Parser right)
+		protected Binary(IParser left, IParser right)
 		{
 			LeftParser = left;
 			RightParser = right;
@@ -21,13 +21,13 @@ namespace Phantom.Parsers.Composite
 		/// <summary>
 		/// Gets the left-side parser of the binary pair
 		/// </summary>
-		public Parser LeftParser
+		public IParser LeftParser
 		{
 			get { return bLeftParser; }
 			set
 			{
 				if (value == null)
-					throw new ArgumentNullException("Left parser may not be null in Binary Parser.");
+					throw new NullReferenceException("Left parser may not be null in Binary Parser.");
 				bLeftParser = value;
 			}
 		}
@@ -35,27 +35,23 @@ namespace Phantom.Parsers.Composite
 		/// <summary>
 		/// Gets the right-side parser of the binary pair
 		/// </summary>
-		public Parser RightParser
+		public IParser RightParser
 		{
 			get { return bRightParser; }
 			set
 			{
 				if (value == null)
-					throw new ArgumentNullException("Right parser may not be null in Binary Parser.");
+					throw new NullReferenceException("Right parser may not be null in Binary Parser.");
 				bRightParser = value;
 			}
 		}
 
-		#region ICompositeParser Members
-
-		public List<Parser> ChildParsers()
+		public List<IParser> ChildParsers()
 		{
-			var c = new List<Parser>();
+			var c = new List<IParser>();
 			c.Add(bLeftParser);
 			c.Add(bRightParser);
 			return c;
 		}
-
-		#endregion
 	}
 }

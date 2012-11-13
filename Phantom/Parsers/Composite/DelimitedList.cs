@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -8,9 +7,9 @@ namespace Phantom.Parsers.Composite
 	/// The list expects at least one of left parser, optionally
 	/// seperated by single occurances of right parser.
 	/// </summary>
-	class DelimitedList : Binary, ICompositeParser
+	class DelimitedList : Binary
 	{
-		public DelimitedList(Parser item, Parser delimiter)
+		public DelimitedList(IParser item, IParser delimiter)
 			: base(item, delimiter)
 		{
 		}
@@ -18,11 +17,8 @@ namespace Phantom.Parsers.Composite
 		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
-			ParserMatch a = scan.NoMatch;
-			ParserMatch b = scan.NoMatch;
 
-			ParserMatch m = scan.NoMatch;
-			a = bLeftParser.Parse(scan);
+			var a = bLeftParser.TryMatch(scan);
 
 			if (!a.Success)
 			{
@@ -30,14 +26,14 @@ namespace Phantom.Parsers.Composite
 				return scan.NoMatch;
 			}
 
-			m = new ParserMatch(this, scan, a.Offset, a.Length);
+			var m = new ParserMatch(this, scan, a.Offset, a.Length);
 			m.AddSubmatch(a);
 
 			while (!scan.EOF)
 			{
 				offset = scan.Offset;
 
-				b = bRightParser.Parse(scan);
+				var b = bRightParser.TryMatch(scan);
 
 				if (!b.Success)
 				{
@@ -45,7 +41,7 @@ namespace Phantom.Parsers.Composite
 					return m;
 				}
 
-				a = bLeftParser.Parse(scan);
+				a = bLeftParser.TryMatch(scan);
 
 				if (!a.Success)
 				{
