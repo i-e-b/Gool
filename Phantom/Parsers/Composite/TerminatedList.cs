@@ -8,7 +8,7 @@ namespace Phantom.Parsers.Composite
 	/// terminated by a single occourance of the right parser.
 	/// The final element may include or exclude it's terminator.
 	/// </summary>
-	class TerminatedList : Binary
+	public class TerminatedList : Binary
 	{
 		public TerminatedList(IParser item, IParser terminator)
 			: base(item, terminator)
@@ -19,7 +19,7 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			ParserMatch a = bLeftParser.Parse(scan);
+			var a = bLeftParser.Parse(scan);
 
 			if (!a.Success)
 			{
@@ -34,7 +34,7 @@ namespace Phantom.Parsers.Composite
 			{
 				offset = scan.Offset;
 
-				ParserMatch b = bRightParser.Parse(scan);
+				var b = bRightParser.Parse(scan);
 
 				if (!b.Success)
 				{

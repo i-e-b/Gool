@@ -39,8 +39,8 @@ namespace Phantom.Parsers
 		{
 			scan.Normalise();
 
-			/**/ //System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
-			/**/ //scan.StackStats(st.FrameCount);
+			var st = new System.Diagnostics.StackTrace();
+			scan.StackStats(st.FrameCount);
 
 			if (scan.RecursionCheck(this, scan.Offset))
 				if (!(this is HoldingParser))
