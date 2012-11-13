@@ -16,7 +16,7 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			var m = bLeftParser.TryMatch(scan);
+			var m = bLeftParser.Parse(scan);
 
 			int goodOffset = scan.Offset;
 
@@ -28,7 +28,7 @@ namespace Phantom.Parsers.Composite
 
 			// doing difference
 			scan.Seek(offset);
-			var m2 = bRightParser.TryMatch(scan);
+			var m2 = bRightParser.Parse(scan);
 			if (m2.Success)
 			{
 				// fail: must match left but NOT right

@@ -16,7 +16,7 @@ namespace Phantom.Integration.Tests
 </note>";
 
 		[Test]
-		public void BasicPascalProgramParsesOK()
+		public void XmlDocumentParsesSuccessfully()
 		{
 			var parser = new XMLParser().TheParser;
 			var scanner = new ScanStrings(sample);

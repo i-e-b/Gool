@@ -7,7 +7,7 @@ namespace Phantom.Parsers.Composite
 	/// </summary>
 	class Exclusive : Binary
 	{
-		public Exclusive(Parser first, Parser second)
+		public Exclusive(IParser first, IParser second)
 			: base(first, second)
 		{
 		}
@@ -18,14 +18,14 @@ namespace Phantom.Parsers.Composite
 			int offset = scan.Offset;
 
 			// apply the first parser
-			var m1 = bLeftParser.TryMatch(scan);
+			var m1 = bLeftParser.Parse(scan);
 			int m1off = scan.Offset;
 
 			// Go back and try the second
 			scan.Seek(offset);
 
 			// apply the second parser
-			var m2 = bRightParser.TryMatch(scan);
+			var m2 = bRightParser.Parse(scan);
 			int m2off = scan.Offset;
 
 			if (m2.Success && m1.Success)

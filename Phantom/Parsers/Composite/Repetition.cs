@@ -43,7 +43,6 @@ namespace Phantom.Parsers.Composite
 			int offset = scan.Offset;
 
 			var m = new ParserMatch(this, scan, 0, 0); // empty match with this parser
-			ParserMatch m_temp;
 
 			// execution bound
 			int count = 0;
@@ -51,7 +50,7 @@ namespace Phantom.Parsers.Composite
 			// lower bound, minimum number of executions
 			while (count < LowerBound && !scan.EOF)
 			{
-				m_temp = Parser.TryMatch(scan);
+				var m_temp = Parser.Parse(scan);
 				if (!m_temp.Success) break; // stop if not successful
 				count++;
 				m.AddSubmatch(m_temp);
@@ -61,7 +60,7 @@ namespace Phantom.Parsers.Composite
 			{
 				while (count < UpperBound && !scan.EOF)
 				{
-					m_temp = Parser.TryMatch(scan);
+					var m_temp = Parser.Parse(scan);
 					if (!m_temp.Success) break; // stop if not successful
 					count++;
 					m.AddSubmatch(m_temp);

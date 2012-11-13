@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -8,7 +7,7 @@ namespace Phantom.Parsers.Composite
 	/// </summary>
 	class Intersection : Binary
 	{
-		public Intersection(Parser first, Parser second)
+		public Intersection(IParser first, IParser second)
 			: base(first, second)
 		{
 		}
@@ -16,30 +15,27 @@ namespace Phantom.Parsers.Composite
 		public override ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
-			//ParserMatch m = scan.NoMatch;
 
-			ParserMatch left = bLeftParser.TryMatch(scan);
+			var left = bLeftParser.Parse(scan);
 
 
 			if (left.Success)
 			{
-				ParserMatch right = bRightParser.TryMatch(scan);
+				var right = bRightParser.Parse(scan);
 				if (right.Success)
 				{
-					//m.Concat(m2);
 					return ParserMatch.Concat(this, left, right);
 				}
 			}
 			else
 			{
 				scan.Seek(offset);
-				left = bRightParser.TryMatch(scan);
+				left = bRightParser.Parse(scan);
 				if (left.Success)
 				{
-					ParserMatch right = bLeftParser.TryMatch(scan);
+					var right = bLeftParser.Parse(scan);
 					if (right.Success)
 					{
-						//m.Concat(m2);
 						return ParserMatch.Concat(this, left, right);
 					}
 				}

@@ -1,4 +1,3 @@
-using Phantom.Parsers.Interfaces;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -8,7 +7,7 @@ namespace Phantom.Parsers.Composite
 	/// </summary>
 	class Sequence : Binary
 	{
-		public Sequence(Parser left, Parser right)
+		public Sequence(IParser left, IParser right)
 			: base(left, right)
 		{
 		}
@@ -17,24 +16,17 @@ namespace Phantom.Parsers.Composite
 		{
 			// save scanner state
 			int offset = scan.Offset;
-			ParserMatch m = scan.NoMatch;
+			var m = scan.NoMatch;
 
 			// apply the first parser
-			ParserMatch left = bLeftParser.TryMatch(scan);
+			var left = bLeftParser.Parse(scan);
 
 			// if left successful, do right
 			if (left.Success)
 			{
-				ParserMatch right = bRightParser.TryMatch(scan);
+				var right = bRightParser.Parse(scan);
 
-				if (right.Success)
-				{
-					m = ParserMatch.Concat(this, left, right);
-				}
-				else
-				{
-					m = scan.NoMatch;
-				}
+				m = right.Success ? ParserMatch.Concat(this, left, right) : scan.NoMatch;
 			}
 
 			// restoring parser failed, rewind scanner

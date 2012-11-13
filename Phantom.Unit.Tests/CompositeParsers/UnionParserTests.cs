@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using NSubstitute;
+using NUnit.Framework;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
 using Phantom.Parsers.Terminals;
@@ -64,6 +65,21 @@ namespace Phantom.Unit.Tests.CompositeParsers
 			var result = subject.TryMatch(scanner);
 
 			Assert.That(result.Success, Is.False);
+		}
+
+		[Test]
+		public void uses_parse_method_of_child_parsers ()
+		{
+			var parser = Substitute.For<IParser>();
+			parser.TryMatch(scanner).Returns(scanner.NoMatch);
+			parser.Parse(scanner).Returns(scanner.NoMatch);
+
+			var subject = new Union(parser, parser);
+
+			subject.TryMatch(scanner);
+
+			parser.Received().Parse(scanner);
+			parser.DidNotReceive().TryMatch(scanner);
 		}
 	}
 }

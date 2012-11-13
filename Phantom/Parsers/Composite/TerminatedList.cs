@@ -19,7 +19,7 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			ParserMatch a = bLeftParser.TryMatch(scan);
+			ParserMatch a = bLeftParser.Parse(scan);
 
 			if (!a.Success)
 			{
@@ -34,7 +34,7 @@ namespace Phantom.Parsers.Composite
 			{
 				offset = scan.Offset;
 
-				ParserMatch b = bRightParser.TryMatch(scan);
+				ParserMatch b = bRightParser.Parse(scan);
 
 				if (!b.Success)
 				{
@@ -44,7 +44,7 @@ namespace Phantom.Parsers.Composite
 
 				m.AddSubmatch(b);
 
-				a = bLeftParser.TryMatch(scan);
+				a = bLeftParser.Parse(scan);
 
 				if (!a.Success)
 				{
