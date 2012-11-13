@@ -14,7 +14,7 @@ namespace Phantom.Unit.Tests.Scanners {
 			scanner.Transform = new TransformToLower();
 
 			var result = scanner.Substring(0, input.Length);
-
+            
 			Assert.That(result, Is.EqualTo(expected));
 		}
 	}
