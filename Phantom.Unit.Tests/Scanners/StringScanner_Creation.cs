@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using Phantom.Scanners;
 
 namespace Phantom.Unit.Tests.Scanners
@@ -28,6 +29,20 @@ namespace Phantom.Unit.Tests.Scanners
 			Assert.That(subject.Peek(), Is.EqualTo('u')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('t')); Assert.That(subject.Read(), Is.False);
 			Assert.That(subject.EOF, Is.True);
+		}
+		
+		[Test]
+		public void empty_initial_input_is_not_accepted ()
+		{
+			var ex = Assert.Throws<ArgumentException>(()=>new ScanStrings(""));
+			Assert.That(ex.Message, Contains.Substring("Initial input is empty"));
+		}
+		
+		[Test]
+		public void null_initial_input_is_not_accepted ()
+		{
+			var ex = Assert.Throws<ArgumentException>(()=>new ScanStrings(null));
+			Assert.That(ex.Message, Contains.Substring("Initial input is empty"));
 		}
 
 		[Test]

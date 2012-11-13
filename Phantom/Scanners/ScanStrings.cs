@@ -31,6 +31,9 @@ namespace Phantom.Scanners
 			right_most_point = 0;
 			input_string = Input;
 
+			if (string.IsNullOrEmpty(Input))
+				throw new ArgumentException("Initial input is empty");
+
 			if (scanner_offset >= input_string.Length)
 				throw new ArgumentException("Initial offset beyond string end");
 

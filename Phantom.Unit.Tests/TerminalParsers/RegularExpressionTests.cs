@@ -14,6 +14,8 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		[TestCase(@".+", "word another, third", "word another, third")]
 		[TestCase(@"[^,]*", "word another, third", "word another")]
 		[TestCase(@".*", "word\non a new line", "word")]
+		[TestCase(@"[ -~]*", "print\tprint", "print")]
+		[TestCase(@"[ -~]*", "\tprint", "")]
 		public void matching_regexes_result_in_matching_parses_and_contain_the_match_and_advance_the_scanner
 			(string regex, string inputString, string match)
 		{
@@ -37,6 +39,18 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			var result = subject.TryMatch(scanner);
 
 			Assert.That(result.Success, Is.EqualTo(isMatch), "Match result");
+		}
+
+		[Test]
+		public void regexes_that_can_match_empty_strings_can_return_successful_empty_matches ()
+		{
+			IParser subject = new RegularExpression(@"\W*");
+			var scanner = new ScanStrings("123456");
+
+			var result = subject.TryMatch(scanner);
+
+			Assert.That(result.Success, Is.True);
+			Assert.That(result.Value, Is.EqualTo(""));
 		}
 
 		[Test]
