@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Composite
 	/// Creates a delimited list parser from two sub-parsers.
 	/// The list expects one or more of left parser, each
 	/// terminated by a single occourance of the right parser.
-	/// The final element may include or exclude it's terminator.
+	/// The final element may NOT exclude it's terminator.
 	/// </summary>
 	public class TerminatedList : Binary
 	{
@@ -19,20 +19,19 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			var a = bLeftParser.Parse(scan);
-
-			if (!a.Success)
-			{
-				scan.Seek(offset);
-				return scan.NoMatch;
-			}
-
-			var m = new ParserMatch(this, scan, a.Offset, a.Length);
-			m.AddSubmatch(a);
+			var m = new ParserMatch(this, scan, offset, -1);
 
 			while (!scan.EOF)
 			{
 				offset = scan.Offset;
+
+				var a = bLeftParser.Parse(scan);
+
+				if (!a.Success)
+				{
+					scan.Seek(offset);
+					return m;
+				}
 
 				var b = bRightParser.Parse(scan);
 
@@ -41,17 +40,9 @@ namespace Phantom.Parsers.Composite
 					scan.Seek(offset);
 					return m;
 				}
-
-				m.AddSubmatch(b);
-
-				a = bLeftParser.Parse(scan);
-
-				if (!a.Success)
-				{
-					return m;
-				}
-
+				
 				m.AddSubmatch(a);
+				m.AddSubmatch(b);
 			}
 
 			return m;

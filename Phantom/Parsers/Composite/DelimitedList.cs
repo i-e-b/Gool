@@ -7,7 +7,7 @@ namespace Phantom.Parsers.Composite
 	/// The list expects at least one of left parser, optionally
 	/// seperated by single occurances of right parser.
 	/// </summary>
-	class DelimitedList : Binary
+	public class DelimitedList : Binary
 	{
 		public DelimitedList(IParser item, IParser delimiter)
 			: base(item, delimiter)

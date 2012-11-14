@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositeParsers\DelimitedListParserTests.cs" />
     <Compile Include="CompositeParsers\TerminatedListParserTests.cs" />
     <Compile Include="CompositeParsers\UnionParserTests.cs" />
     <Compile Include="Scanners\StringScanner_Normalising_without_whitespace_skipped.cs" />
