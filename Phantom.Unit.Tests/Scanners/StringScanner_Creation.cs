@@ -11,24 +11,24 @@ namespace Phantom.Unit.Tests.Scanners
 		public void creating_with_a_string_and_no_offset_starts_at_beginning_and_scans_to_end()
 		{
 			IScanner subject = new ScanStrings("input");
-			Assert.That(subject.EOF, Is.False);
+			Assert.That(subject.EndOfInput, Is.False);
 			Assert.That(subject.Peek(), Is.EqualTo('i')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('n')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('p')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('u')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('t')); Assert.That(subject.Read(), Is.False);
-			Assert.That(subject.EOF, Is.True);
+			Assert.That(subject.EndOfInput, Is.True);
 		}
 		
 		[Test]
 		public void creating_with_a_string_and_offset_starts_at_offset_and_scans_to_end()
 		{
 			IScanner subject = new ScanStrings("input", 2);
-			Assert.That(subject.EOF, Is.False);
+			Assert.That(subject.EndOfInput, Is.False);
 			Assert.That(subject.Peek(), Is.EqualTo('p')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('u')); Assert.That(subject.Read(), Is.True);
 			Assert.That(subject.Peek(), Is.EqualTo('t')); Assert.That(subject.Read(), Is.False);
-			Assert.That(subject.EOF, Is.True);
+			Assert.That(subject.EndOfInput, Is.True);
 		}
 		
 		[Test]

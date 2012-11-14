@@ -1,3 +1,4 @@
+using Phantom.Parsers.Composite.Abstracts;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -29,7 +30,7 @@ namespace Phantom.Parsers.Composite
 			var m = new ParserMatch(this, scan, a.Offset, a.Length);
 			m.AddSubmatch(a);
 
-			while (!scan.EOF)
+			while (!scan.EndOfInput)
 			{
 				offset = scan.Offset;
 

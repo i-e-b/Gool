@@ -121,7 +121,7 @@ namespace Phantom.Scanners
 			return false;
 		}
 
-		public bool EOF
+		public bool EndOfInput
 		{
 			get
 			{
@@ -132,11 +132,11 @@ namespace Phantom.Scanners
 
 		public bool Read()
 		{
-			if (EOF) return false;
+			if (EndOfInput) return false;
 
 			scanner_offset++;
 
-			return !EOF;
+			return !EndOfInput;
 		}
 
 		public char Peek()
@@ -151,7 +151,7 @@ namespace Phantom.Scanners
 		public void Normalise()
 		{
 			if (!skip_whitespace) return;
-			if (EOF) return;
+			if (EndOfInput) return;
 			while (Char.IsWhiteSpace(Peek()))
 			{
 				if (!Read()) break;

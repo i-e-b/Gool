@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Terminals
 	{
 		public override ParserMatch TryMatch(IScanner scan)
 		{
-			return scan.EOF ? scan.EmptyMatch : scan.NoMatch;
+			return scan.EndOfInput ? scan.EmptyMatch : scan.NoMatch;
 		}
 
 		public override string ToString()

@@ -1,6 +1,6 @@
-using Phantom.Scanners;
+using Phantom.Parsers;
 
-namespace Phantom.Parsers
+namespace Phantom
 {
 	public interface IParser
 	{

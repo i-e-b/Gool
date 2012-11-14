@@ -1,6 +1,7 @@
 using Phantom.Parsers;
+using Phantom.Scanners;
 
-namespace Phantom.Scanners
+namespace Phantom
 {
 	/// <summary>
 	/// Scanners provide an interface to the input stream to be parsed
@@ -8,7 +9,7 @@ namespace Phantom.Scanners
 	public interface IScanner: IScanningDiagnostics
 	{
 		/// <summary>Returns true when all input is consumed.</summary>
-		bool EOF { get; }
+		bool EndOfInput { get; }
 
 		/// <summary>Get or set the position of the cursor relative to the start of the input.</summary>
 		int Offset { get; set; }

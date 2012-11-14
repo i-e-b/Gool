@@ -9,13 +9,13 @@ namespace Phantom.Parsers.Terminals
 			int offset = scan.Offset;
 			int len = 0;
 
-			if (!scan.EOF && scan.Peek() == '\r') // CR
+			if (!scan.EndOfInput && scan.Peek() == '\r') // CR
 			{
 				scan.Read();
 				len++;
 			}
 
-			if (!scan.EOF && scan.Peek() == '\n') // LF
+			if (!scan.EndOfInput && scan.Peek() == '\n') // LF
 			{
 				scan.Read();
 				len++;

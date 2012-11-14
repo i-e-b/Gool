@@ -1,4 +1,5 @@
 using System;
+using Phantom.Parsers.Composite.Abstracts;
 using Phantom.Scanners;
 
 namespace Phantom.Parsers.Composite
@@ -48,7 +49,7 @@ namespace Phantom.Parsers.Composite
 			int count = 0;
 
 			// lower bound, minimum number of executions
-			while (count < LowerBound && !scan.EOF)
+			while (count < LowerBound && !scan.EndOfInput)
 			{
 				var m_temp = Parser.Parse(scan);
 				if (!m_temp.Success) break; // stop if not successful
@@ -58,7 +59,7 @@ namespace Phantom.Parsers.Composite
 
 			if (count == LowerBound)
 			{
-				while (count < UpperBound && !scan.EOF)
+				while (count < UpperBound && !scan.EndOfInput)
 				{
 					var m_temp = Parser.Parse(scan);
 					if (!m_temp.Success) break; // stop if not successful

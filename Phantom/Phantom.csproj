@@ -71,7 +71,7 @@
     <Compile Include="Parsers\ITerminal.cs" />
     <Compile Include="Parsers\HoldingParser.cs" />
     <Compile Include="Parsers\Interfaces\ICompositeParser.cs" />
-    <Compile Include="Parsers\IParser.cs" />
+    <Compile Include="IParser.cs" />
     <Compile Include="Parsers\ParserMatch.cs" />
     <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Parsers\Terminals\AnyCharacter.cs" />
@@ -82,7 +82,7 @@
     <Compile Include="Parsers\Terminals\LiteralString.cs" />
     <Compile Include="Parsers\Terminals\RegularExpression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scanners\IScanner.cs" />
+    <Compile Include="IScanner.cs" />
     <Compile Include="Scanners\IScanningDiagnostics.cs" />
     <Compile Include="Scanners\ITransform.cs" />
     <Compile Include="Scanners\NoTransform.cs" />

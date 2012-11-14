@@ -15,7 +15,7 @@ namespace Phantom.Parsers.Terminals
 		{
 			int offset = scan.Offset;
 
-			if (scan.EOF) return scan.NoMatch;
+			if (scan.EndOfInput) return scan.NoMatch;
 
 			char c = scan.Peek();
 

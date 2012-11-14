@@ -87,7 +87,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		int CountLineEnds(IScanner scanner)
 		{
 			int count = 0;
-			while (!scanner.EOF)
+			while (!scanner.EndOfInput)
 			{
 				if ( ! subject.TryMatch(scanner).Success) scanner.Read();
 				else count++;

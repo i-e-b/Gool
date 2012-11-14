@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Phantom.Parsers.Interfaces;
 
-namespace Phantom.Parsers.Composite
+namespace Phantom.Parsers.Composite.Abstracts
 {
 	/// <summary>
 	/// An abstract template for binary composite parsers

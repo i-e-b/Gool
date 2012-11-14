@@ -9,7 +9,7 @@ namespace Phantom.Parsers.Terminals
 	{
 		public override ParserMatch TryMatch(IScanner scan)
 		{
-			if (scan.EOF) return scan.NoMatch;
+			if (scan.EndOfInput) return scan.NoMatch;
 
 			int offset = scan.Offset;
 			var m = scan.CreateMatch(this, offset, 1);

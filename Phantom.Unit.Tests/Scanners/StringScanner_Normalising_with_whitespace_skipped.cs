@@ -40,7 +40,7 @@ namespace Phantom.Unit.Tests.Scanners
 			subject.Normalise();
 
 			Assert.That(subject.Offset, Is.EqualTo(30));
-			Assert.That(subject.EOF, Is.True);
+			Assert.That(subject.EndOfInput, Is.True);
 		}
 	}
 }
