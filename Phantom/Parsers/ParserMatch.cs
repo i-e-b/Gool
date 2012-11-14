@@ -20,7 +20,7 @@ namespace Phantom.Parsers
 		/// <summary>
 		/// Builds a new match
 		/// </summary>
-		public ParserMatch(Parser source, IScanner scanner, int offset, int length)
+		public ParserMatch(IParser source, IScanner scanner, int offset, int length)
 		{
 			if (scanner == null)
 				throw new ArgumentNullException("scanner", "Tried to create a match from a null scanner.");
@@ -43,7 +43,7 @@ namespace Phantom.Parsers
 		/// <summary>
 		/// The parser that generated this match
 		/// </summary>
-		public Parser SourceParser { get; private set; }
+		public IParser SourceParser { get; private set; }
 
 		/// <summary>
 		/// Scanner

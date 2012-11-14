@@ -199,7 +199,7 @@ namespace Phantom.Scanners
 			get { return new ParserMatch(null, this, Offset, 0); }
 		}
 
-		public ParserMatch CreateMatch(Parser source, int offset, int length)
+		public ParserMatch CreateMatch(IParser source, int offset, int length)
 		{
 			if ((offset + length) > right_most_point)
 			{

@@ -18,7 +18,7 @@ namespace SampleGrammars {
 		}
 
 		protected Parser Xml () {
-			Parser text = ((Parser)"[^<>]*")[ops()];
+			/*Parser text = ((Parser)"[^<>]*")[ops()];
 			Parser identifier = ((Parser)"[_a-zA-Z][_a-zA-Z0-9]*")[ops()];
 			Parser quoted_string = "\"" > identifier > "\"";
 			Parser attribute = identifier > "=" > quoted_string;
@@ -29,7 +29,8 @@ namespace SampleGrammars {
 			Parser content = (open_tag > -(xml_tree | text) > close_tag);
 			xml_tree.HeldParser = !content;
 
-			return xml_tree;
+			return xml_tree;*/
+			return null;
 		}
 	}
 }

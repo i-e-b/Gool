@@ -25,7 +25,7 @@ namespace SampleGrammars
 		}
 
 		protected Parser Pascal() {
-			var plus_minus = ((Parser)"[\\-+]")[ops()];
+			/*var plus_minus = ((Parser)"[\\-+]")[ops()];
 			var ident = ((Parser)"[_a-zA-Z]\\w*")[ops()];
 			var u_int = ((Parser)"\\d+")[ops()];
 			var u_num = u_int > !("." > u_int) > !('e' > (!plus_minus) > u_int);
@@ -68,7 +68,8 @@ namespace SampleGrammars
 			#endregion
 
 			return (factor);
-
+			*/
+			return null;
 		}
 	}
 }

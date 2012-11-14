@@ -51,7 +51,7 @@ namespace Phantom
 		string RemainingData();
 
 		/// <summary>Return a match from a substring of the input</summary>
-		ParserMatch CreateMatch(Parser source, int offset, int length);
+		ParserMatch CreateMatch(IParser source, int offset, int length);
 
 		/// <summary>
 		/// Stores the combination of 'accessor' and 'offset'
