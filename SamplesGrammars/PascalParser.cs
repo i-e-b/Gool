@@ -52,7 +52,7 @@ namespace SampleGrammars
 			BNF unsignedInteger = "#\\d+";
 			BNF label = "label" > ( unsignedInteger < ',' ) > ';';
 
-
+			//http://pascal-central.com/images/pascalposter.jpg
 			BNF statement = 
 				  _empty_
 				| ...
