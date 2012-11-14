@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositeParsers\DifferenceParserTests.cs" />
     <Compile Include="CompositeParsers\ExclusiveParserTests.cs" />
     <Compile Include="CompositeParsers\IntersectionParserTests.cs" />
     <Compile Include="CompositeParsers\RepetitionParserTests.cs" />

@@ -4,10 +4,11 @@ namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// Create an Difference parser from two sub-parsers.
+	/// Should match left but not right.
 	/// </summary>
 	public class Difference : Binary
 	{
-		public Difference(Parser left, Parser right)
+		public Difference(IParser left, IParser right)
 			: base(left, right)
 		{
 		}
