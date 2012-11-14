@@ -9,9 +9,9 @@ namespace Phantom.Parsers
 	/// </summary>
 	public class HoldingParser : Parser
 	{
-		protected ITerminal held_parser;
+		protected IParser held_parser;
 
-		public ITerminal HeldParser
+		public IParser HeldParser
 		{
 			get { return held_parser; }
 			set
@@ -23,7 +23,9 @@ namespace Phantom.Parsers
 		public ParserMatch TryMatch(IScanner scan)
 		{
 			if (held_parser == null) throw new Exception("Empty holding parser");
-			return held_parser.TryMatch(scan);
+			if (! (held_parser is ITerminal)) throw new Exception("Holding parser was non terminating");
+
+			return (held_parser as ITerminal).TryMatch(scan);
 		}
 
 		public override ParserMatch Parse(IScanner scan)
@@ -33,7 +35,7 @@ namespace Phantom.Parsers
 			if (scan.RecursionCheck(this, scan.Offset))
 				return scan.NoMatch;
 
-			var m = TryMatch(scan);
+			var m = (held_parser is ITerminal) ? ((held_parser as ITerminal).TryMatch(scan)) : (held_parser.Parse(scan));
 			if (m.Success)
 			{
 				scan.ClearFailures();
