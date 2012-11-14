@@ -7,12 +7,12 @@ using Phantom.Scanners;
 namespace Phantom.Unit.Tests.MutualRecursion
 {
 	[TestFixture]
-	public class HoldingParserTests
+	public class RecursionParserTests
 	{
 		IMatchingParser matching_parser;
 		IParser complex_parser;
 		IScanner scanner;
-		HoldingParser subject;
+		Recursion subject;
 
 		[SetUp]
 		public void setup()
@@ -25,13 +25,13 @@ namespace Phantom.Unit.Tests.MutualRecursion
 			matching_parser.TryMatch(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
 			complex_parser.Parse(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
 
-			subject = new HoldingParser();
+			subject = new Recursion();
 		}
 
 		[Test]
 		public void holding_parser_passes_calls_to_held_matching_parser_instance ()
 		{
-			subject.HeldParser = matching_parser;
+			subject.Source = matching_parser;
 
 			subject.Parse(scanner);
 	
@@ -41,7 +41,7 @@ namespace Phantom.Unit.Tests.MutualRecursion
 		[Test]
 		public void holding_parser_passes_calls_to_held_complex_parser_instance ()
 		{
-			subject.HeldParser = complex_parser;
+			subject.Source = complex_parser;
 
 			subject.Parse(scanner);
 	
@@ -51,7 +51,7 @@ namespace Phantom.Unit.Tests.MutualRecursion
 		[Test]
 		public void holding_parser_protects_itself_from_self_recursion ()
 		{
-			subject.HeldParser = subject;
+			subject.Source = subject;
 
 			var result = subject.Parse(scanner); // if it didn't, this would cause a stack-overflow.
 	

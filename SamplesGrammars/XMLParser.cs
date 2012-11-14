@@ -20,16 +20,24 @@ namespace SampleGrammars {
 		protected IParser Xml () {
 			BNF.RegexOptions = ops();
 
-			BNF text = "#[^<>]*";
-			BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
+			/*
+			 * This isn't a serious parser -- it can't handle
+			 * real world XML. But it does show off simple 
+			 * parsing of a recursive data structure
+			 */
+
+			BNF text          = "#[^<>]*";
+			BNF identifier    = "#[_a-zA-Z][_a-zA-Z0-9]*";
 			BNF quoted_string = "\"" > identifier > "\"";
-			BNF attribute = identifier > "=" > quoted_string;
-			BNF open_tag = "<" > identifier > (!attribute) > ">";
-			BNF close_tag = "</" > identifier > ">";
+			BNF attribute     = identifier > "=" > quoted_string;
+			BNF open_tag      = "<" > identifier > (!attribute) > ">";
+			BNF close_tag     = "</" > identifier > ">";
 
-			BNF xml_tree = BNF.SelfRecursive(self => !(open_tag > -(self | text) > close_tag));
-
-			return xml_tree.Result();
+			return BNF.Recursive(tree =>
+				
+				!(open_tag > -(tree | text) > close_tag)
+				
+				).Result();
 		}
 	}
 }

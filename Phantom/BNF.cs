@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
-using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 
 namespace Phantom
@@ -12,6 +11,7 @@ namespace Phantom
 	/// </summary>
 	public class BNF
 	{
+		// Inspired by Spirit parser http://boost-spirit.com/home/
 		// There are a few changes compared to Spirit, all due to overloading
 		// restrictions in C#.
 		//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
@@ -24,11 +24,32 @@ namespace Phantom
 			this.parserTree = parserTree;
 		}
 
+		/// <summary>
+		/// Regular expression options passed to a regexes build with BNF
+		/// </summary>
 		public static RegexOptions RegexOptions { get; set; }
 
+		/// <summary>
+		/// Parser resulting from the BNF syntax
+		/// </summary>
+		/// <returns></returns>
 		public IParser Result()
 		{
 			return parserTree;
+		}
+
+		/// <summary>
+		/// Create a self-recursive parser structure
+		/// </summary>
+		public static BNF Recursive(Func<BNF, BNF> ParserTreeFunction)
+		{
+			// The way this works involves a lot of bad-practice and hidden typecasts.
+			var hold = new Recursion();
+
+			var src = ParserTreeFunction(hold);
+			hold.Source = src.Result();
+
+			return hold;
 		}
 
 		/// <summary>
@@ -190,20 +211,6 @@ namespace Phantom
 				throw new ArgumentNullException("b", "Right side of Exclusive-Or parser is null");
 
 			return new BNF(new Exclusive(a.Result(), b.Result()));
-		}
-
-		/// <summary>
-		/// Create a self-recursive parser structure
-		/// </summary>
-		public static BNF SelfRecursive(Func<BNF, BNF> ParserTreeFunction)
-		{
-			// The way this works involves a lot of bad-practice and hidden typecasts.
-			var hold = new HoldingParser();
-
-			var src = ParserTreeFunction(hold);
-			hold.HeldParser = (IMatchingParser) src.Result();
-
-			return hold;
 		}
 	}
 }

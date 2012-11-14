@@ -21,7 +21,7 @@ namespace Phantom.Parsers
 			scan.StackStats(st.FrameCount);
 
 			if (scan.RecursionCheck(this, scan.Offset))
-				if (!(this is HoldingParser))
+				if (!(this is Recursion))
 					return scan.NoMatch;
 
 			ParserMatch m;

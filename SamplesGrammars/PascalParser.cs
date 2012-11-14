@@ -45,8 +45,8 @@ namespace SampleGrammars
 
 			#region types
 			// Mutual dependence requires a holding parser (so the object reference stays the same);
-			var field_list_h = new HoldingParser();
-			var p_type_h = new HoldingParser();
+			var field_list_h = new Recursion();
+			var p_type_h = new Recursion();
 
 			BNF pt_setof = (set > of > simple_type);
 			BNF pt_array = (array > '[' > (simple_type % ',') > ']' > of > p_type_h);
@@ -54,17 +54,21 @@ namespace SampleGrammars
 			BNF pt_recrd = (record > field_list_h > @"#end");
 			BNF pt_files = (@"#file\s" > (!(of > p_type_h)));
 			BNF p_type = (simple_type | ('^' > ident) | (pt_setof | pt_array | pt_recrd | pt_files) );
-			p_type_h.HeldParser = p_type.Result(); // complete self-reference
+
+
+			p_type_h.Source = p_type.Result(); // complete self-reference
 
 
 			var field_list = (!(((ident%',')>':'>p_type)<';'))
 				> (!(@"#case\s" > !(ident % ':') > ident > @"#of\s" 
 				> (((p_const % ',') > ':' > '(' > field_list_h > ')') % ';')));
-			field_list_h.HeldParser = field_list.Result(); // complete mutual dependance
+
+
+			field_list_h.Source = field_list.Result(); // complete mutual dependance
 			#endregion
 
 			#region expressions
-			var factor_h = new HoldingParser();
+			var factor_h = new Recursion();
 
 			var compares = ((BNF)"<" | "<=" | "=" | "<>" | ">=" | ">" | @"#in\s");
 			var operators = ((BNF)'*' | '/' | @"#div\s" | @"#mod\s" | @"#in\s");
@@ -79,7 +83,7 @@ namespace SampleGrammars
 			var factor = (u_const | p_variable | (ident > !('(' > (p_expression % ',') > ')'))
 			| ('('>p_expression>')') | (not > factor_h) | fact_array );
 
-			factor_h.HeldParser = factor.Result();
+			factor_h.Source = factor.Result();
 			#endregion
 
 			return factor_h;

@@ -69,7 +69,7 @@
     <Compile Include="Parsers\Composite\Abstracts\Unary.cs" />
     <Compile Include="Parsers\Composite\Union.cs" />
     <Compile Include="Parsers\Interfaces\IMatchingParser.cs" />
-    <Compile Include="Parsers\HoldingParser.cs" />
+    <Compile Include="Parsers\Recursion.cs" />
     <Compile Include="Parsers\Interfaces\ICompositeParser.cs" />
     <Compile Include="IParser.cs" />
     <Compile Include="Parsers\ParserMatch.cs" />
