@@ -2,7 +2,7 @@
 
 namespace Phantom.Parsers.Interfaces
 {
-	interface ICompositeParser
+	interface ICompositeParser: ITerminal
 	{
 		List<IParser> ChildParsers();
 	}

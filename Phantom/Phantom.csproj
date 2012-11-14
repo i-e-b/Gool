@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BNF.cs" />
-    <Compile Include="Parsers\Atom.cs" />
     <Compile Include="Parsers\Composite\Abstracts\Binary.cs" />
     <Compile Include="Parsers\Composite\DelimitedList.cs" />
     <Compile Include="Parsers\Composite\Difference.cs" />

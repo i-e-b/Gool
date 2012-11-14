@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using Phantom.Parsers;
 using Phantom.Parsers.Composite;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;

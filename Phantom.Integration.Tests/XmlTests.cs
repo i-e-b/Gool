@@ -15,7 +15,7 @@ namespace Phantom.Integration.Tests
 	<body>Don't forget me this weekend!</body>
 </note>";
 
-		[Test, Ignore("broken until BNF syntax is fixed")]
+		[Test]
 		public void XmlDocumentParsesSuccessfully()
 		{
 			var parser = new XMLParser().TheParser;

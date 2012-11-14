@@ -1,5 +1,3 @@
-using Phantom.Scanners;
-
 namespace Phantom.Parsers.Terminals
 {
 	/// <summary>
@@ -7,7 +5,7 @@ namespace Phantom.Parsers.Terminals
 	/// </summary>
 	public class AnyCharacter : Parser, ITerminal
 	{
-		public override ParserMatch TryMatch(IScanner scan)
+		public ParserMatch TryMatch(IScanner scan)
 		{
 			if (scan.EndOfInput) return scan.NoMatch;
 

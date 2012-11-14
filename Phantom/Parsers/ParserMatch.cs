@@ -203,34 +203,6 @@ namespace Phantom.Parsers
 			}
 		}
 
-		/// <summary>
-		/// Return the top-most atomic parser matches, ignoring matches
-		/// that aren't atoms, ignoring sub-atoms and ignoring this match
-		/// even if this is atomic
-		/// </summary>
-		public IEnumerable<ParserMatch> TopLevelAtoms()
-		{
-			foreach (ParserMatch m in this)
-			{
-				foreach (var m2 in TopLevelAtoms(m)) yield return m2;
-			}
-		}
-
-		IEnumerable<ParserMatch> TopLevelAtoms(ParserMatch node)
-		{
-			if (node == null) yield break;
-			if (node.SourceParser.IsAtomic)
-			{
-				yield return node; // this match (never yield unless atomic)
-				yield break; // is atomic, so hide any sub-results
-			}
-			if (node.ChildMatches == null) yield break;
-			foreach (var m in node.ChildMatches.SelectMany(TopLevelAtoms))
-			{
-				yield return m;
-			}
-		}
-
 
 		/// <summary>
 		/// Return the bottom-most parser matches, including matches
@@ -248,11 +220,6 @@ namespace Phantom.Parsers
 		IEnumerable<ParserMatch> BottomLevelMatches(ParserMatch node)
 		{
 			if (node == null || node.Empty) yield break;
-			if (node.SourceParser.IsAtomic)
-			{
-				yield return node; // this match
-				yield break; // is atomic, so hide any sub-results
-			}
 
 			if (node.ChildMatches == null || node.ChildMatches.Count < 1)
 			{

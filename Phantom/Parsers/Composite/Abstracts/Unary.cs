@@ -31,5 +31,6 @@ namespace Phantom.Parsers.Composite.Abstracts
 			return c;
 		}
 
+		public abstract ParserMatch TryMatch(IScanner scan);
 	}
 }

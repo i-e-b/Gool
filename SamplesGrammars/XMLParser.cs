@@ -1,11 +1,11 @@
-﻿using Phantom.Parsers;
+﻿using Phantom;
 using System.Text.RegularExpressions;
 
 namespace SampleGrammars {
 	public class XMLParser {
-		protected Parser root;
+		protected IParser root;
 
-		public Parser TheParser { get { return root; } }
+		public IParser TheParser { get { return root; } }
 
 		public XMLParser () {
 			root = Xml();
@@ -17,20 +17,19 @@ namespace SampleGrammars {
 				| RegexOptions.Multiline;
 		}
 
-		protected Parser Xml () {
-			/*Parser text = ((Parser)"[^<>]*")[ops()];
-			Parser identifier = ((Parser)"[_a-zA-Z][_a-zA-Z0-9]*")[ops()];
-			Parser quoted_string = "\"" > identifier > "\"";
-			Parser attribute = identifier > "=" > quoted_string;
-			Parser open_tag = Atom.Wrap("<" > identifier > (!attribute) > ">");
-			Parser close_tag = Atom.Wrap("</" > identifier > ">");
+		protected IParser Xml () {
+			BNF.RegexOptions = ops();
 
-			var xml_tree = new HoldingParser();
-			Parser content = (open_tag > -(xml_tree | text) > close_tag);
-			xml_tree.HeldParser = !content;
+			BNF text = "#[^<>]*";
+			BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
+			BNF quoted_string = "\"" > identifier > "\"";
+			BNF attribute = identifier > "=" > quoted_string;
+			BNF open_tag = "<" > identifier > (!attribute) > ">";
+			BNF close_tag = "</" > identifier > ">";
 
-			return xml_tree;*/
-			return null;
+			BNF xml_tree = BNF.SelfRecursive(self => !(open_tag > -(self | text) > close_tag));
+
+			return xml_tree.Result();
 		}
 	}
 }

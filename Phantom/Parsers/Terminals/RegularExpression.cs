@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Phantom.Scanners;
 
 namespace Phantom.Parsers.Terminals
 {
@@ -35,7 +34,7 @@ namespace Phantom.Parsers.Terminals
 		/// </summary>
 		/// <remarks>This is done on the entire input.
 		/// This might cause problems with file-stream parsing.</remarks>
-		public override ParserMatch TryMatch(IScanner scan)
+		public ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 

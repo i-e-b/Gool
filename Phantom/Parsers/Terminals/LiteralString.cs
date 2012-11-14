@@ -1,5 +1,3 @@
-using Phantom.Scanners;
-
 namespace Phantom.Parsers.Terminals
 {
 	public class LiteralString : Parser, ITerminal
@@ -19,7 +17,7 @@ namespace Phantom.Parsers.Terminals
 			get { return test; }
 		}
 
-		public override ParserMatch TryMatch(IScanner scan)
+		public ParserMatch TryMatch(IScanner scan)
 		{
 			int offset = scan.Offset;
 

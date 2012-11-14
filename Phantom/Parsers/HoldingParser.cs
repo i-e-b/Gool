@@ -1,5 +1,4 @@
 using System;
-using Phantom.Scanners;
 
 namespace Phantom.Parsers
 {
@@ -10,21 +9,20 @@ namespace Phantom.Parsers
 	/// </summary>
 	public class HoldingParser : Parser
 	{
-		protected Parser held_parser;
+		protected ITerminal held_parser;
 
-		public Parser HeldParser
+		public ITerminal HeldParser
 		{
 			get { return held_parser; }
 			set
 			{
-				if (held_parser == this) throw new Exception("HoldingParser can't reference itself.");
 				held_parser = value;
 			}
 		}
 
-		public override ParserMatch TryMatch(IScanner scan)
+		public ParserMatch TryMatch(IScanner scan)
 		{
-			if (held_parser == null)  throw new Exception("Empty holding parser");
+			if (held_parser == null) throw new Exception("Empty holding parser");
 			return held_parser.TryMatch(scan);
 		}
 

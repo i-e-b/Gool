@@ -9,38 +9,26 @@ namespace Phantom
 	/// <summary>
 	/// Provides a BNF-like syntax for building parsers
 	/// </summary>
-	public abstract class BNF: Parser, IParser
+	public class BNF
 	{
-		/*
-		
-		
 		// There are a few changes compared to Spirit, all due to overloading
 		// restrictions in C#.
 		//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
-		//   2) * replaced with -			(C# has no pointer math, so no unary * )
+		//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
 
-		/// <summary>
-		/// Convert a LiteralString parser into a Regular expression parser, using the given options.
-		/// </summary>
-		/// <param name="opts">Regular expression options for the converted parser to use.</param>
-		/// <returns>Converted RegularExpression parser</returns>
-		public BNF this[RegexOptions opts]
+		private readonly IParser parserTree;
+
+		public BNF(IParser parserTree)
 		{
-			get
-			{
-				if (this is LiteralString)
-				{
-					var incoming = (LiteralString) this;
-					return new RegularExpression(incoming.MatchLiteral, opts);
-				}
-				if (this is RegularExpression)
-				{
-					return this;
-				}
-				throw new ArgumentException("Tried to convert a non-string terminal into a Regular Expression");
-			}
+			this.parserTree = parserTree;
 		}
 
+		public static RegexOptions RegexOptions { get; set; }
+
+		public IParser Result()
+		{
+			return parserTree;
+		}
 
 		/// <summary>
 		/// Convert a character into a parser
@@ -50,9 +38,9 @@ namespace Phantom
 		/// and lets us get away with linguistic murder!
 		/// Whoever made this part of the language, I salute you!
 		/// </remarks>
-		public static implicit operator Parser(char c)
+		public static implicit operator BNF(char c)
 		{
-			return new LiteralCharacter(c);
+			return new BNF(new LiteralCharacter(c));
 		}
 
 		/// <summary>
@@ -61,7 +49,7 @@ namespace Phantom
 		/// unless it also starts with '##'. If the string starts with '#', that
 		/// character will be removed.
 		/// </summary>
-		public static implicit operator Parser(string s)
+		public static implicit operator BNF(string s)
 		{
 			string pattern;
 			if (s.StartsWith("#"))
@@ -69,132 +57,152 @@ namespace Phantom
 				pattern = s.Substring(1);
 				if (!pattern.StartsWith("#"))
 				{
-					return new RegularExpression(pattern);
+					return new BNF(new RegularExpression(pattern, RegexOptions));
 				}
 			}
 			else
 			{
 				pattern = s;
 			}
-			return new LiteralString(pattern);
+			return new BNF(new LiteralString(pattern));
+		}
+
+		
+		/// <summary>
+		/// Implicitly wrap a parser in a BNF syntax helper
+		/// </summary>
+		public static implicit operator BNF(Parser p)
+		{
+			return new BNF(p);
 		}
 
 
 		/// <summary>
 		/// Create a sequential parser that matches _a_ then _b_
 		/// </summary>
-		public static Parser operator >(Parser a, Parser b)
+		public static BNF operator >(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of sequence parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of sequence parser is null");
 
-			return new Sequence(a, b);
+			return new BNF(new Sequence(a.Result(), b.Result()));
 		}
 
 		/// <summary>
 		/// Create a loop parser that matches a list of _a_, each being terminated by _b_
 		/// The last item _a_ may be terminated, but need not be.
 		/// </summary>
-		public static Parser operator <(Parser a, Parser b)
+		public static BNF operator <(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of list parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of list parser is null");
 
-			return new TerminatedList(a, b);
+			return new BNF(new TerminatedList(a.Result(), b.Result()));
 		}
 
 
 		/// <summary>
 		/// Create a loop parser that matches zero or more _a_
 		/// </summary>
-		public static Parser operator -(Parser a)
+		public static BNF operator -(BNF a)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Loop parser is null");
 
-			return new Repetition(a, 0, uint.MaxValue);
+			return new BNF(new Repetition(a.Result(), 0, uint.MaxValue));
 		}
 
 		/// <summary>
 		/// Create a loop parser that matches one or more _a_
 		/// </summary>
-		public static Parser operator +(Parser a)
+		public static BNF operator +(BNF a)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Loop parser is null");
 
-			return new Repetition(a, 1, uint.MaxValue);
+			return new BNF(new Repetition(a.Result(), 1, uint.MaxValue));
 		}
 
 		/// <summary>
 		/// Create a optional parser that matches zero or one _a_
 		/// </summary>
-		public static Parser operator !(Parser a)
+		public static BNF operator !(BNF a)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Option parser is null");
 
-			return new Repetition(a, 0, 1);
+			return new BNF(new Repetition(a.Result(), 0, 1));
 		}
 
 		/// <summary>
 		/// Create a loop parser that matches a list of _a_, delimited by _b_
 		/// </summary>
-		public static Parser operator %(Parser a, Parser b)
+		public static BNF operator %(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of list parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of list parser is null");
 
-			return new DelimitedList(a, b);
+			return new BNF(new DelimitedList(a.Result(), b.Result()));
 		}
 
 
 		/// <summary>
 		/// Create a Union/Alternative parser that matches _a_ or _b_
 		/// </summary>
-		public static Parser operator |(Parser a, Parser b)
+		public static BNF operator |(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of union parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of union parser is null");
 
-			return new Union(a, b);
+			return new BNF(new Union(a.Result(), b.Result()));
 		}
 
 		/// <summary>
 		/// Create an Intersection parser that matches both _a_ and _b_
 		/// </summary>
-		public static Parser operator &(Parser a, Parser b)
+		public static BNF operator &(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of intersection parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of intersection parser is null");
 
-			return new Intersection(a, b);
+			return new BNF(new Intersection(a.Result(), b.Result()));
 		}
 
 		/// <summary>
 		/// Create an Exclusive-Or parser that matches _a_ or _b_ but not both
 		/// </summary>
-		public static Parser operator ^(Parser a, Parser b)
+		public static BNF operator ^(BNF a, BNF b)
 		{
 			if (a == null)
 				throw new ArgumentNullException("a", "Left side of Exclusive-Or parser is null");
 			if (b == null)
 				throw new ArgumentNullException("b", "Right side of Exclusive-Or parser is null");
 
-			return new Exclusive(a, b);
+			return new BNF(new Exclusive(a.Result(), b.Result()));
 		}
 
-		
-		*/
+		/// <summary>
+		/// Create a self-recursive parser structure
+		/// </summary>
+		public static BNF SelfRecursive(Func<BNF, BNF> ParserTreeFunction)
+		{
+			// The way this works involves a lot of bad-practice and hidden typecasts.
+			var hold = new HoldingParser();
+
+			var src = ParserTreeFunction(hold);
+			hold.HeldParser = (ITerminal) src.Result();
+
+			return hold;
+		}
 	}
 }
