@@ -4,6 +4,7 @@ namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// Create an Exclusive-OR parser from two sub-parsers.
+	/// Can match first or second, but not both
 	/// </summary>
 	public class Exclusive : Binary
 	{
