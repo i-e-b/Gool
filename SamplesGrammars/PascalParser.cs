@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Phantom;
 using Phantom.Parsers;
+using Phantom.Parsers.Terminals;
 
 namespace SampleGrammars
 {
@@ -24,7 +25,80 @@ namespace SampleGrammars
 				| RegexOptions.Multiline;
 		}
 
-		protected Parser Pascal() {
+		IParser Pascal()
+		{
+			var _type = new Recursion();
+			var _fieldList = new Recursion();
+			var _block = new Recursion();
+
+
+			BNF identifier = "#[_a-zA-Z]\\w*";
+			BNF pascalString = "#'([^']|'')*'"; // Pascal uses two single-quotes to mark a single quote.
+			BNF plusOrMinus = "#[\\-+]";
+			
+			BNF set = @"set";
+			BNF of = @"of";
+			BNF array = @"array";
+			BNF record = @"record";
+			BNF not = @"not";
+			BNF end = @"end";
+			BNF begin = @"end";
+			BNF file = @"file";
+			BNF VAR = @"var";
+			BNF _empty_ = new BNF(new EmptyMatch());
+
+			BNF identifierList = identifier < ',';
+			BNF parameters = '(' > identifierList > ')';
+			BNF unsignedInteger = "#\\d+";
+			BNF label = "label" > ( unsignedInteger < ',' ) > ';';
+
+
+			BNF statement = 
+				  _empty_
+				| ...
+
+			BNF statementBlock = begin > (statement < ';') > end;
+			BNF unsignedNumber = unsignedInteger > !("." > unsignedInteger) > !('e' > (!plusOrMinus) > unsignedInteger);
+			BNF unsignedConstant = pascalString | "nil" | unsignedNumber | identifier;
+			BNF constant = (unsignedConstant) | ( plusOrMinus > (identifier | unsignedNumber));
+			BNF constantBlock = "const" > +(identifier > '=' > constant > ';');
+
+
+			BNF constantFieldList = (constant < ',') > ':' > '(' > _fieldList > ')';
+			BNF caseStatement = "case" > !(identifier > ':') > identifier > of > (constantFieldList < ';');
+			BNF fieldList = caseStatement | ( -(identifierList > ':' > _type) < ';');
+
+			BNF simpleType = identifier | parameters | (constant > ".." > constant);
+			BNF complexType = 
+				  (set > of > simpleType)
+				| (array > '[' > (simpleType < ',') > ']' > of > _type)
+				| (record > fieldList > end)
+				| (file > !(of > _type));
+
+
+			BNF singleParameter = !VAR > identifierList > ':' > identifier;
+			BNF parameterList = !('(' > (singleParameter < ';') > ')');
+			BNF procedure = "procedure" > identifier > parameterList > ';' > _block > ';';
+			BNF function = "function" > identifier > parameterList > ':' > identifier > ';'> _block > ';';
+
+			BNF varBlock = "var" > +(identifierList > ':' > _type > ';');
+
+			BNF typeBlock = "type" > +(identifier > '=' > _type > ';');
+			BNF block = !(label | constantBlock | typeBlock | varBlock | procedure | function) > statementBlock;
+			BNF program = "program" > identifier > (!parameters) > ';' > block > '.';
+
+
+			BNF type = simpleType | ('^'>identifier) | (!((BNF)"packed") > complexType);
+
+			_type.Source = type.Result();
+			_fieldList.Source = fieldList.Result();
+			_block.Source = block.Result();
+
+			return program.Result();
+		}
+
+
+		protected Parser OldPascal() {
 			BNF.RegexOptions = ops();
 
 

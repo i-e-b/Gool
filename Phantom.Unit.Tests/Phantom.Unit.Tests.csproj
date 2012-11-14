@@ -56,6 +56,7 @@
     <Compile Include="CompositeParsers\UnionParserTests.cs" />
     <Compile Include="MutualRecursion\RecursionParserHelperTests.cs" />
     <Compile Include="MutualRecursion\RecursionParserTests.cs" />
+    <Compile Include="ParserMatches\ParserMatchTests.cs" />
     <Compile Include="Scanners\StringScanner_Normalising_without_whitespace_skipped.cs" />
     <Compile Include="Scanners\StringScanner_Creation.cs" />
     <Compile Include="Scanners\StringScanner_Normalising_with_whitespace_skipped.cs" />

@@ -7,7 +7,11 @@ using Phantom.Parsers.Terminals;
 namespace Phantom
 {
 	/// <summary>
-	/// Provides a BNF-like syntax for building parsers
+	/// Provides a BNF-like syntax for building parsers.<br/>
+	/// &lt; terminated list; &gt; sequence;
+	/// - zero or more; + one or more; ! zero or one;
+	/// %  delimited list; | union; &amp; intersection;
+	/// ^ xor; "#..." regex; '.' lit char; "..." lit string.
 	/// </summary>
 	public class BNF
 	{
