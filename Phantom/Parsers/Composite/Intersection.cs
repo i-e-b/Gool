@@ -4,6 +4,7 @@ namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// Create an Intersection parser from two sub-parsers.
+	/// Either first-then-second should pass, or second-then-first.
 	/// </summary>
 	public class Intersection : Binary
 	{
