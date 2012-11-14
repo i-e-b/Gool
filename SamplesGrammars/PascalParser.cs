@@ -8,9 +8,9 @@ namespace SampleGrammars
 	/// Built from the 1979 Apple Pascal poster.
 	/// </summary>
 	public class PascalParser {
-		protected Parser root;
+		readonly IParser root;
 
-		public Parser TheParser { get { return root; } }
+		public IParser TheParser { get { return root; } }
 
 		public PascalParser() {
 			root = Pascal();

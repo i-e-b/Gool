@@ -82,7 +82,6 @@
     <Compile Include="Parsers\Terminals\LiteralString.cs" />
     <Compile Include="Parsers\Terminals\RegularExpression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rule.cs" />
     <Compile Include="Scanners\IScanner.cs" />
     <Compile Include="Scanners\IScanningDiagnostics.cs" />
     <Compile Include="Scanners\ITransform.cs" />

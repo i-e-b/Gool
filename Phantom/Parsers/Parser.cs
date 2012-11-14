@@ -9,7 +9,7 @@ namespace Phantom.Parsers
 	/// <summary>
 	/// Superclass for all parsers.
 	/// </summary>
-	public abstract class Parser : Rule, IParser
+	public abstract class Parser : IParser
 	{
 		/// <summary>
 		/// Atom flag and object, or null if not atomic
