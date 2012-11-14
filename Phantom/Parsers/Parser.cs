@@ -1,7 +1,9 @@
+using Phantom.Parsers.Interfaces;
+
 namespace Phantom.Parsers
 {
 	/// <summary>
-	/// Superclass for all parsers.
+	/// Base class for all parsers.
 	/// </summary>
 	public abstract class Parser : IParser
 	{
@@ -24,7 +26,7 @@ namespace Phantom.Parsers
 
 			ParserMatch m;
 
-			if (this is ITerminal) m = (this as ITerminal).TryMatch(scan);
+			if (this is IMatchingParser) m = ((IMatchingParser) this).TryMatch(scan);
 			else m = Parse(scan);
 
 			if (m.Success)

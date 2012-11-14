@@ -1,9 +1,11 @@
+using Phantom.Parsers.Interfaces;
+
 namespace Phantom.Parsers.Terminals
 {
 	/// <summary>
 	/// Parser that will match any one character.
 	/// </summary>
-	public class AnyCharacter : Parser, ITerminal
+	public class AnyCharacter : Parser, IMatchingParser
 	{
 		public ParserMatch TryMatch(IScanner scan)
 		{

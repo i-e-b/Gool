@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using Phantom.Parsers;
+using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
@@ -9,7 +10,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	public class EndOfLineTests
 	{
 		IScanner unix, windows, oldMac, twoUnix, twoWindows, mangledTwo;
-		ITerminal subject;
+		IMatchingParser subject;
 		string oneLineInput = "Just some normal input";
 		ScanStrings oneLineScanner;
 

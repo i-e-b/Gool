@@ -1,10 +1,12 @@
+using Phantom.Parsers.Interfaces;
+
 namespace Phantom.Parsers.Terminals
 {
 	/// <summary>
 	/// Parser that represents no input.
 	/// Always returns an empty success match
 	/// </summary>
-	public class EmptyMatch : Parser, ITerminal
+	public class EmptyMatch : Parser, IMatchingParser
 	{
 		public ParserMatch TryMatch(IScanner scan)
 		{

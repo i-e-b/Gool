@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using Phantom.Parsers;
+using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
@@ -19,7 +20,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		public void matching_regexes_result_in_matching_parses_and_contain_the_match_and_advance_the_scanner
 			(string regex, string inputString, string match)
 		{
-			ITerminal subject = new RegularExpression(regex);
+			IMatchingParser subject = new RegularExpression(regex);
 			var scanner = new ScanStrings(inputString);
 			var result = subject.TryMatch(scanner);
 
@@ -34,7 +35,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		public void regexes_are_single_line_setting_by_default
 			(string regex, string inputString, bool isMatch)
 		{
-			ITerminal subject = new RegularExpression(regex);
+			IMatchingParser subject = new RegularExpression(regex);
 			var scanner = new ScanStrings(inputString);
 			var result = subject.TryMatch(scanner);
 
@@ -44,7 +45,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		[Test]
 		public void regexes_that_can_match_empty_strings_can_return_successful_empty_matches ()
 		{
-			ITerminal subject = new RegularExpression(@"\W*");
+			IMatchingParser subject = new RegularExpression(@"\W*");
 			var scanner = new ScanStrings("123456");
 
 			var result = subject.TryMatch(scanner);
@@ -56,7 +57,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		[Test]
 		public void regexes_whose_match_does_not_start_at_the_current_scanner_position_are_failures ()
 		{
-			ITerminal subject = new RegularExpression(@"\w+");
+			IMatchingParser subject = new RegularExpression(@"\w+");
 			var scanner = new ScanStrings("      some words");
 
 			var result = subject.TryMatch(scanner);
@@ -67,7 +68,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		[Test] // this is a gotcha of PCRE as implemented in .Net
 		public void regex_dot_matches_carriage_return_but_not_line_feed ()
 		{
-			ITerminal subject = new RegularExpression(@".*");
+			IMatchingParser subject = new RegularExpression(@".*");
 			var scanner = new ScanStrings("line one\r\nline two");
 			var result = subject.TryMatch(scanner);
 
@@ -80,7 +81,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		public void non_matching_regexes_result_in_failing_parses_and_do_not_advance_the_scanner
 			(string regex, string inputString)
 		{
-			ITerminal subject = new RegularExpression(regex);
+			IMatchingParser subject = new RegularExpression(regex);
 			var scanner = new ScanStrings(inputString);
 			var result = subject.TryMatch(scanner);
 

@@ -1,6 +1,8 @@
+using Phantom.Parsers.Interfaces;
+
 namespace Phantom.Parsers.Terminals
 {
-	public class EndOfInput : Parser, ITerminal
+	public class EndOfInput : Parser, IMatchingParser
 	{
 		public ParserMatch TryMatch(IScanner scan)
 		{

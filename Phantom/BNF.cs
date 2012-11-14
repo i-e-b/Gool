@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
+using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 
 namespace Phantom
@@ -200,7 +201,7 @@ namespace Phantom
 			var hold = new HoldingParser();
 
 			var src = ParserTreeFunction(hold);
-			hold.HeldParser = (ITerminal) src.Result();
+			hold.HeldParser = (IMatchingParser) src.Result();
 
 			return hold;
 		}

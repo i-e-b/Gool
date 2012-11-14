@@ -1,6 +1,8 @@
+using Phantom.Parsers.Interfaces;
+
 namespace Phantom.Parsers.Terminals
 {
-	public class LiteralCharacter : Parser, ITerminal
+	public class LiteralCharacter : Parser, IMatchingParser
 	{
 		readonly char test;
 

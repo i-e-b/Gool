@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Phantom.Parsers.Interfaces;
 
 namespace Phantom.Parsers.Terminals
 {
@@ -6,7 +7,7 @@ namespace Phantom.Parsers.Terminals
 	/// Parse for a regular expression match.
 	/// NOTE: It's best to keep the regular expressions simple, and deal with any recursion in the Parser structure.
 	/// </summary>
-	public class RegularExpression : Parser, ITerminal
+	public class RegularExpression : Parser, IMatchingParser
 	{
 		readonly Regex test;
 

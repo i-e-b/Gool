@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
+using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
@@ -70,7 +71,7 @@ namespace Phantom.Unit.Tests.CompositeParsers
 		[Test]
 		public void uses_parse_method_of_child_parsers ()
 		{
-			var parser = Substitute.For<ITerminal>();
+			var parser = Substitute.For<IMatchingParser>();
 			parser.TryMatch(scanner).Returns(scanner.NoMatch);
 			parser.Parse(scanner).Returns(scanner.NoMatch);
 
