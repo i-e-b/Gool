@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// Create a generalised repetition parser from a single subparser
 	/// </summary>
-	class Repetition : Unary
+	public class Repetition : Unary
 	{
 		uint m_LowerBound;
 		uint m_UpperBound;

@@ -9,8 +9,8 @@ namespace Phantom.Parsers.Composite
 	/// </summary>
 	public abstract class Binary : Parser, ICompositeParser
 	{
-		protected IParser bLeftParser;
-		protected IParser bRightParser;
+		IParser bLeftParser;
+		IParser bRightParser;
 
 		protected Binary(IParser left, IParser right)
 		{

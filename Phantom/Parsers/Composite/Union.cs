@@ -18,13 +18,13 @@ namespace Phantom.Parsers.Composite
 			int offset = scan.Offset;
 
 			// apply the first parser
-			var m = bLeftParser.Parse(scan);
+			var m = LeftParser.Parse(scan);
 
 			// rewind
 			scan.Seek(offset);
 
 			// apply the second parser
-			var m2 = bRightParser.Parse(scan);
+			var m2 = RightParser.Parse(scan);
 
 			// pick the longest result
 			if (m.Success || m2.Success)

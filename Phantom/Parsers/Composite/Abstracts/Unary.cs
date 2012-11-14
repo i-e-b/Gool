@@ -6,7 +6,7 @@ namespace Phantom.Parsers.Composite
 {
 	public abstract class Unary : Parser, ICompositeParser
 	{
-		protected IParser uParser;
+		IParser uParser;
 
 		protected Unary(IParser parser)
 		{
@@ -19,7 +19,7 @@ namespace Phantom.Parsers.Composite
 			set
 			{
 				if (value == null)
-					throw new ArgumentNullException("Parser may not be null in Unary parser.");
+					throw new NullReferenceException("Parser may not be null in Unary parser.");
 				uParser = value;
 			}
 		}

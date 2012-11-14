@@ -5,7 +5,7 @@ namespace Phantom.Parsers.Composite
 	/// <summary>
 	/// Create an Intersection parser from two sub-parsers.
 	/// </summary>
-	class Intersection : Binary
+	public class Intersection : Binary
 	{
 		public Intersection(IParser first, IParser second)
 			: base(first, second)
@@ -16,12 +16,12 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			var left = bLeftParser.Parse(scan);
+			var left = LeftParser.Parse(scan);
 
 
 			if (left.Success)
 			{
-				var right = bRightParser.Parse(scan);
+				var right = RightParser.Parse(scan);
 				if (right.Success)
 				{
 					return ParserMatch.Concat(this, left, right);
@@ -30,10 +30,10 @@ namespace Phantom.Parsers.Composite
 			else
 			{
 				scan.Seek(offset);
-				left = bRightParser.Parse(scan);
+				left = RightParser.Parse(scan);
 				if (left.Success)
 				{
-					var right = bLeftParser.Parse(scan);
+					var right = LeftParser.Parse(scan);
 					if (right.Success)
 					{
 						return ParserMatch.Concat(this, left, right);

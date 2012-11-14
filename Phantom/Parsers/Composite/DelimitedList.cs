@@ -18,7 +18,7 @@ namespace Phantom.Parsers.Composite
 		{
 			int offset = scan.Offset;
 
-			var a = bLeftParser.Parse(scan);
+			var a = LeftParser.Parse(scan);
 
 			if (!a.Success)
 			{
@@ -33,7 +33,7 @@ namespace Phantom.Parsers.Composite
 			{
 				offset = scan.Offset;
 
-				var b = bRightParser.Parse(scan);
+				var b = RightParser.Parse(scan);
 
 				if (!b.Success)
 				{
@@ -41,7 +41,7 @@ namespace Phantom.Parsers.Composite
 					return m;
 				}
 
-				a = bLeftParser.Parse(scan);
+				a = LeftParser.Parse(scan);
 
 				if (!a.Success)
 				{

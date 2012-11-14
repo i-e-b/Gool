@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parsers\Atom.cs" />
-    <Compile Include="Parsers\Composite\Binary.cs" />
+    <Compile Include="Parsers\Composite\Abstracts\Binary.cs" />
     <Compile Include="Parsers\Composite\DelimitedList.cs" />
     <Compile Include="Parsers\Composite\Difference.cs" />
     <Compile Include="Parsers\Composite\Exclusive.cs" />
@@ -66,7 +66,7 @@
     <Compile Include="Parsers\Composite\Repetition.cs" />
     <Compile Include="Parsers\Composite\Sequence.cs" />
     <Compile Include="Parsers\Composite\TerminatedList.cs" />
-    <Compile Include="Parsers\Composite\Unary.cs" />
+    <Compile Include="Parsers\Composite\Abstracts\Unary.cs" />
     <Compile Include="Parsers\Composite\Union.cs" />
     <Compile Include="Parsers\ITerminal.cs" />
     <Compile Include="Parsers\HoldingParser.cs" />
