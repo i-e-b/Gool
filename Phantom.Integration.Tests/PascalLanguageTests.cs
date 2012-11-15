@@ -24,11 +24,11 @@ end.";
 		public void BasicPascalProgramParsesOK()
 		{
 			var parser = new PascalParser().TheParser;
-			var scanner = new ScanStrings(sample_program);
+			var scanner = new ScanStrings(sample_program){SkipWhitespace = true};
 
 			var result = parser.Parse(scanner);
 
-			Assert.That(result.Success, Is.True, result + ": " + result.Value);
+			Assert.That(result.Success, Is.True, scanner.FurthestMatch());
 			Assert.That(result.Value, Is.EqualTo(sample_program));
 		}
 	}
