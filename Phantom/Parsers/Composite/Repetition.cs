@@ -81,7 +81,10 @@ namespace Phantom.Parsers.Composite
 
 		public override string ToString()
 		{
-			return "*(" + Parser + ")";
+			if (LowerBound == 0 && UpperBound > 1) return Parser + "*";
+			if (LowerBound == 0 && UpperBound == 1) return Parser + "?";
+			if (LowerBound == 1 && UpperBound > 1) return Parser + "+";
+			return "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
 		}
 	}
 }

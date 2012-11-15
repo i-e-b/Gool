@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Phantom.Parsers;
+using Phantom.Parsers.Interfaces;
 
 namespace Phantom.Scanners
 {
@@ -86,11 +87,20 @@ namespace Phantom.Scanners
 			foreach (var p in failure_points)
 			{
 				var chunk = input_string.Substring(p.pos);
-				if (chunk.Length > 5) chunk = chunk.Substring(0, 5);
-				lst.Add(p.parser + " --> " + chunk);
+				var idx = chunk.IndexOfAny(new [] {'\r', '\n'});
+				if (idx > 5) chunk = chunk.Substring(0, idx);
+				
+				lst.Add(chunk + " --> " + ParserStringFrag(p));
 			}
 
 			return lst;
+		}
+
+		string ParserStringFrag(ParserPoint p)
+		{
+			var str = p.parser.ToString();
+			if (str.Length > 100) return str.Substring(0,100);
+			return str;
 		}
 
 		public string BadPatch(int length)
@@ -152,9 +162,11 @@ namespace Phantom.Scanners
 		{
 			if (!skip_whitespace) return;
 			if (EndOfInput) return;
-			while (Char.IsWhiteSpace(Peek()))
+			char c = Peek();
+			while (Char.IsWhiteSpace(c))
 			{
 				if (!Read()) break;
+				c = Peek();
 			}
 		}
 

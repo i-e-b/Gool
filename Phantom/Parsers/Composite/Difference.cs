@@ -41,5 +41,10 @@ namespace Phantom.Parsers.Composite
 			scan.Seek(goodOffset);
 			return m;
 		}
+
+		public override string ToString()
+		{
+			return LeftParser + " not "+ RightParser;
+		}
 	}
 }

@@ -38,7 +38,7 @@ namespace Phantom.Parsers.Composite
 
 		public override string ToString()
 		{
-			return "(" + LeftParser + " " + RightParser + ")";
+			return LeftParser + " > " + RightParser;
 		}
 	}
 }

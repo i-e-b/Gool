@@ -9,6 +9,7 @@ namespace Phantom.Parsers.Terminals
 	/// </summary>
 	public class RegularExpression : Parser, IMatchingParser
 	{
+		readonly string pattern;
 		readonly Regex test;
 
 		/// <summary>
@@ -17,6 +18,7 @@ namespace Phantom.Parsers.Terminals
 		/// <param name="pattern">Regex pattern to match</param>
 		public RegularExpression(string pattern)
 		{
+			this.pattern = pattern;
 			test = new Regex(pattern);
 		}
 
@@ -27,6 +29,7 @@ namespace Phantom.Parsers.Terminals
 		/// <param name="options">Options set to use</param>
 		public RegularExpression(string pattern, RegexOptions options)
 		{
+			this.pattern = pattern;
 			test = new Regex(pattern, options);
 		}
 
@@ -53,7 +56,7 @@ namespace Phantom.Parsers.Terminals
 
 		public override string ToString()
 		{
-			return "#(" + test + ")";
+			return "/"+pattern+"/";
 		}
 	}
 }
