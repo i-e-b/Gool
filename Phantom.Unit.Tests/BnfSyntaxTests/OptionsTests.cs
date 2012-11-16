@@ -6,7 +6,7 @@ using Phantom.Scanners;
 namespace Phantom.Unit.Tests.BnfSyntaxTests
 {
 	[TestFixture]
-	public class Options
+	public class OptionsTests
 	{
 		[Test]
 		public void bnf_options_result_in_a_union_parser ()

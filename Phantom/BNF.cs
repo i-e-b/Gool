@@ -92,7 +92,6 @@ namespace Phantom
 			}
 			return new BNF(new LiteralString(pattern));
 		}
-
 		
 		/// <summary>
 		/// Implicitly wrap a parser in a BNF syntax helper
@@ -101,7 +100,6 @@ namespace Phantom
 		{
 			return new BNF(p);
 		}
-
 
 		/// <summary>
 		/// Create a sequential parser that matches _a_ then _b_
@@ -176,7 +174,6 @@ namespace Phantom
 
 			return new BNF(new DelimitedList(a.Result(), b.Result()));
 		}
-
 
 		/// <summary>
 		/// Create a Union/Alternative parser that matches _a_ or _b_
