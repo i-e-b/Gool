@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BnfSyntaxTests\CastingStringsAndCharacters.cs" />
+    <Compile Include="BnfSyntaxTests\Options.cs" />
     <Compile Include="CompositeParsers\DifferenceParserTests.cs" />
     <Compile Include="CompositeParsers\ExclusiveParserTests.cs" />
     <Compile Include="CompositeParsers\IntersectionParserTests.cs" />

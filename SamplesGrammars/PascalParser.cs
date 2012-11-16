@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using Phantom;
 using Phantom.Parsers;
 using Phantom.Parsers.Interfaces;
@@ -18,13 +17,6 @@ namespace SampleGrammars
 
 		public PascalParser() {
 			root = Pascal();
-		}
-
-		protected RegexOptions ops() {
-			return RegexOptions.ExplicitCapture
-				| RegexOptions.IgnoreCase
-				| RegexOptions.Compiled
-				| RegexOptions.Multiline;
 		}
 		
 		//  http://pascal-central.com/images/pascalposter.jpg
@@ -98,6 +90,7 @@ namespace SampleGrammars
 			BNF statement = 
 				 !(unsignedInteger > ':')
 				| _empty_
+				| ("begin" > ((BNF)_statement % ';') > "end") 
 				| (identifier > !( '(' > (expression % ',') > ')'))
 				| (variable > ":=" > expression)
 				| ifBlock
@@ -107,8 +100,7 @@ namespace SampleGrammars
 				| caseBlock
 				| ("with" > (variable % ',') > "do" > _statement)
 				| ("goto" > unsignedInteger)
-				| (exit > '(' > (identifier | "program") > ')')
-				| ("begin" > ((BNF)_statement % ';') > "end") ;
+				| (exit > '(' > (identifier | "program") > ')');
 
 			BNF statementBlock = begin > (statement % ';') > end;
 

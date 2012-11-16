@@ -45,13 +45,13 @@ namespace Phantom.Unit.Tests.Scanners
 		}
 
 		[Test]
-		public void listing_failures_gives_5_character_substrings_around_added_failure_points ()
+		public void listing_failures_gives_substring_from_failure_point_to_end_of_line_and_parser_string ()
 		{
 			subject.AddFailure(dummy_parser, 8);
 			subject.AddFailure(dummy_parser, 11);
 
-			Assert.That(subject.ListFailures(), Contains.Item(dummy_parser+" --> my in"));
-			Assert.That(subject.ListFailures(), Contains.Item(dummy_parser+" --> input"));
+			Assert.That(subject.ListFailures(), Contains.Item("my input --> "+dummy_parser));
+			Assert.That(subject.ListFailures(), Contains.Item("input --> "+dummy_parser));
 		}
 
 		[Test]
