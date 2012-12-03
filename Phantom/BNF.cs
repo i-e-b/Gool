@@ -115,7 +115,7 @@ namespace Phantom
 		}
 
 		/// <summary>
-		/// Create a loop parser that matches a list of _a_, each being terminated by _b_
+		/// Create a terminated list parser that matches a list of _a_, each being terminated by _b_
 		/// The last item _a_ may be terminated, but need not be.
 		/// </summary>
 		public static BNF operator <(BNF a, BNF b)
@@ -189,7 +189,7 @@ namespace Phantom
 		}
 
 		/// <summary>
-		/// Create an Intersection parser that matches both _a_ and _b_
+		/// Create an Intersection parser that matches (_a_ then _b_) or (_b_ then _a_)
 		/// </summary>
 		public static BNF operator &(BNF a, BNF b)
 		{

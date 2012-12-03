@@ -48,6 +48,11 @@
   <ItemGroup>
     <Compile Include="BnfSyntaxTests\CastingParsers.cs" />
     <Compile Include="BnfSyntaxTests\CastingStringsAndCharacters.cs" />
+    <Compile Include="BnfSyntaxTests\ExclusiveOrTests.cs" />
+    <Compile Include="BnfSyntaxTests\IntersectionTests.cs" />
+    <Compile Include="BnfSyntaxTests\ZeroOrOneRepeatTests.cs" />
+    <Compile Include="BnfSyntaxTests\OneOrMoreRepeatTests.cs" />
+    <Compile Include="BnfSyntaxTests\Loop_KleeneStar_Tests.cs" />
     <Compile Include="BnfSyntaxTests\DelimitedListTests.cs" />
     <Compile Include="BnfSyntaxTests\TerminatedListTests.cs" />
     <Compile Include="BnfSyntaxTests\OptionsTests.cs" />
