@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{6EAF4DB0-7
 		README = README
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhantomStd", "PhantomStd\PhantomStd.csproj", "{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC74055E-B49F-488F-9C6E-4FBE95052875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
