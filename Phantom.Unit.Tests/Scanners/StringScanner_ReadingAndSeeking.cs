@@ -77,14 +77,14 @@ namespace Phantom.Unit.Tests.Scanners
 		[Test]
 		public void reading_forwards_through_input_returns_true ()
 		{
-			Assert.IsTrue(subject.Read());
+			Assert.That(subject.Read(), Is.True);
 		}
 
 		[Test]
 		public void reading_forwards_past_end_of_input_returns_false ()
 		{
 			subject.Seek(Input.Length);
-			Assert.IsFalse(subject.Read());
+			Assert.That(subject.Read(), Is.False);
 		}
 
 		[Test]

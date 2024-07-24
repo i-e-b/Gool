@@ -31,7 +31,7 @@ namespace SampleGrammars {
 			BNF quoted_string = "\"" > identifier > "\"";
 			BNF attribute     = identifier > "=" > quoted_string;
 			BNF open_tag      = "<" > identifier > (!attribute) > ">";
-			BNF close_tag     = "</" > identifier > ">";
+			BNF close_tag     = "</" > identifier > ">"; // TODO: need a way match the `identifier` of `open_tag` and `close_tag`
 
 			return BNF.Recursive(tree =>
 				

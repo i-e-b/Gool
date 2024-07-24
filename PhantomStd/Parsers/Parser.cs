@@ -1,6 +1,6 @@
-using PhantomStd.Parsers.Interfaces;
+using Phantom.Parsers.Interfaces;
 
-namespace PhantomStd.Parsers
+namespace Phantom.Parsers
 {
 	/// <summary>
 	/// Base class for all parsers.

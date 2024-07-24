@@ -1,7 +1,7 @@
-using PhantomStd.Parsers;
-using PhantomStd.Scanners;
+using Phantom.Parsers;
+using Phantom.Scanners;
 
-namespace PhantomStd
+namespace Phantom
 {
 	/// <summary>
 	/// Scanners provide an interface to the input stream to be parsed

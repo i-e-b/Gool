@@ -1,6 +1,6 @@
-using PhantomStd.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Composite.Abstracts;
 
-namespace PhantomStd.Parsers.Composite
+namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// A parser which matches a left parser then a right parser.

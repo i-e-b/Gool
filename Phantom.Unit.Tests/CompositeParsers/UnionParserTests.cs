@@ -1,10 +1,10 @@
-﻿using NSubstitute;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
 using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
+using Phantom.Unit.Tests.MutualRecursion;
 
 namespace Phantom.Unit.Tests.CompositeParsers
 {
@@ -71,16 +71,18 @@ namespace Phantom.Unit.Tests.CompositeParsers
 		[Test]
 		public void uses_parse_method_of_child_parsers ()
 		{
-			var parser = Substitute.For<IMatchingParser>();
-			parser.TryMatch(scanner).Returns(scanner.NoMatch);
-			parser.Parse(scanner).Returns(scanner.NoMatch);
+			var parser = new TestParser_AlwaysGives(()=>scanner.NoMatch); //Substitute.For<IMatchingParser>();
+			//parser.TryMatch(scanner).Returns(scanner.NoMatch);
+			//parser.Parse(scanner).Returns(scanner.NoMatch);
 
 			var subject = new Union(parser, parser);
 
 			subject.TryMatch(scanner);
 
-			parser.Received().Parse(scanner);
-			parser.DidNotReceive().TryMatch(scanner);
+			Assert.That(parser.LastParseScanner, Is.EqualTo(scanner));
+			Assert.That(parser.LastTryMatchScanner, Is.Null);
+			//parser.Received().Parse(scanner);
+			//parser.DidNotReceive().TryMatch(scanner);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
-using PhantomStd.Parsers.Interfaces;
+using Phantom.Parsers.Interfaces;
 
-namespace PhantomStd.Parsers.Terminals
+namespace Phantom.Parsers.Terminals
 {
 	/// <summary>
 	/// Parse for a regular expression match.

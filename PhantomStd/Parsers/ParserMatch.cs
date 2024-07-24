@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PhantomStd.Parsers
+namespace Phantom.Parsers
 {
     /// <summary>
     /// Creates and stores parser matches.

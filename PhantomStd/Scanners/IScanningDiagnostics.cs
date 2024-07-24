@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PhantomStd.Scanners
+namespace Phantom.Scanners
 {
 	/// <summary>
 	/// Scanners provide an interface to the input stream to be parsed

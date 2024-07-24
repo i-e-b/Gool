@@ -1,7 +1,7 @@
 using System;
-using PhantomStd.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Composite.Abstracts;
 
-namespace PhantomStd.Parsers.Composite
+namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// Create a generalised repetition parser from a single subparser

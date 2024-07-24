@@ -1,4 +1,4 @@
-namespace PhantomStd.Scanners
+namespace Phantom.Scanners
 {
 	/// <summary>
 	/// Transformer that outputs a lowercase version of the input

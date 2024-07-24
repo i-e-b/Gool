@@ -1,6 +1,6 @@
-using PhantomStd.Parsers;
+using Phantom.Parsers;
 
-namespace PhantomStd
+namespace Phantom
 {
 	/// <summary>
 	/// Interface for a parser that can interpret the content of an <see cref="IScanner"/>

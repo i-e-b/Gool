@@ -1,7 +1,7 @@
 using System;
-using PhantomStd.Parsers.Interfaces;
+using Phantom.Parsers.Interfaces;
 
-namespace PhantomStd.Parsers
+namespace Phantom.Parsers
 {
 	/// <summary>
 	/// A parser implementation which contains another parser
@@ -22,6 +22,7 @@ namespace PhantomStd.Parsers
 		{
 			if (Source == null) throw new Exception("Empty holding parser");
 			if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
+			if (parser == this) throw new Exception("Unbounded recursion in parser");
 
 			return parser.TryMatch(scan);
 		}

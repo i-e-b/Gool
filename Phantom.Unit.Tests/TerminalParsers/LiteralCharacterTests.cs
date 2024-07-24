@@ -55,7 +55,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			scanner.Read();
 
 			var result = subject.TryMatch(scanner);
-			Assert.IsFalse(result.Success);
+			Assert.That(result.Success, Is.False);
 		}
 
 		[Test]

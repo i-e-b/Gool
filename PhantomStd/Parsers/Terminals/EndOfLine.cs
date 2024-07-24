@@ -1,6 +1,6 @@
-using PhantomStd.Parsers.Interfaces;
+using Phantom.Parsers.Interfaces;
 
-namespace PhantomStd.Parsers.Terminals
+namespace Phantom.Parsers.Terminals
 {
 	/// <summary>
 	/// Parser that matches an end of line marker, either <c>\r</c>, <c>\n</c>, or <c>\r\n</c>

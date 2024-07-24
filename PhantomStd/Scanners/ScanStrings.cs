@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using PhantomStd.Parsers;
+using Phantom.Parsers;
 
-namespace PhantomStd.Scanners
+namespace Phantom.Scanners
 {
 	/// <summary>
 	/// Scanner that operates over strings

@@ -71,7 +71,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		public void no_match_on_non_linebreak_characters ()
 		{
 			var result = subject.TryMatch(unix);
-			Assert.IsFalse(result.Success);
+			Assert.That(result.Success, Is.False);
 		}
 
 		[Test]

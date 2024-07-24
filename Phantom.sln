@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom", "Phantom\Phantom.csproj", "{158158B0-FD79-46EE-879C-835479C5EA2F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3306E773-9AEF-4FD3-A8B4-7963912A7AD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phantom.Unit.Tests", "Phantom.Unit.Tests\Phantom.Unit.Tests.csproj", "{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}"
@@ -16,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{6EAF4DB0-7CBE-4E53-B22C-6CE21C36B08C}"
 	ProjectSection(SolutionItems) = preProject
 		README = README
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhantomStd", "PhantomStd\PhantomStd.csproj", "{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}"
@@ -26,10 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{158158B0-FD79-46EE-879C-835479C5EA2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{158158B0-FD79-46EE-879C-835479C5EA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{158158B0-FD79-46EE-879C-835479C5EA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{158158B0-FD79-46EE-879C-835479C5EA2F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{435C6C78-32E6-4D5F-B97B-D1B2F704C37B}.Release|Any CPU.ActiveCfg = Release|Any CPU

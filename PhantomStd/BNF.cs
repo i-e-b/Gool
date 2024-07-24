@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using PhantomStd.Parsers;
-using PhantomStd.Parsers.Composite;
-using PhantomStd.Parsers.Terminals;
+using Phantom.Parsers;
+using Phantom.Parsers.Composite;
+using Phantom.Parsers.Terminals;
 
-namespace PhantomStd
+namespace Phantom
 {
 	/// <summary>
 	/// Provides a BNF-like syntax for building parsers.<br/>

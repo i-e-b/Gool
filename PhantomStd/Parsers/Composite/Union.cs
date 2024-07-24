@@ -1,6 +1,6 @@
-using PhantomStd.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Composite.Abstracts;
 
-namespace PhantomStd.Parsers.Composite
+namespace Phantom.Parsers.Composite
 {
 	/// <summary>
 	/// Creates a Union (or 'alternative') parser from two sub-parsers.

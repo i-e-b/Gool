@@ -1,4 +1,4 @@
-namespace PhantomStd.Scanners
+namespace Phantom.Scanners
 {
 	/// <summary>
 	/// Match of parser and scanner location

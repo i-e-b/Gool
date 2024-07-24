@@ -1,4 +1,4 @@
-﻿using NSubstitute;
+﻿using System;
 using NUnit.Framework;
 using Phantom.Parsers;
 using Phantom.Parsers.Interfaces;
@@ -19,11 +19,11 @@ namespace Phantom.Unit.Tests.MutualRecursion
 		{
 			scanner = new ScanStrings("hello, world");
 
-			matching_parser = Substitute.For<IMatchingParser>();
-			complex_parser = Substitute.For<IParser>();
+			matching_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));//Substitute.For<IMatchingParser>();
+			complex_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));//Substitute.For<IParser>();
 
-			matching_parser.TryMatch(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
-			complex_parser.Parse(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
+			//matching_parser.TryMatch(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
+			//complex_parser.Parse(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
 
 			subject = new Recursion();
 		}
@@ -34,8 +34,9 @@ namespace Phantom.Unit.Tests.MutualRecursion
 			subject.Source = matching_parser;
 
 			subject.Parse(scanner);
-	
-			matching_parser.Received().TryMatch(scanner);
+
+			Assert.That(((TestParser_AlwaysGives)matching_parser).LastTryMatchScanner, Is.EqualTo(scanner));
+			//matching_parser.Received().TryMatch(scanner);
 		}
 
 		[Test]
@@ -45,7 +46,8 @@ namespace Phantom.Unit.Tests.MutualRecursion
 
 			subject.Parse(scanner);
 	
-			complex_parser.Received().Parse(scanner);
+			Assert.That(((TestParser_AlwaysGives)complex_parser).LastTryMatchScanner, Is.EqualTo(scanner));
+			//complex_parser.Received().Parse(scanner);
 		}
 
 		[Test]
@@ -53,9 +55,7 @@ namespace Phantom.Unit.Tests.MutualRecursion
 		{
 			subject.Source = subject;
 
-			var result = subject.Parse(scanner); // if it didn't, this would cause a stack-overflow.
-	
-			Assert.That(result.Success, Is.False);
+			Assert.Throws<Exception>(()=> subject.Parse(scanner)); // if it didn't, this would cause a stack-overflow.
 		}
 	}
 }

@@ -26,7 +26,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			for (int i = 0; i < Input.Length; i++)
 			{
 				var result = subject.TryMatch(scanner);
-				Assert.IsFalse(result.Success);
+				Assert.That(result.Success, Is.False);
 			}
 		}
 
@@ -37,7 +37,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			scanner.Read();
 
 			var result = subject.TryMatch(scanner);
-			Assert.IsTrue(result.Success);
+			Assert.That(result.Success, Is.True);
 		}
 
 		[Test]

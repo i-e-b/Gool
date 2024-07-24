@@ -1,4 +1,4 @@
-namespace PhantomStd.Scanners
+namespace Phantom.Scanners
 {
 	/// <summary>
 	/// Interface for textual transforms (like to lower case or remove punctuation)

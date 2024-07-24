@@ -1,4 +1,4 @@
-namespace PhantomStd.Parsers.Interfaces
+namespace Phantom.Parsers.Interfaces
 {
 	/// <summary>
 	/// Interface for parsers that can attempt to match their parser patterns against scanner data

@@ -24,7 +24,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 		public void empty_parser_always_succeeds ()
 		{
 			var result = subject.TryMatch(scanner);
-			Assert.IsTrue(result.Success);
+			Assert.That(result.Success, Is.True);
 		}
 
 		[Test]

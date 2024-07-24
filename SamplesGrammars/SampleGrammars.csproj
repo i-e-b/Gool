@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SampleGrammars</RootNamespace>
     <AssemblyName>SampleGrammars</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -45,9 +45,9 @@
     <Compile Include="XMLParser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Phantom\Phantom.csproj">
-      <Project>{158158B0-FD79-46EE-879C-835479C5EA2F}</Project>
-      <Name>Phantom</Name>
+    <ProjectReference Include="..\PhantomStd\PhantomStd.csproj">
+      <Project>{4d43b091-f498-4583-b0f4-1b9bf72feffe}</Project>
+      <Name>PhantomStd</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

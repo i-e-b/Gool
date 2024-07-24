@@ -23,7 +23,7 @@ namespace Phantom.Unit.Tests.Scanners
 			for (int i = 0; i < 10; i++)
 			{
 				var result = subject.RecursionCheck(key, i);
-				Assert.IsFalse(result);
+				Assert.That(result, Is.False);
 			}
 		}
 
@@ -34,7 +34,7 @@ namespace Phantom.Unit.Tests.Scanners
 
 			subject.RecursionCheck(key, 3);
 			var result = subject.RecursionCheck(key, 3);
-			Assert.IsTrue(result);
+			Assert.That(result, Is.True);
 		}
 
 		[Test]
@@ -43,10 +43,10 @@ namespace Phantom.Unit.Tests.Scanners
 			var k1 = new object();
 			var k2 = new object();
 
-			Assert.IsFalse(subject.RecursionCheck(k1, 0));
-			Assert.IsFalse(subject.RecursionCheck(k2, 0));
-			Assert.IsFalse(subject.RecursionCheck(k1, 1));
-			Assert.IsTrue(subject.RecursionCheck(k2, 0));
+			Assert.That(subject.RecursionCheck(k1, 0), Is.False);
+			Assert.That(subject.RecursionCheck(k2, 0), Is.False);
+			Assert.That(subject.RecursionCheck(k1, 1), Is.False);
+			Assert.That(subject.RecursionCheck(k2, 0), Is.True);
 		}
 
 		[Test]
@@ -56,8 +56,8 @@ namespace Phantom.Unit.Tests.Scanners
 
 			for (int i = 0; i < 10; i++)
 			{
-				Assert.IsFalse(subject.RecursionCheck(key, i));
-				Assert.IsTrue(subject.RecursionCheck(key, i));
+				Assert.That(subject.RecursionCheck(key, i), Is.False);
+				Assert.That(subject.RecursionCheck(key, i), Is.True);
 			}
 		}
 	}

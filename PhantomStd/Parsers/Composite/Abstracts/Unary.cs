@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using PhantomStd.Parsers.Interfaces;
+using Phantom.Parsers.Interfaces;
 
-namespace PhantomStd.Parsers.Composite.Abstracts
+namespace Phantom.Parsers.Composite.Abstracts
 {
 	/// <summary>
 	/// A composition that takes only one parser.

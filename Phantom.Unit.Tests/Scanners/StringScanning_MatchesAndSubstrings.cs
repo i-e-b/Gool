@@ -49,15 +49,16 @@ namespace Phantom.Unit.Tests.Scanners
 		{
 			var result = subject.CreateMatch(dummy_parser, 0, -1);
 			Assert.That(result.Success, Is.False);
-		}
+		}
+
 
 		[Test]
 		public void scanner_NoMatch_returns_an_empty_ParserMatch_with_success_of_false()
 		{
 			var result = subject.NoMatch;
 
-			Assert.IsFalse(result.Success);
-			Assert.IsTrue(result.Empty);
+			Assert.That(result.Success, Is.False);
+			Assert.That(result.Empty, Is.True);
 			Assert.That(result.Length, Is.EqualTo(-1), "result.Length");
 			Assert.That(result.Offset, Is.EqualTo(0), "result.Offset");
 		}
@@ -78,8 +79,8 @@ namespace Phantom.Unit.Tests.Scanners
 		{
 			var result = subject.EmptyMatch;
 
-			Assert.IsTrue(result.Success);
-			Assert.IsTrue(result.Empty);
+			Assert.That(result.Success, Is.True);
+			Assert.That(result.Empty, Is.True);
 			Assert.That(result.Length, Is.EqualTo(0));
 		}
 
