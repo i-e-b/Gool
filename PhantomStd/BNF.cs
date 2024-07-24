@@ -8,11 +8,55 @@ namespace Phantom
 {
 	/// <summary>
 	/// Provides a BNF-like syntax for building parsers.<br/>
-	/// &lt; terminated list; &gt; sequence;
-	/// - zero or more; + one or more; ! zero or one;
-	/// %  delimited list; | union; &amp; intersection;
-	/// ^ xor; "#..." regex; '.' lit char; "..." lit string.
+	/// <p/>
+	/// <b>Atomic parsers:</b>
+	/// <dl>
+	/// 
+	/// <dt><![CDATA[ "#..." ]]></dt>
+	/// <dd>Create a <b>regex</b> parser that matches a string based on a regex pattern. The <c>#</c> prefix is not included in the pattern</dd>
+	/// 
+	/// <dt><![CDATA[ '.' ]]></dt>
+	/// <dd>Create a <b>character</b> parser that matches a single literal character in the input</dd>
+	/// 
+	/// <dt><![CDATA[ "..." ]]></dt>
+	/// <dd>Create a <b>string</b> parser that matches a literal string in the input</dd>
+	///
+	/// </dl>
+	///
+	/// <b>Combining parsers:</b>
+	/// <dl>
+	/// 
+	/// <dt><![CDATA[ a < b ]]></dt>
+	/// <dd>Create a <b>terminated list</b> parser that matches a list of <c>a</c>, each being terminated by <c>b</c>
+	/// The last item <c>a</c> may be terminated, but need not be.</dd>
+	/// 
+	/// <dt><![CDATA[ a > b ]]></dt>
+	/// <dd>Create a <b>sequence</b> parser that matches <c>a</c> then <c>b</c></dd>
+	/// 
+	/// <dt><![CDATA[ -a ]]></dt>
+	/// <dd>Create an <b>optional repeat</b> parser that matches zero or more <c>a</c></dd>
+	/// 
+	/// <dt><![CDATA[ +a ]]></dt>
+	/// <dd>Create an <b>repeat</b> parser that matches one or more <c>a</c></dd>
+	/// 
+	/// <dt><![CDATA[ !a ]]></dt>
+	/// <dd>Create an <b>option</b> parser that matches zero or one <c>a</c></dd>
+	/// 
+	/// <dt><![CDATA[ a % b ]]></dt>
+	/// <dd>Create a <b>delimited list</b> parser that matches a list of <c>a</c>, delimited by <c>b</c></dd>
+	/// 
+	/// <dt><![CDATA[ a | b ]]></dt>
+	/// <dd>Create a <b>union</b> parser that matches the longest result from either <c>a</c> or <c>b</c></dd>
+	/// 
+	/// <dt><![CDATA[ a & b ]]></dt>
+	/// <dd>Create an <b>intersection</b> parser that matches (<c>a</c> then <c>b</c>) or (<c>b</c> then <c>a</c>)</dd>
+	/// 
+	/// <dt><![CDATA[ a ^ b ]]></dt>
+	/// <dd>Create an <b>exclusion</b> parser that matches <c>a</c> or <c>b</c> but not both</dd>
+	/// 
+	/// </dl>
 	/// </summary>
+	// ReSharper disable once InconsistentNaming
 	public class BNF
 	{
 		// Inspired by Spirit parser http://boost-spirit.com/home/
@@ -46,14 +90,24 @@ namespace Phantom
 		}
 
 		/// <summary>
+		/// Add a tag to the base parser.
+		/// This is used to interpret the parser result
+		/// </summary>
+		public BNF Tag(string tag)
+		{
+			_parserTree.Tag(tag);
+			return this;
+		}
+
+		/// <summary>
 		/// Create a self-recursive parser structure
 		/// </summary>
-		public static BNF Recursive(Func<BNF, BNF> ParserTreeFunction)
+		public static BNF Recursive(Func<BNF, BNF> parserTreeFunction)
 		{
 			// The way this works involves a lot of bad-practice and hidden typecasts.
 			var hold = new Recursion();
 
-			var src = ParserTreeFunction(hold);
+			var src = parserTreeFunction(hold);
 			hold.Source = src.Result();
 
 			return hold;
@@ -130,7 +184,6 @@ namespace Phantom
 
 			return new BNF(new TerminatedList(a.Result(), b.Result()));
 		}
-
 
 		/// <summary>
 		/// Create a loop parser that matches zero or more _a_

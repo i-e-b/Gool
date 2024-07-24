@@ -11,5 +11,15 @@ namespace Phantom
 		/// Try to interpret the content of <paramref name="scan"/>
 		/// </summary>
 		ParserMatch Parse(IScanner scan);
+
+		/// <summary>
+		/// Add a tag to this parser
+		/// </summary>
+		void Tag(string tag);
+
+		/// <summary>
+		/// Read the tag added to this parser, if any
+		/// </summary>
+		string? GetTag();
 	}
 }

@@ -9,9 +9,9 @@ namespace Phantom.Unit.Tests.CompositeParsers
 	[TestFixture]
 	public class SequenceParserTests
 	{
-		ScanStrings scanner;
-		const string Input = "this is my input";
-		IParser __this__, __wally__, __is_my__, __dr_jones__;
+		private ScanStrings scanner;
+		private const string Input = "this is my input";
+		private IParser __this__, __wally__, __is_my__, __dr_jones__;
 
 		[SetUp]
 		public void a_scanner_and_some_terminals ()

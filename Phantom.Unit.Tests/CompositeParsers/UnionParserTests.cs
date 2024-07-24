@@ -11,9 +11,9 @@ namespace Phantom.Unit.Tests.CompositeParsers
 	[TestFixture]
 	public class UnionParserTests
 	{
-		ScanStrings scanner;
-		const string Input = "this is my input";
-		IParser __this__, __wally__, __this_is__, __dr_jones__;
+		private ScanStrings scanner;
+		private const string Input = "this is my input";
+		private IParser __this__, __wally__, __this_is__, __dr_jones__;
 
 		[SetUp]
 		public void a_scanner_and_some_terminals ()

@@ -10,8 +10,8 @@ namespace Phantom.Unit.Tests.CompositeParsers
 	[TestFixture]
 	public class TerminatedListParserTests
 	{
-		IParser alpha, semi;
-		IParser subject;
+		private IParser alpha, semi;
+		private IParser subject;
 
 		[SetUp]
 		public void semicolon_terminated_list ()

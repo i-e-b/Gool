@@ -12,9 +12,9 @@ namespace Phantom.Unit.Tests.ParserMatches
 	[TestFixture]
 	public class ParserMatchTests
 	{
-		IParser parser;
-		IScanner scanner;
-		ParserMatch subject;
+		private IParser parser;
+		private IScanner scanner;
+		private ParserMatch subject;
 
 		[Test]
 		public void Creating_a_parser_match_with_a_null_parser_results_in_exception ()

@@ -9,10 +9,10 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	[TestFixture]
 	public class LiteralStringTests
 	{
-		IScanner scanner;
-		IMatchingParser subject;
-		const string Input = "This is my input";
-		readonly int[] matchOffsets = new[]{2, 5};
+		private IScanner scanner;
+		private IMatchingParser subject;
+		private const string Input = "This is my input";
+		private readonly int[] matchOffsets = new[]{2, 5};
 
 		[SetUp]
 		public void a_string_scanner_with_some_text ()

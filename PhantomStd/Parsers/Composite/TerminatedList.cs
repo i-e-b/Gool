@@ -48,8 +48,8 @@ namespace Phantom.Parsers.Composite
 					return m;
 				}
 				
-				m.AddSubmatch(a);
-				m.AddSubmatch(b);
+				m.AddSubMatch(a);
+				m.AddSubMatch(b);
 			}
 
 			return m;
@@ -58,7 +58,10 @@ namespace Phantom.Parsers.Composite
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return LeftParser + " < " + RightParser;
+			var desc = LeftParser + " < " + RightParser;
+			
+			if (TagValue is null) return desc;
+			return desc + " Tag='" + TagValue + "'";
 		}
 	}
 }

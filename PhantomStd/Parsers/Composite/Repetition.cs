@@ -57,7 +57,7 @@ namespace Phantom.Parsers.Composite
 				var m_temp = Parser.Parse(scan);
 				if (!m_temp.Success) break; // stop if not successful
 				count++;
-				m.AddSubmatch(m_temp);
+				m.AddSubMatch(m_temp);
 			}
 
 			if (count == LowerBound)
@@ -67,7 +67,7 @@ namespace Phantom.Parsers.Composite
 					var m_temp = Parser.Parse(scan);
 					if (!m_temp.Success) break; // stop if not successful
 					count++;
-					m.AddSubmatch(m_temp);
+					m.AddSubMatch(m_temp);
 				}
 			}
 			else
@@ -89,7 +89,10 @@ namespace Phantom.Parsers.Composite
 			if (LowerBound == 0 && UpperBound > 1) return Parser + "*";
 			if (LowerBound == 0 && UpperBound == 1) return Parser + "?";
 			if (LowerBound == 1 && UpperBound > 1) return Parser + "+";
-			return "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
+			var desc = "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
+
+			if (TagValue is null) return desc;
+			return desc + " Tag='" + TagValue + "'";
 		}
 	}
 }

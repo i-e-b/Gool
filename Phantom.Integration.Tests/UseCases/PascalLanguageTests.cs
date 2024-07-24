@@ -36,9 +36,7 @@ namespace Phantom.Integration.Tests
 		}
 
 
-
-		
-		const string sample_program = 
+		private const string sample_program = 
 @"program WriteName;
 var
   i:Integer;
@@ -51,7 +49,8 @@ begin
     WriteLn('Hello ', Name)
   end
 end.";
-		const string missing_begin = 
+
+		private const string missing_begin = 
 @"program WriteName;
 var
   i:Integer;
@@ -63,7 +62,8 @@ begin
     WriteLn('Hello ', Name)
   end
 end.";
-		const string missing_quote = 
+
+		private const string missing_quote = 
 @"program WriteName;
 var
   i:Integer;

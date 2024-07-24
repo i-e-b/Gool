@@ -9,14 +9,14 @@ namespace Phantom.Scanners
 	/// </summary>
 	public class ScanStrings : IScanner
 	{
-		readonly string input_string;
-		readonly List<ParserPoint> failure_points;
-		int max_stack_depth;
-		Dictionary<object, int>? parser_points; // Parser => Offset
-		string? right_most_match;
-		int right_most_point;
-		int scanner_offset;
-		bool skip_whitespace;
+		private readonly string input_string;
+		private readonly List<ParserPoint> failure_points;
+		private int max_stack_depth;
+		private Dictionary<object, int>? parser_points; // Parser => Offset
+		private string? right_most_match;
+		private int right_most_point;
+		private int scanner_offset;
+		private bool skip_whitespace;
 
 		/// <summary>
 		/// Create a new scanner from an input string.
@@ -102,7 +102,7 @@ namespace Phantom.Scanners
 			return lst;
 		}
 
-		string ParserStringFrag(ParserPoint p)
+		private string ParserStringFrag(ParserPoint p)
 		{
 			var str = p.Parser.ToString();
 			if (str.Length > 100) return str.Substring(0,100);
@@ -219,18 +219,12 @@ namespace Phantom.Scanners
 		public ITransform Transform { get; set; }
 
 		/// <inheritdoc />
-		public ParserMatch NoMatch
-		{
-			get { return new ParserMatch(null, this, 0, -1); }
-		}
+		public ParserMatch NoMatch => new(null, this, 0, -1);
 
 		/// <summary>
 		/// 
 		/// </summary>
-		public ParserMatch EmptyMatch
-		{
-			get { return new ParserMatch(null, this, Offset, 0); }
-		}
+		public ParserMatch EmptyMatch => new(null, this, Offset, 0);
 
 		/// <inheritdoc />
 		public ParserMatch CreateMatch(IParser source, int offset, int length)

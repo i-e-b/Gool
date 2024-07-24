@@ -8,9 +8,9 @@ namespace Phantom.Unit.Tests.Scanners
 	[TestFixture]
 	public class StringScanning_MatchesAndSubstrings
 	{
-		const string Input = "This is some input";
-		IScanner subject;
-		Parser dummy_parser;
+		private const string Input = "This is some input";
+		private IScanner subject;
+		private Parser dummy_parser;
 
 		[SetUp]
 		public void a_string_scanner_with_an_input_string()

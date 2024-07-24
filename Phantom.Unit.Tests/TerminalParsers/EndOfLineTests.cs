@@ -9,10 +9,10 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	[TestFixture]
 	public class EndOfLineTests
 	{
-		IScanner unix, windows, oldMac, twoUnix, twoWindows, mangledTwo;
-		IMatchingParser subject;
-		string oneLineInput = "Just some normal input";
-		ScanStrings oneLineScanner;
+		private IScanner unix, windows, oldMac, twoUnix, twoWindows, mangledTwo;
+		private IMatchingParser subject;
+		private string oneLineInput = "Just some normal input";
+		private ScanStrings oneLineScanner;
 
 		[SetUp]
 		public void a_string_scanner_with_some_text()
@@ -85,7 +85,7 @@ namespace Phantom.Unit.Tests.TerminalParsers
 			Assert.That(result.Success, Is.False);
 		}
 
-		int CountLineEnds(IScanner scanner)
+		private int CountLineEnds(IScanner scanner)
 		{
 			int count = 0;
 			while (!scanner.EndOfInput)

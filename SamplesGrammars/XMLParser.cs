@@ -1,23 +1,23 @@
 ﻿using Phantom;
 using System.Text.RegularExpressions;
+// ReSharper disable InconsistentNaming
 
 namespace SampleGrammars {
 	public class XMLParser {
-		protected IParser root;
-
-		public IParser TheParser { get { return root; } }
+		public IParser TheParser { get; }
 
 		public XMLParser () {
-			root = Xml();
+			TheParser = Xml();
 		}
 
-		protected RegexOptions ops() {
+		private RegexOptions ops() {
 			return RegexOptions.ExplicitCapture
 				| RegexOptions.IgnoreCase
 				| RegexOptions.Multiline;
 		}
 
-		protected IParser Xml () {
+		private IParser Xml()
+		{
 			BNF.RegexOptions = ops();
 
 			/*
@@ -31,13 +31,13 @@ namespace SampleGrammars {
 			BNF quoted_string = "\"" > identifier > "\"";
 			BNF attribute     = identifier > "=" > quoted_string;
 			BNF open_tag      = "<" > identifier > (!attribute) > ">";
-			BNF close_tag     = "</" > identifier > ">"; // TODO: need a way match the `identifier` of `open_tag` and `close_tag`
+			BNF close_tag     = "</" > identifier > ">";
 
-			return BNF.Recursive(tree =>
-				
-				!(open_tag > -(tree | text) > close_tag)
-				
-				).Result();
+			text.Tag("text");
+			open_tag.Tag("open");
+			close_tag.Tag("close");
+			
+			return BNF.Recursive(tree => !(open_tag > -(tree | text) > close_tag)).Result();
 		}
 	}
 }

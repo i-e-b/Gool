@@ -31,7 +31,7 @@ namespace Phantom.Parsers.Composite
 			}
 
 			var m = new ParserMatch(this, scan, a.Offset, a.Length);
-			m.AddSubmatch(a);
+			m.AddSubMatch(a);
 
 			while (!scan.EndOfInput)
 			{
@@ -53,8 +53,8 @@ namespace Phantom.Parsers.Composite
 					return m;
 				}
 
-				m.AddSubmatch(b);
-				m.AddSubmatch(a);
+				m.AddSubMatch(b);
+				m.AddSubMatch(a);
 			}
 
 			return m;
@@ -63,7 +63,8 @@ namespace Phantom.Parsers.Composite
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return LeftParser + " % " + RightParser;
+			if (TagValue is null) return LeftParser + " % " + RightParser;
+			return LeftParser + " % " + RightParser + " Tag='" + TagValue + "'";
 		}
 	}
 }

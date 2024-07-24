@@ -9,8 +9,8 @@ namespace Phantom.Unit.Tests.CompositeParsers
 	[TestFixture]
 	public class DelimitedListParserTests
 	{
-		IParser alpha, semi;
-		IParser subject;
+		private IParser alpha, semi;
+		private IParser subject;
 
 		[SetUp]
 		public void semicolon_delimited_list ()

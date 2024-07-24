@@ -45,7 +45,10 @@ namespace Phantom.Parsers.Terminals
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return "\"" + _test + "\"";
+			var desc = "\"" + _test + "\"";
+			
+			if (TagValue is null) return desc;
+			return desc + " Tag='" + TagValue + "'";
 		}
 	}
 }

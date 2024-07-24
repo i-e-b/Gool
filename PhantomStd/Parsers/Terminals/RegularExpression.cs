@@ -18,7 +18,7 @@ namespace Phantom.Parsers.Terminals
 		/// <param name="pattern">Regex pattern to match</param>
 		public RegularExpression(string pattern)
 		{
-			this._pattern = pattern;
+			_pattern = pattern;
 			_test = new Regex(pattern);
 		}
 
@@ -29,7 +29,7 @@ namespace Phantom.Parsers.Terminals
 		/// <param name="options">Options set to use</param>
 		public RegularExpression(string pattern, RegexOptions options)
 		{
-			this._pattern = pattern;
+			_pattern = pattern;
 			_test = new Regex(pattern, options);
 		}
 
@@ -45,7 +45,7 @@ namespace Phantom.Parsers.Terminals
 			string remains = scan.RemainingData();
 			var result = _test.Match(remains);
 
-			if (result.Success && result.Index == 0)
+			if (result is { Success: true, Index: 0 })
 			{
 				scan.Seek(offset + result.Length);
 				return scan.CreateMatch(this, offset, result.Length);
@@ -57,7 +57,10 @@ namespace Phantom.Parsers.Terminals
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return "/"+_pattern+"/";
+			var desc = "/"+_pattern+"/";
+			
+			if (TagValue is null) return desc;
+			return desc + " Tag='" + TagValue + "'";
 		}
 	}
 }

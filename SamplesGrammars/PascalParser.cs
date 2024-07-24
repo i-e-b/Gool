@@ -11,7 +11,7 @@ namespace SampleGrammars
 	/// Built from the 1979 Apple Pascal poster.
 	/// </summary>
 	public class PascalParser {
-		readonly IParser root;
+		private readonly IParser root;
 
 		public IParser TheParser { get { return root; } }
 
@@ -20,7 +20,7 @@ namespace SampleGrammars
 		}
 		
 		//  http://pascal-central.com/images/pascalposter.jpg
-		IParser Pascal()
+		private IParser Pascal()
 		{
 			// The BNF syntax isn't really up to this -- the precedence rules are all wrong!
 			// makes for a really fragile parser.
@@ -142,9 +142,9 @@ namespace SampleGrammars
 		}
 	}
 
-	class Consoler : Parser, IMatchingParser
+	internal class Consoler : Parser, IMatchingParser
 	{
-		readonly IMatchingParser src;
+		private readonly IMatchingParser src;
 
 		public Consoler(IMatchingParser src)
 		{

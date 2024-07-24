@@ -7,8 +7,8 @@ namespace Phantom.Unit.Tests.Scanners
 	[TestFixture]
 	public class StringScanner_ReadingAndSeeking
 	{
-		IScanner subject;
-		const string Input = "This is my input";
+		private IScanner subject;
+		private const string Input = "This is my input";
 
 		[SetUp]
 		public void a_string_scanner_with_some_text ()

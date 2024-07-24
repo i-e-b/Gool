@@ -9,9 +9,9 @@ namespace Phantom.Unit.Tests.TerminalParsers
 	[TestFixture]
 	public class EndOfInputTests
 	{
-		IScanner scanner;
-		IMatchingParser subject;
-		const string Input = "This is my input";
+		private IScanner scanner;
+		private IMatchingParser subject;
+		private const string Input = "This is my input";
 
 		[SetUp]
 		public void a_string_scanner_with_some_text ()

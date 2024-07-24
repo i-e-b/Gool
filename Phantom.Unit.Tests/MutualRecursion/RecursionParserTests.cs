@@ -9,21 +9,18 @@ namespace Phantom.Unit.Tests.MutualRecursion
 	[TestFixture]
 	public class RecursionParserTests
 	{
-		IMatchingParser matching_parser;
-		IParser complex_parser;
-		IScanner scanner;
-		Recursion subject;
+		private IMatchingParser matching_parser;
+		private IParser complex_parser;
+		private IScanner scanner;
+		private Recursion subject;
 
 		[SetUp]
 		public void setup()
 		{
 			scanner = new ScanStrings("hello, world");
 
-			matching_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));//Substitute.For<IMatchingParser>();
-			complex_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));//Substitute.For<IParser>();
-
-			//matching_parser.TryMatch(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
-			//complex_parser.Parse(scanner).ReturnsForAnyArgs(new ParserMatch(null, scanner, 0, 0));
+			matching_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));
+			complex_parser = new TestParser_AlwaysGives(()=>new ParserMatch(null, scanner, 0, 0));
 
 			subject = new Recursion();
 		}
@@ -36,7 +33,6 @@ namespace Phantom.Unit.Tests.MutualRecursion
 			subject.Parse(scanner);
 
 			Assert.That(((TestParser_AlwaysGives)matching_parser).LastTryMatchScanner, Is.EqualTo(scanner));
-			//matching_parser.Received().TryMatch(scanner);
 		}
 
 		[Test]
@@ -47,7 +43,6 @@ namespace Phantom.Unit.Tests.MutualRecursion
 			subject.Parse(scanner);
 	
 			Assert.That(((TestParser_AlwaysGives)complex_parser).LastTryMatchScanner, Is.EqualTo(scanner));
-			//complex_parser.Received().Parse(scanner);
 		}
 
 		[Test]

@@ -9,8 +9,8 @@ namespace Phantom.Unit.Tests.MutualRecursion
 	[TestFixture]
 	public class RecursionParserHelperTests
 	{
-		IParser subject;
-		IScanner valid_recursive, invalid_recursive, valid_simple, invalid_simple;
+		private IParser subject;
+		private IScanner valid_recursive, invalid_recursive, valid_simple, invalid_simple;
 
 		[SetUp]
 		public void a_recursive_parser_pattern()

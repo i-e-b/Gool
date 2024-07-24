@@ -43,7 +43,10 @@ namespace Phantom.Parsers.Composite
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return LeftParser + " > " + RightParser;
+			var desc = LeftParser + " > " + RightParser;
+			
+			if (TagValue is null) return desc;
+			return desc + " Tag='" + TagValue + "'";
 		}
 	}
 }

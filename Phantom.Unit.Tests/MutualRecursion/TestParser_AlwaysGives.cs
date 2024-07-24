@@ -22,6 +22,9 @@ namespace Phantom.Unit.Tests.MutualRecursion
             return _func();
         }
 
+        public void Tag(string tag) { }
+        public string GetTag() => null;
+
         public ParserMatch TryMatch(IScanner scan)
         {
             LastTryMatchScanner = scan;

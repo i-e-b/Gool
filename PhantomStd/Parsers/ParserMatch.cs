@@ -10,21 +10,16 @@ namespace Phantom.Parsers
     /// </summary>
     public class ParserMatch : IEnumerable<ParserMatch>
     {
-        private readonly IScanner _matchScanner;
-
-        private int _matchLength;
-        private int _matchOffset;
-
         /// <summary>
         /// Builds a new match
         /// </summary>
         public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
         {
             SourceParser = source;
-
-            _matchScanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
-            _matchOffset = offset;
-            _matchLength = length;
+            
+            Scanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
+            Offset = offset;
+            Length = length;
         }
 
         /// <summary>
@@ -40,31 +35,22 @@ namespace Phantom.Parsers
         /// <summary>
         /// Scanner
         /// </summary>
-        public IScanner Scanner
-        {
-            get { return _matchScanner; }
-        }
+        public IScanner Scanner { get; }
 
         /// <summary>
         /// Offset
         /// </summary>
-        public int Offset
-        {
-            get { return _matchOffset; }
-        }
+        public int Offset { get; private set; }
 
         /// <summary>
         /// Length
         /// </summary>
-        public int Length
-        {
-            get { return _matchLength; }
-        }
+        public int Length { get; private set; }
 
         /// <summary>
         /// Extracts the match value
         /// </summary>
-        public String Value
+        public string Value
         {
             get
             {
@@ -75,7 +61,7 @@ namespace Phantom.Parsers
         }
 
         /// <summary>
-        /// True if match successfull
+        /// True if match successful
         /// </summary>
         public bool Success
         {
@@ -133,8 +119,8 @@ namespace Phantom.Parsers
                 throw new ArgumentException("Can't concatenate between different scanners");
 
             var m = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
-            m.AddSubmatch(left);
-            m.AddSubmatch(right);
+            m.AddSubMatch(left);
+            m.AddSubMatch(right);
 
             return m;
         }
@@ -143,10 +129,10 @@ namespace Phantom.Parsers
         /// Add a sub-parser match, and include it's coverage in this match's coverage.
         /// </summary>
         /// <param name="m">Match to add</param>
-        public void AddSubmatch(ParserMatch m)
+        public void AddSubMatch(ParserMatch m)
         {
             if (m == null)
-                throw new ArgumentNullException("m", "Can't add null match.");
+                throw new ArgumentNullException(nameof(m), "Can't add null match.");
             if (!m.Success)
                 throw new ArgumentException("Can't add failure match.");
 
@@ -167,14 +153,14 @@ namespace Phantom.Parsers
             else
             {
                 offset = Math.Min(Offset, m.Offset);
-                int m_end = m.Offset + m.Length;
-                int t_end = Offset + Length;
-                int end = Math.Max(m_end, t_end);
+                int mEnd = m.Offset + m.Length;
+                int tEnd = Offset + Length;
+                int end = Math.Max(mEnd, tEnd);
                 length = end - offset;
             }
 
-            _matchOffset = offset;
-            _matchLength = length;
+            Offset = offset;
+            Length = length;
         }
 
         /// <summary>
@@ -186,7 +172,7 @@ namespace Phantom.Parsers
             return DepthFirstWalk(this);
         }
 
-        IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node)
+        private static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node)
         {
             if (node is null) yield break;
             yield return node; // this match
@@ -210,7 +196,7 @@ namespace Phantom.Parsers
             }
         }
 
-        IEnumerable<ParserMatch> BottomLevelMatches(ParserMatch? node)
+        private static IEnumerable<ParserMatch> BottomLevelMatches(ParserMatch? node)
         {
             if (node == null || node.Empty) yield break;
 

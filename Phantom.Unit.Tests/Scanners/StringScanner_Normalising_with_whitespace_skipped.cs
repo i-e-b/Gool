@@ -6,8 +6,8 @@ namespace Phantom.Unit.Tests.Scanners
 	[TestFixture]
 	public class StringScanner_Normalising_with_whitespace_skipped
 	{                       //0         1            2         3
-		IScanner subject;   //012345678901 2 3 45678901234567890
-		const string Input = "this is my \r\n\t boom-stick!    ";
+		private IScanner subject;   //012345678901 2 3 45678901234567890
+		private const string Input = "this is my \r\n\t boom-stick!    ";
 
 		[SetUp]
 		public void setup()

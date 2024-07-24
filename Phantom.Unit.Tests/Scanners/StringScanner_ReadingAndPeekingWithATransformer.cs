@@ -6,9 +6,9 @@ namespace Phantom.Unit.Tests.Scanners
 	[TestFixture]
 	public class StringScanner_ReadingAndPeekingWithATransformer
 	{
-		IScanner subject;
-		ITransform transformer;
-		const string Input = "this is an untransformed input";
+		private IScanner subject;
+		private ITransform transformer;
+		private const string Input = "this is an untransformed input";
 
 		[SetUp]
 		public void A_string_scanner_with_a_transformer()
