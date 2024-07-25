@@ -46,11 +46,11 @@ namespace SampleGrammars {
 			BNF tag_id        = identifier.Copy().Tag(TagId);
 			//BNF open_tag      = '<' > tag_id > -attribute > '>'; // TODO: this is correct, but is faulting
 			//BNF open_tag      = '<' > tag_id > ((BNF)new Repetition(attribute.Result(), 0, 0) > '>'); // passes when given no attrs at root
-			BNF open_tag      = '<' > tag_id > ((BNF)new Repetition(attribute.Result(), 0, 2) > '>'); // passes when given 2 attrs or none
+			//BNF open_tag      = '<' > tag_id > ((BNF)new Repetition(attribute.Result(), 0, 2) > '>'); // passes when given 2 attrs or none
 			//BNF open_tag      = '<' > tag_id > ((BNF)new Repetition(attribute.Result(), 0, 3) > '>'); // fails when given 2 attrs or none
 			//BNF open_tag      = '<' > tag_id > new Repetition(attribute.Result(), 0, 2) > '>'; // fails!
-			//BNF open_tag      = '<' > tag_id > !attribute > '>'; // TODO: this is wrong but works
-			//BNF open_tag      = '<' > tag_id > /*!attribute >*/ '>'; // TODO: this is wrong but works
+			//BNF open_tag        = '<' > tag_id > !attribute > '>';
+			BNF open_tag      = '<' > tag_id > '>'; // TODO: this is wrong but works
 			//BNF open_tag      = '<' > tag_id > attr_list > '>'; // ???
 			
 			BNF close_tag     = "</" > tag_id > '>';
@@ -60,7 +60,7 @@ namespace SampleGrammars {
 			open_tag.Tag(OpenTag);
 			close_tag.Tag(CloseTag);
 			
-			return (open_tag > BNF.Recursive(tree => +(open_tag > -(tree | text) > close_tag)) > close_tag).Result();
+			return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag)).Result();
 		}
 	}
 }
