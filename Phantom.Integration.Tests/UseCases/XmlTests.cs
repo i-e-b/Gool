@@ -10,7 +10,7 @@ namespace Phantom.Integration.Tests
 	public class XmlTests
 	{
 		private const string Sample = 
-@"<note type=""private"">
+@"<note>
 	<to>Tove</to>
 	<from>Jani</from>
 	<heading>Reminder</heading>
@@ -19,11 +19,11 @@ namespace Phantom.Integration.Tests
 </note>";
 
 		private const string BrokenSample = 
-@"<note type=""private"">
+@"<note type=""private"" class=""sheer"">
 	<to>Tove</to>
 	<from>Jani</from>
 	<heading>Reminder</broken>
-	<body>Don't forget me this weekend!</body>
+	<body type=""text"">Don't forget me this weekend!</body>
 </wrong>";
 
 		[Test]
@@ -51,6 +51,11 @@ namespace Phantom.Integration.Tests
 
 			var result = parser.Parse(scanner);
 
+			foreach (var fail in scanner.ListFailures())
+			{
+				Console.WriteLine(fail);
+			}
+
 			Assert.That(result.Success, Is.True, result + ": " + result.Value);
 			Assert.That(result.Value, Is.EqualTo(BrokenSample));
 
@@ -72,7 +77,12 @@ namespace Phantom.Integration.Tests
 			var scanner = new ScanStrings(Sample);
 
 			var result = parser.Parse(scanner);
-			
+
+			foreach (var fail in scanner.ListFailures())
+			{
+				Console.WriteLine(fail);
+			}
+
 			Assert.That(result.Success, Is.True, result + ": " + result.Value);
 			Assert.That(result.Value, Is.EqualTo(Sample));
 
@@ -87,11 +97,11 @@ namespace Phantom.Integration.Tests
 						break;
 					
 					case XMLParser.OpenTag:
-						Console.WriteLine(token.ChildrenWithTag(XMLParser.TagId).First().Value + "{");
+						Console.WriteLine(token.ChildrenWithTag(XMLParser.TagId).FirstOrDefault()?.Value + "{");
 						break;
 					
 					case XMLParser.CloseTag:
-						Console.WriteLine("}" + token.ChildrenWithTag(XMLParser.TagId).First().Value);
+						Console.WriteLine("}" + token.ChildrenWithTag(XMLParser.TagId).FirstOrDefault()?.Value);
 						break;
 				}
 			}

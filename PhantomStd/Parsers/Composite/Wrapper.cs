@@ -36,7 +36,7 @@ public class Wrapper : Unary
     /// <inheritdoc />
     public override string ToString()
     {
-        if (TagValue is null) return "(" + Parser + ")";
-        return "(" + Parser + ")" + " Tag='" + TagValue + "'";
+        if (TagValue is null) return "{" + Parser + "}";
+        return "{" + Parser + "}" + " Tag='" + TagValue + "'";
     }
 }

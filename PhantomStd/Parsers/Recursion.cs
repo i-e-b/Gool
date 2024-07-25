@@ -27,31 +27,12 @@ public class Recursion : Parser, IMatchingParser
 		return parser.TryMatch(scan);
 	}
 
-	/// <inheritdoc />
-	public override ParserMatch Parse(IScanner scan)
-	{
-		scan.Normalise();
-
-		if (scan.RecursionCheck(this, scan.Offset))
-			return scan.NoMatch;
-
-		var m = (Source is IMatchingParser parser) 
-			? (parser.TryMatch(scan))
-			: (Source?.Parse(scan));
-
-		if (m is null) return scan.NoMatch;
-		if (m.Length < 1) return scan.NoMatch; // Don't allow zero-length matches during recursion
-			
-		if (m.Success) scan.ClearFailures();
-		return m;
-	}
-
 	/// <summary>
 	/// Returns the type name of the base parser
 	/// </summary>
 	public override string ToString()
 	{
-		return Source?.GetType().ToString() ?? "Empty";
+		return $"Recursion({Source?.GetType().Name ?? "<none>"})";
 	}
 
 	/// <summary>

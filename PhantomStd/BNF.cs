@@ -215,7 +215,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Result(), 0, uint.MaxValue));
+		return new BNF(new Repetition(a.Result(), 0, int.MaxValue));
 	}
 
 	/// <summary>
@@ -226,7 +226,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Result(), 1, uint.MaxValue));
+		return new BNF(new Repetition(a.Result(), 1, int.MaxValue));
 	}
 
 	/// <summary>

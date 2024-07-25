@@ -102,7 +102,7 @@ public class ScanStrings : IScanner
 	private static string ParserStringFrag(ParserPoint p)
 	{
 		var str = p.Parser.ToString();
-		if (str.Length > 100) return str.Substring(0,100);
+		//if (str.Length > 100) return str.Substring(0,100);
 		return str;
 	}
 

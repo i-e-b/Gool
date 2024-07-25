@@ -100,7 +100,7 @@ public class ParserMatch : IEnumerable<ParserMatch>
     /// </summary>
     public override string ToString()
     {
-        return Value;
+        return Success ? Value : "";
     }
 
     /// <summary>

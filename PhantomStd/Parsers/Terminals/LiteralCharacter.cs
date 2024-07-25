@@ -36,14 +36,14 @@ public class LiteralCharacter : Parser, IMatchingParser
 
 			// return match
 			return m;
-		}
+	}
 
 	/// <inheritdoc />
 	public override string ToString()
 	{
-			var desc = _test.ToString();
-			
-			if (TagValue is null) return desc;
-			return desc + " Tag='" + TagValue + "'";
-		}
+		var desc = "'" + _test + "'";
+
+		if (TagValue is null) return desc;
+		return desc + " Tag='" + TagValue + "'";
+	}
 }

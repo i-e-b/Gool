@@ -1,3 +1,4 @@
+using System;
 using Phantom.Parsers.Interfaces;
 
 namespace Phantom.Parsers;
@@ -22,12 +23,16 @@ public abstract class Parser : IParser
 	{
 		scan.Normalise();
 
+		var originalOffset = scan.Offset;
+		
 		var st = new System.Diagnostics.StackTrace();
 		scan.StackStats(st.FrameCount);
 
 		if (scan.RecursionCheck(this, scan.Offset) && this is not Recursion) return scan.NoMatch;
 
-		var m = this is IMatchingParser matcher ? matcher.TryMatch(scan) : Parse(scan);
+		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of matching");
+
+		var m = matcher.TryMatch(scan);
 
 		if (m.Success)
 		{
@@ -36,6 +41,7 @@ public abstract class Parser : IParser
 		else
 		{
 			scan.AddFailure(this, scan.Offset);
+			scan.Seek(originalOffset);
 		}
 
 		return m;

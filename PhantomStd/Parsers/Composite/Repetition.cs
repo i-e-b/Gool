@@ -41,55 +41,46 @@ public class Repetition : Unary
 	/// <inheritdoc />
 	public override ParserMatch TryMatch(IScanner scan)
 	{
-		if (Parser == this) return scan.NoMatch;
+		//if (Parser == this) return scan.NoMatch; // ??
 
 		// save scanner state
-		int offset = scan.Offset;
+		int originalOffset = scan.Offset;
 
-		var m = new ParserMatch(this, scan, 0, 0); // empty match with this parser
+		var m = new ParserMatch(this, scan, originalOffset, 0); // empty match with this parser
 
-		// execution bound
 		int count = 0;
 
-		// lower bound, minimum number of executions
-		while (count < LowerBound && !scan.EndOfInput)
+		while (count < UpperBound && !scan.EndOfInput)
 		{
-			var m_temp = Parser.Parse(scan);
-			if (!m_temp.Success) break; // stop if not successful
-			count++;
-			m.AddSubMatch(m_temp);
-		}
-
-		if (count == LowerBound)
-		{
-			while (count < UpperBound && !scan.EndOfInput)
+			//var preOffset = scan.Offset;
+			var maybeMatch = Parser.Parse(scan);
+			if (!maybeMatch.Success)
 			{
-				var m_temp = Parser.Parse(scan);
-				if (!m_temp.Success) break; // stop if not successful
-				count++;
-				m.AddSubMatch(m_temp);
+				//scan.Seek(preOffset);
+				break;
 			}
+
+			count++;
+			m.AddSubMatch(maybeMatch);
 		}
-		else
+
+		if (count < LowerBound || count > UpperBound)
 		{
-			m = scan.NoMatch;
+			//scan.Seek(originalOffset);
+			return scan.NoMatch;
 		}
-
-		if (m == null) m = scan.NoMatch;
-
-		// restoring parser failed, rewind scanner
-		if (!m.Success) scan.Seek(offset);
-
+		
 		return m;
 	}
 
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		if (LowerBound == 0 && UpperBound > 1) return Parser + "*";
-		if (LowerBound == 0 && UpperBound == 1) return Parser + "?";
-		if (LowerBound == 1 && UpperBound > 1) return Parser + "+";
-		var desc = "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
+		string desc;
+		if (LowerBound == 0 && UpperBound > 1) desc = "("+Parser + ")*";
+		else if (LowerBound == 0 && UpperBound == 1) desc = "("+Parser + ")?";
+		else if (LowerBound == 1 && UpperBound > 1) desc = "("+Parser + ")+";
+		else desc = "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
 
 		if (TagValue is null) return desc;
 		return desc + " Tag='" + TagValue + "'";
