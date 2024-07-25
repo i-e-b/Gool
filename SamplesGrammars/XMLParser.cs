@@ -16,28 +16,37 @@ namespace SampleGrammars {
 				| RegexOptions.Multiline;
 		}
 
+		public const string Text = "text";
+		public const string OpenTag = "open";
+		public const string CloseTag = "close";
+		public const string TagId = "tagId";
+		
 		private IParser Xml()
 		{
 			BNF.RegexOptions = ops();
 
 			/*
 			 * This isn't a serious parser -- it can't handle
-			 * real world XML. But it does show off simple 
+			 * all real world XML. But it does show off simple 
 			 * parsing of a recursive data structure
 			 */
 
 			BNF text          = "#[^<>]*";
 			BNF identifier    = "#[_a-zA-Z][_a-zA-Z0-9]*";
-			BNF quoted_string = "\"" > identifier > "\"";
-			BNF attribute     = identifier > "=" > quoted_string;
-			BNF open_tag      = "<" > identifier > (!attribute) > ">";
-			BNF close_tag     = "</" > identifier > ">";
-
-			text.Tag("text");
-			open_tag.Tag("open");
-			close_tag.Tag("close");
+			BNF whitespace    = @"#\W+";
 			
-			return BNF.Recursive(tree => !(open_tag > -(tree | text) > close_tag)).Result();
+			BNF quoted_string = '"' > identifier > '"';
+			BNF attribute     = whitespace > identifier > '=' > quoted_string;
+			
+			BNF tag_id        = identifier.Copy().Tag(TagId);
+			BNF open_tag      = '<' > tag_id > (!attribute) > '>'; // TODO: this should work with `(-attribute)`
+			BNF close_tag     = "</" > tag_id > '>';
+
+			text.Tag(Text);
+			open_tag.Tag(OpenTag);
+			close_tag.Tag(CloseTag);
+			
+			return BNF.Recursive(tree => +(open_tag > -(tree | text) > close_tag)).Result();
 		}
 	}
 }

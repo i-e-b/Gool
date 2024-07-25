@@ -1,25 +1,25 @@
 using Phantom.Parsers.Composite.Abstracts;
 
-namespace Phantom.Parsers.Composite
+namespace Phantom.Parsers.Composite;
+
+/// <summary>
+/// Creates a delimited list parser from two sub-parsers.
+/// The list expects at least one of left parser, optionally
+/// seperated by single occurrences of right parser.
+/// </summary>
+public class DelimitedList : Binary
 {
 	/// <summary>
 	/// Creates a delimited list parser from two sub-parsers.
-	/// The list expects at least one of left parser, optionally
-	/// seperated by single occurrences of right parser.
 	/// </summary>
-	public class DelimitedList : Binary
+	public DelimitedList(IParser item, IParser delimiter)
+		: base(item, delimiter)
 	{
-		/// <summary>
-		/// Creates a delimited list parser from two sub-parsers.
-		/// </summary>
-		public DelimitedList(IParser item, IParser delimiter)
-			: base(item, delimiter)
-		{
 		}
 
-		/// <inheritdoc />
-		public override ParserMatch TryMatch(IScanner scan)
-		{
+	/// <inheritdoc />
+	public override ParserMatch TryMatch(IScanner scan)
+	{
 			int offset = scan.Offset;
 
 			var a = LeftParser.Parse(scan);
@@ -60,11 +60,10 @@ namespace Phantom.Parsers.Composite
 			return m;
 		}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
+	/// <inheritdoc />
+	public override string ToString()
+	{
 			if (TagValue is null) return LeftParser + " % " + RightParser;
 			return LeftParser + " % " + RightParser + " Tag='" + TagValue + "'";
 		}
-	}
 }

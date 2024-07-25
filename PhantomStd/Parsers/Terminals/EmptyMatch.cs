@@ -1,28 +1,27 @@
 using Phantom.Parsers.Interfaces;
 
-namespace Phantom.Parsers.Terminals
-{
-	/// <summary>
-	/// Parser that represents no input.
-	/// Always returns an empty success match
-	/// </summary>
-	public class EmptyMatch : Parser, IMatchingParser
-	{
-		/// <inheritdoc />
-		public ParserMatch TryMatch(IScanner scan)
-		{
-			int offset = scan.Offset;
-			var m = scan.CreateMatch(this, offset, 0);
-			return m;
-		}
+namespace Phantom.Parsers.Terminals;
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var desc = "(empty)";
+/// <summary>
+/// Parser that represents no input.
+/// Always returns an empty success match
+/// </summary>
+public class EmptyMatch : Parser, IMatchingParser
+{
+	/// <inheritdoc />
+	public ParserMatch TryMatch(IScanner scan)
+	{
+		int offset = scan.Offset;
+		var m = scan.CreateMatch(this, offset, 0);
+		return m;
+	}
+
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		var desc = "(empty)";
 			
-			if (TagValue is null) return desc;
-			return desc + " Tag='" + TagValue + "'";
-		}
+		if (TagValue is null) return desc;
+		return desc + " Tag='" + TagValue + "'";
 	}
 }

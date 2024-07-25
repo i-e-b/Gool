@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Phantom.Parsers.Interfaces
+namespace Phantom.Parsers.Interfaces;
+
+internal interface ICompositeParser: IMatchingParser
 {
-	internal interface ICompositeParser: IMatchingParser
-	{
-		List<IParser> ChildParsers();
-	}
+	List<IParser> ChildParsers();
 }

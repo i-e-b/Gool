@@ -1,36 +1,33 @@
 using System.Collections.Generic;
 using Phantom.Parsers.Interfaces;
 
-namespace Phantom.Parsers.Composite.Abstracts
+namespace Phantom.Parsers.Composite.Abstracts;
+
+/// <summary>
+/// A composition that takes only one parser.
+/// (this is a non-composite adaptor)
+/// </summary>
+public abstract class Unary : Parser, ICompositeParser
 {
 	/// <summary>
-	/// A composition that takes only one parser.
-	/// (this is a non-composite adaptor)
+	/// Create a composite parser from a single input parser
 	/// </summary>
-	public abstract class Unary : Parser, ICompositeParser
+	protected Unary(IParser parser)
 	{
-		/// <summary>
-		/// Create a composite parser from a single input parser
-		/// </summary>
-		protected Unary(IParser parser)
-		{
-			Parser = parser;
-		}
-
-		/// <summary>
-		/// The base parser
-		/// </summary>
-		public IParser Parser { get; set; }
-
-		/// <inheritdoc />
-		public List<IParser> ChildParsers()
-		{
-			var c = new List<IParser>();
-			c.Add(Parser);
-			return c;
-		}
-
-		/// <inheritdoc />
-		public abstract ParserMatch TryMatch(IScanner scan);
+		Parser = parser;
 	}
+
+	/// <summary>
+	/// The base parser
+	/// </summary>
+	public IParser Parser { get; set; }
+
+	/// <inheritdoc />
+	public List<IParser> ChildParsers()
+	{
+		return new List<IParser> { Parser };
+	}
+
+	/// <inheritdoc />
+	public abstract ParserMatch TryMatch(IScanner scan);
 }

@@ -1,30 +1,29 @@
 using Phantom.Parsers.Interfaces;
 
-namespace Phantom.Parsers.Terminals
+namespace Phantom.Parsers.Terminals;
+
+/// <summary>
+/// Parser that will match any one character.
+/// </summary>
+public class AnyCharacter : Parser, IMatchingParser
 {
-	/// <summary>
-	/// Parser that will match any one character.
-	/// </summary>
-	public class AnyCharacter : Parser, IMatchingParser
+	/// <inheritdoc />
+	public ParserMatch TryMatch(IScanner scan)
 	{
-		/// <inheritdoc />
-		public ParserMatch TryMatch(IScanner scan)
-		{
-			if (scan.EndOfInput) return scan.NoMatch;
+		if (scan.EndOfInput) return scan.NoMatch;
 
-			int offset = scan.Offset;
-			var m = scan.CreateMatch(this, offset, 1);
-			scan.Read();
-			return m;
-		}
+		int offset = scan.Offset;
+		var m = scan.CreateMatch(this, offset, 1);
+		scan.Read();
+		return m;
+	}
 
-		/// <inheritdoc />
-		public override string ToString()
-		{
-			var desc = ".";
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		var desc = ".";
 			
-			if (TagValue is null) return desc;
-			return desc + " Tag='" + TagValue + "'";
-		}
+		if (TagValue is null) return desc;
+		return desc + " Tag='" + TagValue + "'";
 	}
 }

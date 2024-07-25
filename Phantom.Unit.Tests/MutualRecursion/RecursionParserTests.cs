@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using Phantom.Parsers;
 using Phantom.Parsers.Interfaces;
@@ -51,6 +52,21 @@ namespace Phantom.Unit.Tests.MutualRecursion
 			subject.Source = subject;
 
 			Assert.Throws<Exception>(()=> subject.Parse(scanner)); // if it didn't, this would cause a stack-overflow.
+		}
+		
+		
+		[Test]
+		public void recursion_parser_protects_itself_from_repeated_zero_length_matches()
+		{
+			var input = new ScanStrings("<<<w><x>y>z>");
+			
+			var myParser = BNF.Recursive(tree => !("<" > -(tree | "#[^<>]") > ">")).Result();
+			//                                   ^--- this is the problem
+			
+			var result = myParser.Parse(input);
+			
+			Assert.That(result.Success, Is.True, result + ": " + result.Value);
+			Console.WriteLine(string.Join(", ", result.BottomLevelMatches().Select(x => x.ToString())));
 		}
 	}
 }

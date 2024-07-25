@@ -1,22 +1,21 @@
-namespace Phantom.Scanners
+namespace Phantom.Scanners;
+
+/// <summary>
+/// Transformer that outputs a lowercase version of the input
+/// </summary>
+public class TransformToLower : ITransform
 {
+	#region ITransform Members
+
 	/// <summary>
-	/// Transformer that outputs a lowercase version of the input
+	/// Convert irregular cased input to lowercased input
 	/// </summary>
-	public class TransformToLower : ITransform
-	{
-		#region ITransform Members
+	string ITransform.Transform(string s) => s.ToLowerInvariant();
 
-		/// <summary>
-		/// Convert irregular cased input to lowercased input
-		/// </summary>
-		string ITransform.Transform(string s) => s.ToLowerInvariant();
+	/// <summary>
+	/// Convert irregular cased input to lowercased input
+	/// </summary>
+	char ITransform.Transform(char c) => char.ToLowerInvariant(c);
 
-		/// <summary>
-		/// Convert irregular cased input to lowercased input
-		/// </summary>
-		char ITransform.Transform(char c) => char.ToLowerInvariant(c);
-
-		#endregion
-	}
+	#endregion
 }

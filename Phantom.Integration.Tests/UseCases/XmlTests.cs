@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using Phantom.Scanners;
 using SampleGrammars;
@@ -9,7 +10,7 @@ namespace Phantom.Integration.Tests
 	public class XmlTests
 	{
 		private const string Sample = 
-@"<note>
+@"<note type=""private"">
 	<to>Tove</to>
 	<from>Jani</from>
 	<heading>Reminder</heading>
@@ -18,7 +19,7 @@ namespace Phantom.Integration.Tests
 </note>";
 
 		private const string BrokenSample = 
-@"<note>
+@"<note type=""private"">
 	<to>Tove</to>
 	<from>Jani</from>
 	<heading>Reminder</broken>
@@ -42,7 +43,7 @@ namespace Phantom.Integration.Tests
 			}
 		}
 		
-		[Test]
+		[Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
 		public void WellStructuredButInvalidXmlDocumentParsesSuccessfully()
 		{
 			var parser = new XMLParser().TheParser;
@@ -60,6 +61,39 @@ namespace Phantom.Integration.Tests
 				if (string.IsNullOrWhiteSpace(match.Value)) continue;
 				
 				Console.WriteLine(match.Value + " : " + tag);
+			}
+		}
+
+
+		[Test]
+		public void ConvertingParsedXmlTokensIntoStructure()
+		{
+			var parser = new XMLParser().TheParser;
+			var scanner = new ScanStrings(Sample);
+
+			var result = parser.Parse(scanner);
+			
+			Assert.That(result.Success, Is.True, result + ": " + result.Value);
+			Assert.That(result.Value, Is.EqualTo(Sample));
+
+			var taggedTokens = result.TaggedTokens();
+
+			foreach (var token in taggedTokens)
+			{
+				switch (token.Tag)
+				{
+					case XMLParser.Text:
+						if (!string.IsNullOrWhiteSpace(token.Value)) Console.WriteLine("content: " + token.Value);
+						break;
+					
+					case XMLParser.OpenTag:
+						Console.WriteLine(token.ChildrenWithTag(XMLParser.TagId).First().Value + "{");
+						break;
+					
+					case XMLParser.CloseTag:
+						Console.WriteLine("}" + token.ChildrenWithTag(XMLParser.TagId).First().Value);
+						break;
+				}
 			}
 		}
 	}

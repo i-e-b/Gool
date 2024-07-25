@@ -3,6 +3,7 @@ using Phantom;
 using Phantom.Parsers;
 using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
+// ReSharper disable InconsistentNaming
 
 namespace SampleGrammars
 {
@@ -11,12 +12,10 @@ namespace SampleGrammars
 	/// Built from the 1979 Apple Pascal poster.
 	/// </summary>
 	public class PascalParser {
-		private readonly IParser root;
-
-		public IParser TheParser { get { return root; } }
+		public IParser TheParser { get; }
 
 		public PascalParser() {
-			root = Pascal();
+			TheParser = Pascal();
 		}
 		
 		//  http://pascal-central.com/images/pascalposter.jpg
