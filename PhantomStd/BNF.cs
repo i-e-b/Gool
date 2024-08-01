@@ -122,7 +122,7 @@ public class BNF
 	/// </example>
 	public static BNF Recursive(Func<BNF, BNF> parserTreeFunction)
 	{
-		// BNF.Recursive(tree => !(open_tag > -(tree | text) > close_tag)).Result();
+		// BNF.Recursive(tree => !(open_tag > -(text | tree) > close_tag)).Result();
 		// The way this works involves a lot of bad-practice and hidden typecasts.
 		var hold = new Recursion();
 

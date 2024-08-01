@@ -16,7 +16,7 @@ public class ParserMatch : IEnumerable<ParserMatch>
     public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
     {
         SourceParser = source;
-            
+
         Scanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
         Offset = offset;
         Length = length;
@@ -74,6 +74,11 @@ public class ParserMatch : IEnumerable<ParserMatch>
     /// </summary>
     public bool Empty => Length <= 0;
 
+    /// <summary>
+    /// Next offset after this match
+    /// </summary>
+    public int Right => Length > 0 ? Offset + Length : Offset;
+
     #region IEnumerable Members
 
     /// <inheritdoc />
@@ -104,6 +109,14 @@ public class ParserMatch : IEnumerable<ParserMatch>
     }
 
     /// <summary>
+    /// Diagnostic string for this match
+    /// </summary>
+    public string Description()
+    {
+        return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"};";
+    }
+
+    /// <summary>
     /// Create a new match by joining a pair of existing matches
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
@@ -111,10 +124,12 @@ public class ParserMatch : IEnumerable<ParserMatch>
     {
         if (left == null || right == null)
             throw new NullReferenceException("Can't concatenate null match");
-        if (!left.Success || !right.Success)
-            throw new ArgumentException("Can't concatenate to failure match");
+        if (!right.Success)
+            throw new ArgumentException("Can't concatenate failure match");
         if (left.Scanner != right.Scanner)
             throw new ArgumentException("Can't concatenate between different scanners");
+
+        if (!left.Success) return right; // Joining success onto failure just gives the success
 
         var m = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
         m.AddSubMatch(left);
@@ -240,5 +255,24 @@ public class ParserMatch : IEnumerable<ParserMatch>
     public IEnumerable<ParserMatch> ChildrenWithTag(string tagValue)
     {
         return TaggedTokensWalk(this).Where(token => token.Tag == tagValue);
+    }
+
+    /// <summary>
+    /// Extend this match's length so it reaches the given offset
+    /// </summary>
+    internal void ExtendTo(int offset)
+    {
+        var newLength = offset - Offset;
+        if (newLength > Length) Length = newLength;
+    }
+
+    /// <summary>
+    /// Check if this match has the same offset and length
+    /// </summary>
+    public bool SameAs(ParserMatch? previousMatch)
+    {
+        if (previousMatch is null) return false;
+
+        return previousMatch.Offset == Offset && previousMatch.Length == Length;
     }
 }

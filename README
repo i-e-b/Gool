@@ -1,18 +1,20 @@
-Phantom 2 is a lexer-less parser for C#
+Phantom 2 is a lexer/parser for C#
 
 TODO
 ====
- - Roll in a full set of unit tests
- - Proper AST output (including failures -- give furthest AST)
 
- - Provide a good normal fluent interface as well as BNFish one
- - Binary and uniary parsers that can have associativiy and priority
- - Grouping parser that applies a shunting-yard infix-to-(?post/pre)fix manipulation
+- [ ] Replace scanner+offset with a list of matches-so-far
+- [ ] Roll in a full set of real-world tests
+- [ ] Proper AST output (including failures -- give furthest AST)
+
+- [ ] Provide a good normal fluent interface as well as BNFish one
+- [ ] Binary and unary parsers that can have associativity and priority
+- [ ] Grouping parser that applies a shunting-yard infix-to-(?post/pre)fix manipulation
      * Then associativity & precedence to rearrange AST.
  
 Demos
 =====
- - Finish Pascal parser, make a simple interpreter
+ - Use Pascal parser to make a simple interpreter
  - XML parser
  - JSON parser
 

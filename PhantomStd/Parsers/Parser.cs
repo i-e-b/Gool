@@ -12,39 +12,31 @@ public abstract class Parser : IParser
 	/// Optional tag value for this parser
 	/// </summary>
 	protected string? TagValue { get; private set; }
-		
+
 	/// <summary>
 	/// Public scanner method. Test scanner input for this parser's patterns.
 	/// </summary>
 	/// <remarks>Most parsers won't need to override this method</remarks>
 	/// <param name="scan">Scanner to parse from</param>
+	/// <param name="previousMatch">Match to continue from. <c>null</c> if starting</param>
 	/// <returns>Match (success of failure) of the parser against the scanner</returns>
-	public virtual ParserMatch Parse(IScanner scan)
+	public virtual ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
 	{
-		scan.Normalise();
-
-		var originalOffset = scan.Offset;
+		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of creating matches");
 		
-		var st = new System.Diagnostics.StackTrace();
-		scan.StackStats(st.FrameCount);
+		var start = scan.AutoAdvance(previousMatch);
 
-		if (scan.RecursionCheck(this, scan.Offset) && this is not Recursion) return scan.NoMatch;
-
-		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of matching");
-
-		var m = matcher.TryMatch(scan);
-
-		if (m.Success)
+		var rightMatch = matcher.TryMatch(scan, start);
+		if (rightMatch.Success)
 		{
 			scan.ClearFailures();
+			return ParserMatch.Concat(this, start, rightMatch);
 		}
 		else
 		{
-			scan.AddFailure(this, scan.Offset);
-			scan.Seek(originalOffset);
+			scan.AddFailure(this, previousMatch?.Offset ?? 0);
+			return rightMatch;
 		}
-
-		return m;
 	}
 
 	/// <inheritdoc />

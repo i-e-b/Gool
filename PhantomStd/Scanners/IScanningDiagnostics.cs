@@ -33,11 +33,4 @@ public interface IScanningDiagnostics {
 	/// Returns a sample string from after the scanner stops.
 	/// </summary>
 	string BadPatch(int length);
-
-	/// <summary>
-	/// Stores and returns the maximum stack depth reached
-	/// </summary>
-	/// <param name="CurrentDepth">Current stack depth</param>
-	/// <returns>Max Stack depth</returns>
-	int StackStats(int CurrentDepth);
 }

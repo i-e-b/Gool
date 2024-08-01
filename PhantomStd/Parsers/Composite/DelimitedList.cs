@@ -9,61 +9,50 @@ namespace Phantom.Parsers.Composite;
 /// </summary>
 public class DelimitedList : Binary
 {
-	/// <summary>
-	/// Creates a delimited list parser from two sub-parsers.
-	/// </summary>
-	public DelimitedList(IParser item, IParser delimiter)
-		: base(item, delimiter)
-	{
-		}
+    /// <summary>
+    /// Creates a delimited list parser from two sub-parsers.
+    /// </summary>
+    public DelimitedList(IParser item, IParser delimiter)
+        : base(item, delimiter)
+    {
+    }
 
-	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
-	{
-			int offset = scan.Offset;
+    /// <inheritdoc />
+    public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    {
+        var a = LeftParser.Parse(scan, previousMatch);
+        if (!a.Success) return scan.NoMatch;
 
-			var a = LeftParser.Parse(scan);
+        var m = new ParserMatch(this, scan, a.Offset, a.Length);
+        m.AddSubMatch(a);
 
-			if (!a.Success)
-			{
-				scan.Seek(offset);
-				return scan.NoMatch;
-			}
+        while (!scan.EndOfInput(m.Right))
+        {
+            var b = RightParser.Parse(scan, m);
 
-			var m = new ParserMatch(this, scan, a.Offset, a.Length);
-			m.AddSubMatch(a);
+            if (!b.Success)
+            {
+                return m;
+            }
 
-			while (!scan.EndOfInput)
-			{
-				offset = scan.Offset;
+            a = LeftParser.Parse(scan, m);
 
-				var b = RightParser.Parse(scan);
+            if (!a.Success)
+            {
+                return m;
+            }
 
-				if (!b.Success)
-				{
-					scan.Seek(offset);
-					return m;
-				}
+            m.AddSubMatch(b);
+            m.AddSubMatch(a);
+        }
 
-				a = LeftParser.Parse(scan);
+        return m;
+    }
 
-				if (!a.Success)
-				{
-					scan.Seek(offset);
-					return m;
-				}
-
-				m.AddSubMatch(b);
-				m.AddSubMatch(a);
-			}
-
-			return m;
-		}
-
-	/// <inheritdoc />
-	public override string ToString()
-	{
-			if (TagValue is null) return LeftParser + " % " + RightParser;
-			return LeftParser + " % " + RightParser + " Tag='" + TagValue + "'";
-		}
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        if (TagValue is null) return LeftParser + " % " + RightParser;
+        return LeftParser + " % " + RightParser + " Tag='" + TagValue + "'";
+    }
 }

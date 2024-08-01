@@ -9,10 +9,7 @@ namespace Phantom;
 public interface IScanner: IScanningDiagnostics
 {
 	/// <summary>Returns true when all input is consumed.</summary>
-	bool EndOfInput { get; }
-
-	/// <summary>Get or set the position of the cursor relative to the start of the input.</summary>
-	int Offset { get; set; }
+	bool EndOfInput(int offset);
 
 	/// <summary>Get or set the current input transform.</summary>
 	ITransform Transform { get; set; }
@@ -21,23 +18,23 @@ public interface IScanner: IScanningDiagnostics
 	ParserMatch NoMatch { get; }
 
 	/// <summary>Return an empty success match</summary>
-	ParserMatch EmptyMatch { get; }
+	ParserMatch EmptyMatch(IParser? source, int offset);
+
+	/// <summary> Return an empty failure match </summary>
+	ParserMatch NullMatch(IParser? source, int offset);
 
 	/// <summary>Advance one position through the input</summary>
 	/// <returns>Returns true while there is unconsumed input remaining</returns>
-	bool Read();
+	bool Read(ref int offset);
 
-	/// <summary>Returns the character at the current position</summary>
-	char Peek();
+	/// <summary>Return the character at the given offset</summary>
+	char Peek(int offset);
 
 	/// <summary>
 	/// Prepares the scanner for the next token.
 	/// This is mainly used for whitespace skipping.
 	/// </summary>
-	void Normalise();
-
-	/// <summary>Set the position of the cursor relative to the start of the input.</summary>
-	void Seek(int offset);
+	public ParserMatch AutoAdvance(ParserMatch? previous);
 
 	/// <summary>Return a substring from the input.</summary>
 	/// <param name="offset">Offset relative to the start of the input.</param>
@@ -48,14 +45,8 @@ public interface IScanner: IScanningDiagnostics
 	/// Return a string containing all data from the current cursor onwards.
 	/// </summary>
 	/// <returns>String of remaining data</returns>
-	string RemainingData();
+	string RemainingData(int offset);
 
 	/// <summary>Return a match from a substring of the input</summary>
 	ParserMatch CreateMatch(IParser source, int offset, int length);
-
-	/// <summary>
-	/// Stores the combination of 'accessor' and 'offset'
-	/// Returns true if the offset was the last accessed by the given accessor.
-	/// </summary>
-	bool RecursionCheck(object accessor, int offset);
 }

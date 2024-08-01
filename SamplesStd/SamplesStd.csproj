@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>11</LangVersion>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Samples</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PhantomStd\PhantomStd.csproj" />
+    </ItemGroup>
+
+</Project>

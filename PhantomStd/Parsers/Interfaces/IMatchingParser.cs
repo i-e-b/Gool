@@ -8,5 +8,5 @@ public interface IMatchingParser: IParser
 	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
-	ParserMatch TryMatch(IScanner scan);
+	ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch);
 }

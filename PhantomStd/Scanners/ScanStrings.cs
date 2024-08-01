@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Phantom.Parsers;
 
 namespace Phantom.Scanners;
@@ -10,45 +9,25 @@ namespace Phantom.Scanners;
 /// </summary>
 public class ScanStrings : IScanner
 {
-	private readonly List<ParserPoint> failure_points;
-	private int max_stack_depth;
-	private Dictionary<object, int>? parser_points; // Parser => Offset
-	private string? right_most_match;
-	private int right_most_point;
-	private int scanner_offset;
-
-	/// <summary>
-	/// Limit of recursion depth, to protect against faulty parser definitions
-	/// </summary>
-	public int StackSafetyLimit { get; set; } = 1000;
+	private readonly List<ParserPoint> _failurePoints;
+	private string? _rightMostMatch;
+	private int _rightMostPoint;
 
 	/// <summary>
 	/// Create a new scanner from an input string.
 	/// </summary>
 	/// <param name="input">String to scan</param>
-	public ScanStrings(string input):this(input, 0) { }
-
-	/// <summary>
-	/// Create a new scanner from an input string with an initial offset
-	/// </summary>
-	/// <param name="input">String to scan</param>
-	/// <param name="initialOffset">offset from start of input</param>
-	public ScanStrings(string input, int initialOffset)
+	public ScanStrings(string input)
 	{
-		right_most_point = 0;
+		_rightMostPoint = 0;
 		InputString = input;
 
 		if (string.IsNullOrEmpty(input))
 			throw new ArgumentException("Initial input is empty");
 
-		if (scanner_offset >= InputString.Length)
-			throw new ArgumentException("Initial offset beyond string end");
-
-		max_stack_depth = 0;
-		scanner_offset = initialOffset;
 		Transform = new NoTransform();
 		SkipWhitespace = false;
-		failure_points = new List<ParserPoint>();
+		_failurePoints = new List<ParserPoint>();
 	}
 
 	/// <summary>
@@ -67,19 +46,19 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public string? FurthestMatch()
 	{
-		return right_most_match;
+		return _rightMostMatch;
 	}
 
 	/// <inheritdoc />
 	public void AddFailure(object tester, int position)
 	{
-		failure_points.Add(new ParserPoint(tester, position));
+		_failurePoints.Add(new ParserPoint(tester, position));
 	}
 
 	/// <inheritdoc />
 	public void ClearFailures()
 	{
-		failure_points.Clear();
+		_failurePoints.Clear();
 	}
 
 	/// <inheritdoc />
@@ -87,7 +66,7 @@ public class ScanStrings : IScanner
 	{
 		var lst = new List<string>();
 
-		foreach (var p in failure_points)
+		foreach (var p in _failurePoints)
 		{
 			var chunk = InputString.Substring(p.Pos);
 			var idx = chunk.IndexOfAny(new [] {'\r', '\n'});
@@ -109,97 +88,57 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public string BadPatch(int length)
 	{
-		int l = Math.Min(InputString.Length, (right_most_point + length)) - right_most_point;
-		return InputString.Substring(right_most_point, l);
+		int l = Math.Min(InputString.Length, (_rightMostPoint + length)) - _rightMostPoint;
+		return InputString.Substring(_rightMostPoint, l);
 	}
 
 	/// <inheritdoc />
-	public int StackStats(int currentDepth)
+	public bool EndOfInput(int offset)
 	{
-		if (currentDepth > StackSafetyLimit) throw new Exception($"Stack protection triggered (see {nameof(ScanStrings)}.{nameof(StackSafetyLimit)})");
-		
-		if (currentDepth > max_stack_depth)
-			max_stack_depth = currentDepth;
-
-		return max_stack_depth;
+		return offset >= InputString.Length;
 	}
 
 	/// <inheritdoc />
-	public bool RecursionCheck(object accessor, int offset)
+	public bool Read(ref int offset)
 	{
-		parser_points ??= new Dictionary<object, int>();
+		if (EndOfInput(offset)) return false;
 
-		if (parser_points.TryGetValue(accessor, out var point) && point == offset)
-		{
-			return true; //throw new Exception("recursion loop");
-		}
+		offset++;
 
-		parser_points[accessor] = offset;
-		return false;
+		return !EndOfInput(offset);
 	}
 
 	/// <inheritdoc />
-	public bool EndOfInput
+	public char Peek(int offset)
 	{
-		get
-		{
-			if (InputString == null) return true;
-			return scanner_offset >= InputString.Length;
-		}
-	}
-
-	/// <inheritdoc />
-	public bool Read()
-	{
-		if (EndOfInput) return false;
-
-		scanner_offset++;
-
-		return !EndOfInput;
-	}
-
-	/// <inheritdoc />
-	public char Peek()
-	{
-		return Transform.Transform(InputString[scanner_offset]);
+		if (EndOfInput(offset)) return (char)0;
+		return Transform.Transform(InputString[offset]);
 	}
 
 	/// <summary>
 	/// If skip whitespace is set and current position is whitespace,
 	/// seek forward until on non-whitespace position or EOF.
 	/// </summary>
-	public void Normalise()
+	public ParserMatch AutoAdvance(ParserMatch? previous)
 	{
-		if (!SkipWhitespace) return;
-		if (EndOfInput) return;
-		char c = Peek();
-		while (Char.IsWhiteSpace(c))
+		previous ??= NullMatch(null, 0);
+		
+		if (!SkipWhitespace) return previous;
+		if (EndOfInput(previous.Offset)) return previous;
+
+		var offset = previous.Offset;
+		var m = EmptyMatch(null, previous.Offset);
+		var c = Peek(offset);
+		while (char.IsWhiteSpace(c))
 		{
-			if (!Read()) break;
-			c = Peek();
+			if (!Read(ref offset)) break;
+			c = Peek(offset);
+			m.ExtendTo(offset);
 		}
+		
+		return m.Length > 0 ? m : previous;
 	}
 
-	/// <inheritdoc />
-	public int Offset
-	{
-		get { return scanner_offset; }
-		set
-		{
-			if (value < 0 || value > InputString.Length)
-				throw new Exception("Scanner offset out of bounds");
-			scanner_offset = value;
-		}
-	}
-
-	/// <inheritdoc />
-	public void Seek(int offset)
-	{
-		if (offset < 0 || offset > InputString.Length + 1)
-			throw new Exception("Scanner seek offset out of bounds");
-
-		scanner_offset = offset;
-	}
 
 	/// <inheritdoc />
 	public string Substring(int offset, int length)
@@ -208,9 +147,9 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public string RemainingData()
+	public string RemainingData(int offset)
 	{
-		return Transform.Transform(InputString.Substring(Offset));
+		return Transform.Transform(InputString.Substring(offset));
 	}
 
 	/// <inheritdoc />
@@ -219,18 +158,25 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public ParserMatch NoMatch => new(null, this, 0, -1);
 
-	/// <summary>
-	/// 
-	/// </summary>
-	public ParserMatch EmptyMatch => new(null, this, Offset, 0);
-
+	/// <inheritdoc />
+	public ParserMatch EmptyMatch(IParser? source, int offset)
+	{
+		return new ParserMatch(source, this, offset, 0);
+	}
+	
+	/// <inheritdoc />
+	public ParserMatch NullMatch(IParser? source, int offset)
+	{
+		return new ParserMatch(source, this, offset, -1);
+	}
+	
 	/// <inheritdoc />
 	public ParserMatch CreateMatch(IParser source, int offset, int length)
 	{
-		if ((offset + length) > right_most_point)
+		if ((offset + length) > _rightMostPoint)
 		{
-			right_most_point = offset + length;
-			right_most_match = InputString.Substring(offset, length);
+			_rightMostPoint = offset + length;
+			_rightMostMatch = InputString.Substring(offset, length);
 		}
 		return new ParserMatch(source, this, offset, length);
 	}

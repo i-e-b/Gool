@@ -16,28 +16,20 @@ public class Sequence : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
+	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		// save scanner state
-		int offset = scan.Offset;
-		var m = scan.NoMatch;
-
 		// apply the first parser
-		var left = LeftParser.Parse(scan);
+		var left = LeftParser.Parse(scan, previousMatch);
 
 		// if left successful, do right
 		if (left.Success)
 		{
-			var right = RightParser.Parse(scan);
+			var right = RightParser.Parse(scan, left);
 
-			m = right.Success ? ParserMatch.Concat(this, left, right) : scan.NoMatch;
+			return right.Success ? ParserMatch.Concat(this, left, right) : scan.NoMatch;
 		}
 
-		// restoring parser failed, rewind scanner
-		if (!m.Success)
-			scan.Seek(offset);
-
-		return m;
+		return scan.NoMatch;
 	}
 
 	/// <inheritdoc />

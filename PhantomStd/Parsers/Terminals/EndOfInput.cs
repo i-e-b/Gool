@@ -8,9 +8,10 @@ namespace Phantom.Parsers.Terminals;
 public class EndOfInput : Parser, IMatchingParser
 {
 	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan)
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		return scan.EndOfInput ? scan.EmptyMatch : scan.NoMatch;
+		var offset = previousMatch?.Right ?? 0;
+		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset) : scan.NoMatch;
 	}
 
 	/// <inheritdoc />

@@ -8,20 +8,20 @@ namespace Phantom.Parsers.Terminals;
 public class EndOfLine : Parser, IMatchingParser
 {
 	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan)
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		int offset = scan.Offset;
+		int offset = previousMatch?.Right ?? 0;
 		int len = 0;
 
-		if (!scan.EndOfInput && scan.Peek() == '\r') // CR
+		if (!scan.EndOfInput(offset) && scan.Peek(offset) == '\r') // CR
 		{
-			scan.Read();
+			scan.Read(ref offset);
 			len++;
 		}
 
-		if (!scan.EndOfInput && scan.Peek() == '\n') // LF
+		if (!scan.EndOfInput(offset) && scan.Peek(offset) == '\n') // LF
 		{
-			scan.Read();
+			scan.Read(ref offset);
 			len++;
 		}
 
@@ -30,7 +30,6 @@ public class EndOfLine : Parser, IMatchingParser
 			return scan.CreateMatch(this, offset, len);
 		}
 
-		scan.Seek(offset);
 		return scan.NoMatch;
 	}
 

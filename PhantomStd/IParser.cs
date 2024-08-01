@@ -10,7 +10,7 @@ public interface IParser
 	/// <summary>
 	/// Try to interpret the content of <paramref name="scan"/>
 	/// </summary>
-	ParserMatch Parse(IScanner scan);
+	ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
 
 	/// <summary>
 	/// Add a tag to this parser

@@ -38,20 +38,14 @@ public class RegularExpression : Parser, IMatchingParser
 	/// </summary>
 	/// <remarks>This is done on the entire input.
 	/// This might cause problems with file-stream parsing.</remarks>
-	public ParserMatch TryMatch(IScanner scan)
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		int offset = scan.Offset;
+		var offset = previousMatch?.Right ?? 0;
 
-		string remains = scan.RemainingData();
+		var remains = scan.RemainingData(offset);
 		var result = _test.Match(remains);
 
-		if (result is { Success: true, Index: 0 })
-		{
-			scan.Seek(offset + result.Length);
-			return scan.CreateMatch(this, offset, result.Length);
-		}
-
-		return scan.NoMatch;
+		return result is { Success: true, Index: 0 } ? scan.CreateMatch(this, offset, result.Length) : scan.NoMatch;
 	}
 
 	/// <inheritdoc />

@@ -16,34 +16,20 @@ public class Union : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
+	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		// save scanner state
-		int offset = scan.Offset;
-
 		// apply the first parser
-		var m = LeftParser.Parse(scan);
-
-		// rewind
-		scan.Seek(offset);
+		var m = LeftParser.Parse(scan, previousMatch);
 
 		// apply the second parser
-		var m2 = RightParser.Parse(scan);
+		var m2 = RightParser.Parse(scan, previousMatch);
 
 		// pick the longest result
 		if (m.Success || m2.Success)
 		{
-			if (m2.Length >= m.Length)
-			{
-				scan.Seek(m2.Offset + m2.Length);
-				return m2;
-			}
-			scan.Seek(m.Offset + m.Length);
-			return m;
+			return m2.Length >= m.Length ? m2 : m;
 		}
 
-		// rewind to point of failure
-		scan.Seek(offset);
 		return scan.NoMatch;
 	}
 

@@ -8,20 +8,18 @@ namespace Phantom.Parsers.Terminals;
 /// </summary>
 public class EmptyMatch : Parser, IMatchingParser
 {
-	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan)
-	{
-		int offset = scan.Offset;
-		var m = scan.CreateMatch(this, offset, 0);
-		return m;
-	}
+    /// <inheritdoc />
+    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    {
+        return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0);
+    }
 
-	/// <inheritdoc />
-	public override string ToString()
-	{
-		var desc = "(empty)";
-			
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
-	}
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var desc = "(empty)";
+
+        if (TagValue is null) return desc;
+        return desc + " Tag='" + TagValue + "'";
+    }
 }

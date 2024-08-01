@@ -15,21 +15,14 @@ public class Wrapper : Unary
     public Wrapper(IParser parser) : base(parser) { }
 
     /// <inheritdoc />
-    public override ParserMatch TryMatch(IScanner scan)
+    public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        // save scanner state
-        int offset = scan.Offset;
-
         // apply the first parser
-        var m = Parser.Parse(scan);
+        var m = Parser.Parse(scan, previousMatch);
 
-        if (m.Success) {
-            return scan.CreateMatch(this, m.Offset, m.Length);
-        }
-
-        // rewind
-        scan.Seek(offset);
-        return scan.NoMatch;
+        return m.Success
+            ? scan.CreateMatch(this, m.Offset, m.Length)
+            : scan.NoMatch;
     }
     
     

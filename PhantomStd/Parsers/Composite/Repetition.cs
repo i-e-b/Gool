@@ -39,26 +39,17 @@ public class Repetition : Unary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
+	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		//if (Parser == this) return scan.NoMatch; // ??
-
-		// save scanner state
-		int originalOffset = scan.Offset;
-
-		var m = new ParserMatch(this, scan, originalOffset, 0); // empty match with this parser
+		var m = previousMatch ?? scan.EmptyMatch(this, 0); // empty match with this parser
 
 		int count = 0;
 
-		while (count < UpperBound && !scan.EndOfInput)
+		while (count < UpperBound && !scan.EndOfInput(m.Right))
 		{
-			//var preOffset = scan.Offset;
-			var maybeMatch = Parser.Parse(scan);
-			if (!maybeMatch.Success)
-			{
-				//scan.Seek(preOffset);
-				break;
-			}
+			var maybeMatch = Parser.Parse(scan, m);
+			if (!maybeMatch.Success) break; // no more matches
+			if (maybeMatch.SameAs(m)) break; // repetition must progress
 
 			count++;
 			m.AddSubMatch(maybeMatch);
@@ -66,7 +57,6 @@ public class Repetition : Unary
 
 		if (count < LowerBound || count > UpperBound)
 		{
-			//scan.Seek(originalOffset);
 			return scan.NoMatch;
 		}
 		

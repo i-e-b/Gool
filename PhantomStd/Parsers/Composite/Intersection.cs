@@ -18,16 +18,13 @@ public class Intersection : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
+	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		int offset = scan.Offset;
-
-		var left = LeftParser.Parse(scan);
-
+		var left = LeftParser.Parse(scan, previousMatch);
 
 		if (left.Success)
 		{
-			var right = RightParser.Parse(scan);
+			var right = RightParser.Parse(scan, left);
 			if (right.Success)
 			{
 				return ParserMatch.Concat(this, left, right);
@@ -35,11 +32,10 @@ public class Intersection : Binary
 		}
 		else
 		{
-			scan.Seek(offset);
-			left = RightParser.Parse(scan);
+			left = RightParser.Parse(scan, previousMatch);
 			if (left.Success)
 			{
-				var right = LeftParser.Parse(scan);
+				var right = LeftParser.Parse(scan, left);
 				if (right.Success)
 				{
 					return ParserMatch.Concat(this, left, right);
@@ -47,7 +43,6 @@ public class Intersection : Binary
 			}
 		}
 
-		scan.Seek(offset);
 		return scan.NoMatch;
 	}
 

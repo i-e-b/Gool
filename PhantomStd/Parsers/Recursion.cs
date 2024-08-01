@@ -18,13 +18,15 @@ public class Recursion : Parser, IMatchingParser
 	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
-	public ParserMatch TryMatch(IScanner scan)
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		if (Source == null) throw new Exception("Empty holding parser");
 		if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
 		if (parser == this) throw new Exception("Unbounded recursion in parser");
 
-		return parser.TryMatch(scan);
+		var match = parser.TryMatch(scan, previousMatch);
+		if (match.SameAs(previousMatch)) return scan.NoMatch; // recursion must progress
+		return match;
 	}
 
 	/// <summary>

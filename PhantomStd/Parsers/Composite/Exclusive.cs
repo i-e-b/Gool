@@ -18,43 +18,25 @@ public class Exclusive : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan)
+	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		// save scanner state
-		int offset = scan.Offset;
-
 		// apply the first parser
-		var m1 = LeftParser.Parse(scan);
-		int m1off = scan.Offset;
-
-		// Go back and try the second
-		scan.Seek(offset);
+		var m1 = LeftParser.Parse(scan, previousMatch);
 
 		// apply the second parser
-		var m2 = RightParser.Parse(scan);
-		int m2off = scan.Offset;
+		var m2 = RightParser.Parse(scan, previousMatch);
 
 		if (m2.Success && m1.Success)
 		{
 			// FAIL! they are not exclusive
-			scan.Seek(offset);
 			return scan.NoMatch;
 		}
 
 		// now return whichever one succeeded
-		if (m1.Success)
-		{
-			scan.Seek(m1off);
-			return m1;
-		}
-		if (m2.Success)
-		{
-			scan.Seek(m2off);
-			return m2;
-		}
+		if (m1.Success) return m1;
+		if (m2.Success) return m2;
 
 		// neither were matched!
-		scan.Seek(offset);
 		return scan.NoMatch;
 	}
 

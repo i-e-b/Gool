@@ -37,5 +37,5 @@ public abstract class Binary : Parser, ICompositeParser
 	}
 
 	/// <inheritdoc />
-	public abstract ParserMatch TryMatch(IScanner scan);
+	public abstract ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch);
 }
