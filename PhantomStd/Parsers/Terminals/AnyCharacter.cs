@@ -11,10 +11,9 @@ public class AnyCharacter : Parser, IMatchingParser
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var left = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(left)) return scan.NoMatch;
-
-        var m = scan.CreateMatch(this, left, 1);
-        return m;
+        return scan.EndOfInput(left)
+            ? scan.NoMatch
+            : scan.CreateMatch(this, left, 1);
     }
 
     /// <inheritdoc />

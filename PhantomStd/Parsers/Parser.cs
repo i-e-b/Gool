@@ -26,16 +26,17 @@ public abstract class Parser : IParser
 		
 		var start = scan.AutoAdvance(previousMatch);
 
-		var rightMatch = matcher.TryMatch(scan, start);
-		if (rightMatch.Success)
+		var newMatch = matcher.TryMatch(scan, start);
+		if (newMatch.Success)
 		{
 			scan.ClearFailures();
-			return ParserMatch.Concat(this, start, rightMatch);
+			//return ParserMatch.Join(this, start, newMatch);
+			return newMatch;
 		}
 		else
 		{
 			scan.AddFailure(this, previousMatch?.Offset ?? 0);
-			return rightMatch;
+			return scan.NoMatch;
 		}
 	}
 

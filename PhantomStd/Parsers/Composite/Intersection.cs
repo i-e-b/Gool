@@ -27,7 +27,7 @@ public class Intersection : Binary
 			var right = RightParser.Parse(scan, left);
 			if (right.Success)
 			{
-				return ParserMatch.Concat(this, left, right);
+				return ParserMatch.Join(this, left, right);
 			}
 		}
 		else
@@ -38,7 +38,7 @@ public class Intersection : Binary
 				var right = LeftParser.Parse(scan, left);
 				if (right.Success)
 				{
-					return ParserMatch.Concat(this, left, right);
+					return ParserMatch.Join(this, left, right);
 				}
 			}
 		}

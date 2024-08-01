@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Diagnostics;
+using NUnit.Framework;
 using Phantom.Scanners;
 using Samples;
 
@@ -31,17 +32,25 @@ public class XmlTests
 			var parser = new XmlParser().TheParser;
 			var scanner = new ScanStrings(Sample);
 
+			var sw = new Stopwatch();
+			sw.Start();
 			var result = parser.Parse(scanner);
+			sw.Stop();
+
+			Console.WriteLine($"Parsing took {sw.Elapsed}");
+			
+			// Faults: Something is advancing too far?
 			
 			foreach (var failPoint in scanner.ListFailures()) Console.WriteLine(failPoint);
 
 			Assert.That(result.Success, Is.True, result + ": " + result.Value);
 			Assert.That(result.Value, Is.EqualTo(Sample));
 
+			/*
 			foreach (var match in result.BottomLevelMatches())
 			{
 				Console.WriteLine(match.Value + " -> " + match.SourceParser);
-			}
+			}*/
 		}
 		
 		[Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]

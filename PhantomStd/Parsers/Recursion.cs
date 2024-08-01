@@ -24,9 +24,9 @@ public class Recursion : Parser, IMatchingParser
 		if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
 		if (parser == this) throw new Exception("Unbounded recursion in parser");
 
-		var match = parser.TryMatch(scan, previousMatch);
-		if (match.SameAs(previousMatch)) return scan.NoMatch; // recursion must progress
-		return match;
+		var result = parser.TryMatch(scan, previousMatch);
+		if (result.SameAs(previousMatch)) return scan.NoMatch; // recursion must progress
+		return result;
 	}
 
 	/// <summary>

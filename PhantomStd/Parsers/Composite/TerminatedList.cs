@@ -24,29 +24,28 @@ public class TerminatedList : Binary
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var m = previousMatch ?? scan.NullMatch(this, 0);
+        var result = previousMatch ?? scan.NullMatch(this, 0);
 
-        while (!scan.EndOfInput(m.Right))
+        while (!scan.EndOfInput(result.Right))
         {
-            var a = LeftParser.Parse(scan, m);
+            var item = LeftParser.Parse(scan, result);
 
-            if (!a.Success)
+            if (!item.Success)
             {
-                return m;
+                return result;
             }
 
-            var b = RightParser.Parse(scan, a);
+            var terminator = RightParser.Parse(scan, item);
 
-            if (!b.Success)
+            if (!terminator.Success)
             {
-                return m;
+                return result;
             }
 
-            m.AddSubMatch(a);
-            m.AddSubMatch(b);
+            result = ParserMatch.Join(this, item, terminator);
         }
 
-        return m;
+        return result;
     }
 
     /// <inheritdoc />

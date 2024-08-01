@@ -8,7 +8,7 @@ namespace Phantom.Parsers;
 /// <summary>
 /// Creates and stores parser matches.
 /// </summary>
-public class ParserMatch : IEnumerable<ParserMatch>
+public class ParserMatch
 {
     /// <summary>
     /// Builds a new match
@@ -30,7 +30,7 @@ public class ParserMatch : IEnumerable<ParserMatch>
     /// <summary>
     /// The parser that generated this match
     /// </summary>
-    public IParser? SourceParser { get; private set; }
+    public IParser? SourceParser { get; }
 
     /// <summary>
     /// Scanner
@@ -79,9 +79,10 @@ public class ParserMatch : IEnumerable<ParserMatch>
     /// </summary>
     public int Right => Length > 0 ? Offset + Length : Offset;
 
-    #region IEnumerable Members
-
-    /// <inheritdoc />
+    /// <summary>
+    /// Return child matches
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator GetEnumerator()
     {
         foreach (var childMatch in ChildMatches)
@@ -89,16 +90,6 @@ public class ParserMatch : IEnumerable<ParserMatch>
             yield return childMatch;
         }
     }
-
-    IEnumerator<ParserMatch> IEnumerable<ParserMatch>.GetEnumerator()
-    {
-        foreach (var childMatch in ChildMatches)
-        {
-            yield return childMatch;
-        }
-    }
-
-    #endregion
 
     /// <summary>
     /// Return the match value string
@@ -120,60 +111,39 @@ public class ParserMatch : IEnumerable<ParserMatch>
     /// Create a new match by joining a pair of existing matches
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
-    public static ParserMatch Concat(Parser source, ParserMatch left, ParserMatch right)
+    public static ParserMatch Join(Parser source, ParserMatch left, ParserMatch right)
     {
-        if (left == null || right == null)
-            throw new NullReferenceException("Can't concatenate null match");
-        if (!right.Success)
-            throw new ArgumentException("Can't concatenate failure match");
-        if (left.Scanner != right.Scanner)
-            throw new ArgumentException("Can't concatenate between different scanners");
+        if (left == null || right == null) throw new NullReferenceException("Can't concatenate null match");
+        if (!right.Success) throw new ArgumentException("Can't concatenate failure match");
+        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't concatenate between different scanners");
 
         if (!left.Success) return right; // Joining success onto failure just gives the success
+        
+        /*
+        // if one is a super-set of the other, only return the larger
+        if (left.Contains(right) && right.ChildMatches.Count < 1) return left;
+        if (right.Contains(left) && left.ChildMatches.Count < 1) return right;
 
-        var m = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
-        m.AddSubMatch(left);
-        m.AddSubMatch(right);
+        var result = new ParserMatch(source, left.Scanner, left.Offset, right.Right);
 
-        return m;
+        // Add child matches if they have tags in their tree
+        if (!string.IsNullOrEmpty(left.Tag)) result.ChildMatches.Add(left);
+        if (!string.IsNullOrEmpty(right.Tag)) result.ChildMatches.Add(right);
+
+        return result;*/
+        
+        var result = new ParserMatch(source, left.Scanner, left.Offset, right.Right);
+        result.ChildMatches.Add(left);
+        result.ChildMatches.Add(right);
+        return result;
     }
 
     /// <summary>
-    /// Add a sub-parser match, and include it's coverage in this match's coverage.
+    /// return <c>true</c> if this match entirely contains the other
     /// </summary>
-    /// <param name="m">Match to add</param>
-    public void AddSubMatch(ParserMatch m)
+    private bool Contains(ParserMatch other)
     {
-        if (m == null)
-            throw new ArgumentNullException(nameof(m), "Can't add null match.");
-        if (!m.Success)
-            throw new ArgumentException("Can't add failure match.");
-
-        // Add the child
-        ChildMatches.Add(m);
-
-        // extend coverage if needed.
-        if (m.Empty)
-            return;
-
-        int offset, length;
-
-        if (Empty)
-        {
-            offset = m.Offset;
-            length = m.Length;
-        }
-        else
-        {
-            offset = Math.Min(Offset, m.Offset);
-            int mEnd = m.Offset + m.Length;
-            int tEnd = Offset + Length;
-            int end = Math.Max(mEnd, tEnd);
-            length = end - offset;
-        }
-
-        Offset = offset;
-        Length = length;
+        return (Offset <= other.Offset) && (Right >= other.Right);
     }
 
     /// <summary>

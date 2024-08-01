@@ -1,3 +1,4 @@
+using System.Linq;
 using Phantom.Parsers.Composite.Abstracts;
 
 namespace Phantom.Parsers.Composite;
@@ -20,33 +21,26 @@ public class DelimitedList : Binary
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var a = LeftParser.Parse(scan, previousMatch);
-        if (!a.Success) return scan.NoMatch;
+        // TODO: re-do this
+        var item = LeftParser.Parse(scan, previousMatch);
+        if (!item.Success) return scan.NoMatch;
+        
+        var result = item;
 
-        var m = new ParserMatch(this, scan, a.Offset, a.Length);
-        m.AddSubMatch(a);
-
-        while (!scan.EndOfInput(m.Right))
+        while (!scan.EndOfInput(result.Right))
         {
-            var b = RightParser.Parse(scan, m);
+            var delimiter = RightParser.Parse(scan, result); // delimiter
 
-            if (!b.Success)
-            {
-                return m;
-            }
+            if (!delimiter.Success) return result;
 
-            a = LeftParser.Parse(scan, m);
+            item = LeftParser.Parse(scan, result); // item
 
-            if (!a.Success)
-            {
-                return m;
-            }
+            if (!item.Success) return result;
 
-            m.AddSubMatch(b);
-            m.AddSubMatch(a);
+            result = ParserMatch.Join(this, delimiter, item); // delimiter from prev one
         }
 
-        return m;
+        return result;
     }
 
     /// <inheritdoc />
