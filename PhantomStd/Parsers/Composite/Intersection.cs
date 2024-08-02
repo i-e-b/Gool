@@ -20,27 +20,20 @@ public class Intersection : Binary
 	/// <inheritdoc />
 	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		var left = LeftParser.Parse(scan, previousMatch);
+		var a = LeftParser.Parse(scan, previousMatch);
 
-		if (left.Success)
+		if (a.Success)
 		{
-			var right = RightParser.Parse(scan, left);
-			if (right.Success)
-			{
-				return ParserMatch.Join(this, left, right);
-			}
+			var b = RightParser.Parse(scan, a);
+			if (b.Success) return ParserMatch.Join(this, a, b);
 		}
 		else
 		{
-			left = RightParser.Parse(scan, previousMatch);
-			if (left.Success)
-			{
-				var right = LeftParser.Parse(scan, left);
-				if (right.Success)
-				{
-					return ParserMatch.Join(this, left, right);
-				}
-			}
+			a = RightParser.Parse(scan, previousMatch);
+			if (!a.Success) return scan.NoMatch;
+			
+			var right = LeftParser.Parse(scan, a);
+			if (right.Success) return ParserMatch.Join(this, a, right);
 		}
 
 		return scan.NoMatch;

@@ -13,8 +13,8 @@ public class PascalLanguageTests
         var parser = new PascalParser().TheParser;
         var scanner = new ScanStrings(sample_program)
         {
-          SkipWhitespace = true,
-          Transform = new TransformToLower()
+            SkipWhitespace = true,
+            Transform = new TransformToLower()
         };
 
         var result = parser.Parse(scanner);
@@ -22,7 +22,7 @@ public class PascalLanguageTests
         Assert.That(result.Success, Is.True, String.Join("\n\n", scanner.ListFailures()));
         Assert.That(result.Value.ToLower(), Is.EqualTo(sample_program.ToLower()));
     }
-		
+
     [Test]
     [TestCase(missing_quote)]
     [TestCase(missing_begin)]
@@ -31,8 +31,8 @@ public class PascalLanguageTests
         var parser = new PascalParser().TheParser;
         var scanner = new ScanStrings(missing_quote)
         {
-          SkipWhitespace = true,
-          Transform = new TransformToLower()
+            SkipWhitespace = true,
+            Transform = new TransformToLower()
         };
 
         var result = parser.Parse(scanner);
@@ -41,7 +41,7 @@ public class PascalLanguageTests
     }
 
 
-    private const string sample_program = 
+    private const string sample_program =
         @"program WriteName;
 var
   i:Integer;
@@ -55,7 +55,7 @@ begin
   end
 end.";
 
-    private const string missing_begin = 
+    private const string missing_begin =
         @"program WriteName;
 var
   i:Integer;
@@ -68,7 +68,7 @@ begin
   end
 end.";
 
-    private const string missing_quote = 
+    private const string missing_quote =
         @"program WriteName;
 var
   i:Integer;
@@ -81,5 +81,4 @@ begin
     WriteLn('Hello ', Name)
   end
 end.";
-
 }

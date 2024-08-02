@@ -46,7 +46,7 @@ public class XmlParser
         //BNF attr_list     = !whitespace > (attr_part % whitespace);
 
         BNF tag_id = identifier.Copy().Tag(TagId);
-        BNF open_tag      = '<' > tag_id /*> -attribute*/ > '>';
+        BNF open_tag      = '<' > tag_id > -attribute > '>';
 
         BNF close_tag = "</" > tag_id > '>';
 

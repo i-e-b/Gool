@@ -54,6 +54,9 @@ namespace Phantom;
 /// <dt><![CDATA[ a ^ b ]]></dt>
 /// <dd>Create an <b>exclusion</b> parser that matches <c>a</c> or <c>b</c> but not both</dd>
 /// 
+/// <dt><![CDATA[ a / b ]]></dt>
+/// <dd>Create an <b>difference</b> parser that matches <c>a</c> but not <c>b</c></dd>
+/// 
 /// </dl>
 /// </summary>
 // ReSharper disable once InconsistentNaming
@@ -279,6 +282,19 @@ public class BNF
 
 		return new BNF(new Intersection(a.Result(), b.Result()));
 	}
+	
+	/// <summary>
+	/// Difference parser that matches <i>left</i> but not <i>right</i>
+	/// </summary>
+	public static BNF operator /(BNF a, BNF b)
+	{
+		if (a == null)
+			throw new ArgumentNullException(nameof(a), "Left side of difference parser is null");
+		if (b == null)
+			throw new ArgumentNullException(nameof(b), "Right side of difference parser is null");
+
+		return new BNF(new Difference(a.Result(), b.Result()));
+	}
 
 	/// <summary>
 	/// Exclusive-Or parser that matches <i>left side</i> or <i>right side</i> but <b>not</b> both
@@ -292,5 +308,13 @@ public class BNF
 			throw new ArgumentNullException(nameof(b), "Right side of Exclusive-Or parser is null");
 
 		return new BNF(new Exclusive(a.Result(), b.Result()));
+	}
+
+	/// <summary>
+	/// Create a copy of this BNF, with a new tag
+	/// </summary>
+	public BNF Tagged(string name)
+	{
+		return Copy().Tag(name);
 	}
 }

@@ -30,14 +30,11 @@ public abstract class Parser : IParser
 		if (newMatch.Success)
 		{
 			scan.ClearFailures();
-			//return ParserMatch.Join(this, start, newMatch);
 			return newMatch;
 		}
-		else
-		{
-			scan.AddFailure(this, previousMatch?.Offset ?? 0);
-			return scan.NoMatch;
-		}
+
+		scan.AddFailure(this, previousMatch?.Offset ?? 0);
+		return scan.NoMatch;
 	}
 
 	/// <inheritdoc />

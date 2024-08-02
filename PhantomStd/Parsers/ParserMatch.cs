@@ -118,21 +118,12 @@ public class ParserMatch
         if (left.Scanner != right.Scanner) throw new ArgumentException("Can't concatenate between different scanners");
 
         if (!left.Success) return right; // Joining success onto failure just gives the success
+
+        if (left.Contains(right)) return left;
+        if (right.Contains(left)) return right;
         
-        /*
-        // if one is a super-set of the other, only return the larger
-        if (left.Contains(right) && right.ChildMatches.Count < 1) return left;
-        if (right.Contains(left) && left.ChildMatches.Count < 1) return right;
-
-        var result = new ParserMatch(source, left.Scanner, left.Offset, right.Right);
-
-        // Add child matches if they have tags in their tree
-        if (!string.IsNullOrEmpty(left.Tag)) result.ChildMatches.Add(left);
-        if (!string.IsNullOrEmpty(right.Tag)) result.ChildMatches.Add(right);
-
-        return result;*/
-        
-        var result = new ParserMatch(source, left.Scanner, left.Offset, right.Right);
+        var length = right.Right - left.Offset;
+        var result = new ParserMatch(source, left.Scanner, left.Offset, length);
         result.ChildMatches.Add(left);
         result.ChildMatches.Add(right);
         return result;
