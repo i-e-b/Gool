@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Phantom.Parsers.Interfaces;
 
 namespace Phantom.Parsers;
@@ -23,7 +24,13 @@ public abstract class Parser : IParser
 	public virtual ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
 	{
 		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of creating matches");
-		
+
+		var x = new StackTrace();
+		if (x.FrameCount > 500)
+		{
+			throw new Exception("Stack too deep!");
+		}
+
 		var start = scan.AutoAdvance(previousMatch);
 
 		var newMatch = matcher.TryMatch(scan, start);

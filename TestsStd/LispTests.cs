@@ -13,13 +13,14 @@ public class LispTests
         """
 
         (loop for x in '(1 2 3)
-          do (print x))
+          do (print "value" x))
 
         """;
 
     private IParser MakeParser()
     {
         BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
+        BNF number = "#[0-9][_a-zA-Z0-9]*";
 
         BNF atom = ':' > identifier;
         BNF quoted_string = '"' > identifier > '"';
@@ -27,12 +28,13 @@ public class LispTests
         BNF quoted_list = "'(";
         BNF end_list = ')';
         
-        BNF list_item = identifier.Tagged("Name") | atom | quoted_string;
+        BNF list_item = identifier.Tagged("Name") | atom | quoted_string | number;
         BNF start_list = normal_list | quoted_list;
 
         quoted_list.Tag("Quote");
         atom.Tag("Atom");
         quoted_string.Tag("String");
+        number.Tag("Number");
         normal_list.Tag("(");
         end_list.Tag(")");
 
@@ -48,14 +50,14 @@ public class LispTests
         var scanner = new ScanStrings(Sample) { SkipWhitespace = true };
 
         var result = parser.Parse(scanner);
-
+        
         foreach (var fail in scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.Value, Is.EqualTo(Sample));
+        Assert.That(result.Value.Trim(), Is.EqualTo(Sample.Trim()));
 
         var taggedTokens = result.TaggedTokens();
 
@@ -70,6 +72,10 @@ public class LispTests
                 
                 case "String":
                     Console.WriteLine(I(indent) + "String " + token.Value);
+                    break;
+                
+                case "Number":
+                    Console.WriteLine(I(indent) + "Number " + token.Value);
                     break;
 
                 case "Name":
