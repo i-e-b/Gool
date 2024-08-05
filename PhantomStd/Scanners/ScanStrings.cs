@@ -124,10 +124,10 @@ public class ScanStrings : IScanner
 		previous ??= NullMatch(null, 0);
 		
 		if (!SkipWhitespace) return previous;
-		if (EndOfInput(previous.Offset)) return previous;
+		if (EndOfInput(previous.Right)) return previous;
 
-		var offset = previous.Offset;
-		var m = EmptyMatch(null, previous.Offset);
+		var offset = previous.Right;
+		var m = EmptyMatch(null, previous.Right);
 		var c = Peek(offset);
 		while (char.IsWhiteSpace(c))
 		{
