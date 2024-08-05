@@ -23,7 +23,7 @@ public class LispTests
         BNF number = "#[0-9][_a-zA-Z0-9]*";
 
         BNF atom = ':' > identifier;
-        BNF quoted_string = '"' > identifier > '"';
+        BNF quoted_string = '"' > identifier > '"'; // this is wrong, but good enough for this test
         BNF normal_list = '(';
         BNF quoted_list = "'(";
         BNF end_list = ')';
