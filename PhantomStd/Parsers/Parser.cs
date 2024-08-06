@@ -1,6 +1,6 @@
 using System;
-using System.Diagnostics;
 using Phantom.Parsers.Interfaces;
+using Phantom.Results;
 
 namespace Phantom.Parsers;
 
@@ -15,6 +15,11 @@ public abstract class Parser : IParser
 	protected string? TagValue { get; private set; }
 
 	/// <summary>
+	/// Optional scope behaviour
+	/// </summary>
+	protected int ScopeSign { get; private set; }
+
+	/// <summary>
 	/// Public scanner method. Test scanner input for this parser's patterns.
 	/// </summary>
 	/// <remarks>Most parsers won't need to override this method</remarks>
@@ -25,11 +30,11 @@ public abstract class Parser : IParser
 	{
 		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of creating matches");
 
-		var x = new StackTrace();
+		/*var x = new StackTrace();
 		if (x.FrameCount > 500)
 		{
 			throw new Exception("Stack too deep!");
-		}
+		}*/
 
 		var start = scan.AutoAdvance(previousMatch);
 
@@ -45,14 +50,14 @@ public abstract class Parser : IParser
 	}
 
 	/// <inheritdoc />
-	public void Tag(string tag)
-	{
-		TagValue = tag;
-	}
+	public void Tag(string tag) => TagValue = tag;
 
 	/// <inheritdoc />
-	public string? GetTag()
-	{
-		return TagValue;
-	}
+	public string? GetTag() => TagValue;
+
+	/// <inheritdoc />
+	public void Scope(int sign) => ScopeSign = sign;
+
+	/// <inheritdoc />
+	public int GetScope() => ScopeSign;
 }

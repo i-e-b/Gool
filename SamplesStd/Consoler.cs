@@ -2,6 +2,7 @@
 using Phantom;
 using Phantom.Parsers;
 using Phantom.Parsers.Interfaces;
+using Phantom.Results;
 
 namespace Samples;
 

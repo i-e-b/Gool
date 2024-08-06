@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Phantom.Parsers;
 
-namespace Phantom.Parsers;
+namespace Phantom.Results;
 
 /// <summary>
 /// Creates and stores parser matches.
@@ -63,6 +64,16 @@ public class ParserMatch
     /// Tag added to the parser that resulted in this match, if any.
     /// </summary>
     public string? Tag => SourceParser?.GetTag();
+    
+    /// <summary>
+    /// Get the scope direction of the source parser
+    /// <ul>
+    /// <li>Positive values open a new scope</li>
+    /// <li>Negative values close the current scope</li>
+    /// <li>Zero value does not change scope (default)</li>
+    /// </ul>
+    /// </summary>
+    public int ScopeSign => SourceParser?.GetScope() ?? 0;
 
     /// <summary>
     /// True if match successful
@@ -104,6 +115,7 @@ public class ParserMatch
     /// </summary>
     public string Description()
     {
+        if (Success) return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"}; Value='{Value}';";
         return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"};";
     }
 
@@ -136,26 +148,15 @@ public class ParserMatch
     {
         return (Offset <= other.Offset) && (Right >= other.Right);
     }
-
+    
     /// <summary>
     /// Walk *every* match in this match tree. This will usually result in
     /// duplicate matches.
     /// </summary>
     public IEnumerable<ParserMatch> DepthFirstWalk()
     {
-        return DepthFirstWalk(this);
+        return DepthFirstWalk(this, _ => true);
     }
-
-    private static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node)
-    {
-        if (node is null) yield break;
-        yield return node; // this match
-        foreach (var child in node.ChildMatches)
-        {
-            foreach (var m in DepthFirstWalk(child)) yield return m;
-        }
-    }
-
 
     /// <summary>
     /// Return the bottom-most parser matches, including matches
@@ -164,26 +165,7 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> BottomLevelMatches()
     {
-        foreach (ParserMatch m in this)
-        {
-            foreach (var m2 in BottomLevelMatches(m)) yield return m2;
-        }
-    }
-
-    private static IEnumerable<ParserMatch> BottomLevelMatches(ParserMatch? node)
-    {
-        if (node == null || node.Empty) yield break;
-
-        if (node.ChildMatches.Count < 1)
-        {
-            yield return node; // no children, so yield self (this is the bottom level)
-            yield break;
-        }
-
-        foreach (var m in node.ChildMatches.SelectMany(BottomLevelMatches))
-        {
-            yield return m;
-        }
+        return DepthFirstWalk(this, node => node.ChildMatches.Count < 1);
     }
 
     /// <summary>
@@ -192,30 +174,32 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> TaggedTokens()
     {
-        return TaggedTokensWalk(this);
+        return DepthFirstWalk(this, m => m.Tag is not null);
     }
-
-    private static IEnumerable<ParserMatch> TaggedTokensWalk(ParserMatch? node)
-    {
-        if (node is null) yield break;
-
-        if (node.Tag is not null) yield return node; // this match
-
-        foreach (var child in node.ChildMatches)
-        {
-            foreach (var m in DepthFirstWalk(child))
-            {
-                if (m.Tag is not null) yield return m;
-            }
-        }
-    }
-
+    
     /// <summary>
     /// Return all parser matches where the parser has the exact requested tag value
     /// </summary>
     public IEnumerable<ParserMatch> ChildrenWithTag(string tagValue)
     {
-        return TaggedTokensWalk(this).Where(token => token.Tag == tagValue);
+        return DepthFirstWalk(this, m => m.Tag == tagValue);
+    }
+
+    /// <summary>
+    /// Does a recursive, depth-first search of this match and all children.
+    /// Returns matches where <paramref name="select"/> returns <c>true</c>
+    /// </summary>
+    private static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node, Func<ParserMatch, bool> select)
+    {
+        if (node is null) yield break;
+        
+        if (select(node)) yield return node; // this match
+
+        var check = (ParserMatch n) => DepthFirstWalk(n, select);
+        foreach (var m in node.ChildMatches.SelectMany(check))
+        {
+            if (select(m)) yield return m;
+        }
     }
 
     /// <summary>
@@ -235,5 +219,41 @@ public class ParserMatch
         if (previousMatch is null) return false;
 
         return previousMatch.Offset == Offset && previousMatch.Length == Length;
+    }
+
+    /// <summary>
+    /// Return all parser matches where the parser has been given a tag value.
+    /// Matches that have a non-zero 'scope' value will build the hierarchy.
+    /// </summary>
+    public ScopeNode ToScopes()
+    {
+        var root = new ScopeNode
+        {
+            NodeType = ScopeNodeType.Root,
+            Parent = null
+        };
+        
+        var points = DepthFirstWalk(this, m => m.Tag is not null || m.ScopeSign != 0);
+
+        var cursor = (ScopeNode?)root;
+        foreach (var match in points)
+        {
+            if (cursor is null) break; // this will happen if there are too many scope closes
+
+            switch (match.ScopeSign)
+            {
+                case > 0:
+                    cursor = cursor.OpenScope(match);
+                    break;
+                case < 0:
+                    cursor = cursor.CloseScope(match);
+                    break;
+                default:
+                    cursor.AddDataFrom(match);
+                    break;
+            }
+        }
+
+        return root;
     }
 }

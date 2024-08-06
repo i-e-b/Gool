@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using Phantom;
 using Phantom.Scanners;
+using SkinnyJson;
 
 // ReSharper disable InconsistentNaming
 
@@ -38,18 +39,32 @@ public class LispTests
         normal_list.Tag("(");
         end_list.Tag(")");
 
+        normal_list.OpenScope();
+        quoted_list.OpenScope();
+        end_list.CloseScope();
+
         return BNF.Recursive(tree => +(list_item | start_list | end_list | tree)).Result();
     }
 
     [Test]
-    public void decompose_s_expression()
+    public void parse_s_expression()
     {
         Console.WriteLine(Sample);
+        
+        Console.WriteLine("=================================================================================");
 
         var parser = MakeParser();
         var scanner = new ScanStrings(Sample) { SkipWhitespace = true };
 
         var result = parser.Parse(scanner);
+
+        foreach (var match in result.BottomLevelMatches())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
         
         foreach (var fail in scanner.ListFailures())
         {
@@ -98,6 +113,20 @@ public class LispTests
                     break;
             }
         }
+    }
+
+    [Test]
+    public void decompose_s_expression_to_tree()
+    {
+        var parser = MakeParser();
+        var scanner = new ScanStrings(Sample) { SkipWhitespace = true };
+
+        var result = parser.Parse(scanner);
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        
+        var scopes = result.ToScopes();
+
+        Console.WriteLine(scopes.Children.Count);
     }
 
     private static string I(int indent)

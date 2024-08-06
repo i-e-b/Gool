@@ -1,5 +1,6 @@
 using System;
 using Phantom.Parsers.Interfaces;
+using Phantom.Results;
 
 namespace Phantom.Parsers;
 

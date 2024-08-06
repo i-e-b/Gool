@@ -1,3 +1,5 @@
+using Phantom.Results;
+
 namespace Phantom.Parsers.Interfaces;
 
 /// <summary>

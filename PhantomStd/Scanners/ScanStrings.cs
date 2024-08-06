@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Phantom.Parsers;
+using Phantom.Results;
 
 namespace Phantom.Scanners;
 

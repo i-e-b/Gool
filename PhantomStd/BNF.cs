@@ -101,6 +101,26 @@ public class BNF
 		_parserTree.Tag(tag);
 		return this;
 	}
+	
+	/// <summary>
+	/// Add a tag to the base parser.
+	/// This is used to interpret the parser result
+	/// </summary>
+	public BNF OpenScope()
+	{
+		_parserTree.Scope(+1);
+		return this;
+	}
+	
+	/// <summary>
+	/// Add a tag to the base parser.
+	/// This is used to interpret the parser result
+	/// </summary>
+	public BNF CloseScope()
+	{
+		_parserTree.Scope(-1);
+		return this;
+	}
 
 	/// <summary>
 	/// Make a copy of this BNF, which can be given different tags from the original

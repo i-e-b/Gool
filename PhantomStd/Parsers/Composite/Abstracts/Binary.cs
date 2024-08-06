@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Phantom.Parsers.Interfaces;
+using Phantom.Results;
 
 namespace Phantom.Parsers.Composite.Abstracts;
 

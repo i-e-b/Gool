@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Phantom.Parsers.Interfaces;
+using Phantom.Results;
 
 namespace Phantom.Parsers.Terminals;
 

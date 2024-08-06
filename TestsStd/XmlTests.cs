@@ -36,8 +36,7 @@ public class XmlTests
         sw.Start();
         var result = parser.Parse(scanner);
         sw.Stop();
-
-        Console.WriteLine($"Parsing took {sw.Elapsed}");
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         // Faults: Something is advancing too far?
 
@@ -48,7 +47,7 @@ public class XmlTests
 
         foreach (var match in result.BottomLevelMatches())
         {
-            Console.WriteLine(match.Value + " -> " + match.SourceParser);
+            Console.WriteLine(match.Description());
         }
     }
 
@@ -58,7 +57,11 @@ public class XmlTests
         var parser = new XmlParser().TheParser;
         var scanner = new ScanStrings(BrokenSample);
 
+        var sw = new Stopwatch();
+        sw.Start();
         var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         foreach (var fail in scanner.ListFailures())
         {
