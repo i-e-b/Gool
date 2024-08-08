@@ -45,7 +45,7 @@ public abstract class Parser : IParser
 			return newMatch;
 		}
 
-		scan.AddFailure(this, previousMatch?.Offset ?? 0);
+		scan.AddFailure(this, previousMatch?.Offset ?? 0, previousMatch?.Right??0);
 		return scan.NoMatch;
 	}
 

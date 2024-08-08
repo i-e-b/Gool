@@ -1,7 +1,8 @@
-﻿using NUnit.Framework;
+﻿using System.Diagnostics;
+using NUnit.Framework;
 using Phantom;
+using Phantom.Results;
 using Phantom.Scanners;
-using SkinnyJson;
 
 // ReSharper disable InconsistentNaming
 
@@ -36,8 +37,8 @@ public class LispTests
         atom.Tag("Atom");
         quoted_string.Tag("String");
         number.Tag("Number");
-        normal_list.Tag("(");
-        end_list.Tag(")");
+        normal_list.Tag("List");
+        end_list.Tag("End");
 
         normal_list.OpenScope();
         quoted_list.OpenScope();
@@ -102,12 +103,12 @@ public class LispTests
                     indent++;
                     break;
 
-                case "(":
+                case "List":
                     Console.WriteLine(I(indent) + "(");
                     indent++;
                     break;
 
-                case ")":
+                case "End":
                     indent--;
                     Console.WriteLine(I(indent) + ")");
                     break;
@@ -121,12 +122,52 @@ public class LispTests
         var parser = MakeParser();
         var scanner = new ScanStrings(Sample) { SkipWhitespace = true };
 
+        var sw = new Stopwatch();
+        sw.Start();
         var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         
         var scopes = result.ToScopes();
 
-        Console.WriteLine(scopes.Children.Count);
+        PrintRecursive(scopes, 0);
+    }
+
+    private static void PrintRecursive(ScopeNode node, int indent)
+    {
+        switch (node.NodeType)
+        {
+            case ScopeNodeType.Root:
+                Console.WriteLine("Document");
+                if (node.OpeningMatch is not null || node.ClosingMatch is not null) Console.WriteLine("Unbalanced scopes!");
+                break;
+            case ScopeNodeType.Data:
+                Console.WriteLine(I(indent) + node.DataMatch?.Value);
+                break;
+            case ScopeNodeType.ScopeChange:
+                switch (node.OpeningMatch?.Tag)
+                {
+                    case "Quote":
+                        Console.WriteLine(I(indent) + "Quoted list:");
+                        break;
+                    case "List":
+                        Console.WriteLine(I(indent) + "Expression list:");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        foreach (var childNode in node.Children)
+        {
+            PrintRecursive(childNode, indent+1);
+        }
     }
 
     private static string I(int indent)

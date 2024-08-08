@@ -84,6 +84,11 @@ public class BNF
 	public static RegexOptions RegexOptions { get; set; }
 
 	/// <summary>
+	/// Match the end of input
+	/// </summary>
+	public static BNF EndOfInput => new(new EndOfInput());
+
+	/// <summary>
 	/// Parser resulting from the BNF syntax
 	/// </summary>
 	/// <returns></returns>

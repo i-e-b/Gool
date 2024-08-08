@@ -1,6 +1,7 @@
 ﻿using Phantom;
 using Phantom.Parsers;
 using Phantom.Parsers.Terminals;
+// ReSharper disable InconsistentNaming
 
 namespace Samples;
 

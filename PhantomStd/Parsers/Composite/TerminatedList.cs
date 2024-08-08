@@ -25,7 +25,7 @@ public class TerminatedList : Binary
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var result = previousMatch ?? scan.NullMatch(this, 0);
+        var result = scan.NullMatch(this, previousMatch?.Right ?? 0);
 
         while (!scan.EndOfInput(result.Right))
         {
@@ -43,7 +43,8 @@ public class TerminatedList : Binary
                 return result;
             }
 
-            result = ParserMatch.Join(this, item, terminator);
+            result = ParserMatch.Join(this, result, item);
+            result = ParserMatch.Join(this, result, terminator);
         }
 
         return result;

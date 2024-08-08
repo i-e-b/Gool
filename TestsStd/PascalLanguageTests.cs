@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using NUnit.Framework;
 using Phantom.Scanners;
 using Samples;
+// ReSharper disable InconsistentNaming
 
 namespace TestsStd;
 
@@ -17,9 +19,15 @@ public class PascalLanguageTests
             Transform = new TransformToLower()
         };
 
+        var sw = new Stopwatch();
+        sw.Start();
         var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        Assert.That(result.Success, Is.True, String.Join("\n\n", scanner.ListFailures()));
+        PrintFailures(scanner);
+
+        Assert.That(result.Success, Is.True, "Parsing failed");
         Assert.That(result.Value.ToLower(), Is.EqualTo(sample_program.ToLower()));
     }
 
@@ -35,9 +43,24 @@ public class PascalLanguageTests
             Transform = new TransformToLower()
         };
 
+        var sw = new Stopwatch();
+        sw.Start();
         var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         Assert.That(result.Success, Is.False);
+
+        PrintFailures(scanner);
+    }
+
+    private static void PrintFailures(ScanStrings scanner)
+    {
+        foreach (var mismatch in scanner.ListFailures())
+        {
+            Console.WriteLine("==================================================");
+            Console.WriteLine(mismatch);
+        }
     }
 
 

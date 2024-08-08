@@ -51,9 +51,9 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public void AddFailure(object tester, int position)
+	public void AddFailure(object tester, int start, int end)
 	{
-		_failurePoints.Add(new ParserPoint(tester, position));
+		_failurePoints.Add(new ParserPoint(tester, start, end));
 	}
 
 	/// <inheritdoc />
@@ -69,7 +69,7 @@ public class ScanStrings : IScanner
 
 		foreach (var p in _failurePoints)
 		{
-			var chunk = InputString.Substring(p.Pos);
+			var chunk = InputString.Substring(p.Position, p.Length);
 			var idx = chunk.IndexOfAny(new [] {'\r', '\n'});
 			if (idx > 5) chunk = chunk.Substring(0, idx);
 				
@@ -130,11 +130,12 @@ public class ScanStrings : IScanner
 		var offset = previous.Right;
 		var m = EmptyMatch(null, previous.Right);
 		var c = Peek(offset);
-		while (char.IsWhiteSpace(c))
+		
+		while (char.IsWhiteSpace(c))      // if this is whitespace
 		{
-			if (!Read(ref offset)) break;
-			c = Peek(offset);
-			m.ExtendTo(offset);
+			m.ExtendTo(offset+1);         // mark our match up to this character
+			if (!Read(ref offset)) break; // try to advance to next character
+			c = Peek(offset);             // read that character
 		}
 		
 		return m.Length > 0 ? m : previous;

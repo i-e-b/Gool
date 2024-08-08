@@ -26,7 +26,7 @@ public class Difference : Binary
         if (!m.Success) return scan.NoMatch;
 
         // doing difference
-        var m2 = RightParser.Parse(scan, m);
+        var m2 = RightParser.Parse(scan, previousMatch);
         if (m2.Success)
         {
             // fail: must match left but NOT right

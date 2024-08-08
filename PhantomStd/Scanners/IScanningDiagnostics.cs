@@ -16,8 +16,9 @@ public interface IScanningDiagnostics {
 	/// Set a point at which a parser failed
 	/// </summary>
 	/// <param name="tester">the parser that failed</param>
-	/// <param name="position">position in scanner where it failed.</param>
-	void AddFailure(object tester, int position);
+	/// <param name="start">position in scanner where it failure starts</param>
+	/// <param name="end">position in scanner where last test ended failure starts</param>
+	void AddFailure(object tester, int start, int end);
 
 	/// <summary>
 	/// Output a list of all fail points since the last success.

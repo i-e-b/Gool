@@ -22,23 +22,27 @@ public class DelimitedList : Binary
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        // TODO: re-do this
-        var item = LeftParser.Parse(scan, previousMatch);
-        if (!item.Success) return scan.NoMatch;
-        
-        var result = item;
+        var result = scan.NullMatch(this, previousMatch?.Right ?? 0); // failure until first match
 
         while (!scan.EndOfInput(result.Right))
         {
-            var delimiter = RightParser.Parse(scan, result); // delimiter
+            var item = LeftParser.Parse(scan, result);
 
-            if (!delimiter.Success) return result;
+            if (!item.Success)
+            {
+                return result;
+            }
 
-            item = LeftParser.Parse(scan, result); // item
+            result = ParserMatch.Join(this, result, item);
+            
+            var separator = RightParser.Parse(scan, item);
 
-            if (!item.Success) return result;
+            if (!separator.Success)
+            {
+                return result;
+            }
 
-            result = ParserMatch.Join(this, delimiter, item); // delimiter from prev one
+            result = ParserMatch.Join(this, result, separator);
         }
 
         return result;
