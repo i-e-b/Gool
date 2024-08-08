@@ -203,7 +203,8 @@ public class ParserMatch
     }
 
     /// <summary>
-    /// Extend this match's length so it reaches the given offset
+    /// Extend this match's length so it reaches the given offset.
+    /// This should only by used by the scanner during auto-advance.
     /// </summary>
     internal void ExtendTo(int offset)
     {

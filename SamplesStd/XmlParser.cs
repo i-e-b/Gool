@@ -38,12 +38,10 @@ public class XmlParser
 
         BNF text = "#[^<>]+";
         BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
-        BNF whitespace = @"#\W+";
+        BNF whitespace = @"#\s+";
 
         BNF quoted_string = '"' > identifier > '"';
         BNF attribute = whitespace > identifier > '=' > quoted_string;
-        //BNF attr_part     = identifier > '=' > quoted_string;
-        //BNF attr_list     = !whitespace > (attr_part % whitespace);
 
         BNF tag_id = identifier.Copy().Tag(TagId);
         BNF open_tag      = '<' > tag_id > -attribute > '>';

@@ -342,4 +342,12 @@ public class BNF
 	{
 		return Copy().Tag(name);
 	}
+
+	/// <summary>
+	/// Match any single character from the given set
+	/// </summary>
+	public static BNF OneOf(params char[] characters)
+	{
+		return new BNF(new LiteralCharacterSet(characters));
+	}
 }

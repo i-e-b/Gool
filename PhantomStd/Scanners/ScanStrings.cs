@@ -69,7 +69,7 @@ public class ScanStrings : IScanner
 
 		foreach (var p in _failurePoints)
 		{
-			var chunk = InputString.Substring(p.Position, p.Length);
+			var chunk = InputString.Substring(p.Position);//, p.Length);
 			var idx = chunk.IndexOfAny(new [] {'\r', '\n'});
 			if (idx > 5) chunk = chunk.Substring(0, idx);
 				

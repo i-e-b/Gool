@@ -50,7 +50,7 @@ public abstract class Parser : IParser
 	}
 
 	/// <inheritdoc />
-	public void Tag(string tag) => TagValue = tag;
+	public virtual void Tag(string tag) => TagValue = tag;
 
 	/// <inheritdoc />
 	public string? GetTag() => TagValue;
