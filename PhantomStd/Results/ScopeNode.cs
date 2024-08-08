@@ -14,13 +14,13 @@ public class ScopeNode
     /// Type of node
     /// </summary>
     public ScopeNodeType NodeType { get; private set; }
-    
+
     /// <summary>
     /// ParserMatch that represents a tagged token that exists within its scope.
     /// <c>null</c> if this is a scope change.
     /// </summary>
     public ParserMatch? DataMatch { get; private set; }
-    
+
     /// <summary>
     /// ParserMatch that opened the current scope.
     /// <c>null</c> if root level, or is not a scope change.
@@ -45,7 +45,7 @@ public class ScopeNode
     /// Next node in this scope, if any
     /// </summary>
     public ScopeNode? NextNode { get; private set; }
-    
+
     /// <summary>
     /// Previous node in this scope, if any
     /// </summary>
@@ -97,7 +97,7 @@ public class ScopeNode
         Link(newScope);
         return newScope;
     }
-    
+
     /// <summary>
     /// Close this scope, and return parent.
     /// <see cref="ClosingMatch"/> of this node will be set to '<paramref name="match"/>'.
@@ -144,6 +144,42 @@ public class ScopeNode
 
         Children.Add(newChild);
     }
+
+    /// <summary>
+    /// Perform an action on every node of the tree, visiting nodes breadth-first.
+    /// See also <see cref="DepthFirstWalk"/>
+    /// </summary>
+    public void BreadthFirstWalk(Action<ScopeNode> action)
+    {
+        action(this);
+        var nextSet = new Queue<ScopeNode>(Children);
+
+        while (nextSet.Count > 0)
+        {
+            var node = nextSet.Dequeue();
+            action(node);
+            
+            foreach (var child in node.Children) nextSet.Enqueue(child);
+        }
+    }
+
+    /// <summary>
+    /// Perform an action on every node of the tree, visiting nodes depth-first.
+    /// See also <see cref="BreadthFirstWalk"/>
+    /// </summary>
+    public void DepthFirstWalk(Action<ScopeNode> action)
+    {
+        DepthFirstWalkRec(this, action);
+    }
+
+    private static void DepthFirstWalkRec(ScopeNode node, Action<ScopeNode> action)
+    {
+        action(node);
+        foreach (var child in node.Children)
+        {
+            DepthFirstWalkRec(child, action);
+        }
+    }
 }
 
 /// <summary>
@@ -155,12 +191,12 @@ public enum ScopeNodeType
     /// Node is the root of the scoped node tree
     /// </summary>
     Root = 0,
-    
+
     /// <summary>
     /// Node contains data inside a scope
     /// </summary>
     Data = 1,
-    
+
     /// <summary>
     /// Node is a scope container
     /// </summary>

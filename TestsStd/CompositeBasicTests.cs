@@ -306,9 +306,50 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.False);
     }
 
+    
+    private static IParser UnionParserSample()
+    {
+        BNF item = (BNF)"one" | "two" | "three";
+
+        BNF list = +item;
+
+        item.Tag("item");
+
+        return list.Result();
+    }
+    
     [Test]
     public void union_parser_accepts_correct_input()
     {
-        Assert.Inconclusive("not done");
+        const string correct_sample =
+            """
+            one two three four
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser = UnionParserSample();
+        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokens())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three" }).AsCollection);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
+using Phantom.Results;
 using Phantom.Scanners;
 using Samples;
 
@@ -79,6 +80,35 @@ public class XmlTests
 
             Console.WriteLine(match.Value + " : " + tag);
         }
+    }
+    
+    [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
+    public void can_detect_tag_mismatches_in_scoped_tree()
+    {
+        var parser = new XmlParser().TheParser;
+        var scanner = new ScanStrings(BrokenSample);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        var tree = result.ToScopes();
+        var errors = new List<string>();
+        
+        tree.BreadthFirstWalk(n =>
+        {
+            if (n.NodeType == ScopeNodeType.ScopeChange)
+            {
+                var open = n.OpeningMatch?.FindTag(XmlParser.TagId)?.Value;
+                var close = n.ClosingMatch?.FindTag(XmlParser.TagId)?.Value;
+                if (open != close) errors.Add($"<{open}> does not match </{close}>");
+            }
+        });
+
+        Assert.That(errors, Contains.Item("<note> does not match </wrong>"));
+        Assert.That(errors, Contains.Item("<heading> does not match </broken>"));
     }
 
 

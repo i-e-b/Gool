@@ -25,6 +25,7 @@ public class PascalLanguageTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
+        // IEB: TODO: improve error tracing
         PrintFailures(scanner);
 
         Assert.That(result.Success, Is.True, "Parsing failed");

@@ -294,4 +294,13 @@ public class ParserMatch
         return joinMatch;
 
     }
+
+    /// <summary>
+    /// Find and return the first match with the given tag.
+    /// Returns <c>null</c> if none found.
+    /// </summary>
+    public ParserMatch? FindTag(string tag)
+    {
+        return DepthFirstWalk(this, _ => true).FirstOrDefault(m=>m.Tag == tag);
+    }
 }
