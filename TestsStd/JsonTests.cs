@@ -44,6 +44,12 @@ public class JsonTests
         var result = parser.Parse(scanner);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        
+  
+        sw.Restart();
+        Json.Beautify(valid_sample); // this is doing less work, and has a more special purpose parser
+        sw.Stop();
+        Console.WriteLine($"Real serialiser took {sw.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
 

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Phantom.Parsers;
-using Phantom.Parsers.Composite;
 
 namespace Phantom.Results;
 
@@ -251,11 +250,7 @@ public class ParserMatch
     /// </summary>
     public ScopeNode ToScopes()
     {
-        var root = new ScopeNode
-        {
-            NodeType = ScopeNodeType.Root,
-            Parent = null
-        };
+        var root = ScopeNode.RootNode();
         
         var points = DepthFirstWalk(this, m => m.Tag is not null || m.ScopeSign != 0);
 

@@ -1,4 +1,3 @@
-using Phantom.Parsers;
 using Phantom.Results;
 using Phantom.Scanners;
 

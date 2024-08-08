@@ -1,4 +1,3 @@
-using Phantom.Parsers;
 using Phantom.Results;
 
 namespace Phantom;
@@ -14,12 +13,15 @@ public interface IParser
 	ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
 
 	/// <summary>
-	/// Optional tag value for this parser
+	/// Optional tag value for this parser.
+	/// Tags are used to extract structure from the basic result set.
 	/// </summary>
 	public string? Tag { get; set; }
 
 	/// <summary>
-	/// Optional scope behaviour
+	/// Optional scope behaviour.
+	/// Scopes are used to build result trees from <see cref="Tag"/>ged matches,
+	/// using <see cref="ParserMatch.ToScopes"/>.
 	/// <ul>
 	/// <li>Positive values open a new scope</li>
 	/// <li>Negative values close the current scope</li>

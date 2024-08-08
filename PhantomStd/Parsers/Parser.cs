@@ -9,14 +9,10 @@ namespace Phantom.Parsers;
 /// </summary>
 public abstract class Parser : IParser
 {
-	/// <summary>
-	/// Optional tag value for this parser
-	/// </summary>
+	/// <inheritdoc />
 	public string? Tag { get; set; }
 
-	/// <summary>
-	/// Optional scope behaviour
-	/// </summary>
+	/// <inheritdoc />
 	public int ScopeSign { get; set; }
 
 	/// <inheritdoc />

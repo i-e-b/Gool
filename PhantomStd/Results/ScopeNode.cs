@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Phantom.Results;
 
 /// <summary>
 /// Hierarchy node for scoped-and-tagged parser matches.
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class ScopeNode
 {
     /// <summary>
     /// Type of node
     /// </summary>
-    public ScopeNodeType NodeType { get; set; }
+    public ScopeNodeType NodeType { get; private set; }
     
     /// <summary>
     /// ParserMatch that represents a tagged token that exists within its scope.
     /// <c>null</c> if this is a scope change.
     /// </summary>
-    public ParserMatch? DataMatch { get; set; }
+    public ParserMatch? DataMatch { get; private set; }
     
     /// <summary>
     /// ParserMatch that opened the current scope.
@@ -27,7 +29,7 @@ public class ScopeNode
     /// this indicates a mismatch in scoping tokens: more opening
     /// tokens than than closing tokens.
     /// </summary>
-    public ParserMatch? OpeningMatch { get; set; }
+    public ParserMatch? OpeningMatch { get; private set; }
 
     /// <summary>
     /// ParserMatch that closed the current scope.
@@ -37,17 +39,17 @@ public class ScopeNode
     /// this indicates a mismatch in scoping tokens: more closing
     /// tokens than opening tokens.
     /// </summary>
-    public ParserMatch? ClosingMatch { get; set; }
+    public ParserMatch? ClosingMatch { get; private set; }
 
     /// <summary>
     /// Next node in this scope, if any
     /// </summary>
-    public ScopeNode? NextNode { get; set; }
+    public ScopeNode? NextNode { get; private set; }
     
     /// <summary>
     /// Previous node in this scope, if any
     /// </summary>
-    public ScopeNode? PrevNode { get; set; }
+    public ScopeNode? PrevNode { get; private set; }
 
     /// <summary>
     /// Nodes within this scope
@@ -105,6 +107,18 @@ public class ScopeNode
     {
         ClosingMatch = match;
         return Parent;
+    }
+
+    /// <summary>
+    /// Create a new root node
+    /// </summary>
+    internal static ScopeNode RootNode()
+    {
+        return new ScopeNode
+        {
+            NodeType = ScopeNodeType.Root,
+            Parent = null
+        };
     }
 
     /// <inheritdoc />
