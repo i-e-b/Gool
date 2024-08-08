@@ -103,7 +103,7 @@ public class BNF
 	/// </summary>
 	public BNF Tag(string tag)
 	{
-		_parserTree.Tag(tag);
+		_parserTree.Tag = tag;
 		return this;
 	}
 	
@@ -113,7 +113,7 @@ public class BNF
 	/// </summary>
 	public BNF OpenScope()
 	{
-		_parserTree.Scope(+1);
+		_parserTree.ScopeSign = +1;
 		return this;
 	}
 	
@@ -123,7 +123,7 @@ public class BNF
 	/// </summary>
 	public BNF CloseScope()
 	{
-		_parserTree.Scope(-1);
+		_parserTree.ScopeSign = -1;
 		return this;
 	}
 

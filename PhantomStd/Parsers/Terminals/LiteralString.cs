@@ -40,7 +40,7 @@ public class LiteralString : Parser, IMatchingParser
     {
         var desc = "\"" + _test + "\"";
 
-        if (TagValue is null) return desc;
-        return desc + " Tag='" + TagValue + "'";
+        if (Tag is null) return desc;
+        return desc + " Tag='" + Tag + "'";
     }
 }

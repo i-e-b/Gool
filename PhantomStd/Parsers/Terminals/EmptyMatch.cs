@@ -20,7 +20,7 @@ public class EmptyMatch : Parser, IMatchingParser
     {
         var desc = "(empty)";
 
-        if (TagValue is null) return desc;
-        return desc + " Tag='" + TagValue + "'";
+        if (Tag is null) return desc;
+        return desc + " Tag='" + Tag + "'";
     }
 }

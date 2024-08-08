@@ -19,7 +19,7 @@ public interface IScanner: IScanningDiagnostics
 	ParserMatch NoMatch { get; }
 
 	/// <summary>Return an empty success match</summary>
-	ParserMatch EmptyMatch(IParser? source, int offset);
+	ParserMatch EmptyMatch(IParser source, int offset);
 
 	/// <summary> Return an empty failure match </summary>
 	ParserMatch NullMatch(IParser? source, int offset);

@@ -46,13 +46,6 @@ public class Recursion : Parser, IMatchingParser
 		return $"Recursion({Source?.GetType().Name ?? "<none>"})";
 	}
 
-	/// <inheritdoc />
-	public override void Tag(string tag)
-	{
-		base.Tag(tag);
-		Source?.Tag(tag);
-	}
-
 	/// <summary>
 	/// Create a simple Recursion parser.
 	/// Input to the function is a holding parser, output is the parser to hold.

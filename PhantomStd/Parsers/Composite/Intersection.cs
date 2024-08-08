@@ -43,7 +43,7 @@ public class Intersection : Binary
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		if (TagValue is null) return LeftParser + " & " + RightParser;
-		return LeftParser + " & " + RightParser + " Tag='" + TagValue + "'";
+		if (Tag is null) return LeftParser + " & " + RightParser;
+		return LeftParser + " & " + RightParser + " Tag='" + Tag + "'";
 	}
 }

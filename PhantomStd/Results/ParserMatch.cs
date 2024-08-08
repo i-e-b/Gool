@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Phantom.Parsers;
+using Phantom.Parsers.Composite;
 
 namespace Phantom.Results;
 
@@ -63,7 +64,7 @@ public class ParserMatch
     /// <summary>
     /// Tag added to the parser that resulted in this match, if any.
     /// </summary>
-    public string? Tag => SourceParser?.GetTag();
+    public string? Tag => SourceParser?.Tag;
     
     /// <summary>
     /// Get the scope direction of the source parser
@@ -73,7 +74,7 @@ public class ParserMatch
     /// <li>Zero value does not change scope (default)</li>
     /// </ul>
     /// </summary>
-    public int ScopeSign => SourceParser?.GetScope() ?? 0;
+    public int ScopeSign => SourceParser?.ScopeSign ?? 0;
 
     /// <summary>
     /// True if match successful
@@ -83,7 +84,7 @@ public class ParserMatch
     /// <summary>
     /// True if match empty
     /// </summary>
-    public bool Empty => Length <= 0;
+    public bool Empty => (Length <= 0) && (ChildMatches.Count < 1);
 
     /// <summary>
     /// Next offset after this match
@@ -107,7 +108,8 @@ public class ParserMatch
     /// </summary>
     public override string ToString()
     {
-        return Success ? Value : "";
+        if (Success) return Empty ? "<empty>" : Value;
+        return "<failure>";
     }
 
     /// <summary>
@@ -129,16 +131,37 @@ public class ParserMatch
         if (!right.Success) throw new ArgumentException("Can't concatenate failure match");
         if (left.Scanner != right.Scanner) throw new ArgumentException("Can't concatenate between different scanners");
 
-        if (!left.Success) return right; // Joining success onto failure just gives the success
-
-        if (left.Contains(right)) return left;
-        if (right.Contains(left)) return right;
+        //Console.WriteLine($"    J({source.GetTag()}, {left.Tag}, {right.Tag})");
         
+        // Joining success onto failure just gives the success
+        if (!left.Success)
+        {
+            if (string.IsNullOrEmpty(source.Tag)) return right;
+            var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
+            if (!right.Empty) chainResult.ChildMatches.Add(right);
+            return chainResult;
+        }
+
+        // Reduce overlapping matches
+        if (left.Contains(right))
+        {
+            var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
+            /*if (!left.Empty)*/ leftOnlyResult.ChildMatches.Add(left);
+            return leftOnlyResult;
+        }
+        if (right.Contains(left))
+        {
+            var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
+            /*if (!right.Empty)*/ rightOnlyResult.ChildMatches.Add(right);
+            return rightOnlyResult;
+        }
+        
+        // Normal join between left and right
         var length = right.Right - left.Offset;
-        var result = new ParserMatch(source, left.Scanner, left.Offset, length);
-        result.ChildMatches.Add(left);
-        result.ChildMatches.Add(right);
-        return result;
+        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length);
+        if (!left.Empty) joinResult.ChildMatches.Add(left);
+        if (!right.Empty) joinResult.ChildMatches.Add(right);
+        return joinResult;
     }
 
     /// <summary>
@@ -256,5 +279,24 @@ public class ParserMatch
         }
 
         return root;
+    }
+
+    /// <summary>
+    /// This match is being passed through a composite,
+    /// and may need to collect a tag.
+    /// </summary>
+    public ParserMatch Through(IParser source)
+    {
+        // If the parser doesn't add any meta-data, skip joining
+        if (!source.HasMetaData()) return this;
+        
+        // Make a match covering this one, with the new source
+        var joinMatch = new ParserMatch(source, Scanner, Offset, Length);
+        
+        // Join this match to the result if we have any metadata to carry
+        if (SourceParser?.HasMetaData() == true) joinMatch.ChildMatches.Add(this);
+
+        return joinMatch;
+
     }
 }

@@ -54,7 +54,7 @@ public class RegularExpression : Parser, IMatchingParser
 	{
 		var desc = "/"+_pattern+"/";
 			
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
+		if (Tag is null) return desc;
+		return desc + " Tag='" + Tag + "'";
 	}
 }

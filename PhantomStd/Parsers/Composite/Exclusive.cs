@@ -22,20 +22,20 @@ public class Exclusive : Binary
 	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		// apply the first parser
-		var m1 = LeftParser.Parse(scan, previousMatch);
+		var leftMatch = LeftParser.Parse(scan, previousMatch);
 
 		// apply the second parser
-		var m2 = RightParser.Parse(scan, previousMatch);
+		var rightMatch = RightParser.Parse(scan, previousMatch);
 
-		if (m2.Success && m1.Success)
+		if (rightMatch.Success && leftMatch.Success)
 		{
 			// FAIL! they are not exclusive
 			return scan.NoMatch;
 		}
 
 		// now return whichever one succeeded
-		if (m1.Success) return m1;
-		if (m2.Success) return m2;
+		if (leftMatch.Success) return leftMatch.Through(this);
+		if (rightMatch.Success) return rightMatch.Through(this);
 
 		// neither were matched!
 		return scan.NoMatch;
@@ -44,7 +44,7 @@ public class Exclusive : Binary
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		if (TagValue is null) return LeftParser + " ^ " + RightParser;
-		return LeftParser + " ^ " + RightParser + " Tag='" + TagValue + "'";
+		if (Tag is null) return LeftParser + " ^ " + RightParser;
+		return LeftParser + " ^ " + RightParser + " Tag='" + Tag + "'";
 	}
 }

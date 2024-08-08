@@ -40,6 +40,16 @@ public class ScopeNode
     public ParserMatch? ClosingMatch { get; set; }
 
     /// <summary>
+    /// Next node in this scope, if any
+    /// </summary>
+    public ScopeNode? NextNode { get; set; }
+    
+    /// <summary>
+    /// Previous node in this scope, if any
+    /// </summary>
+    public ScopeNode? PrevNode { get; set; }
+
+    /// <summary>
     /// Nodes within this scope
     /// </summary>
     public List<ScopeNode> Children { get; } = new();
@@ -53,9 +63,9 @@ public class ScopeNode
     /// <summary>
     /// Add a data node as a child to this node
     /// </summary>
-    public void AddDataFrom(ParserMatch match)
+    internal void AddDataFrom(ParserMatch match)
     {
-        Children.Add(new ScopeNode
+        Link(new ScopeNode
         {
             NodeType = ScopeNodeType.Data,
             DataMatch = match,
@@ -71,7 +81,7 @@ public class ScopeNode
     /// <see cref="ClosingMatch"/> of the new node will be <c>null</c>.
     /// </summary>
     /// <returns>The new scope node</returns>
-    public ScopeNode OpenScope(ParserMatch match)
+    internal ScopeNode OpenScope(ParserMatch match)
     {
         var newScope = new ScopeNode
         {
@@ -82,7 +92,7 @@ public class ScopeNode
             Parent = this
         };
 
-        Children.Add(newScope);
+        Link(newScope);
         return newScope;
     }
     
@@ -91,7 +101,7 @@ public class ScopeNode
     /// <see cref="ClosingMatch"/> of this node will be set to '<paramref name="match"/>'.
     /// </summary>
     /// <returns>The parent scope node, or <c>null</c></returns>
-    public ScopeNode? CloseScope(ParserMatch match)
+    internal ScopeNode? CloseScope(ParserMatch match)
     {
         ClosingMatch = match;
         return Parent;
@@ -103,10 +113,22 @@ public class ScopeNode
         return NodeType switch
         {
             ScopeNodeType.Root => $"Root ({OpeningMatch}, {ClosingMatch}, {Children.Count} children) ",
-            ScopeNodeType.Data => $"Data ({DataMatch}) ",
+            ScopeNodeType.Data => DataMatch?.Tag is null ? $"Data ({DataMatch}) " : $"Data {DataMatch?.Tag} ({DataMatch}) ",
             ScopeNodeType.ScopeChange => $"Scope ({OpeningMatch}, {ClosingMatch}, {Children.Count} children) ",
             _ => throw new ArgumentOutOfRangeException()
         };
+    }
+
+    private void Link(ScopeNode newChild)
+    {
+        if (Children.Count > 0)
+        {
+            var endChild = Children[Children.Count - 1];
+            endChild.NextNode = newChild;
+            newChild.PrevNode = endChild;
+        }
+
+        Children.Add(newChild);
     }
 }
 

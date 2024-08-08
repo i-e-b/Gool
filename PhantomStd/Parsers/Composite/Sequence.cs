@@ -38,7 +38,7 @@ public class Sequence : Binary
 	{
 		var desc = LeftParser + " > " + RightParser;
 			
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
+		if (Tag is null) return desc;
+		return desc + " Tag='" + Tag + "'";
 	}
 }

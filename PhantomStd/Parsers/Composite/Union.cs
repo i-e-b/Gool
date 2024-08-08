@@ -28,7 +28,9 @@ public class Union : Binary
 		// pick the longest result
 		if (m.Success || m2.Success)
 		{
-			return m2.Length >= m.Length ? m2 : m;
+			var result = m2.Length >= m.Length ? m2 : m;
+
+			return result.Through(this);
 		}
 
 		return scan.NoMatch;
@@ -39,7 +41,7 @@ public class Union : Binary
 	{
 		var desc = LeftParser + "|" + RightParser;
 			
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
+		if (Tag is null) return desc;
+		return desc + " Tag='" + Tag + "'";
 	}
 }

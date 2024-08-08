@@ -12,12 +12,18 @@ public abstract class Parser : IParser
 	/// <summary>
 	/// Optional tag value for this parser
 	/// </summary>
-	protected string? TagValue { get; private set; }
+	public string? Tag { get; set; }
 
 	/// <summary>
 	/// Optional scope behaviour
 	/// </summary>
-	protected int ScopeSign { get; private set; }
+	public int ScopeSign { get; set; }
+
+	/// <inheritdoc />
+	public bool HasMetaData()
+	{
+		return !(Tag is null && ScopeSign == 0);
+	}
 
 	/// <summary>
 	/// Public scanner method. Test scanner input for this parser's patterns.
@@ -30,12 +36,6 @@ public abstract class Parser : IParser
 	{
 		if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of creating matches");
 
-		/*var x = new StackTrace();
-		if (x.FrameCount > 500)
-		{
-			throw new Exception("Stack too deep!");
-		}*/
-
 		var start = scan.AutoAdvance(previousMatch);
 
 		var newMatch = matcher.TryMatch(scan, start);
@@ -45,19 +45,7 @@ public abstract class Parser : IParser
 			return newMatch;
 		}
 
-		scan.AddFailure(this, previousMatch?.Offset ?? 0, previousMatch?.Right??0);
+		scan.AddFailure(this, previousMatch?.Offset ?? 0, previousMatch?.Right ??0);
 		return scan.NoMatch;
 	}
-
-	/// <inheritdoc />
-	public virtual void Tag(string tag) => TagValue = tag;
-
-	/// <inheritdoc />
-	public string? GetTag() => TagValue;
-
-	/// <inheritdoc />
-	public void Scope(int sign) => ScopeSign = sign;
-
-	/// <inheritdoc />
-	public int GetScope() => ScopeSign;
 }

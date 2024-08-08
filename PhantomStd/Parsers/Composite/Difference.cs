@@ -21,26 +21,26 @@ public class Difference : Binary
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var m = LeftParser.Parse(scan, previousMatch);
+        var targetMatch = LeftParser.Parse(scan, previousMatch);
 
-        if (!m.Success) return scan.NoMatch;
+        if (!targetMatch.Success) return scan.NoMatch;
 
         // doing difference
-        var m2 = RightParser.Parse(scan, previousMatch);
-        if (m2.Success)
+        var refuseMatch = RightParser.Parse(scan, previousMatch);
+        if (refuseMatch.Success)
         {
             // fail: must match left but NOT right
             return scan.NoMatch;
         }
 
         // Good match
-        return m;
+        return targetMatch.Through(this);
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        if (TagValue is null) return LeftParser + " not " + RightParser;
-        return LeftParser + " not " + RightParser + " Tag='" + TagValue + "'";
+        if (Tag is null) return LeftParser + " not " + RightParser;
+        return LeftParser + " not " + RightParser + " Tag='" + Tag + "'";
     }
 }

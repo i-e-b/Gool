@@ -20,7 +20,7 @@ public class EndOfInput : Parser, IMatchingParser
 	{
 		var desc = "¦¦";
 			
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
+		if (Tag is null) return desc;
+		return desc + " Tag='" + Tag + "'";
 	}
 }

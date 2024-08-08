@@ -14,32 +14,22 @@ public interface IParser
 	ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
 
 	/// <summary>
-	/// Add a tag to this parser
+	/// Optional tag value for this parser
 	/// </summary>
-	void Tag(string tag);
+	public string? Tag { get; set; }
 
 	/// <summary>
-	/// Read the tag added to this parser, if any
-	/// </summary>
-	string? GetTag();
-
-	/// <summary>
-	/// Set the scope direction for this parser.
+	/// Optional scope behaviour
 	/// <ul>
 	/// <li>Positive values open a new scope</li>
 	/// <li>Negative values close the current scope</li>
 	/// <li>Zero value does not change scope (default)</li>
 	/// </ul>
 	/// </summary>
-	void Scope(int sign);
+	public int ScopeSign { get; set; }
 
 	/// <summary>
-	/// Get the scope direction of this parser
-	/// <ul>
-	/// <li>Positive values open a new scope</li>
-	/// <li>Negative values close the current scope</li>
-	/// <li>Zero value does not change scope (default)</li>
-	/// </ul>
+	/// Returns true if this parser carries tags or scopes. False otherwise
 	/// </summary>
-	int GetScope();
+	bool HasMetaData();
 }

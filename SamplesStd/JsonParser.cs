@@ -26,29 +26,33 @@ public class JsonParser
         BNF.RegexOptions = ops();
 
         // From https://www.json.org/json-en.html
-        var _element = new Recursion();
         var _value = new Recursion();
         
         BNF ws = @"#\s*";
         BNF neg = '-';
         BNF digit = "#[0-9]";
-        BNF zero = '0';
         BNF exp = "#[eE]";
         BNF sign = BNF.OneOf('+', '-');
 
         BNF escape = BNF.OneOf('"','\\','/','b','f','n','r','t') | "#u[0-9a-fA-F]{4}";
         BNF character = "#[^\"\\\\]" | ( '\\' > escape );
         BNF characters = -character;
-        BNF j_string = '"' > characters > '"';
-        
-        BNF member = ws > j_string > ws > ':' > _element;
-        BNF members = member % ',';
-        BNF j_object = '{' > ( ws | members) > '}';
+        BNF quoted_string = '"' > characters > '"';
 
         BNF element = ws > _value > ws;
         BNF elements = element % ',';
 
-        BNF j_array = '[' > elements > ']';
+        BNF member_key = quoted_string.Copy();
+        BNF member = ws > member_key > ws > ':' > element;
+        BNF members = member % ',';
+
+        BNF object_enter = '{';
+        BNF object_leave = '}';
+        BNF object_block = object_enter > (ws | members) > object_leave;
+
+        BNF array_enter = '[';
+        BNF array_leave = ']';
+        BNF array_block = array_enter > elements > array_leave;
 
 
         BNF digits = +digit;
@@ -57,15 +61,20 @@ public class JsonParser
         BNF integer = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
         BNF number = integer > fraction > exponent;
         
-        BNF value = j_object | j_array | j_string | number | "true" | "false" | "null";
-        
-        _element.Source = element.Result();
-        _value.Source = value.Result();
+        BNF primitive = quoted_string | number | "true" | "false" | "null";
+        BNF value = object_block | array_block | primitive;
 
-        j_string.Tag("string");
-        number.Tag("number");
-        _value.Tag("value");
+
+        array_enter.OpenScope().Tag("array");
+        array_leave.CloseScope();
         
-        return _element;
+        object_enter.OpenScope().Tag("object");
+        object_leave.CloseScope();
+
+        member_key.Tag("key");
+        primitive.Tag("value");
+        
+        _value.Source = value.Result();
+        return element.Result();
     }
 }

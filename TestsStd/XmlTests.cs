@@ -73,7 +73,7 @@ public class XmlTests
 
         foreach (var match in result.DepthFirstWalk())
         {
-            var tag = match.SourceParser?.GetTag();
+            var tag = match.SourceParser?.Tag;
             if (tag is null) continue;
             if (string.IsNullOrWhiteSpace(match.Value)) continue;
 

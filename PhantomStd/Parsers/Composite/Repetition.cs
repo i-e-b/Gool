@@ -73,7 +73,7 @@ public class Repetition : Unary
 		else if (LowerBound == 1 && UpperBound > 1) desc = "("+Parser + ")+";
 		else desc = "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
 
-		if (TagValue is null) return desc;
-		return desc + " Tag='" + TagValue + "'";
+		if (Tag is null) return desc;
+		return desc + " Tag='" + Tag + "'";
 	}
 }

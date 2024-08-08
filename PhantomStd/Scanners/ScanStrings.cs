@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Phantom.Parsers;
+using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Scanners;
@@ -116,6 +117,9 @@ public class ScanStrings : IScanner
 		return Transform.Transform(InputString[offset]);
 	}
 
+	/// <summary> Placeholder parser for whitespace skip results </summary>
+	private readonly Whitespace _ws = new();
+
 	/// <summary>
 	/// If skip whitespace is set and current position is whitespace,
 	/// seek forward until on non-whitespace position or EOF.
@@ -128,7 +132,7 @@ public class ScanStrings : IScanner
 		if (EndOfInput(previous.Right)) return previous;
 
 		var offset = previous.Right;
-		var m = EmptyMatch(null, previous.Right);
+		var m = EmptyMatch(_ws, previous.Right);
 		var c = Peek(offset);
 		
 		while (char.IsWhiteSpace(c))      // if this is whitespace
@@ -161,7 +165,7 @@ public class ScanStrings : IScanner
 	public ParserMatch NoMatch => new(null, this, 0, -1);
 
 	/// <inheritdoc />
-	public ParserMatch EmptyMatch(IParser? source, int offset)
+	public ParserMatch EmptyMatch(IParser source, int offset)
 	{
 		return new ParserMatch(source, this, offset, 0);
 	}
