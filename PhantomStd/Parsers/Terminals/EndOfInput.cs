@@ -12,7 +12,7 @@ public class EndOfInput : Parser, IMatchingParser
 	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		var offset = previousMatch?.Right ?? 0;
-		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset) : scan.NoMatch;
+		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset) : scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -22,5 +22,11 @@ public class EndOfInput : Parser, IMatchingParser
 			
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+    
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		return ToString();
 	}
 }

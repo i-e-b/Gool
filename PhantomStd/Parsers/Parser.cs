@@ -21,6 +21,9 @@ public abstract class Parser : IParser
         return !(Tag is null && ScopeSign == 0);
     }
 
+    /// <inheritdoc />
+    public abstract string ShortDescription(int depth);
+
     /// <summary>
     /// Public scanner method. Test scanner input for this parser's patterns.
     /// </summary>
@@ -42,6 +45,6 @@ public abstract class Parser : IParser
         }
 
         scan.AddFailure(this, previousMatch?.Offset ?? 0, previousMatch?.Right ?? 0);
-        return scan.NoMatch;
+        return scan.NoMatch(this, previousMatch);
     }
 }

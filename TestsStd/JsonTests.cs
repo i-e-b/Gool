@@ -52,6 +52,11 @@ public class JsonTests
         Console.WriteLine($"Real serialiser took {sw.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
+        
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -68,10 +73,6 @@ public class JsonTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-        foreach (var fail in scanner.ListFailures())
-        {
-            Console.WriteLine(fail);
-        }
 
         Assert.That(result.Success, Is.True);
     }

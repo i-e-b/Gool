@@ -21,4 +21,9 @@ internal class Consoler : Parser, IMatchingParser
         Console.WriteLine(scan.RemainingData(offset));
         return src.TryMatch(scan, previousMatch);
     }
+
+    public override string ShortDescription(int depth)
+    {
+        return src.ShortDescription(depth);
+    }
 }

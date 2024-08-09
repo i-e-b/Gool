@@ -27,10 +27,10 @@ public class Sequence : Binary
 		{
 			var right = RightParser.Parse(scan, left);
 
-			return right.Success ? ParserMatch.Join(this, left, right) : scan.NoMatch;
+			return right.Success ? ParserMatch.Join(this, left, right) : scan.NoMatch(this, previousMatch);
 		}
 
-		return scan.NoMatch;
+		return scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -40,5 +40,12 @@ public class Sequence : Binary
 			
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+		return LeftParser.ShortDescription(depth - 1) + " > " + RightParser.ShortDescription(depth - 1);
 	}
 }

@@ -31,13 +31,13 @@ public class Intersection : Binary
 		else
 		{
 			a = RightParser.Parse(scan, previousMatch);
-			if (!a.Success) return scan.NoMatch;
+			if (!a.Success) return scan.NoMatch(this, previousMatch);
 			
 			var right = LeftParser.Parse(scan, a);
 			if (right.Success) return ParserMatch.Join(this, a, right);
 		}
 
-		return scan.NoMatch;
+		return scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -45,5 +45,12 @@ public class Intersection : Binary
 	{
 		if (Tag is null) return LeftParser + " & " + RightParser;
 		return LeftParser + " & " + RightParser + " Tag='" + Tag + "'";
+	}
+	
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+		return LeftParser.ShortDescription(depth - 1) + " & " + RightParser.ShortDescription(depth - 1);
 	}
 }

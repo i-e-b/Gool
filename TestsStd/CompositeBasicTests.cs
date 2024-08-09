@@ -208,10 +208,52 @@ public class CompositeBasicTests
         Assert.Inconclusive("not done");
     }
 
+    
+    private static IParser SequenceParserSample()
+    {
+        BNF item = (BNF)"one" > "two" > "three" > "four";
+
+        BNF list = +item;
+
+        item.Tag("item");
+
+        return list.Result();
+    }
+    
     [Test]
     public void sequence_parser_accepts_correct_input()
     {
-        Assert.Inconclusive("not done");
+        const string correct_sample =
+            """
+            one two three four
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser = SequenceParserSample();
+        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+
+        Console.WriteLine(parser.ToString());
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.DepthFirstWalk())
+        {
+            Console.WriteLine(match.Value + ": " + match.Tag + " <-- " + match.SourceParser);
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one two three four" }).AsCollection);
     }
 
 
@@ -309,7 +351,7 @@ public class CompositeBasicTests
     
     private static IParser UnionParserSample()
     {
-        BNF item = (BNF)"one" | "two" | "three";
+        BNF item = (BNF)"one" | "two" | "three" | "not" | "in" | "the" | "sample";
 
         BNF list = +item;
 
@@ -323,7 +365,7 @@ public class CompositeBasicTests
     {
         const string correct_sample =
             """
-            one two three four
+            one two one two three four
             """;
 
         Console.WriteLine("\r\n=================================================================================");
@@ -342,6 +384,8 @@ public class CompositeBasicTests
             Console.Write(" ");
         }
 
+        Console.WriteLine(result.SourceParser?.ToString());
+
         Console.WriteLine("\r\n=================================================================================");
 
         foreach (var fail in scanner.ListFailures())
@@ -350,6 +394,6 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three" }).AsCollection);
+        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
     }
 }

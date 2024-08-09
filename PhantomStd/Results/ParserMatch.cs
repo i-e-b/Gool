@@ -107,8 +107,8 @@ public class ParserMatch
     /// </summary>
     public override string ToString()
     {
-        if (Success) return Empty ? "<empty>" : Value;
-        return "<failure>";
+        if (Success) return Empty ? $"<empty ({Offset})>" : Value;
+        return $"<failure ({SourceParser}: {Offset}..{Right})>";
     }
 
     /// <summary>
@@ -120,18 +120,31 @@ public class ParserMatch
         return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"};";
     }
 
+    
+    /// <summary>
+    /// Add a child match to this, extending range as appropriate
+    /// </summary>
+    public void Add(ParserMatch next)
+    {
+        if (!next.Success) throw new ArgumentException("Can't Add failure match");
+        if (next.Scanner != Scanner) throw new ArgumentException("Can't Add between different scanners");
+
+        ChildMatches.Add(next);
+
+        var right = Math.Max(Right, next.Right);
+        Length = right - Offset;
+    }
+    
     /// <summary>
     /// Create a new match by joining a pair of existing matches
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
-    public static ParserMatch Join(Parser source, ParserMatch left, ParserMatch right)
+    public static ParserMatch Join(IParser source, ParserMatch left, ParserMatch right)
     {
-        if (left == null || right == null) throw new NullReferenceException("Can't concatenate null match");
-        if (!right.Success) throw new ArgumentException("Can't concatenate failure match");
-        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't concatenate between different scanners");
+        if (left == null || right == null) throw new NullReferenceException("Can't Join null match");
+        if (!right.Success) throw new ArgumentException("Can't Join failure match");
+        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
-        //Console.WriteLine($"    J({source.GetTag()}, {left.Tag}, {right.Tag})");
-        
         // Joining success onto failure just gives the success
         if (!left.Success)
         {

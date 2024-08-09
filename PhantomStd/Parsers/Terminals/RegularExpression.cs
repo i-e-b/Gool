@@ -46,7 +46,7 @@ public class RegularExpression : Parser, IMatchingParser
 		var remains = scan.RemainingData(offset);
 		var result = _test.Match(remains);
 
-		return result is { Success: true, Index: 0 } ? scan.CreateMatch(this, offset, result.Length) : scan.NoMatch;
+		return result is { Success: true, Index: 0 } ? scan.CreateMatch(this, offset, result.Length) : scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -56,5 +56,11 @@ public class RegularExpression : Parser, IMatchingParser
 			
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+    
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		return ToString();
 	}
 }

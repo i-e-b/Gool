@@ -30,10 +30,10 @@ public class Recursion : Parser, IMatchingParser
 		var test = _lastIterationTest;
 		_lastIterationTest = previousMatch;
 		
-		if (previousMatch?.SameAs(test) == true) return scan.NoMatch; // recursion must not re-apply to same location
+		if (previousMatch?.SameAs(test) == true) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
 		
 		var result = parser.TryMatch(scan, previousMatch);
-		if (result.SameAs(previousMatch)) return scan.NoMatch; // recursion must progress
+		if (result.SameAs(previousMatch)) return scan.NoMatch(this, previousMatch); // recursion must progress
 
 		return result;
 	}
@@ -56,5 +56,12 @@ public class Recursion : Parser, IMatchingParser
 		var hold = new Recursion();
 		hold.Source = func(hold);
 		return hold;
+	}
+
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+		return $"Recursion({Source?.ShortDescription(depth - 1) ?? "<none>"})";
 	}
 }

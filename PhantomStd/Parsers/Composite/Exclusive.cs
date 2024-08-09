@@ -30,7 +30,7 @@ public class Exclusive : Binary
 		if (rightMatch.Success && leftMatch.Success)
 		{
 			// FAIL! they are not exclusive
-			return scan.NoMatch;
+			return scan.NoMatch(this, previousMatch);
 		}
 
 		// now return whichever one succeeded
@@ -38,7 +38,7 @@ public class Exclusive : Binary
 		if (rightMatch.Success) return rightMatch.Through(this);
 
 		// neither were matched!
-		return scan.NoMatch;
+		return scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -46,5 +46,13 @@ public class Exclusive : Binary
 	{
 		if (Tag is null) return LeftParser + " ^ " + RightParser;
 		return LeftParser + " ^ " + RightParser + " Tag='" + Tag + "'";
+	}
+	
+    
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+		return LeftParser.ShortDescription(depth - 1) + " ^ " + RightParser.ShortDescription(depth - 1);
 	}
 }

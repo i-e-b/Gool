@@ -1,4 +1,5 @@
-﻿using Phantom;
+﻿using System.Text.RegularExpressions;
+using Phantom;
 using Phantom.Parsers;
 using Phantom.Parsers.Terminals;
 // ReSharper disable InconsistentNaming
@@ -18,11 +19,18 @@ public class PascalParser
         TheParser = Pascal();
     }
 
+    private RegexOptions ops()
+    {
+        return RegexOptions.ExplicitCapture
+               | RegexOptions.IgnoreCase
+               | RegexOptions.Multiline;
+    }
+
+
     //  http://pascal-central.com/images/pascalposter.jpg
     private IParser Pascal()
     {
-        // The BNF syntax isn't really up to this -- the precedence rules are all wrong!
-        // makes for a really fragile parser.
+        BNF.RegexOptions = ops();
 
         var _empty_ = new BNF(new EmptyMatch());
 
@@ -36,7 +44,7 @@ public class PascalParser
 
         BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
         BNF pascalString = "#'([^']|'')*'"; // Pascal uses two single-quotes to mark a single quote.
-        BNF plusOrMinus = "#[\\-+]";
+        BNF plusOrMinus = BNF.OneOf('-', '+');//"#[\\-+]");
 
         BNF set = "set";
         BNF of = "of";
@@ -88,7 +96,7 @@ public class PascalParser
         BNF caseBlock = "case" > expression > "of" > (((constant % ',') > ':' > _statement) % ';') > end;
         BNF statement =
             !(unsignedInteger > ':')
-            | _empty_
+            //| _empty_
             | ("begin" > ((BNF)_statement % ';') > "end")
             | (identifier > !('(' > (expression % ',') > ')'))
             | (variable > ":=" > expression)
@@ -121,7 +129,7 @@ public class PascalParser
         BNF procedure = "procedure" > identifier > parameterList > ';' > _block > ';';
         BNF function = "function" > identifier > parameterList > ':' > identifier > ';' > _block > ';';
 
-        BNF varBlock = "var" > +(identifierList > ':' > _type > ';');
+        BNF varBlock = "var" > +(identifierList > ':' > type > ';');
 
         BNF typeBlock = "type" > +(identifier > '=' > type > ';');
         BNF block = !(label | constantBlock | typeBlock | varBlock | procedure | function) > statementBlock;

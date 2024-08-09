@@ -31,7 +31,7 @@ public class EndOfLine : Parser, IMatchingParser
 			return scan.CreateMatch(this, offset, len);
 		}
 
-		return scan.NoMatch;
+		return scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
@@ -41,5 +41,11 @@ public class EndOfLine : Parser, IMatchingParser
 			
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+    
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		return ToString();
 	}
 }

@@ -23,14 +23,14 @@ public class Difference : Binary
     {
         var targetMatch = LeftParser.Parse(scan, previousMatch);
 
-        if (!targetMatch.Success) return scan.NoMatch;
+        if (!targetMatch.Success) return scan.NoMatch(this, previousMatch);
 
         // doing difference
         var refuseMatch = RightParser.Parse(scan, previousMatch);
         if (refuseMatch.Success)
         {
             // fail: must match left but NOT right
-            return scan.NoMatch;
+            return scan.NoMatch(this, targetMatch);
         }
 
         // Good match
@@ -42,5 +42,12 @@ public class Difference : Binary
     {
         if (Tag is null) return LeftParser + " not " + RightParser;
         return LeftParser + " not " + RightParser + " Tag='" + Tag + "'";
+    }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        if (depth < 1) return GetType().Name;
+        return LeftParser.ShortDescription(depth - 1) + " not " + RightParser.ShortDescription(depth - 1);
     }
 }

@@ -1,4 +1,6 @@
-using Phantom.Parsers.Composite.Abstracts;
+using System.Collections.Generic;
+using System.Linq;
+using Phantom.Parsers.Interfaces;
 using Phantom.Results;
 
 namespace Phantom.Parsers.Composite;
@@ -6,42 +8,67 @@ namespace Phantom.Parsers.Composite;
 /// <summary>
 /// Creates a Union (or 'alternative') parser from two sub-parsers.
 /// </summary>
-public class Union : Binary
+public class Union : Parser, IMatchingParser
 {
+	private readonly List<IParser> _parsers = new();
+	
 	/// <summary>
 	/// Creates a Union (or 'alternative') parser from two sub-parsers.
 	/// </summary>
 	public Union(IParser left, IParser right)
-		: base(left, right)
 	{
+		if (left is Union leftUnion)
+		{
+			_parsers.AddRange(leftUnion._parsers);
+		}
+		else
+		{
+			_parsers.Add(left);
+		}
+
+		_parsers.Add(right);
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		// apply the first parser
-		var m = LeftParser.Parse(scan, previousMatch);
-
-		// apply the second parser
-		var m2 = RightParser.Parse(scan, previousMatch);
-
-		// pick the longest result
-		if (m.Success || m2.Success)
+		// First match version:
+		/*
+		foreach (var parser in _parsers)
 		{
-			var result = m2.Length >= m.Length ? m2 : m;
+			var result = parser.Parse(scan, previousMatch);
+			if (result is { Success: true, Empty: false }) return result.Through(this);
+		}
+		return scan.NoMatch(this, previousMatch);
+		*/
+		
+		// Longest match version:
+		
+		ParserMatch? longestMatch = null;
 
-			return result.Through(this);
+		foreach (var parser in _parsers)
+		{
+			var result = parser.Parse(scan, previousMatch);
+			if (result.Success && (result.Length > (longestMatch?.Length ?? 0))) longestMatch = result;
 		}
 
-		return scan.NoMatch;
+		if (longestMatch is not null) return longestMatch.Through(this);
+		return scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />
 	public override string ToString()
 	{
-		var desc = LeftParser + "|" + RightParser;
+		var desc = "{" + string.Join(" | ", _parsers.Select(p => p.ToString())) + "}";
 			
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+	
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+		return "{" + string.Join(" | ", _parsers.Select(p => p.ShortDescription(depth - 1))) + "}";
 	}
 }

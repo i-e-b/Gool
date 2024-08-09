@@ -17,9 +17,9 @@ public class Whitespace : Parser, IMatchingParser
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch;
+        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
-        if (char.IsWhiteSpace(scan.Peek(offset))) return scan.NoMatch;
+        if (char.IsWhiteSpace(scan.Peek(offset))) return scan.NoMatch(this, previousMatch);
 
         // if we arrive at this point, we have a match
         return scan.CreateMatch(this, offset, 1);
@@ -32,5 +32,11 @@ public class Whitespace : Parser, IMatchingParser
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
+    }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        return ToString();
     }
 }

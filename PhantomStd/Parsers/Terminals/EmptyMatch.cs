@@ -23,4 +23,10 @@ public class EmptyMatch : Parser, IMatchingParser
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
     }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        return ToString();
+    }
 }

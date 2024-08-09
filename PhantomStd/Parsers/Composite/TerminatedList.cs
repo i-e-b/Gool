@@ -58,4 +58,11 @@ public class TerminatedList : Binary
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
     }
+	
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        if (depth < 1) return GetType().Name;
+        return LeftParser.ShortDescription(depth - 1) + " < " + RightParser.ShortDescription(depth - 1);
+    }
 }

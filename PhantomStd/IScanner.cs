@@ -15,7 +15,7 @@ public interface IScanner: IScanningDiagnostics
 	ITransform Transform { get; set; }
 
 	/// <summary>Return a failure match.</summary>
-	ParserMatch NoMatch { get; }
+	ParserMatch NoMatch(IParser? source, ParserMatch? previous);
 
 	/// <summary>Return an empty success match</summary>
 	ParserMatch EmptyMatch(IParser source, int offset);

@@ -58,10 +58,10 @@ public class Repetition : Unary
 
 		if (count < LowerBound || count > UpperBound)
 		{
-			return scan.NoMatch;
+			return scan.NoMatch(this, result);
 		}
 		
-		return result;
+		return result.Through(this);
 	}
 
 	/// <inheritdoc />
@@ -75,5 +75,18 @@ public class Repetition : Unary
 
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
+	}
+	
+	/// <inheritdoc />
+	public override string ShortDescription(int depth)
+	{
+		if (depth < 1) return GetType().Name;
+
+		const int large = int.MaxValue >> 1;
+
+		if (LowerBound == 0 && UpperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")*";
+		if (LowerBound == 0 && UpperBound == 1)     return "(" + Parser.ShortDescription(depth - 1) + ")?";
+		if (LowerBound == 1 && UpperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")+";
+		return "[" + LowerBound + ".." + UpperBound + ":" + Parser.ShortDescription(depth - 1) + "]";
 	}
 }

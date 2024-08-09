@@ -6,7 +6,7 @@ namespace Phantom.Scanners;
 public class ParserPoint
 {
 	/// <summary> Parser </summary>
-	public readonly object Parser;
+	public readonly IParser Parser;
 	
 	/// <summary> Position </summary>
 	public readonly int Position;
@@ -19,7 +19,7 @@ public class ParserPoint
 	/// <summary>
 	/// Match of parser and scanner location
 	/// </summary>
-	public ParserPoint(object p, int start, int end)
+	public ParserPoint(IParser p, int start, int end)
 	{
 		Parser = p;
 		Position = start;

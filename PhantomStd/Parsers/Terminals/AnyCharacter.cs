@@ -13,7 +13,7 @@ public class AnyCharacter : Parser, IMatchingParser
     {
         var left = previousMatch?.Right ?? 0;
         return scan.EndOfInput(left)
-            ? scan.NoMatch
+            ? scan.NoMatch(this, previousMatch)
             : scan.CreateMatch(this, left, 1);
     }
 
@@ -24,5 +24,11 @@ public class AnyCharacter : Parser, IMatchingParser
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
+    }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        return ToString();
     }
 }

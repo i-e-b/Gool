@@ -53,4 +53,11 @@ public class DelimitedList : Binary
         if (Tag is null) return LeftParser + " % " + RightParser;
         return LeftParser + " % " + RightParser + " Tag='" + Tag + "'";
     }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        if (depth < 1) return GetType().Name;
+        return LeftParser.ShortDescription(depth - 1) + " % " + RightParser.ShortDescription(depth - 1);
+    }
 }

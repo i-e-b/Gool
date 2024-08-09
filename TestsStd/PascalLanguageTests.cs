@@ -66,43 +66,49 @@ public class PascalLanguageTests
 
 
     private const string sample_program =
-        @"program WriteName;
-var
-  i:Integer;
-  j:String;
-begin
-  Write('Please tell me your name: ');
-  ReadLn(Name);
-  for i := 1 to 100 do
-  begin
-    WriteLn('Hello ', Name)
-  end
-end.";
+        """
+        program WriteName;
+        var
+          i:Integer;
+          j:String;
+        begin
+          Write('Please tell me your name: ');
+          ReadLn(Name);
+          for i := 1 to 100 do
+          begin
+            WriteLn('Hello ', Name)
+          end
+        end.
+        """;
 
     private const string missing_begin =
-        @"program WriteName;
-var
-  i:Integer;
-  j:String;
-begin
-  Write('Please tell me your name: ');
-  ReadLn(Name);
-  for i := 1 to 100 do
-    WriteLn('Hello ', Name)
-  end
-end.";
+        """
+        program WriteName;
+        var
+          i:Integer;
+          j:String;
+        begin
+          Write('Please tell me your name: ');
+          ReadLn(Name);
+          for i := 1 to 100 do
+            WriteLn('Hello ', Name)
+          end
+        end.
+        """;
 
     private const string missing_quote =
-        @"program WriteName;
-var
-  i:Integer;
-  j:String;
-begin
-  Write('Please tell me your name: );
-  ReadLn(Name);
-  for i := 1 to 100 do
-  begin
-    WriteLn('Hello ', Name)
-  end
-end.";
+        """
+        program WriteName;
+        var
+          i:Integer;
+          j:String;
+        begin
+          Write('Please tell me your name: );
+          ReadLn(Name);
+          for i := 1 to 100 do
+          begin
+            WriteLn('Hello ', Name)
+          end
+        end.
+        """;
 }

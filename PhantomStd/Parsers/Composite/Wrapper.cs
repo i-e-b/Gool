@@ -19,11 +19,11 @@ public class Wrapper : Unary
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         // apply the first parser
-        var m = Parser.Parse(scan, previousMatch);
+        var innerMatch = Parser.Parse(scan, previousMatch);
 
-        return m.Success
-            ? scan.CreateMatch(this, m.Offset, m.Length)
-            : scan.NoMatch;
+        return innerMatch.Success
+            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length)
+            : scan.NoMatch(this, innerMatch);
     }
     
     
@@ -32,5 +32,11 @@ public class Wrapper : Unary
     {
         if (Tag is null) return "{" + Parser + "}";
         return "{" + Parser + "}" + " Tag='" + Tag + "'";
+    }
+
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        return Parser.ShortDescription(depth);
     }
 }

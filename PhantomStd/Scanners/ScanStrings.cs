@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Phantom.Parsers;
 using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
@@ -52,7 +51,7 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public void AddFailure(object tester, int start, int end)
+	public void AddFailure(IParser tester, int start, int end)
 	{
 		_failurePoints.Add(new ParserPoint(tester, start, end));
 	}
@@ -70,11 +69,11 @@ public class ScanStrings : IScanner
 
 		foreach (var p in _failurePoints)
 		{
-			var chunk = InputString.Substring(p.Position);//, p.Length);
-			var idx = chunk.IndexOfAny(new [] {'\r', '\n'});
-			if (idx > 5) chunk = chunk.Substring(0, idx);
+			var prev = InputString.Substring(0, p.Position);
+			var left = InputString.Substring(p.Position, p.Length);
+			var right = InputString.Substring(p.Position + p.Length);
 				
-			lst.Add(chunk + " --> " + ParserStringFrag(p));
+			lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
 		}
 
 		return lst;
@@ -82,7 +81,7 @@ public class ScanStrings : IScanner
 
 	private static string ParserStringFrag(ParserPoint p)
 	{
-		var str = p.Parser.ToString();
+		var str = p.Parser.ShortDescription(depth: 7);
 		//if (str.Length > 100) return str.Substring(0,100);
 		return str;
 	}
@@ -162,7 +161,7 @@ public class ScanStrings : IScanner
 	public ITransform Transform { get; set; }
 
 	/// <inheritdoc />
-	public ParserMatch NoMatch => new(null, this, 0, -1);
+	public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => new(source, this, previous?.Offset ?? 0, -1);
 
 	/// <inheritdoc />
 	public ParserMatch EmptyMatch(IParser source, int offset)

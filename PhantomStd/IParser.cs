@@ -34,4 +34,9 @@ public interface IParser
 	/// Returns true if this parser carries tags or scopes. False otherwise
 	/// </summary>
 	bool HasMetaData();
+
+	/// <summary>
+	/// Limited depth description of this parser
+	/// </summary>
+	string ShortDescription(int depth);
 }

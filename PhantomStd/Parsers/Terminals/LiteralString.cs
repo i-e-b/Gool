@@ -32,7 +32,7 @@ public class LiteralString : Parser, IMatchingParser
 
         return compare == _test
             ? scan.CreateMatch(this, offset, _test.Length)
-            : scan.NoMatch;
+            : scan.NoMatch(this, previousMatch);
     }
 
     /// <inheritdoc />
@@ -42,5 +42,11 @@ public class LiteralString : Parser, IMatchingParser
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
+    }
+    
+    /// <inheritdoc />
+    public override string ShortDescription(int depth)
+    {
+        return ToString();
     }
 }
