@@ -10,7 +10,8 @@ namespace Phantom.Scanners;
 /// </summary>
 public class ScanStrings : IScanner
 {
-	private readonly List<ParserPoint> _failurePoints;
+	private readonly List<ParserPoint> _failurePoints = new();
+	private readonly List<ParserMatch> _matchPaths = new();
 	private string? _rightMostMatch;
 	private int _rightMostPoint;
 
@@ -28,7 +29,6 @@ public class ScanStrings : IScanner
 
 		Transform = new NoTransform();
 		SkipWhitespace = false;
-		_failurePoints = new List<ParserPoint>();
 	}
 
 	/// <summary>
@@ -44,6 +44,15 @@ public class ScanStrings : IScanner
 
 	#region IScanner Members
 
+
+	/// <summary>
+	/// Add a success path, for diagnostic use
+	/// </summary>
+	public void AddPath(ParserMatch newMatch)
+	{
+		_matchPaths.Add(newMatch);
+	}
+
 	/// <inheritdoc />
 	public string? FurthestMatch()
 	{
@@ -51,9 +60,9 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public void AddFailure(IParser tester, int start, int end)
+	public void AddFailure(IParser failedParser, ParserMatch? previousMatch)
 	{
-		_failurePoints.Add(new ParserPoint(tester, start, end));
+		_failurePoints.Add(new ParserPoint(failedParser, previousMatch));
 	}
 
 	/// <inheritdoc />
@@ -70,10 +79,15 @@ public class ScanStrings : IScanner
 		foreach (var p in _failurePoints)
 		{
 			var prev = InputString.Substring(0, p.Position);
-			var left = InputString.Substring(p.Position, p.Length);
+			var left = p.Length >= 0 ? InputString.Substring(p.Position, p.Length) : "";
 			var right = InputString.Substring(p.Position + p.Length);
 				
 			lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
+		}
+
+		foreach (var m in _matchPaths)
+		{
+			lst.Add(" ¿" + m.Description() + "? ");
 		}
 
 		return lst;

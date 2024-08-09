@@ -42,7 +42,7 @@ public class Repetition : Unary
 	/// <inheritdoc />
 	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		var result = previousMatch ?? scan.EmptyMatch(this, 0); // empty match with this parser
+		var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0); // empty match with this parser
 
 		int count = 0;
 

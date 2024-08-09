@@ -49,4 +49,9 @@ public interface IScanner: IScanningDiagnostics
 
 	/// <summary>Return a match from a substring of the input</summary>
 	ParserMatch CreateMatch(IParser source, int offset, int length);
+
+	/// <summary>
+	/// Add a success path, for diagnostic use
+	/// </summary>
+	void AddPath(ParserMatch newMatch);
 }

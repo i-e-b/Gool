@@ -40,11 +40,12 @@ public abstract class Parser : IParser
         var newMatch = matcher.TryMatch(scan, start);
         if (newMatch.Success)
         {
+            scan.AddPath(newMatch);
             scan.ClearFailures();
             return newMatch;
         }
 
-        scan.AddFailure(this, previousMatch?.Offset ?? 0, previousMatch?.Right ?? 0);
+        scan.AddFailure(this, previousMatch);
         return scan.NoMatch(this, previousMatch);
     }
 }

@@ -25,7 +25,6 @@ public class PascalLanguageTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        // IEB: TODO: improve error tracing
         PrintFailures(scanner);
 
         Assert.That(result.Success, Is.True, "Parsing failed");
@@ -63,7 +62,6 @@ public class PascalLanguageTests
             Console.WriteLine(mismatch);
         }
     }
-
 
     private const string sample_program =
         """

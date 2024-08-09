@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Phantom.Results;
 
 namespace Phantom.Scanners;
 
@@ -15,10 +16,7 @@ public interface IScanningDiagnostics {
 	/// <summary>
 	/// Set a point at which a parser failed
 	/// </summary>
-	/// <param name="tester">the parser that failed</param>
-	/// <param name="start">position in scanner where it failure starts</param>
-	/// <param name="end">position in scanner where last test ended failure starts</param>
-	void AddFailure(IParser tester, int start, int end);
+	void AddFailure(IParser failedParser, ParserMatch? previousMatch);
 
 	/// <summary>
 	/// Output a list of all fail points since the last success.

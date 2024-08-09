@@ -1,3 +1,6 @@
+using System;
+using Phantom.Results;
+
 namespace Phantom.Scanners;
 
 /// <summary>
@@ -7,6 +10,9 @@ public class ParserPoint
 {
 	/// <summary> Parser </summary>
 	public readonly IParser Parser;
+	
+	/// <summary> Previous ParserMatch </summary>
+	public readonly ParserMatch? PreviousMatch;
 	
 	/// <summary> Position </summary>
 	public readonly int Position;
@@ -19,10 +25,11 @@ public class ParserPoint
 	/// <summary>
 	/// Match of parser and scanner location
 	/// </summary>
-	public ParserPoint(IParser p, int start, int end)
+	public ParserPoint(IParser p, ParserMatch? prevMatch)
 	{
 		Parser = p;
-		Position = start;
-		Length = end - start;
+		PreviousMatch = prevMatch;
+		Position = Math.Max(0, prevMatch?.Offset ?? 0);
+		Length = Math.Max(0, prevMatch?.Length ?? 0);
 	}
 }

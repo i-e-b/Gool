@@ -96,7 +96,7 @@ public class PascalParser
         BNF caseBlock = "case" > expression > "of" > (((constant % ',') > ':' > _statement) % ';') > end;
         BNF statement =
             !(unsignedInteger > ':')
-            //| _empty_
+            | _empty_
             | ("begin" > ((BNF)_statement % ';') > "end")
             | (identifier > !('(' > (expression % ',') > ')'))
             | (variable > ":=" > expression)
