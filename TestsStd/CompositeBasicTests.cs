@@ -56,6 +56,41 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
     }
+    
+    [Test]
+    public void delimited_list_parser_accepts_single_item_input()
+    {
+        const string correct_sample =
+            """
+            one
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser = DelimitedListParserSample();
+        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokens())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one" }).AsCollection);
+    }
 
     private static IParser DifferenceParserSample()
     {

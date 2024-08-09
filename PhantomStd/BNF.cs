@@ -68,7 +68,10 @@ public class BNF
 	//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
 	//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
 
-	private readonly IParser _parserTree;
+	/// <summary>
+	/// Internal reference to the real parser instance
+	/// </summary>
+	protected readonly IParser _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
@@ -349,5 +352,63 @@ public class BNF
 	public static BNF OneOf(params char[] characters)
 	{
 		return new BNF(new LiteralCharacterSet(characters));
+	}
+
+	/// <summary>
+	/// Set the given tag on all items
+	/// </summary>
+	public static void TagAll(string tag, params BNF[] items)
+	{
+		foreach (var item in items)
+		{
+			item.Tag(tag);
+		}
+	}
+
+	/// <summary>
+	/// Create a forward reference to populate later.
+	/// </summary>
+	public static BnfForward Forward()
+	{
+		return new BnfForward(new Recursion());
+	}
+
+	/// <summary>
+	/// BNF for an empty match
+	/// </summary>
+	public static BNF Empty()
+	{
+		return new BNF(new EmptyMatch());
+	}
+}
+
+/// <summary>
+/// BNF forward reference
+/// </summary>
+public class BnfForward : BNF
+{
+	/// <summary>
+	/// Create a forward reference
+	/// </summary>
+	public BnfForward(IParser parserTree) : base(parserTree)
+	{
+	}
+
+	/// <summary>
+	/// Complete a forward reference with the completed parser
+	/// </summary>
+	public void Is(IParser parser)
+	{
+		if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
+		rec.Source = parser;
+	}
+	
+	/// <summary>
+	/// Complete a forward reference with the completed parser
+	/// </summary>
+	public void Is(BNF parser)
+	{
+		if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
+		rec.Source = parser.Result();
 	}
 }

@@ -21,7 +21,7 @@ public interface IScanningDiagnostics {
 	/// <summary>
 	/// Output a list of all fail points since the last success.
 	/// </summary>
-	List<string> ListFailures();
+	List<string> ListFailures(bool includePartialMatches = false);
 
 	/// <summary>
 	/// Clear the stored list of failures. Should be called whenever a parser succeeds

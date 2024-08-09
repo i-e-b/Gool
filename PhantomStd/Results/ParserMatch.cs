@@ -56,7 +56,7 @@ public class ParserMatch
         get
         {
             if (Length < 0) throw new Exception("no match");
-            return Scanner.Substring(Offset, Length);
+            return Scanner.UntransformedSubstring(Offset, Length);
         }
     }
 

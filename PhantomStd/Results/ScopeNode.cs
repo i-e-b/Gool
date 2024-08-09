@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Phantom.Results;
 
@@ -119,6 +120,65 @@ public class ScopeNode
             NodeType = ScopeNodeType.Root,
             Parent = null
         };
+    }
+    
+    /// <summary>
+    /// Walk the tree, and remove <see cref="ScopeNodeType.Data"/> nodes tagged with <paramref name="generalTag"/>;
+    /// If they have a neighboring peer node with the same value and one of the <paramref name="specialTags"/>.
+    /// </summary>
+    /// <param name="generalTag">Tag to prune</param>
+    /// <param name="specialTags">Tags that specialise the general tag</param>
+    public void Specialise(string generalTag, params string[] specialTags)
+    {
+        var nodesToPrune = new List<ScopeNode>();
+        DepthFirstWalk(n =>
+        {
+            if (n.NodeType != ScopeNodeType.Data) return;
+            if (n.DataMatch?.Tag != generalTag) return;
+            
+            // Ok, we have a match on the general tag.
+            var value = n.DataMatch.Value;
+
+            // If a neighbor have the same value, and one of the specialised tags, remove the general tag
+            if (n.PrevNode?.NodeType == ScopeNodeType.Data
+                && n.PrevNode?.DataMatch?.Value == value
+                && specialTags.Contains(n.PrevNode?.DataMatch?.Tag))
+            {
+                nodesToPrune.Add(n);
+            }
+            else if (n.NextNode?.NodeType == ScopeNodeType.Data
+                     && n.NextNode?.DataMatch?.Value == value
+                     && specialTags.Contains(n.NextNode?.DataMatch?.Tag))
+            {
+                nodesToPrune.Add(n);
+            }
+        });
+
+        foreach (var node in nodesToPrune)
+        {
+            node.PruneNode();
+        }
+    }
+
+    /// <summary>
+    /// Remove this node and its children from the tree, stitching peers together.
+    /// </summary>
+    private void PruneNode()
+    {
+        // Remove from peer links
+        if (PrevNode is not null) PrevNode.NextNode = NextNode;
+        if (NextNode is not null) NextNode.PrevNode = PrevNode;
+        
+        // Remove from parent
+        if (Parent is not null) Parent.RemoveChild(this);
+    }
+
+    /// <summary>
+    /// Remove a single node from this node's child list
+    /// </summary>
+    private void RemoveChild(ScopeNode node)
+    {
+        Children.Remove(node);
     }
 
     /// <inheritdoc />

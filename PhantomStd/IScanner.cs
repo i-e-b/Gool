@@ -36,10 +36,21 @@ public interface IScanner: IScanningDiagnostics
 	/// </summary>
 	public ParserMatch AutoAdvance(ParserMatch? previous);
 
-	/// <summary>Return a substring from the input.</summary>
+	/// <summary>
+	/// Return a substring from the input.
+	///	Any transformer on the scanner will be applied
+	/// </summary>
 	/// <param name="offset">Offset relative to the start of the input.</param>
 	/// <param name="length">Length of substring to return.</param>
 	string Substring(int offset, int length);
+
+	/// <summary>
+	/// Return a substring from the input.
+	///	No transformers on the scanner are applied
+	/// </summary>
+	/// <param name="offset">Offset relative to the start of the input.</param>
+	/// <param name="length">Length of substring to return.</param>
+	string UntransformedSubstring(int offset, int length);
 
 	/// <summary>
 	/// Return a string containing all data from the current cursor onwards.

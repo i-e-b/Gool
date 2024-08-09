@@ -72,7 +72,7 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public List<string> ListFailures()
+	public List<string> ListFailures(bool includePartialMatches = false)
 	{
 		var lst = new List<string>();
 
@@ -85,9 +85,12 @@ public class ScanStrings : IScanner
 			lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
 		}
 
-		foreach (var m in _matchPaths)
+		if (includePartialMatches)
 		{
-			lst.Add(" ¿" + m.Description() + "? ");
+			foreach (var m in _matchPaths)
+			{
+				lst.Add(" ¿" + m.Description() + "? ");
+			}
 		}
 
 		return lst;
@@ -96,7 +99,6 @@ public class ScanStrings : IScanner
 	private static string ParserStringFrag(ParserPoint p)
 	{
 		var str = p.Parser.ShortDescription(depth: 7);
-		//if (str.Length > 100) return str.Substring(0,100);
 		return str;
 	}
 
@@ -163,6 +165,12 @@ public class ScanStrings : IScanner
 	public string Substring(int offset, int length)
 	{
 		return  Transform.Transform(InputString.Substring(offset, Math.Min(length, InputString.Length - offset)));
+	}
+
+	/// <inheritdoc />
+	public string UntransformedSubstring(int offset, int length)
+	{
+		return  InputString.Substring(offset, Math.Min(length, InputString.Length - offset));
 	}
 
 	/// <inheritdoc />
