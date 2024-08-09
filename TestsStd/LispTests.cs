@@ -65,7 +65,7 @@ public class LispTests
         quoted_list.OpenScope();
         end_list.CloseScope();
 
-        return BNF.Recursive(tree => +(list_item | start_list | end_list | tree)).Result();
+        return BNF.Recursive(tree => +(list_item | start_list | end_list | tree)).Parser();
     }
 
     [Test]
@@ -80,7 +80,7 @@ public class LispTests
 
         var result = parser.Parse(scanner);
 
-        foreach (var match in result.BottomLevelMatches())
+        foreach (var match in result.BottomLevelMatchesDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");

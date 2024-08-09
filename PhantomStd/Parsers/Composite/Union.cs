@@ -32,18 +32,6 @@ public class Union : Parser, IMatchingParser
 	/// <inheritdoc />
 	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		// First match version:
-		/*
-		foreach (var parser in _parsers)
-		{
-			var result = parser.Parse(scan, previousMatch);
-			if (result is { Success: true, Empty: false }) return result.Through(this);
-		}
-		return scan.NoMatch(this, previousMatch);
-		*/
-		
-		// Longest match version:
-		
 		ParserMatch? longestMatch = null;
 
 		foreach (var parser in _parsers)

@@ -28,7 +28,7 @@ public class WhitespaceTests
         word.Tag("word");
         punctuation.Tag("punctuation");
 
-        return word_list.Result();
+        return word_list.Parser();
     }
 
     [Test]

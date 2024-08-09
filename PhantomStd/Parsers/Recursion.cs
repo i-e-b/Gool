@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Phantom.Parsers.Interfaces;
 using Phantom.Results;
 
@@ -16,7 +17,10 @@ public class Recursion : Parser, IMatchingParser
 	/// </summary>
 	public IParser? Source { get; set; }
 
-	private ParserMatch? _lastIterationTest;
+	/// <summary>
+	/// Used to prevent endless recursion
+	/// </summary>
+	private readonly HashSet<long> _hits = new();
 
 	/// <summary>
 	/// Try to match scanner data against the contained parser
@@ -27,11 +31,9 @@ public class Recursion : Parser, IMatchingParser
 		if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
 		if (parser == this) throw new Exception("Unbounded recursion in parser");
 
-		var test = _lastIterationTest;
-		_lastIterationTest = previousMatch;
-		
-		if (previousMatch?.SameAs(test) == true) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
-		
+		var key = ((long)(previousMatch?.SourceParser?.GetHashCode()??0) << 32) + (previousMatch?.Right ?? 0);
+		if (!_hits.Add(key)) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
+
 		var result = parser.TryMatch(scan, previousMatch);
 		if (result.SameAs(previousMatch)) return scan.NoMatch(this, previousMatch); // recursion must progress
 

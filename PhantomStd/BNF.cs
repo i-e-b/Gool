@@ -95,7 +95,7 @@ public class BNF
 	/// Parser resulting from the BNF syntax
 	/// </summary>
 	/// <returns></returns>
-	public IParser Result()
+	public IParser Parser()
 	{
 		return _parserTree;
 	}
@@ -158,7 +158,7 @@ public class BNF
 		var hold = new Recursion();
 
 		var src = parserTreeFunction(hold);
-		hold.Source = src.Result();
+		hold.Source = src.Parser();
 
 		return hold;
 	}
@@ -220,7 +220,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of sequence parser is null");
 
-		return new BNF(new Sequence(a.Result(), b.Result()));
+		return new BNF(new Sequence(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -235,7 +235,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of list parser is null");
 
-		return new BNF(new TerminatedList(a.Result(), b.Result()));
+		return new BNF(new TerminatedList(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -246,7 +246,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Result(), 0, int.MaxValue));
+		return new BNF(new Repetition(a.Parser(), 0, int.MaxValue));
 	}
 
 	/// <summary>
@@ -257,7 +257,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Result(), 1, int.MaxValue));
+		return new BNF(new Repetition(a.Parser(), 1, int.MaxValue));
 	}
 
 	/// <summary>
@@ -268,7 +268,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Option parser is null");
 
-		return new BNF(new Repetition(a.Result(), 0, 1));
+		return new BNF(new Repetition(a.Parser(), 0, 1));
 	}
 
 	/// <summary>
@@ -281,7 +281,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of list parser is null");
 
-		return new BNF(new DelimitedList(a.Result(), b.Result()));
+		return new BNF(new DelimitedList(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -295,7 +295,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of union parser is null");
 
-		return new BNF(new Union(a.Result(), b.Result()));
+		return new BNF(new Union(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -308,7 +308,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of intersection parser is null");
 
-		return new BNF(new Intersection(a.Result(), b.Result()));
+		return new BNF(new Intersection(a.Parser(), b.Parser()));
 	}
 	
 	/// <summary>
@@ -321,7 +321,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of difference parser is null");
 
-		return new BNF(new Difference(a.Result(), b.Result()));
+		return new BNF(new Difference(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -335,7 +335,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of Exclusive-Or parser is null");
 
-		return new BNF(new Exclusive(a.Result(), b.Result()));
+		return new BNF(new Exclusive(a.Parser(), b.Parser()));
 	}
 
 	/// <summary>
@@ -409,6 +409,6 @@ public class BnfForward : BNF
 	public void Is(BNF parser)
 	{
 		if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
-		rec.Source = parser.Result();
+		rec.Source = parser.Parser();
 	}
 }

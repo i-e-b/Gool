@@ -210,7 +210,7 @@ public class PascalParser
         s_open_bracket.Tag(OpenBracket).OpenScope();
         s_close_bracket.Tag(CloseBracket).CloseScope();
 
-        return program.Result();
+        return program.Parser();
     }
 
     // ReSharper disable MemberCanBePrivate.Global

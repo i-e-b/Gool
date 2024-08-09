@@ -46,7 +46,7 @@ public class XmlTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.Value, Is.EqualTo(Sample));
 
-        foreach (var match in result.BottomLevelMatches())
+        foreach (var match in result.BottomLevelMatchesDepthFirst())
         {
             Console.WriteLine(match.Description());
         }

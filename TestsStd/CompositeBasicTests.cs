@@ -19,7 +19,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
 
     [Test]
@@ -150,7 +150,7 @@ public class CompositeBasicTests
         prefixed.Tag("item");
         postfixed.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
 
     [Test]
@@ -199,7 +199,7 @@ public class CompositeBasicTests
         one.Tag("item");
         two.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
 
     [Test]
@@ -236,11 +236,52 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
     }
+    
+    private static IParser RepetitionParserSample()
+    {
+        BNF item = (BNF)"one" | "two" | "three" | "four";
+
+        BNF list = !item > (-item);
+
+        item.Tag("item");
+
+        return list.Parser();
+    }
 
     [Test]
     public void repetition_parser_accepts_correct_input()
     {
-        Assert.Inconclusive("not done");
+        const string correct_sample =
+            """
+            one two three four
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser = RepetitionParserSample();
+        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+
+        Console.WriteLine(parser.ToString());
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.DepthFirstWalk())
+        {
+            Console.WriteLine(match.Value + ": " + match.Tag + " <-- " + match.SourceParser);
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
     }
 
     
@@ -252,7 +293,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
     
     [Test]
@@ -303,7 +344,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return groups.Result();
+        return groups.Parser();
     }
 
     [Test]
@@ -392,7 +433,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Result();
+        return list.Parser();
     }
     
     [Test]

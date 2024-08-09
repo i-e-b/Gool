@@ -198,9 +198,19 @@ public class ParserMatch
     /// that aren't atoms, ignoring sub-atomic matches and ignoring this match
     /// even if this is atomic.
     /// </summary>
-    public IEnumerable<ParserMatch> BottomLevelMatches()
+    public IEnumerable<ParserMatch> BottomLevelMatchesDepthFirst()
     {
         return DepthFirstWalk(this, node => node.ChildMatches.Count < 1);
+    }
+    
+    /// <summary>
+    /// Return the bottom-most parser matches, including matches
+    /// that aren't atoms, ignoring sub-atomic matches and ignoring this match
+    /// even if this is atomic.
+    /// </summary>
+    public IEnumerable<ParserMatch> BottomLevelMatchesBreadthFirst()
+    {
+        return BreadthFirstWalk(this, node => node.ChildMatches.Count < 1);
     }
 
     /// <summary>
@@ -234,6 +244,27 @@ public class ParserMatch
         foreach (var m in node.ChildMatches.SelectMany(check))
         {
             if (select(m)) yield return m;
+        }
+    }
+    
+    /// <summary>
+    /// Does a recursive, breadth-first search of this match and all children.
+    /// Returns matches where <paramref name="select"/> returns <c>true</c>
+    /// </summary>
+    private static IEnumerable<ParserMatch> BreadthFirstWalk(ParserMatch? root, Func<ParserMatch, bool> select)
+    {
+        if (root is null) yield break;
+        
+        if (select(root)) yield return root; // this match
+        
+        var nextSet = new Queue<ParserMatch>(root.ChildMatches);
+
+        while (nextSet.Count > 0)
+        {
+            var node = nextSet.Dequeue();
+            if (select(node)) yield return node; // this match
+            
+            foreach (var child in node.ChildMatches) nextSet.Enqueue(child);
         }
     }
 

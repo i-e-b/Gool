@@ -53,7 +53,7 @@ public class XmlParser
         open_tag.Tag(OpenTag).OpenScope();
         close_tag.Tag(CloseTag).CloseScope();
 
-        return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag)).Result();
+        return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag)).Parser();
     }
 
 }

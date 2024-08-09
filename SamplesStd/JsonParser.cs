@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Phantom;
-using Phantom.Parsers;
+
 // ReSharper disable InconsistentNaming
 
 namespace Samples;
@@ -14,7 +14,7 @@ public class JsonParser
         TheParser = Json();
     }
 
-    private RegexOptions ops()
+    private static RegexOptions Options()
     {
         return RegexOptions.ExplicitCapture
                | RegexOptions.IgnoreCase
@@ -23,19 +23,19 @@ public class JsonParser
 
     private IParser Json()
     {
-        BNF.RegexOptions = ops();
+        BNF.RegexOptions = Options();
 
         // From https://www.json.org/json-en.html
-        var _value = new Recursion();
-        
+        var _value = BNF.Forward();
+
         BNF ws = @"#\s*";
         BNF neg = '-';
         BNF digit = "#[0-9]";
         BNF exp = "#[eE]";
         BNF sign = BNF.OneOf('+', '-');
 
-        BNF escape = BNF.OneOf('"','\\','/','b','f','n','r','t') | "#u[0-9a-fA-F]{4}";
-        BNF character = "#[^\"\\\\]" | ( '\\' > escape );
+        BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | "#u[0-9a-fA-F]{4}";
+        BNF character = "#[^\"\\\\]" | ('\\' > escape);
         BNF characters = -character;
         BNF quoted_string = '"' > characters > '"';
 
@@ -60,21 +60,21 @@ public class JsonParser
         BNF fraction = !('.' > digits);
         BNF integer = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
         BNF number = integer > fraction > exponent;
-        
+
         BNF primitive = quoted_string | number | "true" | "false" | "null";
         BNF value = object_block | array_block | primitive;
 
 
         array_enter.OpenScope().Tag("array");
         array_leave.CloseScope();
-        
+
         object_enter.OpenScope().Tag("object");
         object_leave.CloseScope();
 
         member_key.Tag("key");
         primitive.Tag("value");
-        
-        _value.Source = value.Result();
-        return element.Result();
+
+        _value.Is(value);
+        return element.Parser();
     }
 }
