@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Phantom.Results;
 using Phantom.Scanners;
 using Samples;
+using SkinnyJson;
 
 namespace TestsStd;
 
@@ -23,9 +24,10 @@ public class MathTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        var tree = ScopeNode.RootNode();
-        //ParserMatch.TestWalk(result, tree);
-        PrintRecursive(tree, 0);
+        //var tree = ScopeNode.RootNode();
+        var tree = TreeNode.FromParserMatch(result);
+        Console.WriteLine(Json.Beautify(Json.Freeze(tree)));
+        //PrintRecursive(tree, 0);
         
         Console.WriteLine("\r\n=================================================================================");
 

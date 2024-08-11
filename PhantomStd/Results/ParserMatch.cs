@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Phantom.Scanners;
 
 namespace Phantom.Results;
 
@@ -323,5 +324,13 @@ public class ParserMatch
     public ParserMatch? FindTag(string tag)
     {
         return DepthFirstWalk(this, _ => true).FirstOrDefault(m=>m.Tag == tag);
+    }
+
+    /// <summary>
+    /// Placeholder for an invalid match
+    /// </summary>
+    public static ParserMatch NullMatch()
+    {
+        return new ParserMatch(null, new NullScanner(), 0, -1);
     }
 }
