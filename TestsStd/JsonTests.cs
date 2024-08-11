@@ -60,7 +60,7 @@ public class JsonTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-        var scopes = ScopeNode.FromMatchesDepthFirst(result);
+        var scopes = ScopeNode.FromMatch(result);
 
         PrintRecursive(scopes, 0);
         

@@ -59,6 +59,9 @@ namespace Phantom;
 /// 
 /// </dl>
 /// </summary>
+/// <remarks>
+///	See <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#1243-operator-overloading">C# language spec</a>
+/// </remarks>
 // ReSharper disable once InconsistentNaming
 public class BNF
 {
@@ -129,7 +132,9 @@ public class BNF
 	}
 	
 	/// <summary>
-	/// Mark this parser as a parent to its siblings
+	/// Mark this parser as a parent to its siblings.
+	/// This alters the way parser results are joined,
+	/// pushing pivot matches up, and non-pivot matches down.
 	/// </summary>
 	public BNF PivotScope()
 	{

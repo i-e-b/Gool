@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using NUnit.Framework;
 using Phantom.Results;
 using Phantom.Scanners;
 using Samples;
-using SkinnyJson;
 
 namespace TestsStd;
 
@@ -24,112 +24,94 @@ public class MathTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        //var tree = ScopeNode.RootNode();
-        var tree = TreeNode.FromParserMatch(result);
-        Console.WriteLine(Json.Beautify(Json.Freeze(tree)));
-        //PrintRecursive(tree, 0);
+        Console.WriteLine("\r\n=================================================================================");
+        
+        sw.Restart();
+        // Get a tree from the matches
+        var tree = TreeNode.FromParserMatch(result, true);
+        PrintRecursive(tree, 0);
         
         Console.WriteLine("\r\n=================================================================================");
 
-        var input = new Stack<string>();
-        foreach (var item in result.BottomLevelMatchesDepthFirst())
-        {
-            Console.WriteLine(item.Value);
-            //if (item.Value == "(" || item.Value == ")") continue;
-            input.Push(item.Value);
-        }
+        // Try to reduce to a single value
+        var final = TreeNode.TransformTree(tree, ApplyOperation);
+        PrintRecursive(final, 0);
 
-        Console.WriteLine("\r\n=================================================================================");
-        
-        var values = EvaluateRpn(input);
+        Assert.That(final?.Children.Count, Is.Zero, "Should have a final result");
 
-        var final = values.Pop();
-        Console.WriteLine($"Result = {final}");
-        Assert.That(final, Is.EqualTo(expected));
+        var finalValue = double.Parse(final?.Source.Value ?? "NaN");
+        Assert.That(finalValue, Is.EqualTo(expected));
+        sw.Stop();
+        Console.WriteLine($"Evaluation took {sw.Elapsed.TotalMicroseconds} µs");
     }
 
-    
-
-    private static void PrintRecursive(ScopeNode node, int indent)
+    private static TreeNode? ApplyOperation(TreeNode node)
     {
-        switch (node.NodeType)
+        if (node.Source.Tag is null) // might be a joining tag.
         {
-            case ScopeNodeType.Root:
-                Console.WriteLine("Document");
-                if (node.OpeningMatch is not null || node.ClosingMatch is not null) Console.WriteLine("Unbalanced scopes!");
-                break;
-            case ScopeNodeType.Data:
-                Console.WriteLine($"{I(indent)}{node.DataMatch?.Value} [{node.DataMatch?.Tag}]");
-                break;
-            case ScopeNodeType.ScopeChange:
-                Console.WriteLine($"{I(indent + 1)}{node.OpeningMatch?.Value}");
-                break;
-
-            default:
-                Assert.Fail($"Node does not have a valid type: {node}");
-                break;
+            if (node.Children.Count != 1) return node; // no changes
+            return node.Children[0]; // pull child up
         }
+
+        if (node.Source.Tag != MathParser.Operation) return node; // no changes
+        var operation = node.Source.Value;
+
+        if (node.Children.Count != 2) throw new Exception($"Expected 2 operands, got {node.Children.Count}");
+
+        var left = node.Children[0].Source;
+        var right = node.Children[1].Source;
+        
+        if (left.Tag != MathParser.Value) return node; // no changes
+        if (right.Tag != MathParser.Value) return node; // no changes
+
+        var a = double.Parse(left.Value);
+        var b = double.Parse(right.Value);
+        double result;
+        
+        // Both children are values, and we are an operation.
+        // Perform the operation
+        switch (operation)
+        {
+            case "+":
+                result = a + b;
+                break;
+            
+            case "-":
+                result = a - b;
+                break;
+            
+            case "*":
+                result = a * b;
+                break;
+            
+            case "/":
+                result = a / b;
+                break;
+            
+            default: throw new NotImplementedException($"Operation not implemented: '{operation}'");
+        }
+        
+        // Return the new node
+        var value = result.ToString(CultureInfo.InvariantCulture);
+        return TreeNode.FromParserMatch(new ParserMatch(value, MathParser.Value), false);
+    }
+
+
+    private static void PrintRecursive(TreeNode? node, int indent)
+    {
+        if (node is null) return;
+        
+        if (node.Source.Tag is not null) Console.WriteLine($"{I(indent)}{node.Source.Value} [{node.Source.Tag}] from {node.Source.SourceParser?.GetType().Name}");
+        else Console.WriteLine($"{I(indent)}...");
 
         foreach (var childNode in node.Children)
         {
-            PrintRecursive(childNode, indent + 2);
+            PrintRecursive(childNode, indent+1);
         }
     }
 
     private static string I(int indent)
     {
         return new string(' ', indent * 2);
-    }
-    
-    private static Stack<double> EvaluateRpn(Stack<string> input)
-    {
-        var values = new Stack<double>();
-        while (input.TryPop(out var item))
-        {
-            Console.WriteLine(item);
-            
-            switch (item)
-            {
-                case "+":
-                {
-                    var b = values.Pop();
-                    var a = values.Pop();
-                    values.Push(a + b);
-                    break;
-                }
-                case "-":
-                {
-                    var b = values.Pop();
-                    var a = values.Pop();
-                    values.Push(a - b);
-                    break;
-                }
-                case "*":
-                {
-                    var b = values.Pop();
-                    var a = values.Pop();
-                    values.Push(a * b);
-                    break;
-                }
-                case "/":
-                {
-                    var b = values.Pop();
-                    var a = values.Pop();
-                    values.Push(a / b);
-                    break;
-                }
-                
-                
-                case "(":
-                case ")":
-                    break;
-
-                default:
-                    values.Push(double.Parse(item));
-                    break;
-            }
-        }
-
-        return values;
     }
 }

@@ -22,7 +22,7 @@ public class DelimitedList : Binary
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var result = scan.NullMatch(this, previousMatch?.Right ?? 0); // failure until first match
-
+        
         while (!scan.EndOfInput(result.Right))
         {
             var item = LeftParser.Parse(scan, result);

@@ -151,7 +151,7 @@ public class LispTests
         
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         
-        var scopes = ScopeNode.FromMatchesDepthFirst(result);
+        var scopes = ScopeNode.FromMatch(result);
 
         PrintRecursive(scopes, 0);
     }
@@ -169,7 +169,7 @@ public class LispTests
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine("\r\n== Depth first ===============================================================================");
-        var tree = ScopeNode.FromMatchesDepthFirst(result);
+        var tree = ScopeNode.FromMatch(result);
         
         tree.DepthFirstWalk(n =>
         {

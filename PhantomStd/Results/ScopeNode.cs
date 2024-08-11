@@ -221,31 +221,6 @@ public class ScopeNode
     }
 
     /// <summary>
-    /// Close this scope, and return parent.
-    /// <see cref="ClosingMatch"/> of this node will be set to '<paramref name="match"/>'.
-    /// </summary>
-    /// <returns>The parent scope node, or <c>null</c></returns>
-    internal ScopeNode? CloseScope(ParserMatch match)
-    {
-        TryPivot();
-
-        ClosingMatch = match;
-        return Parent;
-    }
-
-    internal void TryPivot()
-    {
-        foreach (var child in Children)
-        {
-            if (child.DataMatch?.Scope == ScopeType.Pivot)
-            {
-                // scan left and right for non-pivot data nodes
-                
-            }
-        }
-    }
-
-    /// <summary>
     /// Create a new root node
     /// </summary>
     public static ScopeNode RootNode()
@@ -263,22 +238,9 @@ public class ScopeNode
     /// <p/>
     /// Breadth-first scopes are good for building data structure trees
     /// </summary>
-    public static ScopeNode FromMatchesDepthFirst(ParserMatch root)
+    public static ScopeNode FromMatch(ParserMatch root)
     {
         var points = ParserMatch.DepthFirstWalk(root, m => m.Tag is not null || m.Scope != ScopeType.None);
-
-        return BuildScope(points);
-    }
-
-    /// <summary>
-    /// Return all parser matches where the parser has been given a tag value.
-    /// Matches that have a non-zero 'scope' value will build the hierarchy.
-    /// <p/>
-    /// Breadth-first scopes are good for building evaluation trees
-    /// </summary>
-    public static ScopeNode FromMatchesBreadthFirst(ParserMatch root)
-    {
-        var points = ParserMatch.BreadthFirstWalk(root, m => m.Tag is not null || m.Scope != ScopeType.None);
 
         return BuildScope(points);
     }
@@ -304,14 +266,13 @@ public class ScopeNode
                     cursor = cursor.OpenScope(match);
                     break;
                 case ScopeType.CloseScope:
-                    cursor = cursor.CloseScope(match);
+                    cursor.ClosingMatch = match;
+                    cursor = cursor.Parent;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
-        
-        cursor?.TryPivot();
 
         return root;
     }

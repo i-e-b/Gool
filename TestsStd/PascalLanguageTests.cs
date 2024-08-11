@@ -75,7 +75,7 @@ public class PascalLanguageTests
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
 
-        var tree = ScopeNode.FromMatchesDepthFirst(result);
+        var tree = ScopeNode.FromMatch(result);
         tree.Specialise(PascalParser.Expression, PascalParser.PascalString, PascalParser.Identifier);
 
         bool line = false;

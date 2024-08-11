@@ -94,7 +94,7 @@ public class XmlTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        var tree = ScopeNode.FromMatchesDepthFirst(result);
+        var tree = ScopeNode.FromMatch(result);
         var errors = new List<string>();
         
         tree.BreadthFirstWalk(n =>

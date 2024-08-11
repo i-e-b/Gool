@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Phantom.Parsers.Terminals;
 using Phantom.Scanners;
 
 namespace Phantom.Results;
@@ -12,7 +12,7 @@ namespace Phantom.Results;
 public class ParserMatch
 {
     /// <summary>
-    /// Builds a new match
+    /// Builds a new match from a parser, input, and result range.
     /// </summary>
     public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
     {
@@ -21,6 +21,19 @@ public class ParserMatch
         Scanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
         Offset = offset;
         Length = length;
+    }
+
+    /// <summary>
+    /// Create a match from a string, that represents the entire string.
+    /// </summary>
+    public ParserMatch(string value, string? tag = null)
+    {
+        SourceParser = new NullParser();
+        SourceParser.Tag = tag;
+
+        Scanner = new ScanStrings(value);
+        Offset = 0;
+        Length = value.Length;
     }
 
     /// <summary>
@@ -91,18 +104,6 @@ public class ParserMatch
     public int Right => Length > 0 ? Offset + Length : Offset;
 
     /// <summary>
-    /// Return child matches
-    /// </summary>
-    /// <returns></returns>
-    public IEnumerator GetEnumerator()
-    {
-        foreach (var childMatch in ChildMatches)
-        {
-            yield return childMatch;
-        }
-    }
-
-    /// <summary>
     /// Return the match value string
     /// </summary>
     public override string ToString()
@@ -120,23 +121,10 @@ public class ParserMatch
         return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"};";
     }
 
-    
     /// <summary>
-    /// Add a child match to this, extending range as appropriate
-    /// </summary>
-    public void Add(ParserMatch next)
-    {
-        if (!next.Success) throw new ArgumentException("Can't Add failure match");
-        if (next.Scanner != Scanner) throw new ArgumentException("Can't Add between different scanners");
-
-        ChildMatches.Add(next);
-
-        var right = Math.Max(Right, next.Right);
-        Length = right - Offset;
-    }
-    
-    /// <summary>
-    /// Create a new match by joining a pair of existing matches
+    /// Create a new match by joining a pair of existing matches.
+    /// Most of the time this performs a binary join, but some parser
+    /// flags can change this (see <see cref="ScopeType"/>)
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
     public static ParserMatch Join(IParser source, ParserMatch left, ParserMatch right)
@@ -168,12 +156,45 @@ public class ParserMatch
             return rightOnlyResult;
         }
         
-        // Normal join between left and right
+        
         var length = right.Right - left.Offset;
         var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length);
+        
+        
+        // TODO: if one of the parsers is a 'pivot' scope, and the other isn't
+        //       then we should re-arrange the output so the pivot is the parent
+        //       and non-pivot are children?
+
+        if (IsValidPivot(left, right))
+        {
+            if (left.Scope == ScopeType.Pivot)
+            {
+                left.ChildMatches.Add(right);
+                joinResult.ChildMatches.Add(left);
+                return joinResult;
+            }
+            
+            if (right.Scope == ScopeType.Pivot)
+            {
+                right.ChildMatches.Add(left);
+                joinResult.ChildMatches.Add(right);
+                return joinResult;
+            }
+        }
+
+        // Normal join between left and right
         if (!left.Empty) joinResult.ChildMatches.Add(left);
         if (!right.Empty) joinResult.ChildMatches.Add(right);
         return joinResult;
+    }
+
+    /// <summary>
+    /// If one of the parsers is a pivot, but not both
+    /// </summary>
+    private static bool IsValidPivot(ParserMatch left, ParserMatch right)
+    {
+        if (left.Scope == ScopeType.Pivot && right.Scope == ScopeType.Pivot) return false;
+        return left.Scope == ScopeType.Pivot || right.Scope == ScopeType.Pivot;
     }
 
     /// <summary>
@@ -333,4 +354,9 @@ public class ParserMatch
     {
         return new ParserMatch(null, new NullScanner(), 0, -1);
     }
+
+    /// <summary>
+    /// Returns true if the source parser has meta data. False otherwise
+    /// </summary>
+    public bool HasMetaData() => SourceParser?.HasMetaData() == true;
 }
