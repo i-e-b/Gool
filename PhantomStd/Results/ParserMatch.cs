@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Phantom.Parsers;
 
 namespace Phantom.Results;
 
@@ -73,7 +72,7 @@ public class ParserMatch
     /// <li>Zero value does not change scope (default)</li>
     /// </ul>
     /// </summary>
-    public int ScopeSign => SourceParser?.ScopeSign ?? 0;
+    public ScopeType Scope => SourceParser?.Scope ?? ScopeType.None;
 
     /// <summary>
     /// True if match successful
@@ -217,9 +216,18 @@ public class ParserMatch
     /// Return all parser matches where the parser has been given a tag value.
     /// This can be used to convert the parser token results into a meaningful structure.
     /// </summary>
-    public IEnumerable<ParserMatch> TaggedTokens()
+    public IEnumerable<ParserMatch> TaggedTokensDepthFirst()
     {
         return DepthFirstWalk(this, m => m.Tag is not null);
+    }
+    
+    /// <summary>
+    /// Return all parser matches where the parser has been given a tag value.
+    /// This can be used to convert the parser token results into a meaningful structure.
+    /// </summary>
+    public IEnumerable<ParserMatch> TaggedTokensBreadthFirst()
+    {
+        return BreadthFirstWalk(this, m => m.Tag is not null);
     }
     
     /// <summary>
@@ -234,7 +242,7 @@ public class ParserMatch
     /// Does a recursive, depth-first search of this match and all children.
     /// Returns matches where <paramref name="select"/> returns <c>true</c>
     /// </summary>
-    private static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node, Func<ParserMatch, bool> select)
+    public static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node, Func<ParserMatch, bool> select)
     {
         if (node is null) yield break;
         
@@ -251,7 +259,7 @@ public class ParserMatch
     /// Does a recursive, breadth-first search of this match and all children.
     /// Returns matches where <paramref name="select"/> returns <c>true</c>
     /// </summary>
-    private static IEnumerable<ParserMatch> BreadthFirstWalk(ParserMatch? root, Func<ParserMatch, bool> select)
+    public static IEnumerable<ParserMatch> BreadthFirstWalk(ParserMatch? root, Func<ParserMatch, bool> select)
     {
         if (root is null) yield break;
         
@@ -288,37 +296,6 @@ public class ParserMatch
         return previousMatch.Offset == Offset && previousMatch.Length == Length;
     }
 
-    /// <summary>
-    /// Return all parser matches where the parser has been given a tag value.
-    /// Matches that have a non-zero 'scope' value will build the hierarchy.
-    /// </summary>
-    public ScopeNode ToScopes()
-    {
-        var root = ScopeNode.RootNode();
-        
-        var points = DepthFirstWalk(this, m => m.Tag is not null || m.ScopeSign != 0);
-
-        var cursor = (ScopeNode?)root;
-        foreach (var match in points)
-        {
-            if (cursor is null) break; // this will happen if there are too many scope closes
-
-            switch (match.ScopeSign)
-            {
-                case > 0:
-                    cursor = cursor.OpenScope(match);
-                    break;
-                case < 0:
-                    cursor = cursor.CloseScope(match);
-                    break;
-                default:
-                    cursor.AddDataFrom(match);
-                    break;
-            }
-        }
-
-        return root;
-    }
 
     /// <summary>
     /// This match is being passed through a composite,

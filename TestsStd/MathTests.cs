@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
+using Phantom.Results;
 using Phantom.Scanners;
 using Samples;
 
@@ -22,15 +23,22 @@ public class MathTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
+        var tree = ScopeNode.RootNode();
+        //ParserMatch.TestWalk(result, tree);
+        PrintRecursive(tree, 0);
+        
         Console.WriteLine("\r\n=================================================================================");
 
         var input = new Stack<string>();
-        foreach (var item in result.BottomLevelMatchesBreadthFirst())
+        foreach (var item in result.BottomLevelMatchesDepthFirst())
         {
-            if (item.Value == "(" || item.Value == ")") continue;
+            Console.WriteLine(item.Value);
+            //if (item.Value == "(" || item.Value == ")") continue;
             input.Push(item.Value);
         }
 
+        Console.WriteLine("\r\n=================================================================================");
+        
         var values = EvaluateRpn(input);
 
         var final = values.Pop();
@@ -38,6 +46,39 @@ public class MathTests
         Assert.That(final, Is.EqualTo(expected));
     }
 
+    
+
+    private static void PrintRecursive(ScopeNode node, int indent)
+    {
+        switch (node.NodeType)
+        {
+            case ScopeNodeType.Root:
+                Console.WriteLine("Document");
+                if (node.OpeningMatch is not null || node.ClosingMatch is not null) Console.WriteLine("Unbalanced scopes!");
+                break;
+            case ScopeNodeType.Data:
+                Console.WriteLine($"{I(indent)}{node.DataMatch?.Value} [{node.DataMatch?.Tag}]");
+                break;
+            case ScopeNodeType.ScopeChange:
+                Console.WriteLine($"{I(indent + 1)}{node.OpeningMatch?.Value}");
+                break;
+
+            default:
+                Assert.Fail($"Node does not have a valid type: {node}");
+                break;
+        }
+
+        foreach (var childNode in node.Children)
+        {
+            PrintRecursive(childNode, indent + 2);
+        }
+    }
+
+    private static string I(int indent)
+    {
+        return new string(' ', indent * 2);
+    }
+    
     private static Stack<double> EvaluateRpn(Stack<string> input)
     {
         var values = new Stack<double>();
@@ -75,6 +116,11 @@ public class MathTests
                     values.Push(a / b);
                     break;
                 }
+                
+                
+                case "(":
+                case ")":
+                    break;
 
                 default:
                     values.Push(double.Parse(item));

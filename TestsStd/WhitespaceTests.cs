@@ -46,7 +46,7 @@ public class WhitespaceTests
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
 
-        var taggedTokens = result.TaggedTokens().ToList();
+        var taggedTokens = result.TaggedTokensDepthFirst().ToList();
 
         foreach (var token in taggedTokens)
         {

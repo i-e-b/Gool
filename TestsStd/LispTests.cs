@@ -96,7 +96,7 @@ public class LispTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.Value.Trim(), Is.EqualTo(SimpleSample.Trim()));
 
-        var taggedTokens = result.TaggedTokens();
+        var taggedTokens = result.TaggedTokensDepthFirst();
 
         var indent = 0;
         foreach (var token in taggedTokens)
@@ -151,7 +151,7 @@ public class LispTests
         
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         
-        var scopes = result.ToScopes();
+        var scopes = ScopeNode.FromMatchesDepthFirst(result);
 
         PrintRecursive(scopes, 0);
     }
@@ -169,7 +169,7 @@ public class LispTests
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine("\r\n== Depth first ===============================================================================");
-        var tree = result.ToScopes();
+        var tree = ScopeNode.FromMatchesDepthFirst(result);
         
         tree.DepthFirstWalk(n =>
         {

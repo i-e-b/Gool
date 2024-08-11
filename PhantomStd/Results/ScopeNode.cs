@@ -62,65 +62,6 @@ public class ScopeNode
     /// <c>null</c> if root level
     /// </summary>
     public ScopeNode? Parent { get; set; }
-
-    /// <summary>
-    /// Add a data node as a child to this node
-    /// </summary>
-    internal void AddDataFrom(ParserMatch match)
-    {
-        Link(new ScopeNode
-        {
-            NodeType = ScopeNodeType.Data,
-            DataMatch = match,
-            OpeningMatch = null,
-            ClosingMatch = null,
-            Parent = this
-        });
-    }
-
-    /// <summary>
-    /// Open a new scope, with this node as parent.
-    /// <see cref="OpeningMatch"/> of the new node will be '<paramref name="match"/>';
-    /// <see cref="ClosingMatch"/> of the new node will be <c>null</c>.
-    /// </summary>
-    /// <returns>The new scope node</returns>
-    internal ScopeNode OpenScope(ParserMatch match)
-    {
-        var newScope = new ScopeNode
-        {
-            NodeType = ScopeNodeType.ScopeChange,
-            DataMatch = null,
-            OpeningMatch = match,
-            ClosingMatch = null,
-            Parent = this
-        };
-
-        Link(newScope);
-        return newScope;
-    }
-
-    /// <summary>
-    /// Close this scope, and return parent.
-    /// <see cref="ClosingMatch"/> of this node will be set to '<paramref name="match"/>'.
-    /// </summary>
-    /// <returns>The parent scope node, or <c>null</c></returns>
-    internal ScopeNode? CloseScope(ParserMatch match)
-    {
-        ClosingMatch = match;
-        return Parent;
-    }
-
-    /// <summary>
-    /// Create a new root node
-    /// </summary>
-    internal static ScopeNode RootNode()
-    {
-        return new ScopeNode
-        {
-            NodeType = ScopeNodeType.Root,
-            Parent = null
-        };
-    }
     
     /// <summary>
     /// Walk the tree, and remove <see cref="ScopeNodeType.Data"/> nodes tagged with <paramref name="generalTag"/>;
@@ -239,6 +180,140 @@ public class ScopeNode
         {
             DepthFirstWalkRec(child, action);
         }
+    }
+    
+    
+
+    /// <summary>
+    /// Add a data node as a child to this node
+    /// </summary>
+    internal void AddDataFrom(ParserMatch match)
+    {
+        Link(new ScopeNode
+        {
+            NodeType = ScopeNodeType.Data,
+            DataMatch = match,
+            OpeningMatch = null,
+            ClosingMatch = null,
+            Parent = this
+        });
+    }
+
+    /// <summary>
+    /// Open a new scope, with this node as parent.
+    /// <see cref="OpeningMatch"/> of the new node will be '<paramref name="match"/>';
+    /// <see cref="ClosingMatch"/> of the new node will be <c>null</c>.
+    /// </summary>
+    /// <returns>The new scope node</returns>
+    internal ScopeNode OpenScope(ParserMatch match)
+    {
+        var newScope = new ScopeNode
+        {
+            NodeType = ScopeNodeType.ScopeChange,
+            DataMatch = null,
+            OpeningMatch = match,
+            ClosingMatch = null,
+            Parent = this
+        };
+
+        Link(newScope);
+        return newScope;
+    }
+
+    /// <summary>
+    /// Close this scope, and return parent.
+    /// <see cref="ClosingMatch"/> of this node will be set to '<paramref name="match"/>'.
+    /// </summary>
+    /// <returns>The parent scope node, or <c>null</c></returns>
+    internal ScopeNode? CloseScope(ParserMatch match)
+    {
+        TryPivot();
+
+        ClosingMatch = match;
+        return Parent;
+    }
+
+    internal void TryPivot()
+    {
+        foreach (var child in Children)
+        {
+            if (child.DataMatch?.Scope == ScopeType.Pivot)
+            {
+                // scan left and right for non-pivot data nodes
+                
+            }
+        }
+    }
+
+    /// <summary>
+    /// Create a new root node
+    /// </summary>
+    public static ScopeNode RootNode()
+    {
+        return new ScopeNode
+        {
+            NodeType = ScopeNodeType.Root,
+            Parent = null
+        };
+    }
+    
+    /// <summary>
+    /// Return all parser matches where the parser has been given a tag value.
+    /// Matches that have a non-zero 'scope' value will build the hierarchy.
+    /// <p/>
+    /// Breadth-first scopes are good for building data structure trees
+    /// </summary>
+    public static ScopeNode FromMatchesDepthFirst(ParserMatch root)
+    {
+        var points = ParserMatch.DepthFirstWalk(root, m => m.Tag is not null || m.Scope != ScopeType.None);
+
+        return BuildScope(points);
+    }
+
+    /// <summary>
+    /// Return all parser matches where the parser has been given a tag value.
+    /// Matches that have a non-zero 'scope' value will build the hierarchy.
+    /// <p/>
+    /// Breadth-first scopes are good for building evaluation trees
+    /// </summary>
+    public static ScopeNode FromMatchesBreadthFirst(ParserMatch root)
+    {
+        var points = ParserMatch.BreadthFirstWalk(root, m => m.Tag is not null || m.Scope != ScopeType.None);
+
+        return BuildScope(points);
+    }
+
+    private static ScopeNode BuildScope(IEnumerable<ParserMatch> points)
+    {
+        var root = RootNode();
+        var cursor = (ScopeNode?)root;
+        foreach (var match in points)
+        {
+            if (cursor is null) break; // this will happen if there are too many scope closes
+
+            switch (match.Scope)
+            {
+                case ScopeType.None:
+                    cursor.AddDataFrom(match);
+                    break;
+                case ScopeType.Pivot:
+                    // TODO: We add this as normal data, then fix-up later
+                    cursor.AddDataFrom(match);
+                    break;
+                case ScopeType.OpenScope:
+                    cursor = cursor.OpenScope(match);
+                    break;
+                case ScopeType.CloseScope:
+                    cursor = cursor.CloseScope(match);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        cursor?.TryPivot();
+
+        return root;
     }
 }
 

@@ -13,12 +13,12 @@ public abstract class Parser : IParser
     public string? Tag { get; set; }
 
     /// <inheritdoc />
-    public int ScopeSign { get; set; }
+    public ScopeType Scope { get; set; }
 
     /// <inheritdoc />
     public bool HasMetaData()
     {
-        return !(Tag is null && ScopeSign == 0);
+        return !(Tag is null && Scope == ScopeType.None);
     }
 
     /// <inheritdoc />

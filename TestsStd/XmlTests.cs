@@ -94,7 +94,7 @@ public class XmlTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        var tree = result.ToScopes();
+        var tree = ScopeNode.FromMatchesDepthFirst(result);
         var errors = new List<string>();
         
         tree.BreadthFirstWalk(n =>
@@ -128,7 +128,7 @@ public class XmlTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.Value, Is.EqualTo(Sample));
 
-        var taggedTokens = result.TaggedTokens();
+        var taggedTokens = result.TaggedTokensDepthFirst();
 
         foreach (var token in taggedTokens)
         {

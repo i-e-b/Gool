@@ -111,22 +111,29 @@ public class BNF
 	}
 	
 	/// <summary>
-	/// Add a tag to the base parser.
-	/// This is used to interpret the parser result
+	/// Mark this parser as the start of a block
 	/// </summary>
 	public BNF OpenScope()
 	{
-		_parserTree.ScopeSign = +1;
+		_parserTree.Scope = ScopeType.OpenScope;
 		return this;
 	}
 	
 	/// <summary>
-	/// Add a tag to the base parser.
-	/// This is used to interpret the parser result
+	/// Mark this parser as the end of a block
 	/// </summary>
 	public BNF CloseScope()
 	{
-		_parserTree.ScopeSign = -1;
+		_parserTree.Scope = ScopeType.CloseScope;
+		return this;
+	}
+	
+	/// <summary>
+	/// Mark this parser as a parent to its siblings
+	/// </summary>
+	public BNF PivotScope()
+	{
+		_parserTree.Scope = ScopeType.Pivot;
 		return this;
 	}
 

@@ -40,7 +40,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -54,7 +54,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
     }
     
     [Test]
@@ -75,7 +75,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -89,7 +89,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one" }).AsCollection);
     }
 
     private static IParser DifferenceParserSample()
@@ -122,7 +122,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -136,7 +136,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three" }).AsCollection);
     }
 
 
@@ -171,7 +171,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -185,7 +185,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "px_one", "two_pf" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "px_one", "two_pf" }).AsCollection);
     }
 
 
@@ -220,7 +220,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -234,7 +234,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
     }
     
     private static IParser RepetitionParserSample()
@@ -281,7 +281,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
     }
 
     
@@ -329,7 +329,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one two three four" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one two three four" }).AsCollection);
     }
 
 
@@ -369,7 +369,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -383,7 +383,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "a", "b", "c", "d", "e", "f" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "a", "b", "c", "d", "e", "f" }).AsCollection);
     }
 
     [Test]
@@ -408,7 +408,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -454,7 +454,7 @@ public class CompositeBasicTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var match in result.TaggedTokens())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.Write(match.Value);
             Console.Write(" ");
@@ -470,6 +470,6 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokens().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
     }
 }

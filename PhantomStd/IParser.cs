@@ -21,14 +21,14 @@ public interface IParser
 	/// <summary>
 	/// Optional scope behaviour.
 	/// Scopes are used to build result trees from <see cref="Tag"/>ged matches,
-	/// using <see cref="ParserMatch.ToScopes"/>.
+	/// using <see cref="ScopeNode.FromMatchesDepthFirst"/>.
 	/// <ul>
 	/// <li>Positive values open a new scope</li>
 	/// <li>Negative values close the current scope</li>
 	/// <li>Zero value does not change scope (default)</li>
 	/// </ul>
 	/// </summary>
-	public int ScopeSign { get; set; }
+	public ScopeType Scope { get; set; }
 
 	/// <summary>
 	/// Returns true if this parser carries tags or scopes. False otherwise
