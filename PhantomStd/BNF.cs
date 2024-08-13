@@ -119,6 +119,15 @@ public class BNF
 	}
 
 	/// <summary>
+	/// Wrap this BNF up with the correct scanner options,
+	/// ready for user to pass in strings.
+	/// </summary>
+	public Package WithOptions(Options options)
+	{
+		return new Package(this, options);
+	}
+
+	/// <summary>
 	/// Add a tag to the base parser.
 	/// This is used to interpret the parser result
 	/// </summary>
@@ -394,6 +403,7 @@ public class BNF
 
 	/// <summary>
 	/// Create a forward reference to populate later.
+	/// This enables recursive definitions.
 	/// </summary>
 	public static BnfForward Forward()
 	{
@@ -433,9 +443,36 @@ public class BNF
 		/// </summary>
 		IgnoreCase = 2,
 	}
+	
+	/// <summary>
+	/// BNF structure, plus the correct scanner options
+	/// </summary>
+	public class Package
+	{
+		private readonly BNF _bnf;
+		private readonly Options _options;
+
+		/// <summary>
+		/// BNF structure, plus the correct scanner options
+		/// </summary>
+		internal Package(BNF bnf, Options options)
+		{
+			_bnf = bnf;
+			_options = options;
+		}
+		
+		/// <summary>
+		/// Parse an input string, returning a match tree.
+		/// </summary>
+		public ParserMatch ParseString(string input)
+		{
+			return _bnf.ParseString(input, _options);
+		}
+	}
 
 	/// <summary>
-	/// BNF forward reference
+	/// BNF forward reference, to be completed at the end of BNF definition.
+	/// This allows recursive definitions.
 	/// </summary>
 	public class BnfForward : BNF
 	{

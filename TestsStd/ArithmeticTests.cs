@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using NUnit.Framework;
-using Phantom;
 using Phantom.Results;
 using Samples;
 
@@ -20,7 +19,7 @@ public class ArithmeticTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = ArithmeticExample.Parser.ParseString(expression, BNF.Options.SkipWhitespace);
+        var result = ArithmeticExample.Parser.ParseString(expression);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 

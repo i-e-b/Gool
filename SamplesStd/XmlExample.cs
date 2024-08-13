@@ -6,7 +6,7 @@ namespace Samples;
 
 public static class XmlExample
 {
-    public static readonly BNF Parser = Xml();
+    public static readonly BNF.Package Parser = Xml();
 
     private static RegexOptions Options()
     {
@@ -21,7 +21,7 @@ public static class XmlExample
     public const string TagId = "tagId";
     public const string Attribute = "attribute";
 
-    private static BNF Xml()
+    private static BNF.Package Xml()
     {
         BNF.RegexOptions = Options();
 
@@ -48,7 +48,9 @@ public static class XmlExample
         open_tag.Tag(OpenTag).OpenScope();
         close_tag.Tag(CloseTag).CloseScope();
 
-        return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag));
+        return BNF
+            .Recursive(tree => -(open_tag > -(tree | text) > close_tag))
+            .WithOptions(BNF.Options.None);
     }
 
 }

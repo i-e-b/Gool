@@ -10,7 +10,7 @@ namespace Samples;
 /// </summary>
 public static class PascalExample
 {
-    public static readonly BNF Parser = Pascal();
+    public static readonly BNF.Package Parser = Pascal();
 
     private static RegexOptions Options()
     {
@@ -21,7 +21,7 @@ public static class PascalExample
 
 
     // https://archive.org/details/pascal-poster-v-3-a-1
-    private static BNF Pascal()
+    private static BNF.Package Pascal()
     {
         BNF.RegexOptions = Options();
 
@@ -205,7 +205,7 @@ public static class PascalExample
         s_open_bracket.Tag(OpenBracket).OpenScope();
         s_close_bracket.Tag(CloseBracket).CloseScope();
 
-        return program;
+        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace);
     }
 
     // ReSharper disable MemberCanBePrivate.Global

@@ -7,8 +7,7 @@ namespace Samples;
 
 public static class JsonParser
 {
-    public static readonly BNF Json = BuildBnf();
-    public static readonly IParser TheParser = Json.Parser();
+    public static readonly BNF.Package Json = BuildBnf();
 
     private static RegexOptions Options()
     {
@@ -20,7 +19,7 @@ public static class JsonParser
     /// <summary>
     /// JSON parser directly from the spec at https://www.json.org/json-en.html
     /// </summary>
-    private static BNF BuildBnf()
+    private static BNF.Package BuildBnf()
     {
         BNF.RegexOptions = Options();
 
@@ -74,6 +73,6 @@ public static class JsonParser
 
         _value.Is(value);
         
-        return element;
+        return element.WithOptions(BNF.Options.SkipWhitespace);
     }
 }

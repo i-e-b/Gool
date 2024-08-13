@@ -6,7 +6,7 @@ namespace Samples;
 
 public static class ArithmeticExample
 {
-    public static readonly BNF Parser = Arithmetic();
+    public static readonly BNF.Package Parser = Arithmetic();
     
     private static RegexOptions Options()
     {
@@ -15,7 +15,7 @@ public static class ArithmeticExample
                | RegexOptions.Multiline;
     }
 
-    private static BNF Arithmetic()
+    private static BNF.Package Arithmetic()
     {
         BNF.RegexOptions = Options();
 
@@ -38,7 +38,7 @@ public static class ArithmeticExample
         exp.Tag(Operation).PivotScope();
         number.Tag(Value);
 
-        return expression;
+        return expression.WithOptions(BNF.Options.SkipWhitespace);
     }
 
     public const string Operation = "operation";

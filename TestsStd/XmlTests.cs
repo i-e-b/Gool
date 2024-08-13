@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
-using Phantom;
 using Phantom.Results;
 using Samples;
 
@@ -32,7 +31,7 @@ public class XmlTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.Parser.ParseString(Sample, BNF.Options.SkipWhitespace);
+        var result = XmlExample.Parser.ParseString(Sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -106,7 +105,7 @@ public class XmlTests
     [Test]
     public void ConvertingParsedXmlTokensIntoStructure()
     {
-        var result = XmlExample.Parser.ParseString(Sample, BNF.Options.SkipWhitespace);
+        var result = XmlExample.Parser.ParseString(Sample);
 
         foreach (var fail in result.Scanner.ListFailures())
         {

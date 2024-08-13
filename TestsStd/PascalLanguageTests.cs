@@ -2,7 +2,6 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Phantom;
 using Phantom.Results;
-using Phantom.Scanners;
 using Samples;
 
 // ReSharper disable InconsistentNaming
@@ -64,7 +63,7 @@ public class PascalLanguageTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = PascalExample.Parser.ParseString(sample_program, BNF.Options.SkipWhitespace | BNF.Options.IgnoreCase);
+        var result = PascalExample.Parser.ParseString(sample_program);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -88,7 +87,7 @@ public class PascalLanguageTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = PascalExample.Parser.ParseString(program, BNF.Options.SkipWhitespace | BNF.Options.IgnoreCase);
+        var result = PascalExample.Parser.ParseString(program);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
