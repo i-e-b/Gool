@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
+using Phantom;
 using Phantom.Results;
-using Phantom.Scanners;
 using Samples;
 
 namespace TestsStd;
@@ -30,18 +30,15 @@ public class XmlTests
     [Test]
     public void XmlDocumentParsesSuccessfully()
     {
-        var parser = new XmlParser().TheParser;
-        var scanner = new ScanStrings(Sample);
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = XmlExample.Parser.ParseString(Sample, BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         // Faults: Something is advancing too far?
 
-        foreach (var failPoint in scanner.ListFailures()) Console.WriteLine(failPoint);
+        foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.Value, Is.EqualTo(Sample));
@@ -55,16 +52,13 @@ public class XmlTests
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
     public void WellStructuredButInvalidXmlDocumentParsesSuccessfully()
     {
-        var parser = new XmlParser().TheParser;
-        var scanner = new ScanStrings(BrokenSample);
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = XmlExample.Parser.ParseString(BrokenSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }
@@ -85,12 +79,9 @@ public class XmlTests
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
     public void can_detect_tag_mismatches_in_scoped_tree()
     {
-        var parser = new XmlParser().TheParser;
-        var scanner = new ScanStrings(BrokenSample);
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = XmlExample.Parser.ParseString(BrokenSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -101,8 +92,8 @@ public class XmlTests
         {
             if (n.NodeType == ScopeNodeType.ScopeChange)
             {
-                var open = n.OpeningMatch?.FindTag(XmlParser.TagId)?.Value;
-                var close = n.ClosingMatch?.FindTag(XmlParser.TagId)?.Value;
+                var open = n.OpeningMatch?.FindTag(XmlExample.TagId)?.Value;
+                var close = n.ClosingMatch?.FindTag(XmlExample.TagId)?.Value;
                 if (open != close) errors.Add($"<{open}> does not match </{close}>");
             }
         });
@@ -115,12 +106,9 @@ public class XmlTests
     [Test]
     public void ConvertingParsedXmlTokensIntoStructure()
     {
-        var parser = new XmlParser().TheParser;
-        var scanner = new ScanStrings(Sample);
+        var result = XmlExample.Parser.ParseString(Sample, BNF.Options.SkipWhitespace);
 
-        var result = parser.Parse(scanner);
-
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }
@@ -134,16 +122,16 @@ public class XmlTests
         {
             switch (token.Tag)
             {
-                case XmlParser.Text:
+                case XmlExample.Text:
                     if (!string.IsNullOrWhiteSpace(token.Value)) Console.WriteLine("content: " + token.Value);
                     break;
 
-                case XmlParser.OpenTag:
-                    Console.WriteLine(token.ChildrenWithTag(XmlParser.TagId).FirstOrDefault()?.Value + "{");
+                case XmlExample.OpenTag:
+                    Console.WriteLine(token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value + "{");
                     break;
 
-                case XmlParser.CloseTag:
-                    Console.WriteLine("}" + token.ChildrenWithTag(XmlParser.TagId).FirstOrDefault()?.Value);
+                case XmlExample.CloseTag:
+                    Console.WriteLine("}" + token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value);
                     break;
             }
         }

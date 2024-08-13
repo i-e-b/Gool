@@ -6,12 +6,13 @@ using Phantom.Results;
 namespace Phantom.Scanners;
 
 /// <summary>
-/// Scanner that operates over strings
+/// Scanner that operates over strings.
 /// </summary>
 public class ScanStrings : IScanner
 {
 	private readonly List<ParserPoint> _failurePoints = new();
 	private readonly List<ParserMatch> _matchPaths = new();
+	private readonly Dictionary<object, object?> _contexts = new();
 	private string? _rightMostMatch;
 	private int _rightMostPoint;
 
@@ -44,13 +45,35 @@ public class ScanStrings : IScanner
 
 	#region IScanner Members
 
-
 	/// <summary>
 	/// Add a success path, for diagnostic use
 	/// </summary>
 	public void AddPath(ParserMatch newMatch)
 	{
 		_matchPaths.Add(newMatch);
+	}
+
+	/// <inheritdoc />
+	public void Reset()
+	{
+		_failurePoints.Clear();
+		_matchPaths.Clear();
+		_contexts.Clear();
+		_rightMostMatch = null;
+		_rightMostPoint = 0;
+	}
+
+	/// <inheritdoc />
+	public void SetContext(IParser parser, object? context)
+	{
+		_contexts[parser] = context;
+	}
+
+	/// <inheritdoc />
+	public object? GetContext(IParser parser)
+	{
+		if (_contexts.TryGetValue(parser, out var ctx)) return ctx;
+		return null;
 	}
 
 	/// <inheritdoc />
@@ -183,7 +206,10 @@ public class ScanStrings : IScanner
 	public ITransform Transform { get; set; }
 
 	/// <inheritdoc />
-	public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => new(source, this, previous?.Offset ?? 0, -1);
+	public ParserMatch NoMatch(IParser? source, ParserMatch? previous)
+	{
+		return new ParserMatch(source, this, previous?.Offset ?? 0, -1);
+	}
 
 	/// <inheritdoc />
 	public ParserMatch EmptyMatch(IParser source, int offset)

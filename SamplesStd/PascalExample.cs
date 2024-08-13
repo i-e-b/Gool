@@ -8,14 +8,9 @@ namespace Samples;
 /// Builds a parser for old-fashioned Pascal files, using the Phantom parser system.
 /// Built from the 1979 Apple Pascal poster.
 /// </summary>
-public class PascalParser
+public static class PascalExample
 {
-    public IParser TheParser { get; }
-
-    public PascalParser()
-    {
-        TheParser = Pascal();
-    }
+    public static readonly BNF Parser = Pascal();
 
     private static RegexOptions Options()
     {
@@ -26,7 +21,7 @@ public class PascalParser
 
 
     // https://archive.org/details/pascal-poster-v-3-a-1
-    private IParser Pascal()
+    private static BNF Pascal()
     {
         BNF.RegexOptions = Options();
 
@@ -210,7 +205,7 @@ public class PascalParser
         s_open_bracket.Tag(OpenBracket).OpenScope();
         s_close_bracket.Tag(CloseBracket).CloseScope();
 
-        return program.Parser();
+        return program;
     }
 
     // ReSharper disable MemberCanBePrivate.Global

@@ -4,16 +4,11 @@ using Phantom;
 
 namespace Samples;
 
-public class XmlParser
+public static class XmlExample
 {
-    public IParser TheParser { get; }
+    public static readonly BNF Parser = Xml();
 
-    public XmlParser()
-    {
-        TheParser = Xml();
-    }
-
-    private RegexOptions ops()
+    private static RegexOptions Options()
     {
         return RegexOptions.ExplicitCapture
                | RegexOptions.IgnoreCase
@@ -26,9 +21,9 @@ public class XmlParser
     public const string TagId = "tagId";
     public const string Attribute = "attribute";
 
-    private IParser Xml()
+    private static BNF Xml()
     {
-        BNF.RegexOptions = ops();
+        BNF.RegexOptions = Options();
 
         /*
          * This isn't a serious parser -- it can't handle
@@ -53,7 +48,7 @@ public class XmlParser
         open_tag.Tag(OpenTag).OpenScope();
         close_tag.Tag(CloseTag).CloseScope();
 
-        return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag)).Parser();
+        return BNF.Recursive(tree => -(open_tag > -(tree | text) > close_tag));
     }
 
 }

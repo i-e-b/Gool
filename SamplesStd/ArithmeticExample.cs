@@ -4,8 +4,10 @@ using Phantom;
 
 namespace Samples;
 
-public class MathParser
+public static class ArithmeticExample
 {
+    public static readonly BNF Parser = Arithmetic();
+    
     private static RegexOptions Options()
     {
         return RegexOptions.ExplicitCapture
@@ -13,7 +15,7 @@ public class MathParser
                | RegexOptions.Multiline;
     }
 
-    public static IParser TheParser()
+    private static BNF Arithmetic()
     {
         BNF.RegexOptions = Options();
 
@@ -23,7 +25,7 @@ public class MathParser
         BNF mul_div = BNF.OneOf('*', '/');
         BNF exp = '^';
 
-        BNF number = @"#[0-9]+(\.[0-9]+)?";
+        BNF number = @"#\-?[0-9]+(\.[0-9]+)?"; // signed numbers
         BNF factor = number | ('(' > _expression > ')');
         BNF power = factor > !(exp > factor);
         BNF term = power % mul_div;
@@ -36,7 +38,7 @@ public class MathParser
         exp.Tag(Operation).PivotScope();
         number.Tag(Value);
 
-        return expression.Parser();
+        return expression;
     }
 
     public const string Operation = "operation";

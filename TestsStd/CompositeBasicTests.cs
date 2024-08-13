@@ -10,7 +10,7 @@ namespace TestsStd;
 [TestFixture]
 public class CompositeBasicTests
 {
-    private static IParser DelimitedListParserSample()
+    private static BNF DelimitedListParserSample()
     {
         BNF item = "#[a-zA-Z]+";
         BNF delimiter = ",";
@@ -19,7 +19,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Parser();
+        return list;
     }
 
     [Test]
@@ -31,12 +31,9 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = DelimitedListParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -48,7 +45,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }
@@ -66,12 +63,10 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = DelimitedListParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -83,7 +78,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }

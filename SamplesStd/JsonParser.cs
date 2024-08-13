@@ -5,14 +5,10 @@ using Phantom;
 
 namespace Samples;
 
-public class JsonParser
+public static class JsonParser
 {
-    public IParser TheParser { get; }
-
-    public JsonParser()
-    {
-        TheParser = Json();
-    }
+    public static readonly BNF Json = BuildBnf();
+    public static readonly IParser TheParser = Json.Parser();
 
     private static RegexOptions Options()
     {
@@ -21,11 +17,13 @@ public class JsonParser
                | RegexOptions.Multiline;
     }
 
-    private IParser Json()
+    /// <summary>
+    /// JSON parser directly from the spec at https://www.json.org/json-en.html
+    /// </summary>
+    private static BNF BuildBnf()
     {
         BNF.RegexOptions = Options();
 
-        // From https://www.json.org/json-en.html
         var _value = BNF.Forward();
 
         BNF ws = @"#\s*";
@@ -75,6 +73,7 @@ public class JsonParser
         primitive.Tag("value");
 
         _value.Is(value);
-        return element.Parser();
+        
+        return element;
     }
 }

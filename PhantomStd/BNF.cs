@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
 using Phantom.Parsers.Terminals;
+using Phantom.Results;
+using Phantom.Scanners;
 
 namespace Phantom;
 
@@ -74,12 +76,12 @@ public class BNF
 	/// <summary>
 	/// Internal reference to the real parser instance
 	/// </summary>
-	protected readonly IParser _parserTree;
+	private readonly IParser _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
 	/// </summary>
-	public BNF(IParser parserTree)
+	private BNF(IParser parserTree)
 	{
 		_parserTree = parserTree;
 	}
@@ -95,12 +97,25 @@ public class BNF
 	public static BNF EndOfInput => new(new EndOfInput());
 
 	/// <summary>
-	/// Parser resulting from the BNF syntax
+	/// Access the <see cref="IParser"/> resulting from the BNF syntax.
+	/// For most cases, you probably want <see cref="ParseString"/>
 	/// </summary>
-	/// <returns></returns>
 	public IParser Parser()
 	{
 		return _parserTree;
+	}
+
+	/// <summary>
+	/// Parse an input string, returning a match tree.
+	/// </summary>
+	public ParserMatch ParseString(string input, Options options = Options.None)
+	{
+		var scanner = new ScanStrings(input);
+		
+		if (options.HasFlag(Options.SkipWhitespace)) scanner.SkipWhitespace = true;
+		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
+
+		return _parserTree.Parse(scanner);
 	}
 
 	/// <summary>
@@ -392,35 +407,61 @@ public class BNF
 	{
 		return new BNF(new EmptyMatch());
 	}
-}
-
-/// <summary>
-/// BNF forward reference
-/// </summary>
-public class BnfForward : BNF
-{
-	/// <summary>
-	/// Create a forward reference
-	/// </summary>
-	public BnfForward(IParser parserTree) : base(parserTree)
-	{
-	}
-
-	/// <summary>
-	/// Complete a forward reference with the completed parser
-	/// </summary>
-	public void Is(IParser parser)
-	{
-		if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
-		rec.Source = parser;
-	}
 	
+
 	/// <summary>
-	/// Complete a forward reference with the completed parser
+	/// Options for parsing
 	/// </summary>
-	public void Is(BNF parser)
+	[Flags]
+	public enum Options
 	{
-		if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
-		rec.Source = parser.Parser();
+		/// <summary>
+		/// No special options. Parser must match input exactly.
+		/// </summary>
+		None = 0,
+		
+		/// <summary>
+		/// Skip white-space characters between matches.
+		/// White-space inside matches is preserved.
+		/// </summary>
+		SkipWhitespace = 1,
+		
+		/// <summary>
+		/// Lower-case the input before applying parsers.
+		/// Case is preserved in output.
+		/// Parsers should expect lowercase input
+		/// </summary>
+		IgnoreCase = 2,
+	}
+
+	/// <summary>
+	/// BNF forward reference
+	/// </summary>
+	public class BnfForward : BNF
+	{
+		/// <summary>
+		/// Create a forward reference
+		/// </summary>
+		public BnfForward(IParser parserTree) : base(parserTree)
+		{
+		}
+
+		/// <summary>
+		/// Complete a forward reference with the completed parser
+		/// </summary>
+		public void Is(IParser parser)
+		{
+			if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
+			rec.Source = parser;
+		}
+	
+		/// <summary>
+		/// Complete a forward reference with the completed parser
+		/// </summary>
+		public void Is(BNF parser)
+		{
+			if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
+			rec.Source = parser.Parser();
+		}
 	}
 }

@@ -3,7 +3,10 @@ using Phantom.Results;
 namespace Phantom;
 
 /// <summary>
-/// Interface for a parser that can interpret the content of an <see cref="IScanner"/>
+/// Interface for a parser that can interpret the content of an <see cref="IScanner"/>,
+/// and can be combined with other parsers.
+/// <p/>
+/// Parsers should <b>NOT</b> hold internal parsing state. Include state in the scanner instead.
 /// </summary>
 public interface IParser
 {

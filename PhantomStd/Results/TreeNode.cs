@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace Phantom.Results;
 
 /// <summary>
-/// Hierarchy directly from a parser match
+/// Hierarchy derived from a <see cref="ParserMatch"/> tree.
+/// This can be manipulated and transformed, using visitor functions.
 /// </summary>
 public class TreeNode
 {

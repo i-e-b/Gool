@@ -1,27 +1,26 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using NUnit.Framework;
+using Phantom;
 using Phantom.Results;
-using Phantom.Scanners;
 using Samples;
 
 namespace TestsStd;
 
 [TestFixture]
-public class MathTests
+public class ArithmeticTests
 {
     [Test]
     [TestCase("6.5 + 3 * 2 - 5.5", 7)]
+    [TestCase("-6.5 + 3 * -2 - 5.5", -18)]
     [TestCase("(6.5 + 3) * (2 - 5.5)", -33.25)]
     [TestCase("2^(1+3)", 16)]
+    [TestCase("-2.71828182", -2.71828182)]
     public void scanning_expression(string expression, double expected)
     {
-        var parser = MathParser.TheParser();
-        var scanner = new ScanStrings(expression) { SkipWhitespace = true };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = ArithmeticExample.Parser.ParseString(expression, BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -54,7 +53,7 @@ public class MathTests
             return node.Children[0]; // pull child up
         }
 
-        if (node.Source.Tag != MathParser.Operation) return node; // no changes
+        if (node.Source.Tag != ArithmeticExample.Operation) return node; // no changes
         var operation = node.Source.Value;
 
         if (node.Children.Count != 2) throw new Exception($"Expected 2 operands, got {node.Children.Count}");
@@ -62,8 +61,8 @@ public class MathTests
         var left = node.Children[0].Source;
         var right = node.Children[1].Source;
         
-        if (left.Tag != MathParser.Value) return node; // no changes
-        if (right.Tag != MathParser.Value) return node; // no changes
+        if (left.Tag != ArithmeticExample.Value) return node; // no changes
+        if (right.Tag != ArithmeticExample.Value) return node; // no changes
 
         var a = double.Parse(left.Value);
         var b = double.Parse(right.Value);
@@ -98,7 +97,7 @@ public class MathTests
         
         // Return the new node
         var value = result.ToString(CultureInfo.InvariantCulture);
-        return TreeNode.FromParserMatch(new ParserMatch(value, MathParser.Value), false);
+        return TreeNode.FromParserMatch(new ParserMatch(value, ArithmeticExample.Value), false);
     }
 
 

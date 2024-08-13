@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
 using Phantom.Results;
-using Phantom.Scanners;
 using SkinnyJson;
 using JsonParser = Samples.JsonParser;
 
@@ -34,21 +33,33 @@ public class JsonTests
         """;
 
     [Test]
+    public void recursive_parsers_can_be_applied_multiple_times()
+    {
+        var phantomTime = new Stopwatch();
+        var result = JsonParser.Json.ParseString(valid_sample);
+        phantomTime.Start();
+        for (int i = 0; i < 99; i++)
+        {
+            result = JsonParser.Json.ParseString(valid_sample);
+        }
+        phantomTime.Stop();
+        Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds / 100} µs");
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
     public void json_parsing()
     {
         Console.WriteLine("\r\n=================================================================================");
-        var parser = new JsonParser().TheParser;
-        var scanner = new ScanStrings(valid_sample) { SkipWhitespace = false };
-
         var phantomTime = new Stopwatch();
         phantomTime.Start();
-        var result = parser.Parse(scanner);
+        var result = JsonParser.Json.ParseString(valid_sample);
         phantomTime.Stop();
         Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
         
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }

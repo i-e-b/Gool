@@ -1,10 +1,15 @@
+using System.Collections.Generic;
 using Phantom.Results;
 using Phantom.Scanners;
 
 namespace Phantom;
 
 /// <summary>
-/// Scanners provide an interface to the input stream to be parsed
+/// Scanners provide an interface to the input stream to be parsed,
+/// and holds state and context for the application of a parser tree
+/// to an input.
+/// <p/>
+/// A new scanner should be created for each application
 /// </summary>
 public interface IScanner: IScanningDiagnostics
 {
@@ -65,4 +70,20 @@ public interface IScanner: IScanningDiagnostics
 	/// Add a success path, for diagnostic use
 	/// </summary>
 	void AddPath(ParserMatch newMatch);
+
+	/// <summary>
+	/// Reset context and state in this scanner
+	/// </summary>
+	void Reset();
+
+	/// <summary>
+	/// Set a context object for a parser.
+	/// This will replace any existing context object.
+	/// </summary>
+	void SetContext(IParser parser, object? context);
+
+	/// <summary>
+	/// Get the context object for this parser, if one has been set.
+	/// </summary>
+	object? GetContext(IParser parser);
 }

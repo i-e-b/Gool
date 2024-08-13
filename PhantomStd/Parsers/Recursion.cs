@@ -18,11 +18,6 @@ public class Recursion : Parser, IMatchingParser
 	public IParser? Source { get; set; }
 
 	/// <summary>
-	/// Used to prevent endless recursion
-	/// </summary>
-	private readonly HashSet<long> _hits = new();
-
-	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
 	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
@@ -31,13 +26,26 @@ public class Recursion : Parser, IMatchingParser
 		if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
 		if (parser == this) throw new Exception("Unbounded recursion in parser");
 
+		// Recursion safety checks:
 		var key = ((long)(previousMatch?.SourceParser?.GetHashCode()??0) << 32) + (previousMatch?.Right ?? 0);
-		if (!_hits.Add(key)) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
+		var hits = GetContext(scan);
+
+		if (!hits.Add(key)) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
 
 		var result = parser.TryMatch(scan, previousMatch);
 		if (result.SameAs(previousMatch)) return scan.NoMatch(this, previousMatch); // recursion must progress
 
 		return result;
+	}
+
+	private HashSet<long> GetContext(IScanner scan)
+	{
+		if (scan.GetContext(this) is HashSet<long> hits) return hits;
+		
+		hits = new HashSet<long>();
+		scan.SetContext(this, hits);
+
+		return hits;
 	}
 
 	/// <summary>

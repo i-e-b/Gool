@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using NUnit.Framework;
+using Phantom;
 using Phantom.Results;
 using Phantom.Scanners;
 using Samples;
@@ -61,27 +62,20 @@ public class PascalLanguageTests
     [Test]
     public void BasicPascalProgramParsesOK()
     {
-        var parser = new PascalParser().TheParser;
-        var scanner = new ScanStrings(sample_program)
-        {
-            SkipWhitespace = true,
-            Transform = new TransformToLower()
-        };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = PascalExample.Parser.ParseString(sample_program, BNF.Options.SkipWhitespace | BNF.Options.IgnoreCase);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
 
-        var tree = ScopeNode.FromMatch(result);
-        tree.Specialise(PascalParser.Expression, PascalParser.PascalString, PascalParser.Identifier);
+        var scopeTree = ScopeNode.FromMatch(result);
+        scopeTree.Specialise(PascalExample.Expression, PascalExample.PascalString, PascalExample.Identifier);
 
         bool line = false;
-        PrintRecursive(tree, 0, ref line);
+        PrintRecursive(scopeTree, 0, ref line);
 
-        PrintFailures(scanner);
+        PrintFailures(result.Scanner);
 
         Assert.That(result.Success, Is.True, "Parsing failed");
         Assert.That(result.Value.ToLower(), Is.EqualTo(sample_program.ToLower()));
@@ -92,25 +86,18 @@ public class PascalLanguageTests
     [TestCase(missing_begin)]
     public void InvalidProgramFails(string program)
     {
-        var parser = new PascalParser().TheParser;
-        var scanner = new ScanStrings(missing_quote)
-        {
-            SkipWhitespace = true,
-            Transform = new TransformToLower()
-        };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = PascalExample.Parser.ParseString(program, BNF.Options.SkipWhitespace | BNF.Options.IgnoreCase);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         Assert.That(result.Success, Is.False);
 
-        PrintFailures(scanner);
+        PrintFailures(result.Scanner);
     }
 
-    private static void PrintFailures(ScanStrings scanner)
+    private static void PrintFailures(IScanner scanner)
     {
         foreach (var mismatch in scanner.ListFailures())
         {
@@ -132,7 +119,7 @@ public class PascalLanguageTests
             case ScopeNodeType.Data:
                 var tag = node.DataMatch?.Tag;
                 
-                if (tag == PascalParser.StatementEnd)
+                if (tag == PascalExample.StatementEnd)
                 {
                     if (line) Console.Write(I(indent));
                     Console.WriteLine($"{node.DataMatch?.Value}");
@@ -169,7 +156,7 @@ public class PascalLanguageTests
             line = true;
         }
     }
-
+    
     private static string I(int indent)
     {
         return new string(' ', indent * 4);

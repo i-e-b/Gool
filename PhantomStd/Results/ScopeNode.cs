@@ -7,6 +7,9 @@ namespace Phantom.Results;
 
 /// <summary>
 /// Hierarchy node for scoped-and-tagged parser matches.
+/// This is derived from a <see cref="ParserMatch"/> tree, but
+/// the structure comes from <see cref="IParser.Tag"/> and <see cref="IParser.Scope"/>
+/// rather that the structure of parsers.
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class ScopeNode
