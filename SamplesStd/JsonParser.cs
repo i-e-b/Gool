@@ -25,14 +25,14 @@ public static class JsonParser
 
         var _value = BNF.Forward();
 
-        BNF ws = @"#\s*";
+        BNF ws = BNF.Regex(@"\s*");
         BNF neg = '-';
-        BNF digit = "#[0-9]";
-        BNF exp = "#[eE]";
+        BNF digit = BNF.Regex("[0-9]");
+        BNF exp = BNF.Regex("[eE]");
         BNF sign = BNF.OneOf('+', '-');
 
         BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | "#u[0-9a-fA-F]{4}";
-        BNF character = "#[^\"\\\\]" | ('\\' > escape);
+        BNF character = BNF.Regex("""[^"\\]""") | ('\\' > escape);
         BNF characters = -character;
         BNF quoted_string = '"' > characters > '"';
 

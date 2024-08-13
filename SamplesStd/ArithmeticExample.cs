@@ -21,7 +21,7 @@ public static class ArithmeticExample
 
         var _expression = BNF.Forward();
 
-        BNF add_sub = BNF.OneOf('+', '-');
+        BNF add_sub = BNF.OneOf('+', '-'); // same as: (BNF)'+' | '-';
         BNF mul_div = BNF.OneOf('*', '/');
         BNF exp = '^';
 

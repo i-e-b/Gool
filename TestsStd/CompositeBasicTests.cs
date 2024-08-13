@@ -18,6 +18,7 @@ public class CompositeBasicTests
         BNF list = item % delimiter;
 
         item.Tag("item");
+        delimiter.Tag("comma");
 
         return list;
     }
@@ -51,7 +52,7 @@ public class CompositeBasicTests
         }
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", ",", "two", ",", "three", ",", "four" }).AsCollection);
     }
     
     [Test]
@@ -85,6 +86,39 @@ public class CompositeBasicTests
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one" }).AsCollection);
+    }
+    
+    [Test]
+    public void delimited_list_parser_excludes_trailing_separator()
+    {
+        const string correct_sample =
+            """
+            one, two, three,
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in result.Scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", ",", "two", ",", "three" }).AsCollection);
     }
 
     private static IParser DifferenceParserSample()

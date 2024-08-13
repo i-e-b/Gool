@@ -25,7 +25,7 @@ public static class PascalExample
     {
         BNF.RegexOptions = Options();
 
-        var _empty_ = BNF.Empty();
+        var _empty_ = BNF.Empty;
 
         // Forward references
         var _type = BNF.Forward();

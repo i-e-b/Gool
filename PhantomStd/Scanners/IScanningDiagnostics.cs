@@ -32,4 +32,9 @@ public interface IScanningDiagnostics {
 	/// Returns a sample string from after the scanner stops.
 	/// </summary>
 	string BadPatch(int length);
+	
+	/// <summary>
+	/// Mark this scanner as having been used
+	/// </summary>
+	void Complete();
 }

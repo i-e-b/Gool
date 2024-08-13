@@ -15,6 +15,7 @@ public class ScanStrings : IScanner
 	private readonly Dictionary<object, object?> _contexts = new();
 	private string? _rightMostMatch;
 	private int _rightMostPoint;
+	private bool _completed;
 
 	/// <summary>
 	/// Create a new scanner from an input string.
@@ -23,6 +24,7 @@ public class ScanStrings : IScanner
 	public ScanStrings(string input)
 	{
 		_rightMostPoint = 0;
+		_completed = false;
 		InputString = input;
 
 		if (string.IsNullOrEmpty(input))
@@ -54,13 +56,9 @@ public class ScanStrings : IScanner
 	}
 
 	/// <inheritdoc />
-	public void Reset()
+	public void Complete()
 	{
-		_failurePoints.Clear();
-		_matchPaths.Clear();
-		_contexts.Clear();
-		_rightMostMatch = null;
-		_rightMostPoint = 0;
+		_completed = true;
 	}
 
 	/// <inheritdoc />
@@ -141,6 +139,7 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public bool Read(ref int offset)
 	{
+		if (_completed) throw new Exception("This scanner has been completed");
 		if (EndOfInput(offset)) return false;
 
 		offset++;
@@ -151,12 +150,14 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public char Peek(int offset)
 	{
+		if (_completed) throw new Exception("This scanner has been completed");
 		if (EndOfInput(offset)) return (char)0;
 		return Transform.Transform(InputString[offset]);
 	}
 
 	/// <summary> Placeholder parser for whitespace skip results </summary>
 	private readonly Whitespace _ws = new();
+
 
 	/// <summary>
 	/// If skip whitespace is set and current position is whitespace,

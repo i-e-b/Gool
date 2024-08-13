@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Phantom.Parsers.Interfaces;
 using Phantom.Results;
 
@@ -17,7 +18,7 @@ public class RegularExpression : Parser, IMatchingParser
 	/// Create a regular expression parser with default options
 	/// </summary>
 	/// <param name="pattern">Regex pattern to match</param>
-	public RegularExpression(string pattern)
+	public RegularExpression([RegexPattern]string pattern)
 	{
 		_pattern = pattern;
 		_test = new Regex(pattern);
@@ -28,7 +29,7 @@ public class RegularExpression : Parser, IMatchingParser
 	/// </summary>
 	/// <param name="pattern">Regex pattern to match</param>
 	/// <param name="options">Options set to use</param>
-	public RegularExpression(string pattern, RegexOptions options)
+	public RegularExpression([RegexPattern]string pattern, RegexOptions options)
 	{
 		_pattern = pattern;
 		_test = new Regex(pattern, options);

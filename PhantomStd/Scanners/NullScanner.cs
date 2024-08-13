@@ -70,7 +70,7 @@ public class NullScanner : IScanner
     public void AddPath(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public void Reset() => throw new InvalidOperationException(ErrorMsg);
+    public void Complete() => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void SetContext(IParser parser, object? context) => throw new InvalidOperationException(ErrorMsg);

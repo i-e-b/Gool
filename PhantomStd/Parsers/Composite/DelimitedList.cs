@@ -22,6 +22,7 @@ public class DelimitedList : Binary
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var result = scan.NullMatch(this, previousMatch?.Right ?? 0); // failure until first match
+        var trailing = result;
         
         while (!scan.EndOfInput(result.Right))
         {
@@ -29,10 +30,11 @@ public class DelimitedList : Binary
 
             if (!item.Success)
             {
-                return result;
+                return trailing;
             }
 
             result = ParserMatch.Join(this, result, item);
+            trailing = result; // last non-separator match
             
             var separator = RightParser.Parse(scan, item);
 
@@ -44,7 +46,7 @@ public class DelimitedList : Binary
             result = ParserMatch.Join(this, result, separator);
         }
 
-        return result;
+        return trailing;
     }
 
     /// <inheritdoc />

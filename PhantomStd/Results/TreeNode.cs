@@ -32,6 +32,17 @@ public class TreeNode
         
         return PivotTree(tree);
     }
+    
+    /// <summary>
+    /// Build a tree node from a single string value
+    /// </summary>
+    public static TreeNode FromString(string match, string? tag = null)
+    {
+        return new TreeNode
+        {
+            Source = new ParserMatch(match, tag)
+        };
+    }
 
     /// <summary>
     /// Apply a transform operation to all nodes in this tree.

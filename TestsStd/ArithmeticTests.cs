@@ -13,6 +13,7 @@ public class ArithmeticTests
     [TestCase("6.5 + 3 * 2 - 5.5", 7)]
     [TestCase("-6.5 + 3 * -2 - 5.5", -18)]
     [TestCase("(6.5 + 3) * (2 - 5.5)", -33.25)]
+    [TestCase("(6.5 + 3) * (5.5 - -2)", 71.25)]
     [TestCase("2^(1+3)", 16)]
     [TestCase("-2.71828182", -2.71828182)]
     public void scanning_expression(string expression, double expected)
@@ -27,7 +28,7 @@ public class ArithmeticTests
         
         sw.Restart();
         // Get a tree from the matches
-        var tree = TreeNode.FromParserMatch(result, true);
+        var tree = TreeNode.FromParserMatch(result, prune: true);
         PrintRecursive(tree, 0);
         
         Console.WriteLine("\r\n=================================================================================");
@@ -44,59 +45,32 @@ public class ArithmeticTests
         Console.WriteLine($"Tree operations and evaluation took {sw.Elapsed.TotalMicroseconds} µs");
     }
 
-    private static TreeNode? ApplyOperation(TreeNode node)
+    private static TreeNode ApplyOperation(TreeNode node)
     {
-        if (node.Source.Tag is null) // might be a joining tag.
-        {
-            if (node.Children.Count != 1) return node; // no changes
-            return node.Children[0]; // pull child up
-        }
+        if (node.Source.Tag is null) return node.Children[0]; // pull child up through joining nodes
 
-        if (node.Source.Tag != ArithmeticExample.Operation) return node; // no changes
+        if (node.Source.Tag != ArithmeticExample.Operation) return node; // only look at operation nodes
         var operation = node.Source.Value;
 
-        if (node.Children.Count != 2) throw new Exception($"Expected 2 operands, got {node.Children.Count}");
-
+        if (node.Children.Count < 2) throw new Exception("Invalid expression");
         var left = node.Children[0].Source;
         var right = node.Children[1].Source;
-        
-        if (left.Tag != ArithmeticExample.Value) return node; // no changes
-        if (right.Tag != ArithmeticExample.Value) return node; // no changes
 
-        var a = double.Parse(left.Value);
-        var b = double.Parse(right.Value);
-        double result;
-        
-        // Both children are values, and we are an operation.
-        // Perform the operation
-        switch (operation)
+        if (!double.TryParse(left.Value, out var a) || !double.TryParse(right.Value, out var b)) return node; // one of our children is not a number
+
+        // Both children are values: perform the operation
+        var result = operation switch
         {
-            case "+":
-                result = a + b;
-                break;
-            
-            case "-":
-                result = a - b;
-                break;
-            
-            case "*":
-                result = a * b;
-                break;
-            
-            case "/":
-                result = a / b;
-                break;
-            
-            case "^":
-                result = Math.Pow(a, b);
-                break;
-            
-            default: throw new NotImplementedException($"Operation not implemented: '{operation}'");
-        }
-        
-        // Return the new node
-        var value = result.ToString(CultureInfo.InvariantCulture);
-        return TreeNode.FromParserMatch(new ParserMatch(value, ArithmeticExample.Value), false);
+            "+" => a + b,
+            "-" => a - b,
+            "*" => a * b,
+            "/" => a / b,
+            "^" => Math.Pow(a, b),
+            _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
+        };
+
+        // Return a new node with the calculated value
+        return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), ArithmeticExample.Value);
     }
 
 

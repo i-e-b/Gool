@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
 using Phantom.Parsers.Terminals;
@@ -30,7 +31,7 @@ namespace Phantom;
 /// 
 /// <dt><![CDATA[ a < b ]]></dt>
 /// <dd>Create a <b>terminated list</b> parser that matches a list of <c>a</c>, each being terminated by <c>b</c>
-/// The last item <c>a</c> may be terminated, but need not be.</dd>
+/// The last item <c>a</c> must be terminated </dd>
 /// 
 /// <dt><![CDATA[ a > b ]]></dt>
 /// <dd>Create a <b>sequence</b> parser that matches <c>a</c> then <c>b</c></dd>
@@ -91,10 +92,6 @@ public class BNF
 	/// </summary>
 	public static RegexOptions RegexOptions { get; set; }
 
-	/// <summary>
-	/// Match the end of input
-	/// </summary>
-	public static BNF EndOfInput => new(new EndOfInput());
 
 	/// <summary>
 	/// Access the <see cref="IParser"/> resulting from the BNF syntax.
@@ -115,7 +112,9 @@ public class BNF
 		if (options.HasFlag(Options.SkipWhitespace)) scanner.SkipWhitespace = true;
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
 
-		return _parserTree.Parse(scanner);
+		var result = _parserTree.Parse(scanner);
+		(scanner as IScanningDiagnostics).Complete();
+		return result;
 	}
 
 	/// <summary>
@@ -262,7 +261,7 @@ public class BNF
 	/// <summary>
 	/// Terminated list parser that matches a list of <i>left side</i>,
 	/// each being terminated by one of <i>right side</i>
-	/// The last item may be terminated, but this is not required.
+	/// The last item must be terminated.
 	/// </summary>
 	public static BNF operator <(BNF a, BNF b)
 	{
@@ -383,12 +382,35 @@ public class BNF
 	}
 
 	/// <summary>
+	/// Match a regular expression
+	/// </summary>
+	public static BNF Regex([RegexPattern]string pattern)
+	{
+		return new BNF(new RegularExpression(pattern, RegexOptions));
+	}
+	
+	/// <summary>
 	/// Match any single character from the given set
 	/// </summary>
 	public static BNF OneOf(params char[] characters)
 	{
 		return new BNF(new LiteralCharacterSet(characters));
 	}
+
+	/// <summary>
+	/// Match any one character
+	/// </summary>
+	public static BNF AnyChar => new(new AnyCharacter());
+	
+	/// <summary>
+	/// Match an empty string
+	/// </summary>
+	public static BNF Empty => new(new EmptyMatch());
+	
+	/// <summary>
+	/// Match the end of a line
+	/// </summary>
+	public static BNF LineEnd => new(new EndOfLine());
 
 	/// <summary>
 	/// Set the given tag on all items
@@ -400,6 +422,16 @@ public class BNF
 			item.Tag(tag);
 		}
 	}
+	
+	/// <summary>
+	/// Match the end of input
+	/// </summary>
+	public static BNF EndOfInput => new(new EndOfInput());
+	
+	/// <summary>
+	/// Match a single character of white-space
+	/// </summary>
+	public static BNF WhiteSpace => new(new Whitespace());
 
 	/// <summary>
 	/// Create a forward reference to populate later.
@@ -410,14 +442,6 @@ public class BNF
 		return new BnfForward(new Recursion());
 	}
 
-	/// <summary>
-	/// BNF for an empty match
-	/// </summary>
-	public static BNF Empty()
-	{
-		return new BNF(new EmptyMatch());
-	}
-	
 
 	/// <summary>
 	/// Options for parsing

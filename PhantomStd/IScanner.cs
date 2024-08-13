@@ -72,11 +72,6 @@ public interface IScanner: IScanningDiagnostics
 	void AddPath(ParserMatch newMatch);
 
 	/// <summary>
-	/// Reset context and state in this scanner
-	/// </summary>
-	void Reset();
-
-	/// <summary>
 	/// Set a context object for a parser.
 	/// This will replace any existing context object.
 	/// </summary>
