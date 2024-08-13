@@ -5,16 +5,16 @@ using Phantom.Results;
 namespace Phantom.Parsers.Terminals;
 
 /// <summary>
-/// Parser that matches a single character from a set
+/// Parser that matches a single character <b>NOT</b> in a set
 /// </summary>
-public class LiteralCharacterSet : Parser, IMatchingParser
+public class ExcludingCharacterSet : Parser, IMatchingParser
 {
     private readonly char[] _test;
 
     /// <summary>
-    /// Parser that matches a single character from a set
+    /// Parser that matches a single character <b>NOT</b> in a set
     /// </summary>
-    public LiteralCharacterSet(char[] c)
+    public ExcludingCharacterSet(char[] c)
     {
         _test = c;
     }
@@ -27,7 +27,7 @@ public class LiteralCharacterSet : Parser, IMatchingParser
 
         char c = scan.Peek(offset);
 
-        if (!_test.Contains(c)) return scan.NoMatch(this, previousMatch);
+        if (_test.Contains(c)) return scan.NoMatch(this, previousMatch);
 
         // if we arrive at this point, we have a match
         return scan.CreateMatch(this, offset, 1);
@@ -36,7 +36,7 @@ public class LiteralCharacterSet : Parser, IMatchingParser
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = "{'" + string.Join("','",_test.Select(c=>c.ToString())) + "'}";
+        var desc = "{NOT '" + string.Join("','",_test.Select(c=>c.ToString())) + "'}";
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";

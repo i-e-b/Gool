@@ -1,4 +1,5 @@
 using Phantom.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Parsers.Composite;
@@ -33,7 +34,7 @@ public class DelimitedList : Binary
                 return trailing;
             }
 
-            result = ParserMatch.Join(this, result, item);
+            result = ParserMatch.Join(new NullParser(), result, item);
             trailing = result; // last non-separator match
             
             var separator = RightParser.Parse(scan, item);
@@ -43,10 +44,10 @@ public class DelimitedList : Binary
                 return result;
             }
 
-            result = ParserMatch.Join(this, result, separator);
+            result = ParserMatch.Join(new NullParser(), result, separator);
         }
 
-        return trailing;
+        return trailing.Through(this);
     }
 
     /// <inheritdoc />

@@ -31,11 +31,13 @@ Console.WriteLine(final); // 71.25
 BNF Syntax
 ----------
 
-### Atomic parsers:
+### Terminal parsers:
 
-- `#…` → Create a *regex* parser that matches a string based on a regex pattern. The `#` prefix is not included in the pattern.
-- `'…'` → Create a *character* parser that matches a single literal character in the input
-- `"…"` → Create a *string* parser that matches a literal string in the input
+- `'…'` → *Character* parser that matches a single literal character in the input
+- `"…"` → *String* parser that matches a literal string in the input
+- `"#…"` or `BNF.Regex("…")` → *Regex* parser that matches a string based on a regex pattern. The `#` prefix is not included in the pattern.
+- `BNF.OneOf(…)` → Match a single character from the set provided
+- `BNF.NoneOf(…)` → Match any single characteristic that is **not** in the set provided
 - `BNF.AnyChar` → Parser that matches any single character.
 - `BNF.Empty` → Parser that matches an empty string (useful in unions)
 - `BNF.EndOfInput` → Parser that matches the end of input (parsers will normally accept partial matches)

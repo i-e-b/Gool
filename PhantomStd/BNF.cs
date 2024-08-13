@@ -398,6 +398,14 @@ public class BNF
 	}
 
 	/// <summary>
+	/// Match any single character as long as its <b>NOT</b> in the given set
+	/// </summary>
+	public static BNF NoneOf(params char[] characters)
+	{
+		return new BNF(new ExcludingCharacterSet(characters));
+	}
+
+	/// <summary>
 	/// Match any one character
 	/// </summary>
 	public static BNF AnyChar => new(new AnyCharacter());

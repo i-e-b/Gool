@@ -1,5 +1,6 @@
 using System;
 using Phantom.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Parsers.Composite;
@@ -53,7 +54,7 @@ public class Repetition : Unary
 			if (after.SameAs(result)) break; // repetition must progress
 
 			count++;
-			result = ParserMatch.Join(this, result, after);
+			result = ParserMatch.Join(new NullParser(), result, after);
 		}
 
 		if (count < LowerBound || count > UpperBound)

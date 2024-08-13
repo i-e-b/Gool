@@ -11,24 +11,25 @@ public class EndOfLine : Parser, IMatchingParser
 	/// <inheritdoc />
 	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		int offset = previousMatch?.Right ?? 0;
+		int start = previousMatch?.Right ?? 0;
+		int cursor = start;
 		int len = 0;
 
-		if (!scan.EndOfInput(offset) && scan.Peek(offset) == '\r') // CR
+		if (!scan.EndOfInput(cursor) && scan.Peek(cursor) == '\r') // CR
 		{
-			scan.Read(ref offset);
+			scan.Read(ref cursor);
 			len++;
 		}
 
-		if (!scan.EndOfInput(offset) && scan.Peek(offset) == '\n') // LF
+		if (!scan.EndOfInput(cursor) && scan.Peek(cursor) == '\n') // LF
 		{
-			scan.Read(ref offset);
+			scan.Read(ref cursor);
 			len++;
 		}
 
 		if (len > 0)
 		{
-			return scan.CreateMatch(this, offset, len);
+			return scan.CreateMatch(this, start, len);
 		}
 
 		return scan.NoMatch(this, previousMatch);

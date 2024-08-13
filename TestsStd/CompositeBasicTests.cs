@@ -266,7 +266,7 @@ public class CompositeBasicTests
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
     }
     
-    private static IParser RepetitionParserSample()
+    private static BNF.Package RepetitionParserSample()
     {
         BNF item = (BNF)"one" | "two" | "three" | "four";
 
@@ -274,7 +274,7 @@ public class CompositeBasicTests
 
         item.Tag("item");
 
-        return list.Parser();
+        return list.WithOptions(BNF.Options.SkipWhitespace);
     }
 
     [Test]
@@ -287,13 +287,12 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = RepetitionParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
 
         Console.WriteLine(parser.ToString());
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = parser.ParseString(correct_sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -304,7 +303,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }

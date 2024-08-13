@@ -1,4 +1,5 @@
 using Phantom.Parsers.Composite.Abstracts;
+using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Parsers.Composite;
@@ -43,11 +44,11 @@ public class TerminatedList : Binary
                 return result;
             }
 
-            result = ParserMatch.Join(this, result, item);
-            result = ParserMatch.Join(this, result, terminator);
+            result = ParserMatch.Join(new NullParser(), result, item);
+            result = ParserMatch.Join(new NullParser(), result, terminator);
         }
 
-        return result;
+        return result.Through(this);
     }
 
     /// <inheritdoc />
