@@ -27,7 +27,8 @@ public class JsonTests
           "meta": {
             "index": [1, 2.5 , 3.14e-10],
             "affirmative": true,
-            "declined": false
+            "declined": false,
+            "tricky-string": "Hello \\\"World\"\r\n"
           }
         }}
         """;
@@ -39,17 +40,11 @@ public class JsonTests
         var parser = new JsonParser().TheParser;
         var scanner = new ScanStrings(valid_sample) { SkipWhitespace = false };
 
-        var sw = new Stopwatch();
-        sw.Start();
+        var phantomTime = new Stopwatch();
+        phantomTime.Start();
         var result = parser.Parse(scanner);
-        sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
-        
-  
-        sw.Restart();
-        Json.Beautify(valid_sample); // this is doing less work, and has a more special purpose parser
-        sw.Stop();
-        Console.WriteLine($"Real serialiser took {sw.Elapsed.TotalMicroseconds} µs");
+        phantomTime.Stop();
+        Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds} µs");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
         
@@ -60,7 +55,9 @@ public class JsonTests
 
         Console.WriteLine("\r\n=================================================================================");
 
+        phantomTime.Start();
         var scopes = ScopeNode.FromMatch(result);
+        phantomTime.Stop();
 
         PrintRecursive(scopes, 0);
         
@@ -68,11 +65,21 @@ public class JsonTests
 
         // "Deserialise" the scope tree, test it against a proper JSON library.
         var dict = new Dictionary<string, object>();
+        phantomTime.Start();
         FillObject(scopes, dict);
+        phantomTime.Stop();
         Console.WriteLine(Json.Beautify(Json.Freeze(dict)));
 
         Console.WriteLine("\r\n=================================================================================");
 
+  
+        var sjTime = new Stopwatch();
+        sjTime.Start();
+        Json.Parse(valid_sample); // this has a more special purpose parser
+        sjTime.Stop();
+        Console.WriteLine($"Phantom deserialising took {phantomTime.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Real serialiser took {sjTime.Elapsed.TotalMicroseconds} µs");
+        
 
         Assert.That(result.Success, Is.True);
     }

@@ -21,10 +21,11 @@ public class MathParser
 
         BNF add_sub = BNF.OneOf('+', '-');
         BNF mul_div = BNF.OneOf('*', '/');
+        BNF exp = '^';
 
         BNF number = @"#[0-9]+(\.[0-9]+)?";
         BNF factor = number | ('(' > _expression > ')');
-        BNF power = factor > !('^' > factor);
+        BNF power = factor > !(exp > factor);
         BNF term = power % mul_div;
         BNF expression = term % add_sub;
 
@@ -32,6 +33,7 @@ public class MathParser
 
         add_sub.Tag(Operation).PivotScope();
         mul_div.Tag(Operation).PivotScope();
+        exp.Tag(Operation).PivotScope();
         number.Tag(Value);
 
         return expression.Parser();

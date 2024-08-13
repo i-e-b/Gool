@@ -13,6 +13,7 @@ public class MathTests
     [Test]
     [TestCase("6.5 + 3 * 2 - 5.5", 7)]
     [TestCase("(6.5 + 3) * (2 - 5.5)", -33.25)]
+    [TestCase("2^(1+3)", 16)]
     public void scanning_expression(string expression, double expected)
     {
         var parser = MathParser.TheParser();
@@ -42,7 +43,7 @@ public class MathTests
         var finalValue = double.Parse(final?.Source.Value ?? "NaN");
         Assert.That(finalValue, Is.EqualTo(expected));
         sw.Stop();
-        Console.WriteLine($"Evaluation took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Tree operations and evaluation took {sw.Elapsed.TotalMicroseconds} µs");
     }
 
     private static TreeNode? ApplyOperation(TreeNode node)
@@ -86,6 +87,10 @@ public class MathTests
             
             case "/":
                 result = a / b;
+                break;
+            
+            case "^":
+                result = Math.Pow(a, b);
                 break;
             
             default: throw new NotImplementedException($"Operation not implemented: '{operation}'");
