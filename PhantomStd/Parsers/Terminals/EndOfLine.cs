@@ -27,10 +27,7 @@ public class EndOfLine : Parser, IMatchingParser
 			len++;
 		}
 
-		if (len > 0)
-		{
-			return scan.CreateMatch(this, start, len);
-		}
+		if (len > 0) return scan.CreateMatch(this, start, len);
 
 		return scan.NoMatch(this, previousMatch);
 	}

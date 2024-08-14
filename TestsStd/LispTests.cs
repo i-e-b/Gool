@@ -14,7 +14,10 @@ public class LispTests
         """
 
         (loop for x in '(1 2 3)
-          do (print "value" x))
+          do (                  ; This is an example
+            print "value" x
+          )
+        )
 
         """;
     

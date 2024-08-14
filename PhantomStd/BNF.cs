@@ -105,7 +105,13 @@ public class BNF
 	/// <summary>
 	/// Parse an input string, returning a match tree.
 	/// </summary>
-	public ParserMatch ParseString(string input, Options options = Options.None)
+	/// <param name="input">String to parse</param>
+	/// <param name="offset">Optional: Offset into the input to start parsing</param>
+	/// <param name="options">Optional: Settings for parsing, which can significantly change result</param>
+	/// <param name="mustConsumeAll">
+	/// Optional, default = <c>false</c>.
+	/// If true, parsing will fail if it does not consume all of the input.</param>
+	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, bool mustConsumeAll = false)
 	{
 		var scanner = new ScanStrings(input);
 		
@@ -113,8 +119,11 @@ public class BNF
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
 		if (options.HasFlag(Options.IncludeSkippedElements)) scanner.IncludeSkippedElements = true;
 
-		var result = _parserTree.Parse(scanner);
+		var result = _parserTree.Parse(scanner, new ParserMatch(null, scanner, offset, -1));
 		(scanner as IScanningDiagnostics).Complete();
+
+		if (mustConsumeAll && result.Length < input.Length) return scanner.NoMatch(_parserTree, null);
+		
 		return result;
 	}
 
@@ -381,6 +390,17 @@ public class BNF
 	{
 		return Copy().Tag(name);
 	}
+	
+	
+	/// <summary>
+	/// Optional variant of the given pattern.
+	/// This is an alias for <c>!opt</c>,
+	/// which can be used where it is clearer.
+	/// </summary>
+	public static BNF Optional(BNF opt)
+	{
+		return new BNF(new Repetition(opt.Parser(), 0, 1));
+	}
 
 	/// <summary>
 	/// Match a regular expression
@@ -405,6 +425,27 @@ public class BNF
 	{
 		return new BNF(new ExcludingCharacterSet(characters));
 	}
+	
+	/// <summary>
+	/// Create a parser for a fixed width unsigned integer, within a given value range.
+	/// </summary>
+	/// <param name="min">Inclusive minimum value for result. Must be zero or greater</param>
+	/// <param name="max">Inclusive maximum value for result. Must be greater than lower</param>
+	/// <param name="width">Number of characters to read from input</param>
+	/// <param name="allowLeadingWhitespace">
+	/// Default = <c>false</c>. 
+	/// If <c>true</c> the input may have leading whitespace to fill the fixed width.
+	/// If <c>false</c> the input must have digits in all places.
+	/// </param>
+	/// <param name="useHex">
+	/// Default = <c>false</c>. 
+	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
+	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
+	/// </param>
+	public static BNF FixedDec(long min, long max, int width, bool allowLeadingWhitespace = false, bool useHex = false)
+	{
+		return new BNF(new FixedWidthIntegerRange(min, max, width, allowLeadingWhitespace, useHex));
+	}
 
 	/// <summary>
 	/// Match any one character
@@ -420,6 +461,11 @@ public class BNF
 	/// Match the end of a line
 	/// </summary>
 	public static BNF LineEnd => new(new EndOfLine());
+	
+	/// <summary>
+	/// Match anything except the end of a line
+	/// </summary>
+	public static BNF NotLineEnd => new(new LiteralCharacterSet('\r', '\n'));
 
 	/// <summary>
 	/// Set the given tag on all items
@@ -499,13 +545,27 @@ public class BNF
 			_bnf = bnf;
 			_options = options;
 		}
+
+		/// <summary>
+		/// Parse an input string, returning a match tree.
+		/// This will return successful matches that consume only part of the input.
+		/// </summary>
+		/// <param name="input">The string to parse</param>
+		/// <param name="offset">Optional. Position in the input to start parsing</param>
+		public ParserMatch ParseString(string input, int offset = 0)
+		{
+			return _bnf.ParseString(input, offset, _options, mustConsumeAll: false);
+		}
 		
 		/// <summary>
 		/// Parse an input string, returning a match tree.
+		/// This will return a failed match if it does not consume the entire input.
 		/// </summary>
-		public ParserMatch ParseString(string input)
+		/// <param name="input">The string to parse</param>
+		/// <param name="offset">Optional. Position in the input to start parsing</param>
+		public ParserMatch ParseEntireString(string input, int offset = 0)
 		{
-			return _bnf.ParseString(input, _options);
+			return _bnf.ParseString(input, offset, _options, mustConsumeAll: true);
 		}
 	}
 

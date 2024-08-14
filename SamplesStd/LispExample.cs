@@ -19,24 +19,22 @@ public static class LispExample
         BNF normal_list =  "("; // https://xkcd.com/297/
         BNF quoted_list = "'(";
         BNF end_list =     ")";
+        BNF comment = ';' > (-BNF.NotLineEnd);
         
         BNF list_item = identifier.Tagged(Atom) | name | quoted_string | number | dot;
         BNF start_list = normal_list | quoted_list;
 
-        quoted_list.Tag(Quote);
-        name.Tag(Name);
         dot.Tag(Atom);
-        quoted_string.Tag(String);
+        name.Tag(Name);
         number.Tag(Number);
-        normal_list.Tag(List);
-        end_list.Tag(End);
+        quoted_string.Tag(String);
 
-        normal_list.OpenScope();
-        quoted_list.OpenScope();
-        end_list.CloseScope();
+        normal_list.OpenScope().Tag(List);
+        quoted_list.OpenScope().Tag(Quote);
+        end_list.CloseScope().Tag(End);
 
         return BNF
-            .Recursive(tree => +(list_item | start_list | end_list | tree)) // https://xkcd.com/224/
+            .Recursive(tree => +(list_item | start_list | end_list | comment | tree)) // https://xkcd.com/224/
             .WithOptions(BNF.Options.SkipWhitespace);
     }
     

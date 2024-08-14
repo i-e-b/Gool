@@ -60,6 +60,7 @@ BNF Syntax
    - Example: `+"xy"` matches `xy` and `xyxy`, but not *empty*
 - `!`a → Create an *option* parser that matches zero or one **a**
    - Example: `!"xy"` matches `xy` and *empty*, but not `xyxy`
+   - Can also be expressed `BNF.Optional(`a`)`
 - a `&` b → Create an *intersection* parser that matches (**a** then **b**) or (**b** then **a**)
    - Example: `'x'&'y'` matches `xy` and `yx`, but not `xx` or `yy` 
 - a `^` b → Create an *exclusion* parser that matches **a** or **b** but not both

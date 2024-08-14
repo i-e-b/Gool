@@ -34,7 +34,7 @@ public class CompositeBasicTests
         Console.WriteLine("\r\n=================================================================================");
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -67,7 +67,7 @@ public class CompositeBasicTests
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -100,7 +100,7 @@ public class CompositeBasicTests
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 

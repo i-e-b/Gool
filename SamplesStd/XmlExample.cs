@@ -8,18 +8,7 @@ public static class XmlExample
 {
     public static readonly BNF.Package Parser = Xml();
 
-    private static RegexOptions Options()
-    {
-        return RegexOptions.ExplicitCapture
-               | RegexOptions.IgnoreCase
-               | RegexOptions.Multiline;
-    }
-
-    public const string Text = "text";
-    public const string OpenTag = "open";
-    public const string CloseTag = "close";
-    public const string TagId = "tagId";
-    public const string Attribute = "attribute";
+    private static RegexOptions Options() => RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline;
 
     private static BNF.Package Xml()
     {
@@ -38,8 +27,8 @@ public static class XmlExample
         BNF quoted_string = '"' > identifier > '"';
         BNF attribute = whitespace > identifier > '=' > quoted_string;
 
-        BNF tag_id = identifier.Copy().Tag(TagId);
-        BNF open_tag      = '<' > tag_id > -attribute > '>';
+        BNF tag_id = identifier.Tagged(TagId);
+        BNF open_tag = '<' > tag_id > -attribute > '>';
 
         BNF close_tag = "</" > tag_id > '>';
 
@@ -52,5 +41,11 @@ public static class XmlExample
             .Recursive(tree => -(open_tag > -(tree | text) > close_tag))
             .WithOptions(BNF.Options.None);
     }
+
+    public const string Text = "text";
+    public const string OpenTag = "open";
+    public const string CloseTag = "close";
+    public const string TagId = "tagId";
+    public const string Attribute = "attribute";
 
 }

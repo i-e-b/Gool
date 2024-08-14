@@ -18,11 +18,6 @@ public class LiteralString : Parser, IMatchingParser
         _test = toMatch;
     }
 
-    /// <summary>
-    /// Gets the literal string that this parser test for.
-    /// </summary>
-    public string MatchLiteral => _test;
-
     /// <inheritdoc />
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
