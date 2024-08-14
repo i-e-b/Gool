@@ -64,7 +64,7 @@ public static class DateTimeExamples
         BNF time_second      = BNF.FixedDec(min: 0, max: 60, width: 2); // 00-59, or 60 if leap-second
         BNF time_fraction    = decimal_point > digits; // .1234
         BNF time_offset_num  = plus_minus > time_hour > !(opt_colon > time_minute);
-        BNF time_zone        = zulu_marker > !time_offset_num;
+        BNF time_zone        = zulu_marker > (!time_offset_num).Tagged(TimeZone);
 
         BNF timeOpt_hour     = hyphen | (time_hour > opt_colon);
         BNF timeOpt_minute   = hyphen | (time_minute > opt_colon);
@@ -104,7 +104,6 @@ public static class DateTimeExamples
         
         
         // Tagging
-        time_zone.Tag(TimeZone);
         time_hour.Tag(Hour);
         time_minute.Tag(Minute);
         time_second.Tag(Second);
@@ -114,7 +113,7 @@ public static class DateTimeExamples
         date_m_day.Tag(DayOfMonth);
         date_w_day.Tag(DayOfWeek);
         date_y_day.Tag(DayOfYear);
-        p_mark.Tag(Period);
+        p_mark.Tag(PeriodMarker);
         
 
         return ISO8691.WithOptions(BNF.Options.None);
@@ -158,28 +157,28 @@ public static class DateTimeExamples
     }
 
     // Period tags
-    public const string Period = "Period";
+    public const string PeriodMarker = "PeriodMarker";
 
     // Date tags
-    public const string Year = "Year";
-    public const string Month = "Month";
-    public const string DayOfMonth = "DayOfMonth";
-    public const string DayOfWeek = "DayOfWeek";
-    public const string DayOfYear = "DayOfYear";
+    public const string Year           = "Year";
+    public const string Month          = "Month";
+    public const string DayOfMonth     = "DayOfMonth";
+    public const string DayOfWeek      = "DayOfWeek";
+    public const string DayOfYear      = "DayOfYear";
     
     // Time tags
-    public const string TimeZone = "TimeZone";
-    public const string Hour = "Hour";
-    public const string Minute = "Minute";
-    public const string Second = "Second";
+    public const string TimeZone       = "TimeZone";
+    public const string Hour           = "Hour";
+    public const string Minute         = "Minute";
+    public const string Second         = "Second";
     public const string SecondFraction = "SecondFraction";
     
     // Duration tags
     public const string Seconds = "Seconds";
     public const string Minutes = "Minutes";
-    public const string Hours = "Hours";
-    public const string Days = "Days";
-    public const string Weeks = "Weeks";
-    public const string Months = "Months";
-    public const string Years = "Years";
+    public const string Hours   = "Hours";
+    public const string Days    = "Days";
+    public const string Weeks   = "Weeks";
+    public const string Months  = "Months";
+    public const string Years   = "Years";
 }

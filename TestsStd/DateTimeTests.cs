@@ -12,7 +12,9 @@ public class DateTimeTests
     [Test]
     [TestCase("2024-08-14", true)]
     [TestCase("2007-04-05T14:30", true)]
-    [TestCase("2007-04-05t14:30", true)]
+    [TestCase("2007-04-05T14:30Z", true)]
+    [TestCase("2007-04-05T14:30Z+01:30", true)]
+    [TestCase("2007-04-05t14:30Z-05:00", true)]
     [TestCase("2007-04-05 14:30", true)]
     [TestCase("2007-04-05T14:30:15", true)]
     [TestCase("2007-04-05T14:30:15.654", true)]
@@ -46,6 +48,12 @@ public class DateTimeTests
         }
         
         Assert.That(result.Success, Is.EqualTo(shouldPass));
+
+        if (result.Success)
+        {
+            var dateRange = DateRange.From8601(result.TaggedTokensDepthFirst());
+            Console.WriteLine($"Interpreted as {dateRange}");
+        }
     }
 
     [Test]
@@ -87,4 +95,183 @@ public class DateTimeTests
         Console.WriteLine($"{name} took {sw.Elapsed.TotalMicroseconds} µs");
         return result;
     }
+}
+
+public class DateRange
+{
+    public DateTime Start { get; init; }
+    public TimeSpan Duration { get; init; }
+
+    public override string ToString()
+    {
+        return $"{Start:yyyy-MM-dd HH:mm:ss} + {Duration}";
+    }
+
+    #region Interpret parser output
+    public static DateRange From8601(IEnumerable<ParserMatch> tokenSource)
+    {
+        var tokens = tokenSource.ToList();
+        if (tokens.Count < 1) throw new Exception("Invalid date range (no tokens)");
+
+        var span = TimeSpan.Zero;
+        var start = DateTime.UtcNow;
+
+        // Read first part (might be complete if not a range)
+        var offset = 0;
+        if (IsDuration(tokens[offset]))
+        {
+            span = ReadDuration(ref offset, tokens);
+        }
+        else if (IsDate(tokens[offset]))
+        {
+            start = ReadDate(ref offset, tokens);
+        }
+        else
+        {
+            throw new Exception($"Invalid date range (unknown start '{tokens[offset].Tag}')");
+        }
+
+        if (offset == tokens.Count - 1) return new DateRange { Start = start, Duration = span};
+        
+        // check '/' for period
+        if (tokens[offset].Tag != DateTimeExamples.PeriodMarker) throw new Exception($"Invalid date range (unknown middle '{tokens[offset].Tag}')");
+        offset++;
+        
+        
+        if (IsDuration(tokens[offset]))
+        {
+            span = ReadDuration(ref offset, tokens);
+        }
+        else if (IsDate(tokens[offset]))
+        {
+            var end = ReadDate(ref offset, tokens);
+            if (span != TimeSpan.Zero) start = end.Subtract(span);
+            else span = end - start;
+        }
+        else
+        {
+            throw new Exception($"Invalid date range (unknown end '{tokens[offset].Tag}')");
+        }
+        
+        return new DateRange { Start = start, Duration = span};
+    }
+    
+    private static bool IsPeriodMarker(ParserMatch token) => token.Tag == DateTimeExamples.PeriodMarker;
+
+    private static bool IsDate(ParserMatch token)
+    {
+        if (token.Tag is null) return false;
+        if (IsDuration(token)) return false;
+        if (IsPeriodMarker(token)) return false;
+
+        return true;
+    }
+
+    private static bool IsDuration(ParserMatch token)
+    {
+        return token.Tag switch
+        {
+            DateTimeExamples.Seconds or DateTimeExamples.Minutes or DateTimeExamples.Hours 
+                or DateTimeExamples.Days or DateTimeExamples.Weeks or DateTimeExamples.Months
+                or DateTimeExamples.Years 
+                => true,
+            
+            _ => false
+        };
+    }
+
+    private static DateTime ReadDate(ref int offset, List<ParserMatch> tokens)
+    {
+        var now = DateTime.UtcNow;
+        var year = now.Year;
+        var month = now.Month;
+        var day = now.Day;
+        var hour = now.Hour;
+        var minute = now.Minute;
+        var second = now.Second;
+        var millisecond = 0;
+        var kind = DateTimeKind.Utc;
+
+        for (int i = offset; i < tokens.Count; i++)
+        {
+            var token = tokens[i];
+            offset = i;
+            if (IsPeriodMarker(token)) break;
+
+            switch (token.Tag)
+            {
+                case DateTimeExamples.Year:
+                    year = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.Month:
+                    month = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.DayOfMonth:
+                    day = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.Hour:
+                    hour = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.Minute:
+                    minute = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.Second:
+                    second = int.Parse(token.Value);
+                    break;
+                case DateTimeExamples.SecondFraction:
+                    millisecond = (int)(double.Parse("0" + token.Value) * 1000.0);
+                    break;
+                case DateTimeExamples.TimeZone:
+                    kind = DateTimeKind.Local; // mostly ignored
+                    break;
+
+                default:
+                    Console.WriteLine($"{token.Tag} not interpreted");
+                    break;
+            }
+        }
+
+        return new DateTime(year, month, day, hour, minute, second, millisecond, kind);
+    }
+
+    private static TimeSpan ReadDuration(ref int offset, List<ParserMatch> tokens)
+    {
+        var span = TimeSpan.Zero;
+
+        for (int i = offset; i < tokens.Count; i++)
+        {
+            var token = tokens[i];
+            offset = i;
+            if (IsPeriodMarker(token)) break;
+
+            switch (token.Tag)
+            {
+                case DateTimeExamples.Years:
+                    span = span.Add(TimeSpan.FromDays(365.2421 * int.Parse(token.Value)));
+                    break;
+                case DateTimeExamples.Months:
+                    span = span.Add(TimeSpan.FromDays(30.4368 * int.Parse(token.Value)));
+                    break;
+                case DateTimeExamples.Days:
+                    span = span.Add(TimeSpan.FromDays(int.Parse(token.Value)));
+                    break;
+                case DateTimeExamples.Hours:
+                    span = span.Add(TimeSpan.FromHours(int.Parse(token.Value)));
+                    break;
+                case DateTimeExamples.Minutes:
+                    span = span.Add(TimeSpan.FromMinutes(int.Parse(token.Value)));
+                    break;
+                case DateTimeExamples.Seconds:
+                    span = span.Add(TimeSpan.FromSeconds(int.Parse(token.Value)));
+                    break;
+                
+                default:
+                    Console.WriteLine($"{token.Tag} not interpreted");
+                    break;
+            }
+        }
+
+        return span;
+    }
+    #endregion Interpret parser output
 }
