@@ -20,9 +20,9 @@ public static class XmlExample
          * parsing of a recursive data structure
          */
 
-        BNF text = "#[^<>]+";
-        BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
-        BNF whitespace = @"#\s+";
+        BNF text       = BNF.Regex("[^<>]+");
+        BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
+        BNF whitespace = BNF.Regex(@"\s+");
 
         BNF quoted_string = '"' > identifier > '"';
         BNF attribute = whitespace > identifier > '=' > quoted_string;

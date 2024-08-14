@@ -37,9 +37,9 @@ public static class PascalExample
         var _factor = BNF.Forward();
 
         // Basic literals
-        BNF unsignedInteger = @"#\d+";
-        BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
-        BNF pascalString = "#'([^']|'')*'"; // Pascal uses two single-quotes to mark a single quote.
+        BNF unsignedInteger = BNF.Regex(@"\d+");
+        BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
+        BNF pascalString = BNF.Regex("'([^']|'')*'"); // Pascal uses two single-quotes to mark a single quote.
         BNF plusOrMinus = BNF.OneOf('-', '+');
 
         // Keywords

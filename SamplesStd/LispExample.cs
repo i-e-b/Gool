@@ -10,18 +10,18 @@ public static class LispExample
     {
         // This isn't any particular lisp dialect
         
-        BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
-        BNF number = BNF.Regex(@"\-?[0-9][_0-9]*(\.[_0-9]+)?");
+        BNF identifier    = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
+        BNF number        = BNF.Regex(@"\-?[0-9][_0-9]*(\.[_0-9]+)?");
         BNF quoted_string = BNF.Regex("\"([^'\"]|\\\")*");
         
-        BNF dot = '.';
-        BNF name = ':' > identifier;
+        BNF dot         = '.';
+        BNF name        = ':' > identifier;
         BNF normal_list =  "("; // https://xkcd.com/297/
         BNF quoted_list = "'(";
-        BNF end_list =     ")";
-        BNF comment = ';' > (-BNF.NotLineEnd);
+        BNF end_list    =  ")";
+        BNF comment     = ';' > (-BNF.NotLineEnd);
         
-        BNF list_item = identifier.Tagged(Atom) | name | quoted_string | number | dot;
+        BNF list_item  = identifier.Tagged(Atom) | name | quoted_string | number | dot;
         BNF start_list = normal_list | quoted_list;
 
         dot.Tag(Atom);

@@ -23,12 +23,12 @@ public static class ArithmeticExample
 
         BNF add_sub = BNF.OneOf('+', '-'); // same as: (BNF)'+' | '-';
         BNF mul_div = BNF.OneOf('*', '/');
-        BNF exp = '^';
+        BNF exp     = '^';
 
-        BNF number = BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"); // signed numbers
-        BNF factor = number | ('(' > _expression > ')');
-        BNF power = factor > !(exp > factor);
-        BNF term = power % mul_div;
+        BNF number     = BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"); // signed numbers
+        BNF factor     = number | ('(' > _expression > ')');
+        BNF power      = factor > !(exp > factor);
+        BNF term       = power % mul_div;
         BNF expression = term % add_sub;
 
         _expression.Is(expression);

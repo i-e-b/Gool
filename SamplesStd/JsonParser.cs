@@ -31,7 +31,7 @@ public static class JsonParser
         BNF exp = BNF.Regex("[eE]");
         BNF sign = BNF.OneOf('+', '-');
 
-        BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | "#u[0-9a-fA-F]{4}";
+        BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
         BNF character = BNF.Regex("""[^"\\]""") | ('\\' > escape);
         BNF characters = -character;
         BNF quoted_string = '"' > characters > '"';
