@@ -7,8 +7,6 @@ using Phantom.Scanners;
 
 namespace TestsStd;
 
-// TODO: test for using the same parser on multiple threads;
-
 [TestFixture]
 public class CompositeBasicTests
 {

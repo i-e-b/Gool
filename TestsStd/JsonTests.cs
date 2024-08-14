@@ -47,6 +47,36 @@ public class JsonTests
         Assert.That(result.Success, Is.True);
     }
 
+
+    [Test]
+    public void recursive_parsers_can_be_run_concurrently()
+    {
+        var parser = JsonParser.Json;
+
+        var t1 = new Thread(() =>
+        {
+            for (int i = 0; i < 99; i++)
+            {
+                var result = parser.ParseString(valid_sample);
+                Assert.That(result.Success, Is.True);
+            }
+        });
+        
+        var t2 = new Thread(() =>
+        {
+            for (int i = 0; i < 99; i++)
+            {
+                var result = parser.ParseString(valid_sample);
+                Assert.That(result.Success, Is.True);
+            }
+        });
+
+        t1.Start();
+        t2.Start();
+        t1.Join();
+        t2.Join();
+    }
+
     [Test]
     public void json_parsing()
     {

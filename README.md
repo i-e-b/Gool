@@ -7,15 +7,13 @@ Basic example
 -------------
 
 ```csharp
-BNF add_sub = BNF.OneOf('+', '-');
-BNF mul_div = BNF.OneOf('*', '/');
-BNF exp = '^';
+// Basic infix arithmetic expressions
+BNF number = BNF.Regex("\-?[0-9]+(\.[0-9]+)?");      // Signed numbers
 
-BNF number = @"#\-?[0-9]+(\.[0-9]+)?"; // signed numbers
-BNF factor = number | ('(' > _expression > ')');
-BNF power = factor > !(exp > factor);
-BNF term = power % mul_div;
-BNF expression = term % add_sub;
+BNF factor     = number | ('(' > _expression > ')'); // Number or parenthesised expression
+BNF power      = factor > !('^' > factor);           // Factor, with optional '^' + exponent
+BNF term       = power % ('*' | '/');                // Powers, optionally joined with '*' or '/'
+BNF expression = term % ('+' | '-');                 // Terms, optionally joined will '+' or '-'
 ```
 
 ```csharp
@@ -28,6 +26,8 @@ var final = TreeNode.TransformTree(tree, ApplyOperation);
 Console.WriteLine(final); // 71.25
 ```
 
+(see bottom of document for full implementation)
+
 BNF Syntax
 ----------
 
@@ -37,7 +37,7 @@ BNF Syntax
 - `"…"` → *String* parser that matches a literal string in the input
 - `"#…"` or `BNF.Regex("…")` → *Regex* parser that matches a string based on a regex pattern. The `#` prefix is not included in the pattern.
 - `BNF.OneOf(…)` → Match a single character from the set provided
-- `BNF.NoneOf(…)` → Match any single characteristic that is **not** in the set provided
+- `BNF.NoneOf(…)` → Match any single character that is **not** in the set provided
 - `BNF.AnyChar` → Parser that matches any single character.
 - `BNF.Empty` → Parser that matches an empty string (useful in unions)
 - `BNF.EndOfInput` → Parser that matches the end of input (parsers will normally accept partial matches)
@@ -46,20 +46,20 @@ BNF Syntax
 
 ### Combining parsers:
 
--  a `<` b → Create a *terminated list* parser that matches a list of **a**, each being terminated by **b**. The last item **a** must be terminated.
+- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if both **a** and **b** match.
+    - Example: `"on" | "one"` matches `on` and `one`. `+( "on" | "one" )` will match `oneone` as {`one`, `one`}
+- a `>` b → Create a *sequence* parser that matches **a** then **b**
+    - Example: `'x' > 'y'` matches `xy` but not `x` or `y`
+- a `<` b → Create a *terminated list* parser that matches a list of **a**, each being terminated by **b**. The last item **a** must be terminated.
    - Example: `'x' < ';'` matches `x;x;x;` and `x;`, but not `x` or `x;x`
--  a `>` b → Create a *sequence* parser that matches **a** then **b**
-   - Example: `'x' > 'y'` matches `xy` but not `x` or `y`
+- a `%` b → Create a *delimited list* parser that matches a list of **a**, delimited by **b**. A trailing delimiter is not matched.
+    - Example: `'x'%','` matches `x` and `x,x`, but not `x,x,`
 - `-`a → Create an *optional repeat* parser that matches zero or more **a**
    - Example: `-"xy"` matches `xyxy`, `xy`, and *empty*
 - `+`a → Create a *repeat* parser that matches one or more **a**
    - Example: `+"xy"` matches `xy` and `xyxy`, but not *empty*
 - `!`a → Create an *option* parser that matches zero or one **a**
    - Example: `!"xy"` matches `xy` and *empty*, but not `xyxy`
-- a `%` b → Create a *delimited list* parser that matches a list of **a**, delimited by **b**. A trailing delimiter is not matched.
-   - Example: `'x'%','` matches `x` and `x,x`, but not `x,x,`
-- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if both **a** and **b** match.
-   - Example: `"on" | "one"` matches `on` and `one`. `+( "on" | "one" )` will match `oneone` as {`one`, `one`}
 - a `&` b → Create an *intersection* parser that matches (**a** then **b**) or (**b** then **a**)
    - Example: `'x'&'y'` matches `xy` and `yx`, but not `xx` or `yy` 
 - a `^` b → Create an *exclusion* parser that matches **a** or **b** but not both
@@ -159,27 +159,31 @@ public double EvaluateExpression(string expression)
 
 public static BNF.Package Arithmetic()
 {
-    var _expression = BNF.Forward();                  // Forward reference, to allow circular/recursive matching
+    var _expression = BNF.Forward();      // Forward reference, to allow circular/recursive matching
 
-    BNF add_sub = (BNF)'+' | '-';                     // You will need to cast one of a set of strings or characters to `BNF`
-    BNF mul_div = BNF.OneOf('*', '/');                // Helper, equivalent to: `(BNF)'+' | '-'`
-    BNF exp = '^';                                    // Individual strings or characters cast correctly if the left side type is given
+    BNF add_sub = (BNF)'+' | '-';         // You may need to cast one of a set to `BNF`
+    BNF mul_div = BNF.OneOf('*', '/');    // Helper, equivalent to: `(BNF)'*' | '/'`
+    BNF exp = '^';                        // Individual strings or characters are auto cast if possible
 
-    BNF number = @"#\-?[0-9]+(\.[0-9]+)?";            // Regex for a signed number. Regexes bind as a single terminal match
-    BNF factor = number | ('(' > _expression > ')');  // Note the reference to `_expression` forward ref, before `expression` is defined
-    BNF power = factor > !(exp > factor);             // `factor`, then optional '^' + `factor`
-    BNF term = power % mul_div;                       // delimited list, to handle patterns like "1 * 2 / 3 * 4"
-    BNF expression = term % add_sub;                  //    ...again to handle "1 + 2 - 3 + 4"
+    BNF number = @"#\-?[0-9]+(\.[0-9]+)?";// Regex for a signed number. Regexes bind as a single terminal
+    BNF factor =
+          number 
+        | ('(' > _expression > ')');      // Note the reference to `_expression` forward ref
+    BNF power = factor > !(exp > factor); // `factor`, then optional '^' + `factor`
+    BNF term = power % mul_div;           // delimited list, to handle patterns like "1 * 2 / 3 * 4"
+    BNF expression = term % add_sub;      //    ...again to handle "1 + 2 - 3 + 4"
 
-    _expression.Is(expression);                       // Complete the forward reference
+    _expression.Is(expression);           // Complete the forward reference
 
-    add_sub.Tag(Operation).PivotScope();              // Tag '+' and '-' as operations, and mark them as pivoting
-    mul_div.Tag(Operation).PivotScope();              //    ... same for '*' and '/'
-    exp.Tag(Operation).PivotScope();                  //    ... and '^'
-    number.Tag(Value);                                // Tag numbers separately from operations
+    add_sub.Tag(Operation).PivotScope();  // Tag '+' and '-' as operations, and mark them as pivoting
+    mul_div.Tag(Operation).PivotScope();  //    ... same for '*' and '/'
+    exp.Tag(Operation).PivotScope();      //    ... and '^'
+    number.Tag(Value);                    // Tag numbers separately from operations
 
     return expression
-        .WithOptions(BNF.Options.SkipWhitespace);     // Package this BNF with the intended scanner settings
+        .WithOptions(                     // Package this BNF with the intended scanner settings
+            BNF.Options.SkipWhitespace
+        );
 }
 
 public const string Operation = "operation";
