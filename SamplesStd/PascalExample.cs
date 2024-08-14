@@ -40,7 +40,7 @@ public static class PascalExample
         BNF unsignedInteger = @"#\d+";
         BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
         BNF pascalString = "#'([^']|'')*'"; // Pascal uses two single-quotes to mark a single quote.
-        BNF plusOrMinus = BNF.OneOf('-', '+');//"#[\\-+]");
+        BNF plusOrMinus = BNF.OneOf('-', '+');
 
         // Keywords
         BNF k_program = "program";

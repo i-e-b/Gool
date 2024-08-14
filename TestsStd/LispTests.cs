@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
-using Phantom;
 using Phantom.Results;
-using Phantom.Scanners;
+using Samples;
 
 // ReSharper disable InconsistentNaming
 
@@ -40,34 +39,6 @@ public class LispTests
 
         """;
 
-    private IParser MakeParser()
-    {
-        BNF identifier = "#[_a-zA-Z][_a-zA-Z0-9]*";
-        BNF number = "#[0-9][_a-zA-Z0-9]*";
-
-        BNF atom = ':' > identifier;
-        BNF quoted_string = '"' > identifier > '"'; // this is wrong, but good enough for this test
-        BNF normal_list = '(';
-        BNF quoted_list = "'(";
-        BNF end_list = ')';
-        
-        BNF list_item = identifier.Tagged("Name") | atom | quoted_string | number;
-        BNF start_list = normal_list | quoted_list;
-
-        quoted_list.Tag("Quote");
-        atom.Tag("Atom");
-        quoted_string.Tag("String");
-        number.Tag("Number");
-        normal_list.Tag("List");
-        end_list.Tag("End");
-
-        normal_list.OpenScope();
-        quoted_list.OpenScope();
-        end_list.CloseScope();
-
-        return BNF.Recursive(tree => +(list_item | start_list | end_list | tree)).Parser();
-    }
-
     [Test]
     public void parse_s_expression()
     {
@@ -75,10 +46,7 @@ public class LispTests
         
         Console.WriteLine("=================================================================================");
 
-        var parser = MakeParser();
-        var scanner = new ScanStrings(SimpleSample) { SkipWhitespace = true };
-
-        var result = parser.Parse(scanner);
+        var result = LispExample.Parser.ParseString(SimpleSample);
 
         foreach (var match in result.BottomLevelMatchesDepthFirst())
         {
@@ -88,7 +56,7 @@ public class LispTests
 
         Console.WriteLine("\r\n=================================================================================");
         
-        foreach (var fail in scanner.ListFailures())
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
         }
@@ -103,33 +71,33 @@ public class LispTests
         {
             switch (token.Tag)
             {
-                case "Atom":
-                    Console.WriteLine(I(indent) + "Atom " + token.Value);
+                case LispExample.Atom:
+                    Console.WriteLine(I(indent) + token.Tag + " " + token.Value);
                     break;
                 
-                case "String":
-                    Console.WriteLine(I(indent) + "String " + token.Value);
+                case LispExample.String:
+                    Console.WriteLine(I(indent) + token.Tag + " " + token.Value);
                     break;
                 
-                case "Number":
-                    Console.WriteLine(I(indent) + "Number " + token.Value);
+                case LispExample.Number:
+                    Console.WriteLine(I(indent) + token.Tag + " " + token.Value);
                     break;
 
-                case "Name":
+                case LispExample.Name:
                     Console.WriteLine(I(indent) + token.Value);
                     break;
 
-                case "Quote":
+                case LispExample.Quote:
                     Console.WriteLine(I(indent) + "'(");
                     indent++;
                     break;
 
-                case "List":
+                case LispExample.List:
                     Console.WriteLine(I(indent) + "(");
                     indent++;
                     break;
 
-                case "End":
+                case LispExample.End:
                     indent--;
                     Console.WriteLine(I(indent) + ")");
                     break;
@@ -140,12 +108,9 @@ public class LispTests
     [Test]
     public void decompose_s_expression_to_tree()
     {
-        var parser = MakeParser();
-        var scanner = new ScanStrings(SimpleSample) { SkipWhitespace = true };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = LispExample.Parser.ParseString(SimpleSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -159,12 +124,9 @@ public class LispTests
     [Test]
     public void scanning_tree_form()
     {
-        var parser = MakeParser();
-        var scanner = new ScanStrings(DeepSample) { SkipWhitespace = true };
-
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.Parse(scanner);
+        var result = LispExample.Parser.ParseString(DeepSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -199,10 +161,10 @@ public class LispTests
             case ScopeNodeType.ScopeChange:
                 switch (node.OpeningMatch?.Tag)
                 {
-                    case "Quote":
+                    case LispExample.Quote:
                         Console.WriteLine(I(indent) + "Quoted list:");
                         break;
-                    case "List":
+                    case LispExample.List:
                         Console.WriteLine(I(indent) + "Expression list:");
                         break;
                     default:
