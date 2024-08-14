@@ -14,7 +14,7 @@ public class ExcludingCharacterSet : Parser, IMatchingParser
     /// <summary>
     /// Parser that matches a single character <b>NOT</b> in a set
     /// </summary>
-    public ExcludingCharacterSet(char[] c)
+    public ExcludingCharacterSet(params char[] c)
     {
         _test = c;
     }

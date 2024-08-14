@@ -44,10 +44,25 @@ public class RegularExpression : Parser, IMatchingParser
 	{
 		var offset = previousMatch?.Right ?? 0;
 
-		var remains = scan.RemainingData(offset);
-		var result = _test.Match(remains);
+		Match result;
+		int expectedIndex;
+		if (offset > 0) // make sure that the `^pattern` works as expected
+		{
+			expectedIndex = 1;
+			var remains = scan.RemainingData(offset-1);
+			result = _test.Match(remains, 1);
+		}
+		else
+		{
+			expectedIndex = 0;
+			var remains = scan.RemainingData(offset);
+			result = _test.Match(remains);
+		}
 
-		return result is { Success: true, Index: 0 } ? scan.CreateMatch(this, offset, result.Length) : scan.NoMatch(this, previousMatch);
+		if (result.Success != true) return scan.NoMatch(this, previousMatch);
+		if (result.Index != expectedIndex) return scan.NoMatch(this, previousMatch); // so we don't jump far into the input
+
+		return scan.CreateMatch(this, offset, result.Length);
 	}
 
 	/// <inheritdoc />

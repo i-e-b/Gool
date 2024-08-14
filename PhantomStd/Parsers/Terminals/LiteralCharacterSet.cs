@@ -14,7 +14,7 @@ public class LiteralCharacterSet : Parser, IMatchingParser
     /// <summary>
     /// Parser that matches a single character from a set
     /// </summary>
-    public LiteralCharacterSet(char[] c)
+    public LiteralCharacterSet(params char[] c)
     {
         _test = c;
     }

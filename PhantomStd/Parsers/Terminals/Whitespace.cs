@@ -19,10 +19,9 @@ public class Whitespace : Parser, IMatchingParser
         var offset = previousMatch?.Right ?? 0;
         if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
-        if (char.IsWhiteSpace(scan.Peek(offset))) return scan.NoMatch(this, previousMatch);
-
-        // if we arrive at this point, we have a match
-        return scan.CreateMatch(this, offset, 1);
+        return char.IsWhiteSpace(scan.Peek(offset))
+            ? scan.CreateMatch(this, offset, 1)
+            : scan.NoMatch(this, previousMatch);
     }
 
     /// <inheritdoc />

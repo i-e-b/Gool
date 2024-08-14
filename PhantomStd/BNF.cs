@@ -208,7 +208,7 @@ public class BNF
 	/// </remarks>
 	public static implicit operator BNF(char c)
 	{
-		return new BNF(new LiteralCharacter(c));
+		return new BNF(new LiteralCharacterSet(c));
 	}
 
 	/// <summary>
