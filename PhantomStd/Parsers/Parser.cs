@@ -1,5 +1,6 @@
 using System;
 using Phantom.Parsers.Interfaces;
+using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Parsers;
@@ -42,6 +43,8 @@ public abstract class Parser : IParser
         {
             scan.AddPath(newMatch);
             scan.ClearFailures();
+
+            if (scan.IncludeSkippedElements) return ParserMatch.Join(new NullParser(), start, newMatch);
             return newMatch;
         }
 

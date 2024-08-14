@@ -41,6 +41,12 @@ public class ScanStrings : IScanner
 	public bool SkipWhitespace { get; set; }
 
 	/// <summary>
+	/// If <c>true</c>, auto-advanced elements (like white-space skips)
+	/// will be added to the result tree.
+	/// </summary>
+	public bool IncludeSkippedElements { get; set; }
+
+	/// <summary>
 	/// Get the original input string
 	/// </summary>
 	public string InputString { get; }

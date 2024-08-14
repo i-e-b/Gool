@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using NUnit.Framework;
 using Phantom;
 using Phantom.Results;
@@ -81,6 +82,51 @@ public class PascalLanguageTests
     }
 
     [Test]
+    public void SyntaxColoringPascalProgram()
+    {
+        var result = PascalExample.Parser.ParseString(sample_program);
+        var output = new StringBuilder();
+
+
+        output.Append(
+            """
+            <!DOCTYPE html>
+            <html><head><title>Demo</title><style>
+                .identifier { color: #007; }
+                .string { color: #A00; }
+                .expression { color: #000; }
+                .statement { color: #000; }
+                .constant { color: #0AA; }
+                .keyword { color: #A0A; }
+                .operator { color: #00F; }
+                .inequality { color: #0F0; }
+                .openParen { color: #F00; }
+                .closeParen { color: #F0A; }
+                .openBracket { color: #A0F; }
+                .closeBracket { color: #AF0; }
+            </style></head>
+            <body><pre>
+            """);
+
+        foreach (var node in result.BottomLevelMatchesDepthFirst())
+        {
+            var safeText = node.Value.Replace("<", "&lt;").Replace(">", "&gt;");
+            if (node.Tag is not null)
+            {
+                output.Append($"<span class=\"{node.Tag}\">{safeText}</span>");
+            }
+            else
+            {
+                output.Append(safeText);
+            }
+
+        }
+
+        output.Append("</pre></body></html>");
+        Console.WriteLine(output.ToString());
+    }
+
+    [Test]
     [TestCase(missing_quote)]
     [TestCase(missing_begin)]
     public void InvalidProgramFails(string program)
@@ -104,7 +150,6 @@ public class PascalLanguageTests
             Console.WriteLine(mismatch);
         }
     }
-
 
     private static void PrintRecursive(ScopeNode node, int indent, ref bool line)
     {

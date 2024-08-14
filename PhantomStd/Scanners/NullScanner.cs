@@ -37,6 +37,13 @@ public class NullScanner : IScanner
     }
 
     /// <inheritdoc />
+    public bool IncludeSkippedElements
+    {
+        get => throw new InvalidOperationException(ErrorMsg);
+        set => throw new InvalidOperationException(ErrorMsg);
+    }
+
+    /// <inheritdoc />
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />

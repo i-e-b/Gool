@@ -205,7 +205,7 @@ public static class PascalExample
         s_open_bracket.Tag(OpenBracket).OpenScope();
         s_close_bracket.Tag(CloseBracket).CloseScope();
 
-        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace);
+        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace | BNF.Options.IncludeSkippedElements);
     }
 
     // ReSharper disable MemberCanBePrivate.Global
@@ -216,10 +216,10 @@ public static class PascalExample
     public const string Keyword = "keyword";
     public const string Operator = "operator";
     public const string Inequality = "inequality";
-    public const string OpenParen = "(";
-    public const string CloseParen = ")";
-    public const string OpenBracket = "[";
-    public const string CloseBracket = "]";
-    public const string StatementEnd = ";";
+    public const string OpenParen = "openParen";
+    public const string CloseParen = "closeParen";
+    public const string OpenBracket = "openBracket";
+    public const string CloseBracket = "closeBracket";
+    public const string StatementEnd = "statement";
     // ReSharper restore MemberCanBePrivate.Global
 }

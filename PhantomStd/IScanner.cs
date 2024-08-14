@@ -18,6 +18,11 @@ public interface IScanner: IScanningDiagnostics
 
 	/// <summary>Get or set the current input transform.</summary>
 	ITransform Transform { get; set; }
+	
+	/// <summary>
+	/// If <c>true</c>, auto-advanced elements (like white-space skips) will be added to the result tree.
+	/// </summary>
+	public bool IncludeSkippedElements { get; set; }
 
 	/// <summary>Return a failure match.</summary>
 	ParserMatch NoMatch(IParser? source, ParserMatch? previous);

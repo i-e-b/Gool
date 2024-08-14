@@ -111,6 +111,7 @@ public class BNF
 		
 		if (options.HasFlag(Options.SkipWhitespace)) scanner.SkipWhitespace = true;
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
+		if (options.HasFlag(Options.IncludeSkippedElements)) scanner.IncludeSkippedElements = true;
 
 		var result = _parserTree.Parse(scanner);
 		(scanner as IScanningDiagnostics).Complete();
@@ -474,6 +475,12 @@ public class BNF
 		/// Parsers should expect lowercase input
 		/// </summary>
 		IgnoreCase = 2,
+		
+		/// <summary>
+		/// Auto-advanced elements (like white-space skips)
+		/// will be added to the result tree.
+		/// </summary>
+		IncludeSkippedElements = 4,
 	}
 	
 	/// <summary>
