@@ -194,7 +194,7 @@ public class BNF : IMatchingParser
 		var hold = new Recursion();
 
 		var src = parserTreeFunction(hold);
-		hold.Source = src._parserTree;
+		hold.Source = src;
 
 		return hold;
 	}
@@ -389,7 +389,6 @@ public class BNF : IMatchingParser
 	{
 		_parserTree = new Wrapper(_parserTree, trimFunction);
 		return this;
-		//return new BNF(new Wrapper(_parserTree, trimFunction));
 	}
 	
 	/// <summary>
@@ -597,7 +596,7 @@ public class BNF : IMatchingParser
 		public void Is(BNF parser)
 		{
 			if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
-			rec.Source = parser._parserTree;
+			rec.Source = parser;
 		}
 	}
 
