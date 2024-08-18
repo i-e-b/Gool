@@ -31,7 +31,10 @@ public static class CsvExample
 
         field.TrimWith(CsvCleanup).TagWith(Field);
         name.TrimWith(CsvCleanup).TagWith(ColumnName);
-        row_break.TagWith(NewRow).OpenScope();
+        row_break.TagWith(NewRow);
+
+        record.EncloseScope().TagWith(Row);     // TODO: 'EncloseScope' should be like an Open and Close scope, from its start to end
+        header.EncloseScope().TagWith(Header);  //       (like a tagged empty result at either end of the child match range)
 
         return file.WithOptions(BNF.Options.None);
     }
@@ -47,5 +50,7 @@ public static class CsvExample
     
     public const string ColumnName = "ColumnName";
     public const string Field = "Field";
-    public const string NewRow = "Row";
+    public const string NewRow = "RowBreak";
+    public const string Row = "Row";
+    public const string Header = "Header";
 }
