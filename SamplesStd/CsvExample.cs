@@ -1,0 +1,51 @@
+﻿using Phantom;
+// ReSharper disable InconsistentNaming
+
+namespace Samples;
+
+/// <summary>
+/// Csv parser example, with parametric breaks.
+/// Shows a simple way to vary parserbased on settings.
+/// <p/>
+/// From https://www.rfc-editor.org/rfc/rfc4180
+/// </summary>
+public static class CsvExample
+{
+    public static BNF.Package Csv(bool hasHeader, string columnBreakStr, string rowBreakStr)
+    {
+        BNF column_break = columnBreakStr;       // Column break (comma in CSV, tab in TSV)
+        BNF row_break = rowBreakStr;             // Row break (usually line break)
+
+        BNF text = +( BNF.AnyChar / (row_break | column_break));     // Anything except the row and column breaks
+        BNF quoted = BNF.Regex("\"([^\"]|\"\")*\"");                 // Anything except one double-quote
+        
+        BNF field = quoted | text;
+        BNF name = quoted | text;
+
+        BNF record = field % column_break;
+        BNF header = name % column_break;
+        
+        BNF file;
+        if (hasHeader) file = header > row_break > (record % row_break) > (!row_break);
+        else file = (record % row_break) > (!row_break);
+
+        field.TrimWith(CsvCleanup).TagWith(Field);
+        name.TrimWith(CsvCleanup).TagWith(ColumnName);
+        row_break.TagWith(NewRow).OpenScope();
+
+        return file.WithOptions(BNF.Options.None);
+    }
+    
+
+    private static string CsvCleanup(string src)
+    {
+        src = src.Trim();
+        return src.StartsWith('"')
+            ? src.Trim('"').Replace("\"\"", "\"")
+            : src;
+    }
+    
+    public const string ColumnName = "ColumnName";
+    public const string Field = "Field";
+    public const string NewRow = "Row";
+}

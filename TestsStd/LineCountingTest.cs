@@ -30,8 +30,8 @@ public class LineCountingTest
 
         BNF word_list = -(line_text | line_end);
 
-        line_text.Tag("text");
-        line_end.Tag("line");
+        line_text.TagWith("text");
+        line_end.TagWith("line");
 
         return word_list.WithOptions(BNF.Options.None);
     }

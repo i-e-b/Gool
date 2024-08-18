@@ -59,6 +59,7 @@ public class JsonTests
             {
                 var result = parser.ParseString(valid_sample);
                 Assert.That(result.Success, Is.True);
+                Console.Write('a');
             }
         });
         
@@ -68,6 +69,7 @@ public class JsonTests
             {
                 var result = parser.ParseString(valid_sample);
                 Assert.That(result.Success, Is.True);
+                Console.Write('b');
             }
         });
 

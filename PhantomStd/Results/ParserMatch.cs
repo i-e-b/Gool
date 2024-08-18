@@ -11,11 +11,19 @@ namespace Phantom.Results;
 /// </summary>
 public class ParserMatch
 {
+    private readonly Func<string, string>? _mutator;
+
     /// <summary>
     /// Builds a new match from a parser, input, and result range.
     /// </summary>
-    public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
+    /// <param name="source">The parser that made this match. This is required for tags and scopes</param>
+    /// <param name="scanner">Scanner for this match. This is used for the final output</param>
+    /// <param name="offset">Start of the match</param>
+    /// <param name="length">Number of characters in the match</param>
+    /// <param name="mutator">Optional function to modify the output of <see cref="Value"/></param>
+    public ParserMatch(IParser? source, IScanner scanner, int offset, int length, Func<string,string>? mutator = null)
     {
+        _mutator = mutator;
         SourceParser = source;
 
         Scanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
@@ -69,6 +77,7 @@ public class ParserMatch
         get
         {
             if (Length < 0) throw new Exception("no match");
+            if (_mutator is not null) return _mutator(Scanner.UntransformedSubstring(Offset, Length));
             return Scanner.UntransformedSubstring(Offset, Length);
         }
     }

@@ -7,12 +7,6 @@ namespace Phantom.Scanners;
 /// Scanners provide an interface to the input stream to be parsed
 /// </summary>
 public interface IScanningDiagnostics {
-
-	/// <summary>
-	/// Returns a string of the match that had the highest value of (offset+length)
-	/// </summary>
-	string? FurthestMatch();
-
 	/// <summary>
 	/// Set a point at which a parser failed
 	/// </summary>

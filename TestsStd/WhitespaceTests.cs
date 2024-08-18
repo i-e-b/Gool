@@ -25,10 +25,10 @@ public class WhitespaceTests
 
         BNF word_list = -(word | punctuation);
 
-        word.Tag("word");
-        punctuation.Tag("punctuation");
+        word.TagWith("word");
+        punctuation.TagWith("punctuation");
 
-        return word_list.Parser();
+        return word_list;
     }
 
     [Test]

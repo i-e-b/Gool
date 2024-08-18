@@ -13,7 +13,6 @@ public class ScanStrings : IScanner
 	private readonly List<ParserPoint> _failurePoints = new();
 	private readonly List<ParserMatch> _matchPaths = new();
 	private readonly Dictionary<object, object?> _contexts = new();
-	private string? _rightMostMatch;
 	private int _rightMostPoint;
 	private bool _completed;
 
@@ -78,12 +77,6 @@ public class ScanStrings : IScanner
 	{
 		if (_contexts.TryGetValue(parser, out var ctx)) return ctx;
 		return null;
-	}
-
-	/// <inheritdoc />
-	public string? FurthestMatch()
-	{
-		return _rightMostMatch;
 	}
 
 	/// <inheritdoc />
@@ -231,14 +224,14 @@ public class ScanStrings : IScanner
 	}
 	
 	/// <inheritdoc />
-	public ParserMatch CreateMatch(IParser source, int offset, int length)
+	public ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null)
 	{
 		if ((offset + length) > _rightMostPoint)
 		{
 			_rightMostPoint = offset + length;
-			_rightMostMatch = InputString.Substring(offset, length);
 		}
-		return new ParserMatch(source, this, offset, length);
+		
+		return new ParserMatch(source, this, offset, length, mutator);
 	}
 
 	#endregion

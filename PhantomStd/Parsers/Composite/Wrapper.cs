@@ -1,19 +1,32 @@
-﻿using Phantom.Parsers.Composite.Abstracts;
+﻿using System;
+using Phantom.Parsers.Composite.Abstracts;
 using Phantom.Results;
 
 namespace Phantom.Parsers.Composite;
 
 /// <summary>
 /// Wraps a single other parser.
+/// <p/>
 /// This is used to allow a parser pattern to be
-/// reused with different tags in a larger composite.
+/// reused with different tags in a larger composite;
+/// And allows an optional modification function.
 /// </summary>
 public class Wrapper : Unary
 {
+    private readonly Func<string, string>? _mutator;
+
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
     public Wrapper(IParser parser) : base(parser) { }
+    
+    /// <summary>
+    /// Create a wrapper around another parser, with a function to modify the output
+    /// </summary>
+    public Wrapper(IParser parser, Func<string, string> mutator) : base(parser)
+    {
+        _mutator = mutator;
+    }
 
     /// <inheritdoc />
     public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
@@ -22,7 +35,7 @@ public class Wrapper : Unary
         var innerMatch = Parser.Parse(scan, previousMatch);
 
         return innerMatch.Success
-            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length)
+            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, _mutator)
             : scan.NoMatch(this, innerMatch);
     }
     

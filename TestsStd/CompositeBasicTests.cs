@@ -17,8 +17,8 @@ public class CompositeBasicTests
 
         BNF list = item % delimiter;
 
-        item.Tag("item");
-        delimiter.Tag("comma");
+        item.TagWith("item");
+        delimiter.TagWith("comma");
 
         return list;
     }
@@ -128,9 +128,9 @@ public class CompositeBasicTests
 
         BNF list = +(item / end);
 
-        item.Tag("item");
+        item.TagWith("item");
 
-        return list.Parser();
+        return list;
     }
 
     [Test]
@@ -176,10 +176,10 @@ public class CompositeBasicTests
 
         BNF list = +(prefixed ^ postfixed);
 
-        prefixed.Tag("item");
-        postfixed.Tag("item");
+        prefixed.TagWith("item");
+        postfixed.TagWith("item");
 
-        return list.Parser();
+        return list;
     }
 
     [Test]
@@ -225,10 +225,10 @@ public class CompositeBasicTests
 
         BNF list = +(one & two);
 
-        one.Tag("item");
-        two.Tag("item");
+        one.TagWith("item");
+        two.TagWith("item");
 
-        return list.Parser();
+        return list;
     }
 
     [Test]
@@ -272,7 +272,7 @@ public class CompositeBasicTests
 
         BNF list = !item > (-item);
 
-        item.Tag("item");
+        item.TagWith("item");
 
         return list.WithOptions(BNF.Options.SkipWhitespace);
     }
@@ -319,9 +319,9 @@ public class CompositeBasicTests
 
         BNF list = +item;
 
-        item.Tag("item");
+        item.TagWith("item");
 
-        return list.Parser();
+        return list;
     }
     
     [Test]
@@ -370,9 +370,9 @@ public class CompositeBasicTests
 
         BNF groups = -('(' > list > ')') > BNF.EndOfInput;
 
-        item.Tag("item");
+        item.TagWith("item");
 
-        return groups.Parser();
+        return groups;
     }
 
     [Test]
@@ -459,9 +459,9 @@ public class CompositeBasicTests
 
         BNF list = +item;
 
-        item.Tag("item");
+        item.TagWith("item");
 
-        return list.Parser();
+        return list;
     }
     
     [Test]

@@ -104,16 +104,16 @@ public static class DateTimeExamples
         
         
         // Tagging
-        time_hour.Tag(Hour);
-        time_minute.Tag(Minute);
-        time_second.Tag(Second);
-        time_fraction.Tag(SecondFraction);
+        time_hour.TagWith(Hour);
+        time_minute.TagWith(Minute);
+        time_second.TagWith(Second);
+        time_fraction.TagWith(SecondFraction);
         BNF.TagAll(Year, date_year_part, dateSpec_year);
-        date_month.Tag(Month);
-        date_m_day.Tag(DayOfMonth);
-        date_w_day.Tag(DayOfWeek);
-        date_y_day.Tag(DayOfYear);
-        p_mark.Tag(PeriodMarker);
+        date_month.TagWith(Month);
+        date_m_day.TagWith(DayOfMonth);
+        date_w_day.TagWith(DayOfWeek);
+        date_y_day.TagWith(DayOfYear);
+        p_mark.TagWith(PeriodMarker);
         
 
         return ISO8691.WithOptions(BNF.Options.None);

@@ -62,14 +62,14 @@ public static class JsonParser
         BNF value = object_block | array_block | primitive;
 
 
-        array_enter.OpenScope().Tag("array");
+        array_enter.OpenScope().TagWith("array");
         array_leave.CloseScope();
 
-        object_enter.OpenScope().Tag("object");
+        object_enter.OpenScope().TagWith("object");
         object_leave.CloseScope();
 
-        member_key.Tag("key");
-        primitive.Tag("value");
+        member_key.TagWith("key");
+        primitive.TagWith("value");
 
         _value.Is(value);
         

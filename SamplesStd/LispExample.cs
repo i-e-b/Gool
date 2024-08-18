@@ -24,14 +24,14 @@ public static class LispExample
         BNF list_item  = identifier.Tagged(Atom) | name | quoted_string | number | dot;
         BNF start_list = normal_list | quoted_list;
 
-        dot.Tag(Atom);
-        name.Tag(Name);
-        number.Tag(Number);
-        quoted_string.Tag(String);
+        dot.TagWith(Atom);
+        name.TagWith(Name);
+        number.TagWith(Number);
+        quoted_string.TagWith(String);
 
-        normal_list.OpenScope().Tag(List);
-        quoted_list.OpenScope().Tag(Quote);
-        end_list.CloseScope().Tag(End);
+        normal_list.OpenScope().TagWith(List);
+        quoted_list.OpenScope().TagWith(Quote);
+        end_list.CloseScope().TagWith(End);
 
         return BNF
             .Recursive(tree => +(list_item | start_list | end_list | comment | tree)) // https://xkcd.com/224/

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Phantom.Results;
 using Phantom.Scanners;
 
@@ -69,7 +69,7 @@ public interface IScanner: IScanningDiagnostics
 	string RemainingData(int offset);
 
 	/// <summary>Return a match from a substring of the input</summary>
-	ParserMatch CreateMatch(IParser source, int offset, int length);
+	ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null);
 
 	/// <summary>
 	/// Add a success path, for diagnostic use

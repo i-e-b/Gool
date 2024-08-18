@@ -33,10 +33,10 @@ public static class ArithmeticExample
 
         _expression.Is(expression);
 
-        add_sub.Tag(Operation).PivotScope();
-        mul_div.Tag(Operation).PivotScope();
-        exp.Tag(Operation).PivotScope();
-        number.Tag(Value);
+        add_sub.TagWith(Operation).PivotScope();
+        mul_div.TagWith(Operation).PivotScope();
+        exp.TagWith(Operation).PivotScope();
+        number.TagWith(Value);
 
         return expression.WithOptions(BNF.Options.SkipWhitespace);
     }

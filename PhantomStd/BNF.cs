@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Phantom.Parsers;
 using Phantom.Parsers.Composite;
+using Phantom.Parsers.Interfaces;
 using Phantom.Parsers.Terminals;
 using Phantom.Results;
 using Phantom.Scanners;
@@ -66,7 +67,7 @@ namespace Phantom;
 ///	See <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#1243-operator-overloading">C# language spec</a>
 /// </remarks>
 // ReSharper disable once InconsistentNaming
-public class BNF
+public class BNF : IMatchingParser
 {
 	// Inspired by Spirit parser http://boost-spirit.com/home/
 	// There are a few changes compared to Spirit, all due to overloading
@@ -77,7 +78,7 @@ public class BNF
 	/// <summary>
 	/// Internal reference to the real parser instance
 	/// </summary>
-	private readonly IParser _parserTree;
+	private IParser _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
@@ -91,16 +92,6 @@ public class BNF
 	/// Regular expression options passed to a regexes build with BNF
 	/// </summary>
 	public static RegexOptions RegexOptions { get; set; }
-
-
-	/// <summary>
-	/// Access the <see cref="IParser"/> resulting from the BNF syntax.
-	/// For most cases, you probably want <see cref="ParseString"/>
-	/// </summary>
-	public IParser Parser()
-	{
-		return _parserTree;
-	}
 
 	/// <summary>
 	/// Parse an input string, returning a match tree.
@@ -140,7 +131,7 @@ public class BNF
 	/// Add a tag to the base parser.
 	/// This is used to interpret the parser result
 	/// </summary>
-	public BNF Tag(string tag)
+	public BNF TagWith(string tag)
 	{
 		_parserTree.Tag = tag;
 		return this;
@@ -203,7 +194,7 @@ public class BNF
 		var hold = new Recursion();
 
 		var src = parserTreeFunction(hold);
-		hold.Source = src.Parser();
+		hold.Source = src._parserTree;
 
 		return hold;
 	}
@@ -265,7 +256,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of sequence parser is null");
 
-		return new BNF(new Sequence(a.Parser(), b.Parser()));
+		return new BNF(new Sequence(a, b));
 	}
 
 	/// <summary>
@@ -280,7 +271,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of list parser is null");
 
-		return new BNF(new TerminatedList(a.Parser(), b.Parser()));
+		return new BNF(new TerminatedList(a, b));
 	}
 
 	/// <summary>
@@ -291,7 +282,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Parser(), 0, int.MaxValue));
+		return new BNF(new Repetition(a, 0, int.MaxValue));
 	}
 
 	/// <summary>
@@ -302,7 +293,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Loop parser is null");
 
-		return new BNF(new Repetition(a.Parser(), 1, int.MaxValue));
+		return new BNF(new Repetition(a, 1, int.MaxValue));
 	}
 
 	/// <summary>
@@ -313,7 +304,7 @@ public class BNF
 		if (a == null)
 			throw new ArgumentNullException(nameof(a), "Option parser is null");
 
-		return new BNF(new Repetition(a.Parser(), 0, 1));
+		return new BNF(new Repetition(a, 0, 1));
 	}
 
 	/// <summary>
@@ -326,7 +317,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of list parser is null");
 
-		return new BNF(new DelimitedList(a.Parser(), b.Parser()));
+		return new BNF(new DelimitedList(a, b));
 	}
 
 	/// <summary>
@@ -340,7 +331,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of union parser is null");
 
-		return new BNF(new Union(a.Parser(), b.Parser()));
+		return new BNF(new Union(a, b));
 	}
 
 	/// <summary>
@@ -353,7 +344,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of intersection parser is null");
 
-		return new BNF(new Intersection(a.Parser(), b.Parser()));
+		return new BNF(new Intersection(a, b));
 	}
 	
 	/// <summary>
@@ -366,7 +357,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of difference parser is null");
 
-		return new BNF(new Difference(a.Parser(), b.Parser()));
+		return new BNF(new Difference(a, b));
 	}
 
 	/// <summary>
@@ -380,7 +371,7 @@ public class BNF
 		if (b == null)
 			throw new ArgumentNullException(nameof(b), "Right side of Exclusive-Or parser is null");
 
-		return new BNF(new Exclusive(a.Parser(), b.Parser()));
+		return new BNF(new Exclusive(a, b));
 	}
 
 	/// <summary>
@@ -388,9 +379,18 @@ public class BNF
 	/// </summary>
 	public BNF Tagged(string name)
 	{
-		return Copy().Tag(name);
+		return Copy().TagWith(name);
 	}
 	
+	/// <summary>
+	/// Wrap this BNF with a function that will change the result string
+	/// </summary>
+	public BNF TrimWith(Func<string, string> trimFunction)
+	{
+		_parserTree = new Wrapper(_parserTree, trimFunction);
+		return this;
+		//return new BNF(new Wrapper(_parserTree, trimFunction));
+	}
 	
 	/// <summary>
 	/// Optional variant of the given pattern.
@@ -399,7 +399,7 @@ public class BNF
 	/// </summary>
 	public static BNF Optional(BNF opt)
 	{
-		return new BNF(new Repetition(opt.Parser(), 0, 1));
+		return new BNF(new Repetition(opt, 0, 1));
 	}
 
 	/// <summary>
@@ -474,7 +474,7 @@ public class BNF
 	{
 		foreach (var item in items)
 		{
-			item.Tag(tag);
+			item.TagWith(tag);
 		}
 	}
 	
@@ -597,7 +597,50 @@ public class BNF
 		public void Is(BNF parser)
 		{
 			if (_parserTree is not Recursion rec) throw new Exception($"Invalid forward reference. Expected '{nameof(Recursion)}', got '{_parserTree.GetType().Name}'");
-			rec.Source = parser.Parser();
+			rec.Source = parser._parserTree;
 		}
 	}
+
+	#region IParser pass-through
+
+	/// <inheritdoc />
+	public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
+	{
+		return _parserTree.Parse(scan, previousMatch);
+	}
+
+	/// <inheritdoc />
+	public string? Tag
+	{
+		get => _parserTree.Tag;
+		set => _parserTree.Tag = value;
+	}
+
+	/// <inheritdoc />
+	public ScopeType Scope
+	{
+		get => _parserTree.Scope;
+		set => _parserTree.Scope = value;
+	}
+
+	/// <inheritdoc />
+	public bool HasMetaData()
+	{
+		return _parserTree.HasMetaData();
+	}
+
+	/// <inheritdoc />
+	public string ShortDescription(int depth)
+	{
+		return _parserTree.ShortDescription(depth);
+	}
+
+	/// <inheritdoc />
+	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	{
+		if (_parserTree is not IMatchingParser imp) throw new Exception($"Invalid parser tree: expected '{nameof(IMatchingParser)}', got '{_parserTree.GetType().Name}'");
+		return imp.TryMatch(scan, previousMatch);
+	}
+
+	#endregion IParser pass-through
 }

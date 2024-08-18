@@ -32,10 +32,10 @@ public static class XmlExample
 
         BNF close_tag = "</" > tag_id > '>';
 
-        attribute.Tag(Attribute);
-        text.Tag(Text);
-        open_tag.Tag(OpenTag).OpenScope();
-        close_tag.Tag(CloseTag).CloseScope();
+        attribute.TagWith(Attribute);
+        text.TagWith(Text);
+        open_tag.TagWith(OpenTag).OpenScope();
+        close_tag.TagWith(CloseTag).CloseScope();
 
         return BNF
             .Recursive(tree => -(open_tag > -(tree | text) > close_tag))

@@ -10,9 +10,6 @@ namespace Phantom.Scanners;
 public class NullScanner : IScanner
 {
     private const string ErrorMsg = "The scanner used is a place-holder. Please check you have passed in an input scanner.";
-    
-    /// <inheritdoc />
-    public string? FurthestMatch() => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void AddFailure(IParser failedParser, ParserMatch? previousMatch) => throw new InvalidOperationException(ErrorMsg);
@@ -71,7 +68,7 @@ public class NullScanner : IScanner
     public string RemainingData(int offset) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch CreateMatch(IParser source, int offset, int length) => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch CreateMatch(IParser source, int offset, int length, Func<string,string>? mutator) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void AddPath(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);
@@ -83,5 +80,5 @@ public class NullScanner : IScanner
     public void SetContext(IParser parser, object? context) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public object? GetContext(IParser parser) => throw new InvalidOperationException(ErrorMsg);
+    public object GetContext(IParser parser) => throw new InvalidOperationException(ErrorMsg);
 }

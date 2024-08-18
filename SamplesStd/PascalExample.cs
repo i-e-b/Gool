@@ -190,20 +190,20 @@ public static class PascalExample
         BNF.TagAll(Operator, o_comma, o_dot, o_colon, o_equal, o_slash, o_mul, o_ref, o_range,
             o_or, o_not, o_and, o_div, o_mod, o_set);
 
-        t_semi.Tag(StatementEnd);
-        identifier.Tag(Identifier);
-        pascalString.Tag(PascalString);
-        expression.Tag(Expression);
-        constant.Tag(Constant);
-        inequality.Tag(Inequality);
+        t_semi.TagWith(StatementEnd);
+        identifier.TagWith(Identifier);
+        pascalString.TagWith(PascalString);
+        expression.TagWith(Expression);
+        constant.TagWith(Constant);
+        inequality.TagWith(Inequality);
 
         // Scopes
         k_begin.OpenScope();
         k_end.CloseScope();
-        s_open_paren.Tag(OpenParen).OpenScope();
-        s_close_paren.Tag(CloseParen).CloseScope();
-        s_open_bracket.Tag(OpenBracket).OpenScope();
-        s_close_bracket.Tag(CloseBracket).CloseScope();
+        s_open_paren.TagWith(OpenParen).OpenScope();
+        s_close_paren.TagWith(CloseParen).CloseScope();
+        s_open_bracket.TagWith(OpenBracket).OpenScope();
+        s_close_bracket.TagWith(CloseBracket).CloseScope();
 
         return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace | BNF.Options.IncludeSkippedElements);
     }
