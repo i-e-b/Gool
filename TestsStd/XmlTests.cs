@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using NUnit.Framework;
 using Phantom.Results;
 using Samples;
@@ -117,22 +118,32 @@ public class XmlTests
 
         var taggedTokens = result.TaggedTokensDepthFirst();
 
+        var sb = new StringBuilder();
         foreach (var token in taggedTokens)
         {
             switch (token.Tag)
             {
                 case XmlExample.Text:
-                    if (!string.IsNullOrWhiteSpace(token.Value)) Console.WriteLine("content: " + token.Value);
+                    if (!string.IsNullOrWhiteSpace(token.Value)) sb.Append($"[{token.Value}]");
                     break;
 
                 case XmlExample.OpenTag:
-                    Console.WriteLine(token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value + "{");
+                    sb.Append(token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value + "{");
                     break;
 
                 case XmlExample.CloseTag:
-                    Console.WriteLine("}" + token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value);
+                    sb.AppendLine("}" + token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value);
                     break;
             }
         }
+
+        Console.WriteLine(sb.ToString());
+        Assert.That(sb.ToString(), Is.EqualTo(@"note{to{[Tove]}to
+from{[Jani]}from
+heading{[Reminder]}heading
+body{[Don't forget me this weekend!]}body
+empty{}empty
+}note
+"));
     }
 }

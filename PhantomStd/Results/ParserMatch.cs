@@ -142,7 +142,7 @@ public class ParserMatch
         if (!right.Success) throw new ArgumentException("Can't Join failure match");
         if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
-        // Joining success onto failure just gives the success
+        // Joining success onto failure gives only the success
         if (!left.Success)
         {
             if (string.IsNullOrEmpty(source.Tag)) return right;
@@ -152,13 +152,13 @@ public class ParserMatch
         }
 
         // Reduce overlapping matches, if it doesn't loose information
-        if (left.Contains(right))
+        if (left.Contains(right) && NoMeta(left, right))
         {
             var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
             if (!left.Empty) leftOnlyResult.ChildMatches.Add(left);
             return leftOnlyResult;
         }
-        if (right.Contains(left))
+        if (right.Contains(left) && NoMeta(left, right))
         {
             var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
             if (!right.Empty) rightOnlyResult.ChildMatches.Add(right);
@@ -195,6 +195,11 @@ public class ParserMatch
         if (!left.Empty) joinResult.ChildMatches.Add(left);
         if (!right.Empty) joinResult.ChildMatches.Add(right);
         return joinResult;
+    }
+
+    private static bool NoMeta(ParserMatch left, ParserMatch right)
+    {
+        return (!left.HasMetaData()) && (!right.HasMetaData());
     }
 
     /// <summary>
@@ -340,10 +345,16 @@ public class ParserMatch
         var joinMatch = new ParserMatch(source, Scanner, Offset, Length);
         
         // Join this match to the result if we have any metadata to carry
-        if (SourceParser?.HasMetaData() == true) joinMatch.ChildMatches.Add(this);
+        if (AnyMetaInTree()) joinMatch.ChildMatches.Add(this);
 
         return joinMatch;
 
+    }
+
+    private bool AnyMetaInTree()
+    {
+        if (SourceParser?.HasMetaData() == true) return true;
+        return ChildMatches.Any(child => child.AnyMetaInTree());
     }
 
     /// <summary>
