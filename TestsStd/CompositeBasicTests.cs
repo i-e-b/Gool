@@ -500,4 +500,81 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
     }
+    
+    
+    
+    private static IParser ParallelSetParserSample()
+    {
+        BNF words = +BNF.AnyChar;
+        BNF starts_with_alphanum = BNF.Regex("^[a-zA-Z].*");
+        BNF ends_with_alphanum = BNF.Regex(".*[a-zA-Z]$");
+        BNF dns_length_limit = BNF.RemainingLength(min:2, max:80);
+        BNF domain_name = words.WithValidators(starts_with_alphanum, ends_with_alphanum, dns_length_limit);
+
+        return domain_name;
+    }
+    
+    [Test]
+    [TestCase("this.is.ok")]
+    [TestCase("th1s . is . 0k")]
+    public void parallel_set_accepts_valid_input(string correct_sample)
+    {
+        var parser = ParallelSetParserSample();
+        var scanner = new ScanStrings(correct_sample);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.ToString(), Is.EqualTo(correct_sample));
+    }
+    
+    [Test]
+    [TestCase("not.ok-")]
+    [TestCase("-nope")]
+    [TestCase("1-nope-2")]
+    [TestCase("a")]
+    [TestCase("far.too.looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong")]
+    public void parallel_set_rejects_invalid_input(string bad_sample)
+    {
+        var parser = ParallelSetParserSample();
+        var scanner = new ScanStrings(bad_sample);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.False);
+    }
 }

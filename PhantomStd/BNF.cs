@@ -419,6 +419,16 @@ public class BNF : IMatchingParser
 		return new BNF(new RegularExpression(pattern, RegexOptions));
 	}
 	
+	
+	/// <summary>
+	/// Matches the remaining input, only if its length is between
+	/// <paramref name="min"/> and <paramref name="max"/> (inclusive)
+	/// </summary>
+	public static BNF RemainingLength(int min, int max)
+	{
+		return new BNF(new RemainingLength(min, max));
+	}
+	
 	/// <summary>
 	/// Match any single character from the given set
 	/// </summary>
@@ -433,6 +443,15 @@ public class BNF : IMatchingParser
 	public static BNF NoneOf(params char[] characters)
 	{
 		return new BNF(new ExcludingCharacterSet(characters));
+	}
+	
+	/// <summary>
+	/// Match a single character that is between <paramref name="lower"/>
+	/// and <paramref name="upper"/> (inclusive), which is not in the list of exclusions
+	/// </summary>
+	public static BNF RangeExcluding(char lower, char upper, params char[] exclusions)
+	{
+		return new BNF(new RangeExcludingCharacterSet(lower, upper, exclusions));
 	}
 	
 	/// <summary>
@@ -454,6 +473,26 @@ public class BNF : IMatchingParser
 	public static BNF FixedDec(long min, long max, int width, bool allowLeadingWhitespace = false, bool useHex = false)
 	{
 		return new BNF(new FixedWidthIntegerRange(min, max, width, allowLeadingWhitespace, useHex));
+	}
+	
+	/// <summary>
+	/// Create a parser for a variable width unsigned integer, within a given value range.
+	/// </summary>
+	/// <param name="min">Inclusive minimum value for result. Must be zero or greater</param>
+	/// <param name="max">Inclusive maximum value for result. Must be greater than lower</param>
+	/// <param name="allowLeadingWhitespace">
+	/// Default = <c>false</c>. 
+	/// If <c>true</c> the input may have leading whitespace to fill the fixed width.
+	/// If <c>false</c> the input must have digits in all places.
+	/// </param>
+	/// <param name="useHex">
+	/// Default = <c>false</c>. 
+	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
+	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
+	/// </param>
+	public static BNF DecimalRange(long min, long max, bool allowLeadingWhitespace = false, bool useHex = false)
+	{
+		return new BNF(new VariableWidthIntegerRange(min, max, allowLeadingWhitespace, useHex));
 	}
 
 	/// <summary>
@@ -496,6 +535,16 @@ public class BNF : IMatchingParser
 	/// Match a single character of white-space
 	/// </summary>
 	public static BNF WhiteSpace => new(new Whitespace());
+	
+	/// <summary>
+	/// If this parser matches, test the <b>match text</b> against a further
+	/// set of patterns. The final result is only successful if <b>all</b> the given
+	/// patterns match the original result.
+	/// </summary>
+	public BNF WithValidators(params BNF[] validators)
+	{
+		return new BNF(new ParallelSet(this, validators));
+	}
 
 	/// <summary>
 	/// Create a forward reference to populate later.
@@ -658,4 +707,5 @@ public class BNF : IMatchingParser
 	}
 
 	#endregion IParser pass-through
+
 }

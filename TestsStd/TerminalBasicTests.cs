@@ -335,4 +335,31 @@ public class TerminalBasicTests
         result = subject.TryMatch(new ScanStrings("5"), null);
         Assert.That(result.Success, Is.False); // in range, wrong length
     }
+    
+    
+    [Test]
+    public void _VariableWidthIntegerRange_()
+    {
+        var subject = new VariableWidthIntegerRange(99, 444, false, false);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.TryMatch(new ScanStrings("234!"), null);
+        Assert.That(result.Success, Is.True); // in range, correct length
+
+        result = subject.TryMatch(new ScanStrings("1"), null);
+        Assert.That(result.Success, Is.False); // out-of-range
+
+        result = subject.TryMatch(new ScanStrings("999"), null);
+        Assert.That(result.Success, Is.False); // out-of-range
+
+        result = subject.TryMatch(new ScanStrings("99"), null);
+        Assert.That(result.Success, Is.True); // in range
+
+        result = subject.TryMatch(new ScanStrings("0099"), null);
+        Assert.That(result.Success, Is.True); // in range
+
+        result = subject.TryMatch(new ScanStrings(" 99"), null);
+        Assert.That(result.Success, Is.False); // in range, correct length, wrong leader
+        
+    }
 }

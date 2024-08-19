@@ -26,9 +26,6 @@ public class ScanStrings : IScanner
 		_completed = false;
 		InputString = input;
 
-		if (string.IsNullOrEmpty(input))
-			throw new ArgumentException("Initial input is empty");
-
 		Transform = new NoTransform();
 		SkipWhitespace = false;
 	}
@@ -153,10 +150,6 @@ public class ScanStrings : IScanner
 		if (EndOfInput(offset)) return (char)0;
 		return Transform.Transform(InputString[offset]);
 	}
-
-	/// <summary> Placeholder parser for whitespace skip results </summary>
-	private readonly Whitespace _ws = new();
-
 
 	/// <summary>
 	/// If skip whitespace is set and current position is whitespace,
