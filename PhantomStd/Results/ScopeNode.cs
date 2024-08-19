@@ -272,6 +272,9 @@ public class ScopeNode
                     cursor.ClosingMatch = match;
                     cursor = cursor.Parent;
                     break;
+                case ScopeType.Enclosed:
+                    Console.WriteLine("Saw enclosure scope");
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

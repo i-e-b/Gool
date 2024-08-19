@@ -51,7 +51,7 @@ public class TerminalBasicTests
         var input = "Hello, world!";
 
         var scanner = new ScanStrings(input);
-        var nullParser = new NullParser();
+        var nullParser = new NullParser("test");
 
         var result = subject.TryMatch(scanner, null);
         Assert.That(result.Success, Is.False);
@@ -81,7 +81,7 @@ public class TerminalBasicTests
         var input = "one\rtwo\nthree\r\nfour";
 
         var scanner = new ScanStrings(input);
-        var nullParser = new NullParser();
+        var nullParser = new NullParser("test");
 
         var result = subject.TryMatch(scanner, null);
         Assert.That(result.Success, Is.False);
@@ -169,7 +169,7 @@ public class TerminalBasicTests
         var input = "one two three four";
 
         var scanner = new ScanStrings(input);
-        var nullParser = new NullParser();
+        var nullParser = new NullParser("test");
 
         var result = subject.TryMatch(scanner, null);
         Assert.That(result.Success, Is.False);
@@ -200,7 +200,7 @@ public class TerminalBasicTests
         var input = "one one one";
 
         var scanner = new ScanStrings(input);
-        var nullParser = new NullParser();
+        var nullParser = new NullParser("test");
 
         var result = subject.TryMatch(scanner, null);
         Assert.That(result.Success, Is.True);

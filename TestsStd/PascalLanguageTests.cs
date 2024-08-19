@@ -68,7 +68,14 @@ public class PascalLanguageTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
+        /*
+        Console.WriteLine("==================================================");
+        foreach (var m in result.TaggedTokensDepthFirst())
+        {
+            Console.WriteLine($"{m} [{m.Tag}] : {m.SourceParser?.GetType().Name}");
+        }*/
 
+        Console.WriteLine("==================================================");
         var scopeTree = ScopeNode.FromMatch(result);
         scopeTree.Specialise(PascalExample.Expression, PascalExample.PascalString, PascalExample.Identifier);
 
@@ -76,6 +83,16 @@ public class PascalLanguageTests
         PrintRecursive(scopeTree, 0, ref line);
 
         PrintFailures(result.Scanner);
+
+        var check = new StringBuilder();
+        PrintRecursive(scopeTree, check);
+        Console.WriteLine("==================================================");
+        Console.WriteLine(check);
+        Console.WriteLine("==================================================");
+        Assert.That(check.ToString(), Is.EqualTo("program WriteName ; var i , j : Integer ; name : String ;" +
+                                                 " begin Write ( 'Please tell me your name: ' ); ReadLn ( name ); for i := 1  to 100  do begin WriteLn ( 'Hello ' , name )" +
+                                                 "endend. "));
+        
 
         Assert.That(result.Success, Is.True, "Parsing failed");
         Assert.That(result.Value.ToLower(), Is.EqualTo(sample_program.ToLower()));
@@ -198,6 +215,30 @@ public class PascalLanguageTests
             if (!line) Console.WriteLine();
             Console.WriteLine($"{I(indent)}'{node.ClosingMatch?.Value}' <=");
             line = true;
+        }
+    }
+    
+    private static void PrintRecursive(ScopeNode node, StringBuilder sb)
+    {
+        switch (node.NodeType)
+        {
+            case ScopeNodeType.Root: break;
+            case ScopeNodeType.Data:
+                sb.Append(node.DataMatch?.Value + " ");
+                break;
+            case ScopeNodeType.ScopeChange:
+                sb.Append(node.OpeningMatch?.Value + " ");
+                break;
+        }
+
+        foreach (var childNode in node.Children)
+        {
+            PrintRecursive(childNode, sb);
+        }
+
+        if (node.NodeType == ScopeNodeType.ScopeChange)
+        {
+            sb.Append(node.ClosingMatch?.Value);
         }
     }
     

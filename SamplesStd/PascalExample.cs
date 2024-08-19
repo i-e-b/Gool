@@ -25,8 +25,6 @@ public static class PascalExample
     {
         BNF.RegexOptions = Options();
 
-        var _empty_ = BNF.Empty;
-
         // Forward references
         var _type = BNF.Forward();
         var _fieldList = BNF.Forward();
@@ -132,7 +130,6 @@ public static class PascalExample
         BNF caseBlock = k_case > expression > k_of > (((constant % o_comma) > o_colon > _statement) % t_semi) > k_end;
         BNF statement =
             !(unsignedInteger > o_colon)
-            | _empty_
             | (k_begin > (_statement % t_semi) > k_end)
             | (identifier > !(s_open_paren > (expression % o_comma) > s_close_paren))
             | (variable > o_set > expression)

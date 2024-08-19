@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using NUnit.Framework;
+using Phantom.Results;
 using Samples;
 
 namespace TestsStd;
@@ -59,7 +60,24 @@ public class CsvTests
             else Console.Write($"{token.Value} [{token.Tag}]; ");
         }
     }
-    
+
+    [Test]
+    public void csv_with_enclosing_scopes()
+    {
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = CsvExample.Csv(true, ",", "\n").ParseString(CsvFileExample);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        
+        foreach (var fail in result.Scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        var tree = ScopeNode.FromMatch(result);
+        PrintRecursive(tree, 0);
+    }
 
     private const string TsvFileExample
         = "one \t  two\t     three\n1  \t2\t3\n4 \t5\t    6\n\"seven is \"\"heaven\"\"?\"\t     8\t   9";
@@ -111,5 +129,36 @@ public class CsvTests
             if (token.Tag == CsvExample.NewRow) Console.WriteLine();
             else Console.Write($"{token.Value} [{token.Tag}]; ");
         }
+    }
+    
+    
+    
+
+    private static void PrintRecursive(ScopeNode node, int indent)
+    {
+        switch (node.NodeType)
+        {
+            case ScopeNodeType.Root:
+                Console.WriteLine("Document");
+                break;
+            case ScopeNodeType.Data:
+                Console.WriteLine($"{I(indent)}{node.DataMatch?.Value.Trim()} [{node.DataMatch?.Tag}]");
+                break;
+            case ScopeNodeType.ScopeChange:
+                Console.WriteLine($"{I(indent)}Scope [{node.OpeningMatch?.Tag}]");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        foreach (var childNode in node.Children)
+        {
+            PrintRecursive(childNode, indent+1);
+        }
+    }
+
+    private static string I(int indent)
+    {
+        return new string(' ', indent * 4);
     }
 }

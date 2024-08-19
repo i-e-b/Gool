@@ -54,7 +54,7 @@ public class Repetition : Unary
 			if (after.SameAs(result)) break; // repetition must progress
 
 			count++;
-			result = ParserMatch.Join(new NullParser(), result, after);
+			result = ParserMatch.Join(new NullParser(nameof(Repetition)), result, after);
 		}
 
 		if (count < LowerBound || count > UpperBound)

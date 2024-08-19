@@ -7,6 +7,15 @@ namespace Phantom.Parsers.Terminals;
 /// </summary>
 public class NullParser : IParser
 {
+    private readonly string _source;
+
+    /// <summary>
+    /// Named null-parser
+    /// </summary>
+    public NullParser(string source)
+    {
+        _source = source;
+    }
     /// <inheritdoc />
     public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
     {
@@ -23,5 +32,5 @@ public class NullParser : IParser
     public bool HasMetaData() => false;
 
     /// <inheritdoc />
-    public string ShortDescription(int depth) => "Null parser";
+    public string ShortDescription(int depth) => $"Null parser from {_source}";
 }

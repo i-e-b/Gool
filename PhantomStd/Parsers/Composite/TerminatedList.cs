@@ -34,18 +34,18 @@ public class TerminatedList : Binary
 
             if (!item.Success)
             {
-                return result;
+                return result.Through(this);
             }
 
             var terminator = RightParser.Parse(scan, item);
 
             if (!terminator.Success)
             {
-                return result;
+                return result.Through(this);
             }
 
-            result = ParserMatch.Join(new NullParser(), result, item);
-            result = ParserMatch.Join(new NullParser(), result, terminator);
+            result = ParserMatch.Join(new NullParser(nameof(TerminatedList)), result, item);
+            result = ParserMatch.Join(new NullParser(nameof(TerminatedList)), result, terminator);
         }
 
         return result.Through(this);

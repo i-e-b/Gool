@@ -14,6 +14,11 @@ public enum ScopeType
     /// pushing pivot matches up, and non-pivot matches down.
     /// </summary>
     Pivot = 2,
+    
+    /// <summary>
+    /// This match represents the contents of a scope -- it is both an opening and closing match
+    /// </summary>
+    Enclosed = 3,
 	
     /// <summary> This match is the start of a block </summary>
     OpenScope = 1,

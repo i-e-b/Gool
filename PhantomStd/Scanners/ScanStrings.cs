@@ -164,23 +164,22 @@ public class ScanStrings : IScanner
 	/// </summary>
 	public ParserMatch AutoAdvance(ParserMatch? previous)
 	{
-		previous ??= NullMatch(null, 0);
+		var ws = NullMatch(null, previous?.Right ?? 0);
 		
-		if (!SkipWhitespace) return previous;
-		if (EndOfInput(previous.Right)) return previous;
+		if (!SkipWhitespace) return ws;
+		if (EndOfInput(ws.Right)) return ws;
 
-		var offset = previous.Right;
-		var m = EmptyMatch(_ws, previous.Right);
+		var offset = ws.Right;
 		var c = Peek(offset);
 		
 		while (char.IsWhiteSpace(c))      // if this is whitespace
 		{
-			m.ExtendTo(offset+1);         // mark our match up to this character
+			ws.ExtendTo(offset+1);         // mark our match up to this character
 			if (!Read(ref offset)) break; // try to advance to next character
 			c = Peek(offset);             // read that character
 		}
-		
-		return m.Length > 0 ? m : previous;
+
+		return ws;
 	}
 
 

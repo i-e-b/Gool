@@ -165,6 +165,16 @@ public class BNF : IMatchingParser
 		_parserTree.Scope = ScopeType.Pivot;
 		return this;
 	}
+	
+	/// <summary>
+	/// Mark this parser as the contents of a scope.
+	/// The parser will be both the start and end of the scope
+	/// </summary>
+	public BNF EncloseScope()
+	{
+		_parserTree.Scope = ScopeType.Enclosed;
+		return this;
+	}
 
 	/// <summary>
 	/// Make a copy of this BNF, which can be given different tags from the original
@@ -639,6 +649,12 @@ public class BNF : IMatchingParser
 	{
 		if (_parserTree is not IMatchingParser imp) throw new Exception($"Invalid parser tree: expected '{nameof(IMatchingParser)}', got '{_parserTree.GetType().Name}'");
 		return imp.TryMatch(scan, previousMatch);
+	}
+
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		return _parserTree.ToString();
 	}
 
 	#endregion IParser pass-through

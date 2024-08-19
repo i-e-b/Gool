@@ -36,7 +36,7 @@ public class ParserMatch
     /// </summary>
     public ParserMatch(string value, string? tag = null)
     {
-        SourceParser = new NullParser();
+        SourceParser = new NullParser("Match");
         SourceParser.Tag = tag;
 
         Scanner = new ScanStrings(value);
@@ -151,17 +151,17 @@ public class ParserMatch
             return chainResult;
         }
 
-        // Reduce overlapping matches
+        // Reduce overlapping matches, if it doesn't loose information
         if (left.Contains(right))
         {
             var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
-            /*if (!left.Empty)*/ leftOnlyResult.ChildMatches.Add(left);
+            if (!left.Empty) leftOnlyResult.ChildMatches.Add(left);
             return leftOnlyResult;
         }
         if (right.Contains(left))
         {
             var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
-            /*if (!right.Empty)*/ rightOnlyResult.ChildMatches.Add(right);
+            if (!right.Empty) rightOnlyResult.ChildMatches.Add(right);
             return rightOnlyResult;
         }
         
@@ -170,9 +170,9 @@ public class ParserMatch
         var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length);
         
         
-        // TODO: if one of the parsers is a 'pivot' scope, and the other isn't
-        //       then we should re-arrange the output so the pivot is the parent
-        //       and non-pivot are children?
+        // If one of the parsers is a 'pivot' scope, and the other isn't
+        // then we should re-arrange the output so the pivot is the parent
+        // and non-pivot are children
 
         if (IsValidPivot(left, right))
         {
@@ -326,7 +326,6 @@ public class ParserMatch
 
         return previousMatch.Offset == Offset && previousMatch.Length == Length;
     }
-
 
     /// <summary>
     /// This match is being passed through a composite,

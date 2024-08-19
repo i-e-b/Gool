@@ -31,20 +31,20 @@ public class DelimitedList : Binary
 
             if (!item.Success)
             {
-                return trailing;
+                return trailing.Through(this);
             }
 
-            result = ParserMatch.Join(new NullParser(), result, item);
+            result = ParserMatch.Join(new NullParser(nameof(DelimitedList)), result, item);
             trailing = result; // last non-separator match
             
             var separator = RightParser.Parse(scan, item);
 
             if (!separator.Success)
             {
-                return result;
+                return result.Through(this);
             }
 
-            result = ParserMatch.Join(new NullParser(), result, separator);
+            result = ParserMatch.Join(new NullParser(nameof(DelimitedList)), result, separator);
         }
 
         return trailing.Through(this);

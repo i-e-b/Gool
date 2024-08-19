@@ -44,7 +44,7 @@ public abstract class Parser : IParser
             scan.AddPath(newMatch);
             scan.ClearFailures();
 
-            if (scan.IncludeSkippedElements) return ParserMatch.Join(new NullParser(), start, newMatch);
+            if (scan.IncludeSkippedElements) return ParserMatch.Join(new NullParser("Skipped elements"), start, newMatch);
             return newMatch;
         }
 
