@@ -250,6 +250,7 @@ public class ScopeNode
 
     private static ScopeNode BuildScope(IEnumerable<ParserMatch> points)
     {
+        var scopeEnds = new Stack<int>(); // right-edges of single-sided scopes
         var root = RootNode();
         var cursor = (ScopeNode?)root;
         foreach (var match in points)
@@ -273,10 +274,21 @@ public class ScopeNode
                     cursor = cursor.Parent;
                     break;
                 case ScopeType.Enclosed:
-                    Console.WriteLine("Saw enclosure scope");
-                    break;
+                    // Push a new scope, and exit it after the children of this node
+                    cursor = cursor.OpenScope(match);
+                    cursor.ClosingMatch = match;
+                    scopeEnds.Push(match.Right);
+                    continue; // so we don't hit the scope-end logic for the scope we defined
+                
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+
+            // Exit ranged scope if we've got to the end of it
+            if (scopeEnds.Count > 0 && match.Right >= scopeEnds.Peek())
+            {
+                scopeEnds.Pop();
+                cursor = cursor?.Parent;
             }
         }
 
