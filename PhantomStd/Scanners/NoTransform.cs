@@ -7,7 +7,4 @@ public class NoTransform : ITransform
 {
 	/// <inheritdoc />
 	public string Transform(string s) => s;
-
-	/// <inheritdoc />
-	public char Transform(char c) => c;
 }

@@ -35,10 +35,12 @@ public class EmailTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
-        Console.WriteLine(result);
-
-        Console.WriteLine(result.FindTag("email")?.Value ?? "<not found>");
         Assert.That(result.Success, Is.True);
+
+        Console.WriteLine(result.FindTag(EmailAddressExample.Address)?.Value ?? "<not found>");
+        Console.Write(result.FindTag(EmailAddressExample.User)?.Value ?? "<not found>");
+        Console.Write(" -> ");
+        Console.WriteLine(result.FindTag(EmailAddressExample.Domain)?.Value ?? "<not found>");
     }
     
     [Test]

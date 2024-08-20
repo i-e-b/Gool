@@ -1,3 +1,4 @@
+using System;
 using Phantom.Parsers.Interfaces;
 using Phantom.Results;
 
@@ -25,7 +26,7 @@ public class LiteralString : Parser, IMatchingParser
 
         var compare = scan.Substring(offset, _test.Length);
 
-        return compare == _test
+        return compare.Equals(_test, StringComparison.Ordinal)
             ? scan.CreateMatch(this, offset, _test.Length)
             : scan.NoMatch(this, previousMatch);
     }

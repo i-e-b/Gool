@@ -13,6 +13,17 @@ namespace Phantom;
 /// </summary>
 public interface IScanner: IScanningDiagnostics
 {
+	/// <summary>
+	/// Get the original input string
+	/// </summary>
+	public string InputString { get; }
+
+	/// <summary>
+	/// The input string, as processed by the transformer.
+	/// This will be equal to the input string if there is no transformer.
+	/// </summary>
+	public string TransformedString { get; }
+	
 	/// <summary>Returns true when all input is consumed.</summary>
 	bool EndOfInput(int offset);
 
@@ -44,7 +55,7 @@ public interface IScanner: IScanningDiagnostics
 	/// Prepares the scanner for the next token.
 	/// This is mainly used for whitespace skipping.
 	/// </summary>
-	public ParserMatch AutoAdvance(ParserMatch? previous);
+	public ParserMatch? AutoAdvance(ParserMatch? previous);
 
 	/// <summary>
 	/// Return a substring from the input.
@@ -52,7 +63,7 @@ public interface IScanner: IScanningDiagnostics
 	/// </summary>
 	/// <param name="offset">Offset relative to the start of the input.</param>
 	/// <param name="length">Length of substring to return.</param>
-	string Substring(int offset, int length);
+	ReadOnlySpan<char> Substring(int offset, int length);
 
 	/// <summary>
 	/// Return a substring from the input.
@@ -61,12 +72,6 @@ public interface IScanner: IScanningDiagnostics
 	/// <param name="offset">Offset relative to the start of the input.</param>
 	/// <param name="length">Length of substring to return.</param>
 	string UntransformedSubstring(int offset, int length);
-
-	/// <summary>
-	/// Return a string containing all data from the current cursor onwards.
-	/// </summary>
-	/// <returns>String of remaining data</returns>
-	string RemainingData(int offset);
 
 	/// <summary>Return a match from a substring of the input</summary>
 	ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null);

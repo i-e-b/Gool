@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Phantom.Parsers.Terminals;
@@ -26,7 +27,7 @@ public class ParserMatch
         _mutator = mutator;
         SourceParser = source;
 
-        Scanner = scanner ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
+        Scanner = scanner; // ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
         Offset = offset;
         Length = length;
     }
@@ -47,27 +48,27 @@ public class ParserMatch
     /// <summary>
     /// List of child matches (should you need the AST)
     /// </summary>
-    public List<ParserMatch> ChildMatches { get; } = new();
+    public readonly MaybeList<ParserMatch> ChildMatches = new();
 
     /// <summary>
     /// The parser that generated this match
     /// </summary>
-    public IParser? SourceParser { get; }
+    public readonly IParser? SourceParser;
 
     /// <summary>
     /// Scanner
     /// </summary>
-    public IScanner Scanner { get; }
+    public readonly IScanner Scanner;
 
     /// <summary>
     /// Offset
     /// </summary>
-    public int Offset { get; private set; }
+    public readonly int Offset;
 
     /// <summary>
     /// Length
     /// </summary>
-    public int Length { get; private set; }
+    public int Length;
 
     /// <summary>
     /// Extracts the match value
@@ -136,20 +137,21 @@ public class ParserMatch
     /// flags can change this (see <see cref="ScopeType"/>)
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
-    public static ParserMatch Join(IParser source, ParserMatch left, ParserMatch right)
+    public static ParserMatch Join(IParser source, ParserMatch? left, ParserMatch right)
     {
-        if (left == null || right == null) throw new NullReferenceException("Can't Join null match");
+        if (right == null) throw new NullReferenceException("Can't Join null match");
         if (!right.Success) throw new ArgumentException("Can't Join failure match");
-        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
         // Joining success onto failure gives only the success
-        if (!left.Success)
+        if (left?.Success != true)
         {
             if (string.IsNullOrEmpty(source.Tag)) return right;
             var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
             if (!right.Empty) chainResult.ChildMatches.Add(right);
             return chainResult;
         }
+        
+        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
         // Reduce overlapping matches, if it doesn't loose information
         if (left.Contains(right) && NoMeta(left, right))
@@ -378,4 +380,69 @@ public class ParserMatch
     /// Returns true if the source parser has meta data. False otherwise
     /// </summary>
     public bool HasMetaData() => SourceParser?.HasMetaData() == true;
+}
+
+/// <summary>
+/// Reduced allocation list
+/// </summary>
+public class MaybeList<T> : IList<T>
+{
+    private IList<T> _src = Array.Empty<T>();
+
+    /// <inheritdoc />
+    public IEnumerator<T> GetEnumerator() => _src.GetEnumerator();
+
+    /// <inheritdoc />
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_src).GetEnumerator();
+
+    /// <inheritdoc />
+    public void Add(T item)
+    {
+        if (_src is List<T> list) list.Add(item);
+        else _src = new List<T>{item};
+    }
+
+    /// <inheritdoc />
+    public void Clear()
+    {
+        if (_src is List<T> lst) lst.Clear();
+    }
+
+    /// <inheritdoc />
+    public bool Contains(T item) => _src.Contains(item);
+
+    /// <inheritdoc />
+    public void CopyTo(T[] array, int arrayIndex) => _src.CopyTo(array, arrayIndex);
+
+    /// <inheritdoc />
+    public bool Remove(T item)
+    {
+        if (_src is List<T> lst) return lst.Remove(item);
+        return false;
+    }
+
+    /// <inheritdoc />
+    public int Count => _src.Count;
+
+    /// <inheritdoc />
+    public bool IsReadOnly => false;
+
+    /// <inheritdoc />
+    public int IndexOf(T item) => _src.IndexOf(item);
+
+    /// <inheritdoc />
+    public void Insert(int index, T item) => _src.Insert(index, item);
+
+    /// <inheritdoc />
+    public void RemoveAt(int index)
+    {
+        if (_src is List<T> lst) lst.RemoveAt(index);
+    }
+
+    /// <inheritdoc />
+    public T this[int index]
+    {
+        get => _src[index];
+        set => _src[index] = value;
+    }
 }

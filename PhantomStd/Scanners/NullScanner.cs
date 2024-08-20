@@ -24,6 +24,11 @@ public class NullScanner : IScanner
     public string BadPatch(int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
+    public string InputString => throw new InvalidOperationException(ErrorMsg);
+    /// <inheritdoc />
+    public string TransformedString => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
     public bool EndOfInput(int offset) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
@@ -59,13 +64,10 @@ public class NullScanner : IScanner
     public ParserMatch AutoAdvance(ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public string Substring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
+    public ReadOnlySpan<char> Substring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public string UntransformedSubstring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
-
-    /// <inheritdoc />
-    public string RemainingData(int offset) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public ParserMatch CreateMatch(IParser source, int offset, int length, Func<string,string>? mutator) => throw new InvalidOperationException(ErrorMsg);

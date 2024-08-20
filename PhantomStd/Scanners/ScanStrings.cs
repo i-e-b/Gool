@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Phantom.Parsers.Terminals;
 using Phantom.Results;
 
 namespace Phantom.Scanners;
@@ -10,6 +9,7 @@ namespace Phantom.Scanners;
 /// </summary>
 public class ScanStrings : IScanner
 {
+	private readonly string _input;
 	private readonly List<ParserPoint> _failurePoints = new();
 	private readonly List<ParserMatch> _matchPaths = new();
 	private readonly Dictionary<object, object?> _contexts = new();
@@ -22,9 +22,10 @@ public class ScanStrings : IScanner
 	/// <param name="input">String to scan</param>
 	public ScanStrings(string input)
 	{
+		_input = input;
+		_inputLength = input.Length;
 		_rightMostPoint = 0;
 		_completed = false;
-		InputString = input;
 
 		Transform = new NoTransform();
 		SkipWhitespace = false;
@@ -45,7 +46,21 @@ public class ScanStrings : IScanner
 	/// <summary>
 	/// Get the original input string
 	/// </summary>
-	public string InputString { get; }
+	public string InputString => _input;
+
+	/// <summary>
+	/// The input string, as processed by the transformer.
+	/// This will be equal to the input string if there is no transformer.
+	/// </summary>
+	public string TransformedString
+	{
+		get { 
+			_transformedString ??= Transform.Transform(_input);
+			return _transformedString;
+		}
+	}
+	private string? _transformedString;
+	private readonly int _inputLength;
 
 	#region IScanner Members
 
@@ -72,8 +87,7 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public object? GetContext(IParser parser)
 	{
-		if (_contexts.TryGetValue(parser, out var ctx)) return ctx;
-		return null;
+		return _contexts.GetValueOrDefault(parser);
 	}
 
 	/// <inheritdoc />
@@ -95,9 +109,9 @@ public class ScanStrings : IScanner
 
 		foreach (var p in _failurePoints)
 		{
-			var prev = InputString.Substring(0, p.Position);
-			var left = p.Length >= 0 ? InputString.Substring(p.Position, p.Length) : "";
-			var right = InputString.Substring(p.Position + p.Length);
+			var prev = _input[..p.Position];
+			var left = p.Length >= 0 ? _input.Substring(p.Position, p.Length) : "";
+			var right = _input[(p.Position + p.Length)..];
 				
 			lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
 		}
@@ -122,14 +136,14 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public string BadPatch(int length)
 	{
-		int l = Math.Min(InputString.Length, (_rightMostPoint + length)) - _rightMostPoint;
-		return InputString.Substring(_rightMostPoint, l);
+		int l = Math.Min(_inputLength, (_rightMostPoint + length)) - _rightMostPoint;
+		return _input.Substring(_rightMostPoint, l);
 	}
 
 	/// <inheritdoc />
 	public bool EndOfInput(int offset)
 	{
-		return offset >= InputString.Length;
+		return offset >= _inputLength;
 	}
 
 	/// <inheritdoc />
@@ -146,22 +160,21 @@ public class ScanStrings : IScanner
 	/// <inheritdoc />
 	public char Peek(int offset)
 	{
-		if (_completed) throw new Exception("This scanner has been completed");
-		if (EndOfInput(offset)) return (char)0;
-		return Transform.Transform(InputString[offset]);
+		if (offset >= _inputLength) return (char)0;
+		return TransformedString[offset];
 	}
 
 	/// <summary>
 	/// If skip whitespace is set and current position is whitespace,
 	/// seek forward until on non-whitespace position or EOF.
 	/// </summary>
-	public ParserMatch AutoAdvance(ParserMatch? previous)
+	public ParserMatch? AutoAdvance(ParserMatch? previous)
 	{
-		var ws = NullMatch(null, previous?.Right ?? 0);
-		
-		if (!SkipWhitespace) return ws;
-		if (EndOfInput(ws.Right)) return ws;
+		var left = previous?.Right ?? 0;
+		if (!SkipWhitespace) return previous;
+		if (EndOfInput(left)) return previous;
 
+		var ws = NullMatch(null, left);
 		var offset = ws.Right;
 		var c = Peek(offset);
 		
@@ -175,23 +188,16 @@ public class ScanStrings : IScanner
 		return ws;
 	}
 
-
 	/// <inheritdoc />
-	public string Substring(int offset, int length)
+	public ReadOnlySpan<char> Substring(int offset, int length)
 	{
-		return  Transform.Transform(InputString.Substring(offset, Math.Min(length, InputString.Length - offset)));
+		return TransformedString.AsSpan(offset, Math.Min(length, _inputLength - offset));
 	}
 
 	/// <inheritdoc />
 	public string UntransformedSubstring(int offset, int length)
 	{
-		return  InputString.Substring(offset, Math.Min(length, InputString.Length - offset));
-	}
-
-	/// <inheritdoc />
-	public string RemainingData(int offset)
-	{
-		return Transform.Transform(InputString.Substring(offset));
+		return  InputString.Substring(offset, Math.Min(length, _inputLength - offset));
 	}
 
 	/// <inheritdoc />

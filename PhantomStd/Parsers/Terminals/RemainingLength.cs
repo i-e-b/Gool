@@ -29,7 +29,7 @@ public class RemainingLength : Parser, IMatchingParser
     {
         var offset = previousMatch?.Right ?? 0;
 
-        var remainingLength = scan.RemainingData(offset).Length;
+        var remainingLength = scan.InputString.Length - offset;//RemainingData(offset).Length;
 
         if (remainingLength < _min || remainingLength > _max) return scan.NoMatch(this, previousMatch);
 

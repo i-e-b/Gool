@@ -12,10 +12,5 @@ public class TransformToLower : ITransform
 	/// </summary>
 	string ITransform.Transform(string s) => s.ToLowerInvariant();
 
-	/// <summary>
-	/// Convert irregular cased input to lowercased input
-	/// </summary>
-	char ITransform.Transform(char c) => char.ToLowerInvariant(c);
-
 	#endregion
 }
