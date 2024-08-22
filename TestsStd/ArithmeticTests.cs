@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using Gool.Results;
 using NUnit.Framework;
-using Phantom.Results;
 using Samples;
 
 namespace TestsStd;

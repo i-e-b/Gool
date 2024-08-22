@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers.Terminals;
+namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// Match a single character that is in a range, and is not in the list of exclusions

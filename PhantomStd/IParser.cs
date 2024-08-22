@@ -1,6 +1,6 @@
-using Phantom.Results;
+using Gool.Results;
 
-namespace Phantom;
+namespace Gool;
 
 /// <summary>
 /// Interface for a parser that can interpret the content of an <see cref="IScanner"/>,

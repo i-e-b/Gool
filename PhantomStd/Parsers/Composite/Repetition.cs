@@ -1,9 +1,9 @@
 using System;
-using Phantom.Parsers.Composite.Abstracts;
-using Phantom.Parsers.Terminals;
-using Phantom.Results;
+using Gool.Parsers.Composite.Abstracts;
+using Gool.Parsers.Terminals;
+using Gool.Results;
 
-namespace Phantom.Parsers.Composite;
+namespace Gool.Parsers.Composite;
 
 /// <summary>
 /// Create a generalised repetition parser from a single subparser

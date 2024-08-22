@@ -1,4 +1,4 @@
-﻿namespace Phantom;
+﻿namespace Gool;
 
 /// <summary>
 /// Change in tree scope that this match represents

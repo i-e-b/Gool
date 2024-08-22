@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
+using Gool.Results;
 using NUnit.Framework;
-using Phantom.Results;
 using Samples;
 
 namespace TestsStd;

@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using Phantom;
+using Gool;
+
 // ReSharper disable InconsistentNaming
 
 namespace Samples;

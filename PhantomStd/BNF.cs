@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Gool.Parsers;
+using Gool.Parsers.Composite;
+using Gool.Parsers.Interfaces;
+using Gool.Parsers.Terminals;
+using Gool.Results;
+using Gool.Scanners;
 using JetBrains.Annotations;
-using Phantom.Parsers;
-using Phantom.Parsers.Composite;
-using Phantom.Parsers.Interfaces;
-using Phantom.Parsers.Terminals;
-using Phantom.Results;
-using Phantom.Scanners;
 
-namespace Phantom;
+namespace Gool;
 
 /// <summary>
 /// Provides a <i>Backus–Naur form</i>-like syntax for building parsers.<br/>

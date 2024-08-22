@@ -1,4 +1,4 @@
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Interface for textual transforms (like to lower case or remove punctuation)

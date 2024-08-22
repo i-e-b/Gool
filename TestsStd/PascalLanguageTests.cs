@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Text;
+using Gool;
+using Gool.Results;
 using NUnit.Framework;
-using Phantom;
-using Phantom.Results;
 using Samples;
 
 // ReSharper disable InconsistentNaming

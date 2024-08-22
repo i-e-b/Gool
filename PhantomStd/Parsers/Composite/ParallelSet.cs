@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
-using Phantom.Scanners;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
+using Gool.Scanners;
 
-namespace Phantom.Parsers.Composite;
+namespace Gool.Parsers.Composite;
 
 /// <summary>
 /// If the <c>capture</c> parser matches, test the <b>match text</b> against a further

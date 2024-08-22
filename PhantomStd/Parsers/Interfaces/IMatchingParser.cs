@@ -1,6 +1,6 @@
-using Phantom.Results;
+using Gool.Results;
 
-namespace Phantom.Parsers.Interfaces;
+namespace Gool.Parsers.Interfaces;
 
 /// <summary>
 /// Interface for parsers that can attempt to match their parser patterns against scanner data

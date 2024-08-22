@@ -1,8 +1,8 @@
 ﻿using System;
-using Phantom.Parsers.Composite.Abstracts;
-using Phantom.Results;
+using Gool.Parsers.Composite.Abstracts;
+using Gool.Results;
 
-namespace Phantom.Parsers.Composite;
+namespace Gool.Parsers.Composite;
 
 /// <summary>
 /// Wraps a single other parser.

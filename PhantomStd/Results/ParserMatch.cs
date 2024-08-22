@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Phantom.Parsers.Terminals;
-using Phantom.Scanners;
+using Gool.Parsers.Terminals;
+using Gool.Scanners;
 
-namespace Phantom.Results;
+namespace Gool.Results;
 
 /// <summary>
 /// Creates and stores parser matches.

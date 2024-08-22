@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
-using Phantom;
-using Phantom.Scanners;
+﻿using Gool;
+using Gool.Scanners;
+using NUnit.Framework;
+
 // ReSharper disable InconsistentNaming
 
 namespace TestsStd;

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
+using Gool;
+using Gool.Scanners;
 using NUnit.Framework;
-using Phantom;
-using Phantom.Scanners;
 
 // ReSharper disable InconsistentNaming
 

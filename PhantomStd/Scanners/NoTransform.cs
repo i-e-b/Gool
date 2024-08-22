@@ -1,4 +1,4 @@
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// A transform that represents no change to the input

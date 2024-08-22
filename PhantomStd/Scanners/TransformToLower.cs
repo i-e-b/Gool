@@ -1,4 +1,4 @@
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Transformer that outputs a lowercase version of the input

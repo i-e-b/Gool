@@ -1,7 +1,7 @@
 using System;
-using Phantom.Results;
+using Gool.Results;
 
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Match of parser and scanner location

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Phantom.Parsers.Interfaces;
+namespace Gool.Parsers.Interfaces;
 
 internal interface ICompositeParser: IMatchingParser
 {

@@ -1,9 +1,9 @@
 using System;
-using Phantom.Parsers.Interfaces;
-using Phantom.Parsers.Terminals;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Parsers.Terminals;
+using Gool.Results;
 
-namespace Phantom.Parsers;
+namespace Gool.Parsers;
 
 /// <summary>
 /// Base class for all parsers.

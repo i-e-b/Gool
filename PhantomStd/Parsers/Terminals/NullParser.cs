@@ -1,6 +1,6 @@
-﻿using Phantom.Results;
+﻿using Gool.Results;
 
-namespace Phantom.Parsers.Terminals;
+namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// A placeholder that represents no parser.

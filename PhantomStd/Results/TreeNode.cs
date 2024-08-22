@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Phantom.Results;
+namespace Gool.Results;
 
 /// <summary>
 /// Hierarchy derived from a <see cref="ParserMatch"/> tree.

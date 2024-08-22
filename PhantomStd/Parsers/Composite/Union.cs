@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers.Composite;
+namespace Gool.Parsers.Composite;
 
 /// <summary>
 /// Creates a Union (or 'alternative') parser from two sub-parsers.

@@ -1,8 +1,8 @@
 using System;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers.Terminals;
+namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// Parser that matches an exact string sequence

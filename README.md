@@ -1,4 +1,4 @@
-Phantom 2 is a lexer/parser for C#
+Gool is a lexer/parser for C#
 ==================================
 
 A parser-combinator library for C#, with a fluent BNF-like interface for building parsers.
@@ -145,7 +145,7 @@ Detailed examples
 
 See [Sample Parsers](https://github.com/i-e-b/Phantom2/tree/master/SamplesStd) for fully functional examples.
 
-Basic infix arithmetic calculator
+### Basic infix arithmetic calculator
 
 ```csharp
 
@@ -219,3 +219,70 @@ private static TreeNode ApplyOperation(TreeNode node)
 }
 ```
 
+### Basic XML Parser
+
+```csharp
+BNF text       = BNF.Regex("[^<>]+");
+BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
+BNF whitespace = BNF.Regex(@"\s+");
+
+BNF quoted_string = '"' > identifier > '"';
+BNF attribute = whitespace > identifier > '=' > quoted_string;
+
+BNF tag_id = identifier.Tagged(TagId);
+BNF open_tag = '<' > tag_id > -attribute > '>';
+
+BNF close_tag = "</" > tag_id > '>';
+
+return BNF
+    .Recursive(tree => -(open_tag > -(tree | text) > close_tag))
+    .WithOptions(BNF.Options.None);
+```
+
+
+### Full spec JSON parser
+
+From https://www.json.org/json-en.html
+
+```csharp
+var _value = BNF.Forward();
+
+BNF ws = BNF.Regex(@"\s*");
+BNF neg = '-';
+BNF digit = BNF.Regex("[0-9]");
+BNF exp = BNF.Regex("[eE]");
+BNF sign = BNF.OneOf('+', '-');
+
+BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
+BNF character = BNF.Regex("""[^"\\]""") | ('\\' > escape);
+BNF characters = -character;
+BNF quoted_string = '"' > characters > '"';
+
+BNF element = ws > _value > ws;
+BNF elements = element % ',';
+
+BNF member_key = quoted_string.Copy();
+BNF member = ws > member_key > ws > ':' > element;
+BNF members = member % ',';
+
+BNF object_enter = '{';
+BNF object_leave = '}';
+BNF object_block = object_enter > (ws | members) > object_leave;
+
+BNF array_enter = '[';
+BNF array_leave = ']';
+BNF array_block = array_enter > elements > array_leave;
+
+BNF digits = +digit;
+BNF exponent = !(exp > sign > digits);
+BNF fraction = !('.' > digits);
+BNF integer = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
+BNF number = integer > fraction > exponent;
+
+BNF primitive = quoted_string | number | "true" | "false" | "null";
+BNF value = object_block | array_block | primitive;
+
+_value.Is(value);
+
+return element.WithOptions(BNF.Options.SkipWhitespace);
+```

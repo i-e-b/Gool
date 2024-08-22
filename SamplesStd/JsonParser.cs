@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Phantom;
+using Gool;
 
 // ReSharper disable InconsistentNaming
 
@@ -50,7 +50,6 @@ public static class JsonParser
         BNF array_enter = '[';
         BNF array_leave = ']';
         BNF array_block = array_enter > elements > array_leave;
-
 
         BNF digits = +digit;
         BNF exponent = !(exp > sign > digits);

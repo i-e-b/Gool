@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Phantom.Results;
+using Gool.Results;
 
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Placeholder for an invalid scanner

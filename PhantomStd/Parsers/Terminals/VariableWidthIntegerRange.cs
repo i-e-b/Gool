@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers.Terminals;
+namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// Parse a variable width unsigned integer, within a given value range.

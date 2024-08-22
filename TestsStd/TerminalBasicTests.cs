@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
-using Phantom.Parsers.Terminals;
-using Phantom.Results;
-using Phantom.Scanners;
+﻿using Gool.Parsers.Terminals;
+using Gool.Results;
+using Gool.Scanners;
+using NUnit.Framework;
 
 namespace TestsStd;
 

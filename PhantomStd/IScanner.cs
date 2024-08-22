@@ -1,8 +1,8 @@
 using System;
-using Phantom.Results;
-using Phantom.Scanners;
+using Gool.Results;
+using Gool.Scanners;
 
-namespace Phantom;
+namespace Gool;
 
 /// <summary>
 /// Scanners provide an interface to the input stream to be parsed,

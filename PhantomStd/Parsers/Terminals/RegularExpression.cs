@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 using JetBrains.Annotations;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
 
-namespace Phantom.Parsers.Terminals;
+namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// Parse for a regular expression match.

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers;
+namespace Gool.Parsers;
 
 /// <summary>
 /// A parser implementation which contains another parser

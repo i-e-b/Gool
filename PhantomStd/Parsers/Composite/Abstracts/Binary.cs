@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Phantom.Parsers.Interfaces;
-using Phantom.Results;
+using Gool.Parsers.Interfaces;
+using Gool.Results;
 
-namespace Phantom.Parsers.Composite.Abstracts;
+namespace Gool.Parsers.Composite.Abstracts;
 
 /// <summary>
 /// An abstract template for binary composite parsers

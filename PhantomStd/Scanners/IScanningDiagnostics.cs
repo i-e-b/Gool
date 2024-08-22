@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Phantom.Results;
+using Gool.Results;
 
-namespace Phantom.Scanners;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Scanners provide an interface to the input stream to be parsed
