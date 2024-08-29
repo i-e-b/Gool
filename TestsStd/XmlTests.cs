@@ -138,12 +138,12 @@ public class XmlTests
         }
 
         Console.WriteLine(sb.ToString());
-        Assert.That(sb.ToString(), Is.EqualTo(@"note{to{[Tove]}to
+        Assert.That(sb.ToString().Replace("\r",""), Is.EqualTo(@"note{to{[Tove]}to
 from{[Jani]}from
 heading{[Reminder]}heading
 body{[Don't forget me this weekend!]}body
 empty{}empty
 }note
-"));
+".Replace("\r","")));
     }
 }
