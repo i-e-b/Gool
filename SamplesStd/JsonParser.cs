@@ -11,9 +11,7 @@ public static class JsonParser
 
     private static RegexOptions Options()
     {
-        return RegexOptions.ExplicitCapture
-               | RegexOptions.IgnoreCase
-               | RegexOptions.Multiline;
+        return RegexOptions.ExplicitCapture;
     }
 
     /// <summary>
@@ -23,12 +21,12 @@ public static class JsonParser
     {
         BNF.RegexOptions = Options();
 
-        var _value = BNF.Forward();
+        var value = BNF.Forward();
 
         BNF ws = BNF.Regex(@"\s*");
         BNF neg = '-';
         BNF digit = BNF.Regex("[0-9]");
-        BNF exp = BNF.Regex("[eE]");
+        BNF exp = BNF.OneOf('e', 'E');
         BNF sign = BNF.OneOf('+', '-');
 
         BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
@@ -36,7 +34,7 @@ public static class JsonParser
         BNF characters = -character;
         BNF quoted_string = '"' > characters > '"';
 
-        BNF element = ws > _value > ws;
+        BNF element = ws > value > ws;
         BNF elements = element % ',';
 
         BNF member_key = quoted_string.Copy();
@@ -58,7 +56,8 @@ public static class JsonParser
         BNF number = integer > fraction > exponent;
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
-        BNF value = object_block | array_block | primitive;
+
+        value.Is(object_block | array_block | primitive);
 
 
         array_enter.OpenScope().TagWith("array");
@@ -70,8 +69,6 @@ public static class JsonParser
         member_key.TagWith("key");
         primitive.TagWith("value");
 
-        _value.Is(value);
-        
-        return element.WithOptions(BNF.Options.SkipWhitespace);
+        return element.WithOptions(BNF.Options.None);
     }
 }
