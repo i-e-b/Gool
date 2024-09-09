@@ -1,6 +1,7 @@
 
 ## Nice features
 
+- [ ] Parser show tags of failed results as the "expected" if parsing can't continue.
 - [ ] Generate a BNF graphic (display of parser structure)
 - [ ] Generate parser result graphic (like https://dubroy.com/blog/visualizing-packrat-parsing/ )
 

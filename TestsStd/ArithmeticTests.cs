@@ -20,7 +20,7 @@ public class ArithmeticTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = ArithmeticExample.Parser.ParseString(expression);
+        var result = ArithmeticExample.Parser.ParseEntireString(expression);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -43,6 +43,23 @@ public class ArithmeticTests
         Assert.That(finalValue, Is.EqualTo(expected));
         sw.Stop();
         Console.WriteLine($"Tree operations and evaluation took {sw.Elapsed.TotalMicroseconds} µs");
+    }
+
+    [Test]
+    [TestCase("6.5 + 3 * * 2 - 5.5")]
+    [TestCase("2^()")]
+    [TestCase("1 + ")]
+    public void failure_cases(string expression)
+    {
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = ArithmeticExample.Parser.ParseEntireString(expression);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        Console.WriteLine(result.Description());
+
+        Assert.That(result.Success, Is.False, "Invalid expression should result in failure");
     }
 
     private static TreeNode ApplyOperation(TreeNode node)
