@@ -2,6 +2,7 @@
 ## Nice features
 
 - [ ] Parser show tags of failed results as the "expected" if parsing can't continue.
+- [ ] Demo of segmenting parser: break input into (lines|expressions|statements), then parse each of those. Example of recovering parser if one line is bad.
 - [ ] Generate a BNF graphic (display of parser structure)
 - [ ] Generate parser result graphic (like https://dubroy.com/blog/visualizing-packrat-parsing/ )
 
