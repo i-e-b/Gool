@@ -10,9 +10,16 @@
 
 - [ ] Complete basic programming language
 
+Huge repo of grammars here: https://github.com/antlr/grammars-v4
+
 Sources for more examples:
 
 - https://rosettacode.org/wiki/BNF_Grammar
 - https://docs.python.org/3/reference/grammar.html
 - https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
 - https://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html#tag_20_06_13_16
+- COBOL might be a good stretch:
+  - https://www.ibm.com/docs/en/cobol-zos/6.3?topic=reference-cobol-language-structure
+  - https://www.cs.vu.nl/~x/coboldef/coboldef.html
+  - https://www.cs.vu.nl/grammarware/browsable/cobol/#EBNF
+- And SQL: https://ronsavage.github.io/SQL/sql-92.bnf.html
