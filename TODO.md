@@ -22,4 +22,5 @@ Sources for more examples:
   - https://www.ibm.com/docs/en/cobol-zos/6.3?topic=reference-cobol-language-structure
   - https://www.cs.vu.nl/~x/coboldef/coboldef.html
   - https://www.cs.vu.nl/grammarware/browsable/cobol/#EBNF
+  - https://github.com/shamrice/COBOL-Examples
 - And SQL: https://ronsavage.github.io/SQL/sql-92.bnf.html

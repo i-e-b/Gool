@@ -9,14 +9,16 @@ namespace Gool.Parsers.Terminals;
 /// </summary>
 public class LiteralString : Parser, IMatchingParser
 {
-    private readonly string _test;
+    private readonly string           _test;
+    private readonly StringComparison _comparisonType;
 
     /// <summary>
     /// Parser that matches an exact string sequence
     /// </summary>
-    public LiteralString(string toMatch)
+    public LiteralString(string toMatch, StringComparison comparisonType = StringComparison.Ordinal)
     {
         _test = toMatch;
+        _comparisonType = comparisonType;
     }
 
     /// <inheritdoc />
@@ -26,7 +28,7 @@ public class LiteralString : Parser, IMatchingParser
 
         var compare = scan.Substring(offset, _test.Length);
 
-        return compare.Equals(_test, StringComparison.Ordinal)
+        return compare.Equals(_test, _comparisonType)
             ? scan.CreateMatch(this, offset, _test.Length)
             : scan.NoMatch(this, previousMatch);
     }

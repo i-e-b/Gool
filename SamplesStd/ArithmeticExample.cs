@@ -22,15 +22,17 @@ public static class ArithmeticExample
 
         var _expression = BNF.Forward();
 
-        BNF add_sub = BNF.OneOf('+', '-'); // same as: (BNF)'+' | '-';
-        BNF mul_div = BNF.OneOf('*', '/');
-        BNF exp     = '^';
+        BNF
+            add_sub = BNF.OneOf('+', '-'), // same as: (BNF)'+' | '-';
+            mul_div = BNF.OneOf('*', '/'),
+            exp     = '^';
 
-        BNF number     = BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"); // signed numbers
-        BNF factor     = number | ('(' > _expression > ')');
-        BNF power      = factor > !(exp > factor);
-        BNF term       = power % mul_div;
-        BNF expression = term % add_sub;
+        BNF
+            number     = BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"), // signed numbers
+            factor     = number | ('(' > _expression > ')'),
+            power      = factor > !(exp > factor),
+            term       = power % mul_div,
+            expression = term % add_sub;
 
         _expression.Is(expression);
 

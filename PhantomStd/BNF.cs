@@ -83,7 +83,7 @@ public class BNF : IMatchingParser
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
 	/// </summary>
-	private BNF(IParser parserTree)
+	internal BNF(IParser parserTree)
 	{
 		_parserTree = parserTree;
 	}
@@ -419,7 +419,6 @@ public class BNF : IMatchingParser
 		return new BNF(new RegularExpression(pattern, RegexOptions));
 	}
 	
-	
 	/// <summary>
 	/// Matches the remaining input, only if its length is between
 	/// <paramref name="min"/> and <paramref name="max"/> (inclusive)
@@ -452,6 +451,22 @@ public class BNF : IMatchingParser
 	public static BNF RangeExcluding(char lower, char upper, params char[] exclusions)
 	{
 		return new BNF(new RangeExcludingCharacterSet(lower, upper, exclusions));
+	}
+
+	/// <summary>
+	/// Match a single character inside any of the inclusive ranges
+	/// </summary>
+	public static BNF AnyCharacterInRanges(params CharacterRange[] ranges)
+	{
+		return new BNF(new MultiRangeCharacterSet(ranges));
+	}
+
+	/// <summary>
+	/// Match a single character OUTSIDE any of the inclusive ranges
+	/// </summary>
+	public static BNF AnyCharacterNotInRanges(params CharacterRange[] ranges)
+	{
+		return new BNF(new MultiRangeExcludingCharacterSet(ranges));
 	}
 	
 	/// <summary>
@@ -555,6 +570,7 @@ public class BNF : IMatchingParser
 		return new BnfForward(new Recursion());
 	}
 
+	#region Internal sub-types
 
 	/// <summary>
 	/// Options for parsing
@@ -659,6 +675,50 @@ public class BNF : IMatchingParser
 		}
 	}
 
+	/// <summary>
+	/// A range of characters, inclusive of upper and lower
+	/// </summary>
+	public class CharacterRange
+	{
+		private readonly char _lower;
+		private readonly char _upper;
+
+		/// <summary>
+		/// Create a character range
+		/// </summary>
+		public CharacterRange(char a, char b)
+		{
+			if (a < b)
+			{
+				_lower = a;
+				_upper = b;
+			}
+			else
+			{
+				_lower = b;
+				_upper = a;
+			}
+		}
+
+		/// <summary>
+		/// Implicitly cast a single character to a 1 character range
+		/// </summary>
+		public static implicit operator CharacterRange(char c)
+		{
+			return new CharacterRange(c,c);
+		}
+
+		/// <summary>
+		/// Implicitly cast a tuple with an upper and lower character to a range
+		/// </summary>
+		public static implicit operator CharacterRange(ValueTuple<char,char> t)
+		{
+			return new CharacterRange(t.Item1, t.Item2);
+		}
+	}
+	#endregion Internal sub-types
+
+
 	#region IParser pass-through
 
 	/// <inheritdoc />
@@ -707,5 +767,18 @@ public class BNF : IMatchingParser
 	}
 
 	#endregion IParser pass-through
+}
 
+/// <summary>
+/// Extension methods for BNF
+/// </summary>
+public static class BnfExtensions
+{
+	/// <summary>
+	/// Match a literal string in a case insensitive way
+	/// </summary>
+	public static BNF CaseInsensitive(this string pattern)
+	{
+		return new BNF(new LiteralString(pattern, StringComparison.OrdinalIgnoreCase));
+	}
 }

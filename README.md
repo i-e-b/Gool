@@ -3,30 +3,35 @@ Gool is a lexer/parser for C#
 
 A parser-combinator library for C#, with a fluent BNF-like interface for building parsers.
 
+
+See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
+
 Basic example
 -------------
 
 ```csharp
 // Basic infix arithmetic expressions
-BNF number = BNF.Regex("\-?[0-9]+(\.[0-9]+)?");      // Signed numbers
+BNF 
+    number     = BNF.Regex("\-?[0-9]+(\.[0-9]+)?"),  // Signed numbers
 
-BNF factor     = number | ('(' > _expression > ')'); // Number or parenthesised expression
-BNF power      = factor > !('^' > factor);           // Factor, with optional '^' + exponent
-BNF term       = power % ('*' | '/');                // Powers, optionally joined with '*' or '/'
-BNF expression = term % ('+' | '-');                 // Terms, optionally joined will '+' or '-'
+    factor     = number | ('(' > _expression > ')'), // Number or parenthesised expression
+    power      = factor > !('^' > factor),           // Factor, with optional '^' + exponent
+    term       = power % ('*' | '/'),                // Powers, optionally joined with '*' or '/'
+    expression = term % ('+' | '-');                 // Terms, optionally joined will '+' or '-'
 ```
 
 ```csharp
-var result = expression.ParseString(
+var result = expression.ParseString(     // Run the parser
     "(6.5 + 3) * (5.5 - -2)"
     );
 
-var tree = TreeNode.FromParserMatch(result, true);
-var final = TreeNode.TransformTree(tree, ApplyOperation);
+var tree = TreeNode.FromParserMatch(result, true);        // Interpret the raw parse tree
+var final = TreeNode.TransformTree(tree, ApplyOperation); // Apply functions to reduce tree to value
+
 Console.WriteLine(final); // 71.25
 ```
 
-(see bottom of document for full implementation)
+Some details removed for clarity -- see bottom of document for full implementation)
 
 BNF Syntax
 ----------
