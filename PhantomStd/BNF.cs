@@ -70,8 +70,7 @@ namespace Gool;
 public class BNF : IMatchingParser
 {
 	// Inspired by Spirit parser http://boost-spirit.com/home/
-	// There are a few changes compared to Spirit, all due to overloading
-	// restrictions in C#.
+	// There are a few changes compared to Spirit, all due to overloading restrictions in C#.
 	//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
 	//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
 
@@ -462,7 +461,7 @@ public class BNF : IMatchingParser
 	}
 
 	/// <summary>
-	/// Match a single character OUTSIDE any of the inclusive ranges
+	/// Match a single character OUTSIDE ALL of the inclusive ranges
 	/// </summary>
 	public static BNF AnyCharacterNotInRanges(params CharacterRange[] ranges)
 	{
@@ -622,11 +621,13 @@ public class BNF : IMatchingParser
 
 		/// <summary>
 		/// Parse an input string, returning a match tree.
-		/// This will return successful matches that consume only part of the input.
+		/// <p/>
+		/// This can return successful matches that consume only part of the input.
+		/// To ensure that the entire input matches the parser, use <see cref="ParseEntireString"/>
 		/// </summary>
 		/// <param name="input">The string to parse</param>
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
-		public ParserMatch ParseString(string input, int offset = 0)
+		public ParserMatch ParsePartialString(string input, int offset = 0)
 		{
 			return _bnf.ParseString(input, offset, _options, mustConsumeAll: false);
 		}
@@ -634,6 +635,8 @@ public class BNF : IMatchingParser
 		/// <summary>
 		/// Parse an input string, returning a match tree.
 		/// This will return a failed match if it does not consume the entire input.
+		/// <p/>
+		/// To allow matches that use only part of the input, see <see cref="ParsePartialString"/>
 		/// </summary>
 		/// <param name="input">The string to parse</param>
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
@@ -680,23 +683,20 @@ public class BNF : IMatchingParser
 	/// </summary>
 	public class CharacterRange
 	{
-		private readonly char _lower;
-		private readonly char _upper;
-
 		/// <summary>
 		/// Create a character range
 		/// </summary>
-		public CharacterRange(char a, char b)
+		private CharacterRange(char a, char b)
 		{
 			if (a < b)
 			{
-				_lower = a;
-				_upper = b;
+				Lower = a;
+				Upper = b;
 			}
 			else
 			{
-				_lower = b;
-				_upper = a;
+				Lower = b;
+				Upper = a;
 			}
 		}
 
@@ -715,9 +715,18 @@ public class BNF : IMatchingParser
 		{
 			return new CharacterRange(t.Item1, t.Item2);
 		}
+
+		/// <summary>
+		/// Return the lowest-ordered character that is considered a match
+		/// </summary>
+		public char Lower { get; }
+
+		/// <summary>
+		/// Return the highest-ordered character that is considered a match
+		/// </summary>
+		public char Upper { get; }
 	}
 	#endregion Internal sub-types
-
 
 	#region IParser pass-through
 
@@ -767,6 +776,7 @@ public class BNF : IMatchingParser
 	}
 
 	#endregion IParser pass-through
+
 }
 
 /// <summary>

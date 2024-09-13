@@ -40,7 +40,7 @@ public class LineCountingTest
     [Test]
     public void decompose_with_scanner_whitespace_skip()
     {
-        var result = MakeParser().ParseString(Sample);
+        var result = MakeParser().ParsePartialString(Sample);
 
         foreach (var fail in result.Scanner.ListFailures())
         {

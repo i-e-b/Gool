@@ -32,7 +32,7 @@ public class XmlTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.Parser.ParseString(Sample);
+        var result = XmlExample.Parser.ParsePartialString(Sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -54,7 +54,7 @@ public class XmlTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.Parser.ParseString(BrokenSample);
+        var result = XmlExample.Parser.ParsePartialString(BrokenSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -81,7 +81,7 @@ public class XmlTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.Parser.ParseString(BrokenSample);
+        var result = XmlExample.Parser.ParsePartialString(BrokenSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -106,7 +106,7 @@ public class XmlTests
     [Test]
     public void ConvertingParsedXmlTokensIntoStructure()
     {
-        var result = XmlExample.Parser.ParseString(Sample);
+        var result = XmlExample.Parser.ParsePartialString(Sample);
 
         foreach (var fail in result.Scanner.ListFailures())
         {

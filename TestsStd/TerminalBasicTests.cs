@@ -1,4 +1,6 @@
-﻿using Gool.Parsers.Terminals;
+﻿using System.Text;
+using Gool;
+using Gool.Parsers.Terminals;
 using Gool.Results;
 using Gool.Scanners;
 using NUnit.Framework;
@@ -336,7 +338,6 @@ public class TerminalBasicTests
         Assert.That(result.Success, Is.False); // in range, wrong length
     }
     
-    
     [Test]
     public void _VariableWidthIntegerRange_()
     {
@@ -361,5 +362,71 @@ public class TerminalBasicTests
         result = subject.TryMatch(new ScanStrings(" 99"), null);
         Assert.That(result.Success, Is.False); // in range, correct length, wrong leader
         
+    }
+
+    [Test]
+    public void _RangeExcludingCharacterSet_()
+    {
+        var subject  = new RangeExcludingCharacterSet('a', 'z', 'q', 'p', 'b', 'd');
+        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected = @"acghijklrstuvwxyz";
+        var scanner  = new ScanStrings(input);
+
+        var result = new StringBuilder();
+
+        var offset = 0;
+        for (var index = 0; index < input.Length; index++)
+        {
+            var c     = input[index];
+            var match = subject.TryMatch(scanner, new ParserMatch(null, scanner, offset, index));
+            if (match.Success) result.Append(c);
+        }
+
+        Console.WriteLine(result.ToString());
+        Assert.That(result.ToString(), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void _MultiRangeCharacterSet_()
+    {
+        var subject  = BNF.AnyCharacterInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected = @"abcDEFgz";
+        var scanner  = new ScanStrings(input);
+
+        var result = new StringBuilder();
+
+        var offset = 0;
+        for (var index = 0; index < input.Length; index++)
+        {
+            var c     = input[index];
+            var match = subject.TryMatch(scanner, new ParserMatch(null, scanner, offset, index));
+            if (match.Success) result.Append(c);
+        }
+
+        Console.WriteLine(result.ToString());
+        Assert.That(result.ToString(), Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void _MultiRangeExcludingCharacterSet_()
+    {
+        var subject  = BNF.AnyCharacterNotInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected = @"hijklMNOpqrstuvwxy";
+        var scanner  = new ScanStrings(input);
+
+        var result = new StringBuilder();
+
+        var offset = 0;
+        for (var index = 0; index < input.Length; index++)
+        {
+            var c     = input[index];
+            var match = subject.TryMatch(scanner, new ParserMatch(null, scanner, offset, index));
+            if (match.Success) result.Append(c);
+        }
+
+        Console.WriteLine(result.ToString());
+        Assert.That(result.ToString(), Is.EqualTo(expected));
     }
 }

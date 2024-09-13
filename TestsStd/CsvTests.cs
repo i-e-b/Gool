@@ -23,7 +23,7 @@ public class CsvTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = CsvExample.Csv(true, ",", "\n").ParseString(CsvFileExample);
+        var result = CsvExample.Csv(true, ",", "\n").ParsePartialString(CsvFileExample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -54,7 +54,7 @@ public class CsvTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = CsvExample.Csv(false, ",", "\n").ParseString(CsvFileExample);
+        var result = CsvExample.Csv(false, ",", "\n").ParsePartialString(CsvFileExample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -88,7 +88,7 @@ public class CsvTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = CsvExample.Csv(true, "\t", "\n").ParseString(TsvFileExample);
+        var result = CsvExample.Csv(true, "\t", "\n").ParsePartialString(TsvFileExample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -124,7 +124,7 @@ public class CsvTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = CsvExample.Csv(true, "\u001F", "\u001E").ParseString(AsciiFileExample);
+        var result = CsvExample.Csv(true, "\u001F", "\u001E").ParsePartialString(AsciiFileExample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -147,7 +147,7 @@ public class CsvTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = CsvExample.Csv(true, ",", "\n").ParseString(CsvFileExample);
+        var result = CsvExample.Csv(true, ",", "\n").ParsePartialString(CsvFileExample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         Assert.That (result.Success, Is.True);

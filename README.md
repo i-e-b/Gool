@@ -148,7 +148,7 @@ but changing `addSub` to `BNF.OneOf('+', '-').Tag("op").PivotScope();` results i
 Detailed examples
 -----------------
 
-See [Sample Parsers](https://github.com/i-e-b/Phantom2/tree/master/SamplesStd) for fully functional examples.
+See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
 
 ### Basic infix arithmetic calculator
 

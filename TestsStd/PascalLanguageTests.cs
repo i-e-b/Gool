@@ -64,7 +64,7 @@ public class PascalLanguageTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = PascalExample.Parser.ParseString(sample_program);
+        var result = PascalExample.Parser.ParsePartialString(sample_program);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -101,7 +101,7 @@ public class PascalLanguageTests
     [Test]
     public void SyntaxColoringPascalProgram()
     {
-        var result = PascalExample.Parser.ParseString(sample_program);
+        var result = PascalExample.Parser.ParsePartialString(sample_program);
         var output = new StringBuilder();
 
 
@@ -150,7 +150,7 @@ public class PascalLanguageTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = PascalExample.Parser.ParseString(program);
+        var result = PascalExample.Parser.ParsePartialString(program);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 

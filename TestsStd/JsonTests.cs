@@ -37,11 +37,11 @@ public class JsonTests
     {
         var parser = JsonParser.Json;
         var phantomTime = new Stopwatch();
-        var result = parser.ParseString(valid_sample);
+        var result = parser.ParsePartialString(valid_sample);
         phantomTime.Start();
         for (int i = 0; i < 99; i++)
         {
-            result = parser.ParseString(valid_sample);
+            result = parser.ParsePartialString(valid_sample);
         }
         phantomTime.Stop();
         Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds / 100} µs on average");
@@ -58,7 +58,7 @@ public class JsonTests
         {
             for (int i = 0; i < 99; i++)
             {
-                var result = parser.ParseString(valid_sample);
+                var result = parser.ParsePartialString(valid_sample);
                 Assert.That(result.Success, Is.True);
                 Console.Write('a');
             }
@@ -68,7 +68,7 @@ public class JsonTests
         {
             for (int i = 0; i < 99; i++)
             {
-                var result = parser.ParseString(valid_sample);
+                var result = parser.ParsePartialString(valid_sample);
                 Assert.That(result.Success, Is.True);
                 Console.Write('b');
             }
@@ -91,7 +91,7 @@ public class JsonTests
         Console.WriteLine($"Creating parser took {phantomTime.Elapsed.TotalMicroseconds} µs");
         
         phantomTime.Restart();
-        var result = parser.ParseString(valid_sample);
+        var result = parser.ParsePartialString(valid_sample);
         phantomTime.Stop();
         Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds} µs");
 
@@ -126,7 +126,7 @@ public class JsonTests
         sjTime.Start();
         Json.Parse(valid_sample); // this has a more special purpose parser
         sjTime.Stop();
-        Console.WriteLine($"Phantom deserialising took {phantomTime.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Gool deserialising took {phantomTime.Elapsed.TotalMicroseconds} µs");
         Console.WriteLine($"Real serialiser took {sjTime.Elapsed.TotalMicroseconds} µs");
         
 

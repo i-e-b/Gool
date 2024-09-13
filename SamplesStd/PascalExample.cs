@@ -6,7 +6,7 @@ using Gool;
 namespace Samples;
 
 /// <summary>
-/// Builds a parser for old-fashioned Pascal files, using the Phantom parser system.
+/// Builds a parser for old-fashioned Pascal files, using the Gool parser system.
 /// Built from the 1979 Apple Pascal poster.
 /// </summary>
 public static class PascalExample

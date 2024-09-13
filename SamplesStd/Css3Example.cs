@@ -46,10 +46,9 @@ public static class Css3Example
 
         BNF
 
-            urlFunc = "url(".CaseInsensitive(),
-            urlPrefix = BNF.On
-            url = urlFunc > ws >
-
+            urlFunc = "url(".CaseInsensitive();
+            //urlPrefix = BNF.On
+            //url = urlFunc > ws >
 
 
         // Parser side (https://github.com/antlr/grammars-v4/blob/master/css3/css3Parser.g4)

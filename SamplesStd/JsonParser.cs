@@ -23,23 +23,23 @@ public static class JsonParser
 
         var value = BNF.Forward();
 
-        BNF ws = BNF.Regex(@"\s*");
-        BNF neg = '-';
-        BNF digit = BNF.Regex("[0-9]");
-        BNF exp = BNF.OneOf('e', 'E');
-        BNF sign = BNF.OneOf('+', '-');
+        BNF ws    = BNF.Regex(@"\s*");
+        BNF neg   = '-';
+        BNF digit = BNF.AnyCharacterInRanges(('0', '9')); //BNF.Regex("[0-9]");
+        BNF exp   = BNF.OneOf('e', 'E');
+        BNF sign  = BNF.OneOf('+', '-');
 
-        BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
-        BNF character = BNF.Regex("""[^"\\]""") | ('\\' > escape);
-        BNF characters = -character;
+        BNF escape        = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
+        BNF character     = BNF.AnyCharacterNotInRanges('"','\\') | ('\\' > escape);
+        BNF characters    = -character;
         BNF quoted_string = '"' > characters > '"';
 
-        BNF element = ws > value > ws;
+        BNF element  = ws > value > ws;
         BNF elements = element % ',';
 
         BNF member_key = quoted_string.Copy();
-        BNF member = ws > member_key > ws > ':' > element;
-        BNF members = member % ',';
+        BNF member     = ws > member_key > ws > ':' > element;
+        BNF members    = member % ',';
 
         BNF object_enter = '{';
         BNF object_leave = '}';
@@ -49,11 +49,11 @@ public static class JsonParser
         BNF array_leave = ']';
         BNF array_block = array_enter > elements > array_leave;
 
-        BNF digits = +digit;
+        BNF digits   = +digit;
         BNF exponent = !(exp > sign > digits);
         BNF fraction = !('.' > digits);
-        BNF integer = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
-        BNF number = integer > fraction > exponent;
+        BNF integer  = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
+        BNF number   = integer > fraction > exponent;
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
 

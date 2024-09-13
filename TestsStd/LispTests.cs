@@ -49,7 +49,7 @@ public class LispTests
         
         Console.WriteLine("=================================================================================");
 
-        var result = LispExample.Parser.ParseString(SimpleSample);
+        var result = LispExample.Parser.ParsePartialString(SimpleSample);
 
         foreach (var match in result.BottomLevelMatchesDepthFirst())
         {
@@ -113,7 +113,7 @@ public class LispTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = LispExample.Parser.ParseString(SimpleSample);
+        var result = LispExample.Parser.ParsePartialString(SimpleSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         
@@ -129,7 +129,7 @@ public class LispTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = LispExample.Parser.ParseString(DeepSample);
+        var result = LispExample.Parser.ParsePartialString(DeepSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 

@@ -292,7 +292,7 @@ public class CompositeBasicTests
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = parser.ParseString(correct_sample);
+        var result = parser.ParsePartialString(correct_sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
