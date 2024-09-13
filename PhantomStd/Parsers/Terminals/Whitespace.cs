@@ -4,24 +4,62 @@ using Gool.Results;
 namespace Gool.Parsers.Terminals;
 
 /// <summary>
-/// Parser that matches a single character from a set
+/// Parser that matches characters from the unicode WhiteSpace category.
 /// </summary>
 public class Whitespace : Parser, IMatchingParser
 {
     /// <summary>
-    /// Parser that matches a single exact character
+    /// Maximum number of characters to match
     /// </summary>
-    public Whitespace() { }
+    public int UpperBound { get; }
+
+    /// <summary>
+    /// Minimum number of characters to make a match
+    /// </summary>
+    public int LowerBound { get; }
+
+    /// <summary>
+    /// Parser that matches a single whitespace character
+    /// </summary>
+    public Whitespace()
+    {
+        UpperBound = 1;
+        LowerBound = 1;
+    }
+
+    /// <summary>
+    /// Parser that matches a range of whitespace
+    /// </summary>
+    public Whitespace(int min, int max)
+    {
+        LowerBound = min;
+        UpperBound = max;
+    }
 
     /// <inheritdoc />
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
+        var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0); // empty match with this parser
 
-        return char.IsWhiteSpace(scan.Peek(offset))
-            ? scan.CreateMatch(this, offset, 1)
-            : scan.NoMatch(this, previousMatch);
+        int count = 0;
+
+        while (count < UpperBound && !scan.EndOfInput(result.Right))
+        {
+            var isWhiteSpace = char.IsWhiteSpace(scan.Peek(offset));
+            if (!isWhiteSpace) break; // no more matches
+
+            count++;
+            offset++;
+            result.ExtendTo(offset);
+        }
+
+        if (count < LowerBound || count > UpperBound)
+        {
+            return scan.NoMatch(this, result);
+        }
+
+        return result.Through(this);
     }
 
     /// <inheritdoc />

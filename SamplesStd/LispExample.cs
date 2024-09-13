@@ -20,7 +20,7 @@ public static class LispExample
         BNF
             dot         = '.',
             name        = ':' > identifier,
-            normal_list = "(", // https://xkcd.com/297/
+            normal_list = "(",                                                  // https://xkcd.com/297/
             quoted_list = "'(",
             end_list    = ")",
             comment     = ';' > (-BNF.NotLineEnd);

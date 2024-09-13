@@ -411,6 +411,22 @@ public class BNF : IMatchingParser
 	}
 
 	/// <summary>
+	/// Repeat the pattern a specific number of times
+	/// </summary>
+	public BNF Repeat(int i)
+	{
+		return new BNF(new Repetition(this, (uint)i, (uint)i));
+	}
+
+	/// <summary>
+	/// Repeat the pattern a range of times
+	/// </summary>
+	public BNF Repeat(int min, int max)
+	{
+		return new BNF(new Repetition(this, (uint)min, (uint)max));
+	}
+
+	/// <summary>
 	/// Match a regular expression
 	/// </summary>
 	public static BNF Regex([RegexPattern]string pattern)
@@ -549,6 +565,16 @@ public class BNF : IMatchingParser
 	/// Match a single character of white-space
 	/// </summary>
 	public static BNF WhiteSpace => new(new Whitespace());
+
+	/// <summary>
+	/// Match a range of white-space characters
+	/// </summary>
+	public static BNF WhiteSpaceCount(int min, int max) => new(new Whitespace(min, max));
+
+	/// <summary>
+	/// Match any number of white-space characters, or none
+	/// </summary>
+	public static BNF AnyWhiteSpace => new(new Whitespace(0, int.MaxValue));
 	
 	/// <summary>
 	/// If this parser matches, test the <b>match text</b> against a further
@@ -776,7 +802,6 @@ public class BNF : IMatchingParser
 	}
 
 	#endregion IParser pass-through
-
 }
 
 /// <summary>
