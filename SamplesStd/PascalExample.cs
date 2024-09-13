@@ -27,150 +27,153 @@ public static class PascalExample
         BNF.RegexOptions = Options();
 
         // Forward references
-        var _type = BNF.Forward();
-        var _fieldList = BNF.Forward();
-        var _block = BNF.Forward();
-        var _statement = BNF.Forward();
-        var _variable = BNF.Forward();
+        var _type       = BNF.Forward();
+        var _fieldList  = BNF.Forward();
+        var _block      = BNF.Forward();
+        var _statement  = BNF.Forward();
+        var _variable   = BNF.Forward();
         var _expression = BNF.Forward();
-        var _factor = BNF.Forward();
+        var _factor     = BNF.Forward();
 
-        // Basic literals
-        BNF unsignedInteger = BNF.Regex(@"\d+");
-        BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
-        BNF pascalString = BNF.Regex("'([^']|'')*'"); // Pascal uses two single-quotes to mark a single quote.
-        BNF plusOrMinus = BNF.OneOf('-', '+');
+        BNF // Basic literals
+            unsignedInteger = BNF.Regex(@"\d+"),
+            identifier      = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
+            pascalString    = BNF.Regex("'([^']|'')*'"), // Pascal uses two single-quotes to mark a single quote.
+            plusOrMinus     = BNF.OneOf('-', '+');
 
-        // Keywords
-        BNF k_program = "program";
-        BNF k_if = "if";
-        BNF k_set = "set";
-        BNF k_of = "of";
-        BNF k_array = "array";
-        BNF k_record = "record";
-        BNF k_end = "end";
-        BNF k_to = "to";
-        BNF k_down_to = "downto";
-        BNF k_begin = "begin";
-        BNF k_file = "file";
-        BNF k_exit = "exit";
-        BNF k_var = "var";
-        BNF k_else = "else";
-        BNF k_label = "label";
-        BNF k_const = "const";
-        BNF k_type = "type";
-        BNF k_packed = "packed";
-        BNF k_nil = "nil";
-        BNF k_function = "function";
-        BNF k_do = "do";
-        BNF k_then = "then";
-        BNF k_for = "for";
-        BNF k_case = "case";
-        BNF k_until = "until";
-        BNF k_procedure = "procedure";
-        BNF k_repeat = "repeat";
-        BNF k_while = "while";
-        BNF k_with = "with";
-        BNF k_goto = "goto";
+        BNF // Keywords
+            k_program   = "program",
+            k_if        = "if",
+            k_set       = "set",
+            k_of        = "of",
+            k_array     = "array",
+            k_record    = "record",
+            k_end       = "end",
+            k_to        = "to",
+            k_down_to   = "downto",
+            k_begin     = "begin",
+            k_file      = "file",
+            k_exit      = "exit",
+            k_var       = "var",
+            k_else      = "else",
+            k_label     = "label",
+            k_const     = "const",
+            k_type      = "type",
+            k_packed    = "packed",
+            k_nil       = "nil",
+            k_function  = "function",
+            k_do        = "do",
+            k_then      = "then",
+            k_for       = "for",
+            k_case      = "case",
+            k_until     = "until",
+            k_procedure = "procedure",
+            k_repeat    = "repeat",
+            k_while     = "while",
+            k_with      = "with",
+            k_goto      = "goto";
+
+        BNF // Operators
+            o_comma = ',',
+            o_dot   = '.',
+            o_colon = ':',
+            o_equal = '=',
+            o_slash = '/',
+            o_mul   = '*',
+            o_ref   = '^',
+            o_range = "..",
+            o_or    = "or",
+            o_not   = "not",
+            o_and   = "and",
+            o_div   = "div",
+            o_mod   = "mod",
+            o_set   = ":=";
+
+        BNF // Scope markers
+            s_open_paren    = '(',
+            s_close_paren   = ')',
+            s_open_bracket  = '[',
+            s_close_bracket = ']';
         
-        // Operators
-        BNF o_comma = ',';
-        BNF o_dot = '.';
-        BNF o_colon = ':';
-        BNF o_equal = '=';
-        BNF o_slash = '/';
-        BNF o_mul = '*';
-        BNF o_ref = '^';
-        BNF o_range = "..";
-        BNF o_or = "or";
-        BNF o_not = "not";
-        BNF o_and = "and";
-        BNF o_div = "div";
-        BNF o_mod = "mod";
-        BNF o_set = ":=";
-        
-        // Scope markers
-        BNF s_open_paren = '(';
-        BNF s_close_paren = ')';
-        BNF s_open_bracket = '[';
-        BNF s_close_bracket = ']';
-        
-        // Terminators / Separators
-        BNF t_semi = ';';
+        BNF // Terminators / Separators
+            t_semi = ';';
 
-        // Structures
-        BNF identifierList = identifier % o_comma;
-        BNF parameters = s_open_paren > identifierList > s_close_paren;
-        BNF label = k_label > (unsignedInteger % o_comma) > t_semi;
+        BNF // Structures
+            identifierList = identifier % o_comma,
+            parameters     = s_open_paren > identifierList > s_close_paren,
+            label          = k_label > (unsignedInteger % o_comma) > t_semi;
 
-        BNF unsignedNumber = unsignedInteger > !('.' > unsignedInteger) > !('e' > (!plusOrMinus) > unsignedInteger); // note: we don't use '.' operator here
-        BNF unsignedConstant = pascalString | k_nil | unsignedNumber | identifier;
-        BNF constant = (unsignedConstant) | (plusOrMinus > (identifier | unsignedNumber));
-        BNF constantBlock = k_const > +(identifier > o_equal > constant > t_semi);
+        BNF // Constants
+            unsignedNumber   = unsignedInteger > !('.' > unsignedInteger) > !('e' > (!plusOrMinus) > unsignedInteger), // note: we don't use '.' operator here
+            unsignedConstant = pascalString | k_nil | unsignedNumber | identifier,
+            constant         = (unsignedConstant) | (plusOrMinus > (identifier | unsignedNumber)),
+            constantBlock    = k_const > +(identifier > o_equal > constant > t_semi);
 
-        BNF arrayRange = s_open_bracket > !((_expression > !(o_range > _expression)) % o_comma) > s_close_bracket;
-        BNF factor =
-              unsignedConstant
-            | _variable
-            | (identifier > !(s_open_paren > (_expression % o_comma) > s_close_paren))
-            | (s_open_paren > _expression > s_close_paren)
-            | (o_not > _factor)
-            | arrayRange;
-        BNF term = factor % (o_and | o_div | o_mod | o_slash | o_mul);
+        BNF // Expressions
+            arrayRange = s_open_bracket > !((_expression > !(o_range > _expression)) % o_comma) > s_close_bracket,
+            factor =
+                unsignedConstant
+              | _variable
+              | (identifier > !(s_open_paren > (_expression % o_comma) > s_close_paren))
+              | (s_open_paren > _expression > s_close_paren)
+              | (o_not > _factor)
+              | arrayRange,
+            term             = factor % (o_and | o_div | o_mod | o_slash | o_mul),
+            inequality       = ((BNF)"<" | "<=" | "=" | "<>" | ">=" | ">" | "in"),
+            simpleExpression = !(plusOrMinus) > ((term % o_or) % plusOrMinus),
+            expression       = simpleExpression > !(inequality > simpleExpression);
 
-        BNF inequality = ((BNF)"<" | "<=" | "=" | "<>" | ">=" | ">" | "in");
-        BNF simpleExpression = !(plusOrMinus) > ((term % o_or) % plusOrMinus);
-        BNF expression = simpleExpression > !(inequality > simpleExpression);
+        BNF // Variables
+            innerVariable = (s_open_bracket > (expression % o_comma) > s_close_bracket) | (o_dot > identifier),
+            variable      = identifier > (innerVariable | (o_ref > innerVariable));
 
+        BNF // Statements and blocks
+            ifBlock   = k_if > expression > k_then > _statement > !(k_else > _statement),
+            forBlock  = k_for > identifier > o_set > expression > (k_to | k_down_to) > expression > k_do > _statement,
+            caseBlock = k_case > expression > k_of > (((constant % o_comma) > o_colon > _statement) % t_semi) > k_end,
+            statement =
+                !(unsignedInteger > o_colon)
+              | (k_begin > (_statement % t_semi) > k_end)
+              | (identifier > !(s_open_paren > (expression % o_comma) > s_close_paren))
+              | (variable > o_set > expression)
+              | ifBlock
+              | (k_repeat > (_statement % t_semi) > k_until > expression)
+              | (k_while > expression > k_do > _statement)
+              | forBlock
+              | caseBlock
+              | (k_with > (variable % o_comma) > k_do > _statement)
+              | (k_goto > unsignedInteger)
+              | (k_exit > s_open_paren > (identifier | k_program) > s_close_paren),
+            statementBlock = k_begin > (statement % t_semi) > k_end;
 
-        BNF innerVariable = (s_open_bracket > (expression % o_comma) > s_close_bracket) | (o_dot > identifier);
-        BNF variable = identifier > (innerVariable | (o_ref > innerVariable));
+        BNF // Case and field list
+            constantFieldList = (constant % o_comma) > o_colon > s_open_paren > _fieldList > s_close_paren,
+            caseStatement     = k_case > !(identifier > o_colon) > identifier > k_of > (constantFieldList < t_semi),
+            fieldList         = caseStatement | (-(identifierList > o_colon > _type) % t_semi);
 
-        BNF ifBlock = k_if > expression > k_then > _statement > !(k_else > _statement);
-        BNF forBlock = k_for > identifier > o_set > expression > (k_to | k_down_to) > expression > k_do > _statement;
-        BNF caseBlock = k_case > expression > k_of > (((constant % o_comma) > o_colon > _statement) % t_semi) > k_end;
-        BNF statement =
-            !(unsignedInteger > o_colon)
-            | (k_begin > (_statement % t_semi) > k_end)
-            | (identifier > !(s_open_paren > (expression % o_comma) > s_close_paren))
-            | (variable > o_set > expression)
-            | ifBlock
-            | (k_repeat > (_statement % t_semi) > k_until > expression)
-            | (k_while > expression > k_do > _statement)
-            | forBlock
-            | caseBlock
-            | (k_with > (variable % o_comma) > k_do > _statement)
-            | (k_goto > unsignedInteger)
-            | (k_exit > s_open_paren > (identifier | k_program) > s_close_paren);
+        BNF // Types
+            simpleType = identifier | parameters | (constant > o_range > constant),
+            complexType =
+                (k_set > k_of > simpleType)
+              | (k_array > s_open_bracket > (simpleType % o_comma) > s_close_bracket > k_of > _type)
+              | (k_record > fieldList > k_end)
+              | (k_file > !(k_of > _type)),
+            type = simpleType | (o_ref > identifier) | ((!k_packed) > complexType);
 
-        BNF statementBlock = k_begin > (statement % t_semi) > k_end;
+        BNF // Subroutine definition
+            singleParameter = (!k_var) > identifierList > o_colon > identifier,
+            parameterList   = !(s_open_paren > (singleParameter % t_semi) > s_close_paren),
+            procedure       = k_procedure > identifier > parameterList > t_semi > _block > t_semi,
+            function        = k_function > identifier > parameterList > o_colon > identifier > t_semi > _block > t_semi;
 
-        BNF constantFieldList = (constant % o_comma) > o_colon > s_open_paren > _fieldList > s_close_paren;
-        BNF caseStatement = k_case > !(identifier > o_colon) > identifier > k_of > (constantFieldList < t_semi);
-        BNF fieldList = caseStatement | (-(identifierList > o_colon > _type) % t_semi);
-
-        BNF simpleType = identifier | parameters | (constant > o_range > constant);
-        BNF complexType =
-            (k_set > k_of > simpleType)
-            | (k_array > s_open_bracket > (simpleType % o_comma) > s_close_bracket > k_of > _type)
-            | (k_record > fieldList > k_end)
-            | (k_file > !(k_of > _type));
-        BNF type = simpleType | (o_ref > identifier) | ((!k_packed) > complexType);
+        BNF // Main blocks
+            varBlock  = k_var > +(identifierList > o_colon > type > t_semi),
+            typeBlock = k_type > +(identifier > o_equal > type > t_semi),
+            block     = !(label | constantBlock | typeBlock | varBlock | procedure | function) > statementBlock,
+            program   = k_program > identifier > (!parameters) > t_semi > block > o_dot;
 
 
-        BNF singleParameter = (!k_var) > identifierList > o_colon > identifier;
-        BNF parameterList = !(s_open_paren > (singleParameter % t_semi) > s_close_paren);
-        BNF procedure = k_procedure > identifier > parameterList > t_semi > _block > t_semi;
-        BNF function = k_function > identifier > parameterList > o_colon > identifier > t_semi > _block > t_semi;
-
-        BNF varBlock = k_var > +(identifierList > o_colon > type > t_semi);
-
-        BNF typeBlock = k_type > +(identifier > o_equal > type > t_semi);
-        BNF block = !(label | constantBlock | typeBlock | varBlock | procedure | function) > statementBlock;
-        BNF program = k_program > identifier > (!parameters) > t_semi > block > o_dot;
-
-
-        // Link up forward references
+        // Link forward references
         _type.Is(type);
         _fieldList.Is(fieldList);
         _block.Is(block);
