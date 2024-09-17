@@ -44,16 +44,20 @@ public static class JsonParser
             array_leave = ']',
             array_block = array_enter > elements > array_leave;
 
+        /*
         BNF // Number literals
-            neg      = '-',
-            digit    = BNF.AnyCharacterInRanges(('0', '9')),
-            exp      = BNF.OneOf('e', 'E'),
-            sign     = BNF.OneOf('+', '-'),
-            digits   = +digit,
-            exponent = !(exp > sign > digits),
-            fraction = !('.' > digits),
-            integer  = (!neg) > (+digit), // this is slightly out of spec, as it allows "01234"
-            number   = integer > fraction > exponent;
+            neg          = '-',
+            digit        = BNF.AnyCharacterInRanges(('0', '9')),
+            nonZeroDigit = BNF.AnyCharacterInRanges(('1', '9')),
+            exp          = BNF.OneOf('e', 'E'),
+            sign         = BNF.OneOf('+', '-'),
+            digits       = +digit,
+            exponent     = !(exp > sign > digits),
+            fraction     = !('.' > digits),
+            integer      = '0' | ((!neg) > (nonZeroDigit) > (-digit)),
+            number       = integer > fraction > exponent;
+        */
+        BNF number = BNF.FractionalDecimal(groupMark: "", decimalMark: "."); // this is slightly out of spec, as it allows "01234" or "+1234"
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
 

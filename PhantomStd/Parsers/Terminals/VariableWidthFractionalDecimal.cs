@@ -27,7 +27,22 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
     /// <inheritdoc />
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        // This could be replaced with a simpler set-up using composite parsers.
+        // This could be replaced with a simpler set-up using composite parsers...
+        /*
+		BNF // Number literals
+			neg      = '-',
+			digit    = AnyCharacterInRanges(('0', '9')),
+			exp      = OneOf('e', 'E'),
+			sign     = OneOf('+', '-'),
+			digits   = +digit,
+			exponent = !(exp > sign > digits),
+			fraction = !('.' > digits),
+			integer  = (!neg) > (+digit), // this is slightly out of spec, as it allows "01234"
+			number   = integer > fraction > exponent;
+
+		return number;*/
+        // ... but this custom parser is marginally faster.
+
         var start  = previousMatch?.Right ?? 0;
         var offset = previousMatch?.Right ?? 0;
         var result = scan.EmptyMatch(this, start);
