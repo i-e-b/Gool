@@ -27,6 +27,7 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
     /// <inheritdoc />
     public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
+        // This could be replaced with a simpler set-up using composite parsers.
         var start  = previousMatch?.Right ?? 0;
         var offset = previousMatch?.Right ?? 0;
         var result = scan.EmptyMatch(this, start);
@@ -64,14 +65,13 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
 
         // Read as many digits as we can, skipping group marks.
         // Allow only one decimal, switch if we find 'e' or 'E'.
-        var gStart          = _groupMark[0];
+        var gStart          = _groupMark.Length > 0 ? _groupMark[0] : (char)0;
         var dStart          = _decimalMark[0];
         var lastWasNumber   = true;
         var seenDecimalMark = false;
         var needExponent = false;
         while (!scan.EndOfInput(offset))
         {
-            lastWasNumber = false;
             var c = scan.Peek(offset);
             if (c is >= '0' and <= '9')
             {
@@ -82,10 +82,12 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
             else if (c == gStart)
             {
                 // Check for the group string
+                if (_groupMark.Length < 1) break; // saw a 'NUL' character?
                 var compare = scan.Substring(offset, _groupMark.Length);
                 if (compare.Equals(_groupMark, StringComparison.Ordinal))
                 {
                     offset += _groupMark.Length;
+                    lastWasNumber = false;
                     // don't extend the result until we see more numbers
                 }
                 else break;
@@ -99,6 +101,7 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
                     if (seenDecimalMark) return scan.NoMatch(this, previousMatch); // more than one decimal marker
                     seenDecimalMark = true;
                     offset += _decimalMark.Length;
+                    lastWasNumber = false;
                     // don't extend the result until we see more numbers
                 }
                 else break;
@@ -107,6 +110,7 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
             {
                 offset++;
                 needExponent = true;
+                lastWasNumber = false;
                 break;
             }
             else break; // end of the number?

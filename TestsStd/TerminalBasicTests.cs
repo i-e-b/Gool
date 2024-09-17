@@ -371,31 +371,31 @@ public class TerminalBasicTests
         Console.WriteLine(subject.ToString());
 
         var result = subject.TryMatch(new ScanStrings("234"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("234"));
 
         result = subject.TryMatch(new ScanStrings("1.0"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("1.0"));
 
         result = subject.TryMatch(new ScanStrings("0.1"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("0.1"));
 
         result = subject.TryMatch(new ScanStrings("+99"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("+99"));
 
         result = subject.TryMatch(new ScanStrings("-99"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("-99"));
 
         result = subject.TryMatch(new ScanStrings("-9.0E5"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("-9.0E5"));
 
         result = subject.TryMatch(new ScanStrings("+9.0E-5"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("+9.0E-5"));
 
         result = subject.TryMatch(new ScanStrings("123__000_000.0234e222"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("123__000_000.0234e222"));
 
         result = subject.TryMatch(new ScanStrings("1_._0"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("1_._0"));
 
         // Invalid cases
 
@@ -443,10 +443,45 @@ public class TerminalBasicTests
         Console.WriteLine(subject.ToString());
 
         var result = subject.TryMatch(new ScanStrings("   234"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("   234"));
 
         result = subject.TryMatch(new ScanStrings("  1.0"), null);
-        Assert.That(result.Success, Is.True);
+        Assert.That(result.Value, Is.EqualTo("  1.0"));
+    }
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_no_grouping()
+    {
+        var subject = new VariableWidthFractionalDecimal(true, "", ".");
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.TryMatch(new ScanStrings("   234"), null);
+        Assert.That(result.Value, Is.EqualTo("   234"));
+
+        result = subject.TryMatch(new ScanStrings("  1.0"), null);
+        Assert.That(result.Value, Is.EqualTo("  1.0"));
+    }
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_ending_characters()
+    {
+        var subject = new VariableWidthFractionalDecimal(true, "_", ".");
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.TryMatch(new ScanStrings("+123+123"), null);
+        Assert.That(result.Value, Is.EqualTo("+123"));
+
+        result = subject.TryMatch(new ScanStrings("1+1"), null);
+        Assert.That(result.Value, Is.EqualTo("1"));
+
+        result = subject.TryMatch(new ScanStrings("1.0-1"), null);
+        Assert.That(result.Value, Is.EqualTo("1.0"));
+
+        result = subject.TryMatch(new ScanStrings("1.0e4)"), null);
+        Assert.That(result.Value, Is.EqualTo("1.0e4"));
+
+        result = subject.TryMatch(new ScanStrings("1.0e4+4)"), null);
+        Assert.That(result.Value, Is.EqualTo("1.0e4"));
     }
 
     [Test]

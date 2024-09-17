@@ -10,6 +10,24 @@ namespace TestsStd;
 public class ArithmeticTests
 {
     [Test]
+    public void timing_test()
+    {
+        var parser = ArithmeticExample.Parser;
+        var expression = "2^(1+3) * 3 * -2 - 5.5";
+
+        var sw = new Stopwatch();
+        sw.Start();
+        for (int i = 0; i < 100; i++)
+        {
+            var result = parser.ParseEntireString(expression);
+            if (!result.Success) Assert.Fail("Did not parse");
+        }
+
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds / 100:0.0} µs on average");
+    }
+
+    [Test]
     [TestCase("6.5 + 3 * 2 - 5.5", 7)]
     [TestCase("-6.5 + 3 * -2 - 5.5", -18)]
     [TestCase("(6.5 + 3) * (2 - 5.5)", -33.25)]
@@ -62,9 +80,13 @@ public class ArithmeticTests
         Assert.That(result.Success, Is.False, "Invalid expression should result in failure");
     }
 
-    private static TreeNode ApplyOperation(TreeNode node)
+    private static TreeNode? ApplyOperation(TreeNode node)
     {
-        if (node.Source.Tag is null) return node.Children[0]; // pull child up through joining nodes
+        if (node.Source.Tag is null)
+        {
+            if (node.Children.Count > 0) return node.Children[0]; // pull child up through joining nodes
+            return null;
+        }
 
         if (node.Source.Tag != ArithmeticExample.Operation) return node; // only look at operation nodes
         var operation = node.Source.Value;
