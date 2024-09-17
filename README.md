@@ -51,7 +51,8 @@ BNF Syntax
 
 ### Combining parsers:
 
-- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if both **a** and **b** match.
+- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if only one of **a** and **b** match, *and* if both **a** and **b** match.
+    - Example: `"hello" | "world"` matches `hello` or `world` 
     - Example: `"on" | "one"` matches `on` and `one`. `+( "on" | "one" )` will match `oneone` as {`one`, `one`}
 - a `>` b → Create a *sequence* parser that matches **a** then **b**
     - Example: `'x' > 'y'` matches `xy` but not `x` or `y`
