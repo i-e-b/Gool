@@ -365,6 +365,91 @@ public class TerminalBasicTests
     }
 
     [Test]
+    public void _VariableWidthFractionalDecimal_without_leading_whitespace()
+    {
+        var subject = new VariableWidthFractionalDecimal(false, "_", ".");
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.TryMatch(new ScanStrings("234"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("1.0"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("0.1"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("+99"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("-99"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("-9.0E5"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("+9.0E-5"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("123__000_000.0234e222"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("1_._0"), null);
+        Assert.That(result.Success, Is.True);
+
+        // Invalid cases
+
+        result = subject.TryMatch(new ScanStrings("  1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("+"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("-"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("++1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("-+1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings(".1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("1."), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("_1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("1.0_"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("1..0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("1._.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.TryMatch(new ScanStrings("1.0e1.0"), null);
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_with_leading_whitespace()
+    {
+        var subject = new VariableWidthFractionalDecimal(true, "_", ".");
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.TryMatch(new ScanStrings("   234"), null);
+        Assert.That(result.Success, Is.True);
+
+        result = subject.TryMatch(new ScanStrings("  1.0"), null);
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
     public void _RangeExcludingCharacterSet_()
     {
         var subject  = new RangeExcludingCharacterSet('a', 'z', 'q', 'p', 'b', 'd');

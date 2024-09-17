@@ -28,15 +28,15 @@ public static class DateTimeExamples
         BNF zulu_marker   = BNF.OneOf('Z', 'z'); // UTC time
 
         // Date
-        BNF date_century    = BNF.FixedDec(min: 0, max: 99, width: 2); // 00-99
-        BNF date_decade     = BNF.FixedDec(min: 0, max: 9, width: 1);  // 0-9
-        BNF date_sub_decade = BNF.FixedDec(min: 0, max: 9, width: 1);  // 0-9
+        BNF date_century    = BNF.FixedSizeInteger(min: 0, max: 99, width: 2); // 00-99
+        BNF date_decade     = BNF.FixedSizeInteger(min: 0, max: 9, width: 1);  // 0-9
+        BNF date_sub_decade = BNF.FixedSizeInteger(min: 0, max: 9, width: 1);  // 0-9
         BNF date_year       = date_decade > date_sub_decade;
-        BNF date_month      = BNF.FixedDec(min: 1, max: 12, width: 2);  // 01-12
-        BNF date_w_day      = BNF.FixedDec(min: 1, max: 7, width: 1);   // 1-7
-        BNF date_m_day      = BNF.FixedDec(min: 1, max: 31, width: 2);  // 01-31
-        BNF date_y_day      = BNF.FixedDec(min: 1, max: 366, width: 3); // 001-365
-        BNF date_week       = BNF.FixedDec(min: 1, max: 53, width: 2);  // 01-53
+        BNF date_month      = BNF.FixedSizeInteger(min: 1, max: 12, width: 2);  // 01-12
+        BNF date_w_day      = BNF.FixedSizeInteger(min: 1, max: 7, width: 1);   // 1-7
+        BNF date_m_day      = BNF.FixedSizeInteger(min: 1, max: 31, width: 2);  // 01-31
+        BNF date_y_day      = BNF.FixedSizeInteger(min: 1, max: 366, width: 3); // 001-365
+        BNF date_week       = BNF.FixedSizeInteger(min: 1, max: 53, width: 2);  // 01-53
         BNF date_year_part  = (!date_century) > (date_year);
 
         BNF datePart_fullYear =  date_year_part > (!hyphen);
@@ -60,9 +60,9 @@ public static class DateTimeExamples
         BNF date = dateSpec_full | dateSpec_year | dateSpec_month | dateSpec_m_day | dateSpec_week | dateSpec_w_day | dateSpec_y_day;
         
         // Time
-        BNF time_hour        = BNF.FixedDec(min: 0, max: 24, width: 2); // 00-24
-        BNF time_minute      = BNF.FixedDec(min: 0, max: 59, width: 2); // 00-59
-        BNF time_second      = BNF.FixedDec(min: 0, max: 60, width: 2); // 00-59, or 60 if leap-second
+        BNF time_hour        = BNF.FixedSizeInteger(min: 0, max: 24, width: 2); // 00-24
+        BNF time_minute      = BNF.FixedSizeInteger(min: 0, max: 59, width: 2); // 00-59
+        BNF time_second      = BNF.FixedSizeInteger(min: 0, max: 60, width: 2); // 00-59, or 60 if leap-second
         BNF time_fraction    = decimal_point > digits; // .1234
         BNF time_offset_num  = plus_minus > time_hour > !(opt_colon > time_minute);
         BNF time_zone        = zulu_marker > (!time_offset_num).Tagged(TimeZone);
@@ -134,13 +134,13 @@ public static class DateTimeExamples
         BNF time_marker   = BNF.OneOf('T', 't', ' ');
         BNF zulu_marker   = BNF.OneOf('Z', 'z'); // UTC time
         
-        BNF date_fullYear = BNF.FixedDec(min: 0, max: 9999, width: 4); // 0000-9999
-        BNF date_month    = BNF.FixedDec(min: 1, max: 12, width: 2); // 01-12
-        BNF date_m_day    = BNF.FixedDec(min: 1, max: 31, width: 2); // 01-31
+        BNF date_fullYear = BNF.FixedSizeInteger(min: 0, max: 9999, width: 4); // 0000-9999
+        BNF date_month    = BNF.FixedSizeInteger(min: 1, max: 12, width: 2); // 01-12
+        BNF date_m_day    = BNF.FixedSizeInteger(min: 1, max: 31, width: 2); // 01-31
         
-        BNF time_hour     = BNF.FixedDec(min: 0, max: 23, width: 2); // 00-23
-        BNF time_minute   = BNF.FixedDec(min: 0, max: 59, width: 2); // 00-59
-        BNF time_second   = BNF.FixedDec(min: 0, max: 60, width: 2); // 00-60
+        BNF time_hour     = BNF.FixedSizeInteger(min: 0, max: 23, width: 2); // 00-23
+        BNF time_minute   = BNF.FixedSizeInteger(min: 0, max: 59, width: 2); // 00-59
+        BNF time_second   = BNF.FixedSizeInteger(min: 0, max: 60, width: 2); // 00-60
 
         BNF time_secFrac   = decimal_point > digits;
         BNF time_numOffset = plus_minus > time_hour > ':' > time_minute;

@@ -32,7 +32,7 @@ public static class EmailAddressExample
         BNF word = atom | quoted_string;
         BNF phrase = +word;
 
-        BNF ipv4_octet = BNF.DecimalRange(0, 255);
+        BNF ipv4_octet = BNF.IntegerRange(0, 255);
         BNF ipv4_address = ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet;
         
         BNF domain_literal = '[' > (-domain_text) > ']';

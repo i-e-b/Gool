@@ -8,6 +8,7 @@
 
 ## Examples
 
+- [ ] SQL connection strings
 - [ ] Complete basic programming language
 
 Huge repo of grammars here: https://github.com/antlr/grammars-v4

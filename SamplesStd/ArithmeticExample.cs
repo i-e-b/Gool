@@ -28,7 +28,7 @@ public static class ArithmeticExample
             exp     = '^';
 
         BNF
-            number     = BNF.FractionalDecimal(), //BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"), // signed numbers
+            number     = BNF.FractionalDecimal(allowLeadingWhitespace:false, groupMark:"", decimalMark:"."), //BNF.Regex(@"\-?[0-9]+(\.[0-9]+)?"), // signed numbers
             factor     = number | ('(' > _expression > ')'),
             power      = factor > !(exp > factor),
             term       = power % mul_div,

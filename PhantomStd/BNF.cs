@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Gool.Parsers;
 using Gool.Parsers.Composite;
@@ -500,7 +501,9 @@ public class BNF : IMatchingParser
 	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
 	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
 	/// </param>
-	public static BNF FixedDec(long min, long max, int width, bool allowLeadingWhitespace = false, bool useHex = false)
+	/// <seealso cref="IntegerRange"/>
+	/// <seealso cref="FractionalDecimal"/>
+	public static BNF FixedSizeInteger(long min, long max, int width, bool allowLeadingWhitespace = false, bool useHex = false)
 	{
 		return new BNF(new FixedWidthIntegerRange(min, max, width, allowLeadingWhitespace, useHex));
 	}
@@ -512,7 +515,7 @@ public class BNF : IMatchingParser
 	/// <param name="max">Inclusive maximum value for result. Must be greater than lower</param>
 	/// <param name="allowLeadingWhitespace">
 	/// Default = <c>false</c>. 
-	/// If <c>true</c> the input may have leading whitespace to fill the fixed width.
+	/// If <c>true</c> the input may have leading whitespace.
 	/// If <c>false</c> the input must have digits in all places.
 	/// </param>
 	/// <param name="useHex">
@@ -520,9 +523,65 @@ public class BNF : IMatchingParser
 	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
 	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
 	/// </param>
-	public static BNF DecimalRange(long min, long max, bool allowLeadingWhitespace = false, bool useHex = false)
+	/// <seealso cref="FixedSizeInteger"/>
+	/// <seealso cref="FractionalDecimal"/>
+	public static BNF IntegerRange(long min, long max, bool allowLeadingWhitespace = false, bool useHex = false)
 	{
 		return new BNF(new VariableWidthIntegerRange(min, max, allowLeadingWhitespace, useHex));
+	}
+
+	private static readonly char[] NumberCharacters = {'0','1','2','3','4','5','6','7','8','9'};
+	/// <summary>
+	/// Create a parser for a variable width signed decimal value.
+	/// This can contain number separators, decimal points, and 'E notation'.
+	/// <p/>
+	/// By default, settings from <see cref="CultureInfo.CurrentCulture"/> will be used.
+	/// Number separators are always optional, and specific positions are not enforced.
+	/// 'E notation' is always case insensitive
+	/// <p/>
+	/// Does not allow leading or trailing decimal marks or grouping marks.
+	/// </summary>
+	/// <example>
+	/// In 'invariant' culture: <code>
+	/// +123,456,789.123E26
+	/// -123456e10
+	/// 123.04
+	/// </code>
+	/// With common European forms: <code>
+	/// +123.456.789,123E26
+	/// -123456e10
+	/// 123,04
+	/// </code>
+	/// Using custom settings: <code>
+	/// +123_456_789x123E26
+	/// -123456e10
+	/// 123x04
+	/// </code>
+	/// </example>
+	/// <param name="allowLeadingWhitespace">[Optional] Default = <c>false</c>.
+	/// If <c>true</c> the input may have leading whitespace.
+	/// If <c>false</c> the input must have digits in all places.
+	/// </param>
+	/// <param name="groupMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberGroupSeparator"/>
+	/// Acceptable number separator. Has no semantic meaning. This is allowed in any place in the input except the end, and can be repeated.
+	/// An empty string as the group mark will disable the use of group marks.
+	/// Must not contain characters 0-9.</param>
+	/// <param name="decimalMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberDecimalSeparator"/>
+	/// Acceptable decimal separator. This is allowed at most one time.
+	/// Must not be empty, must not contain characters 0-9.</param>
+	/// <seealso cref="FixedSizeInteger"/>
+	/// <seealso cref="IntegerRange"/>
+	/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/System.Globalization.CultureInfo.CurrentCulture"/>
+	public static BNF FractionalDecimal(bool allowLeadingWhitespace = false, string? groupMark = null, string? decimalMark = null)
+	{
+		//string.Compare(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".");
+		var grp = groupMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+		var dec = decimalMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+		if (dec == grp) throw new Exception("Group mark cannot be the same as decimal mark");
+		if (grp.IndexOfAny(NumberCharacters) > -1) throw new Exception("Group mark cannot contain numbers");
+		if (dec.IndexOfAny(NumberCharacters) > -1) throw new Exception("Decimal mark cannot contain numbers");
+
+		return new BNF(new VariableWidthFractionalDecimal(allowLeadingWhitespace, grp, dec));
 	}
 
 	/// <summary>
