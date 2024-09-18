@@ -16,6 +16,9 @@ public class SqlConnectionStringTests
         "Server=myServerAddress;Database=myDataBase;",
         "{\"Server\":\"myServerAddress\",\"Database\":\"myDataBase\"}")]
     [TestCase(
+        "Server=myServerAddress;Database=myDataBase", // not all require last semicolon
+        "{\"Server\":\"myServerAddress\",\"Database\":\"myDataBase\"}")]
+    [TestCase(
         "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;",
         "{\"Server\":\"myServerAddress\",\"Database\":\"myDataBase\",\"User Id\":\"myUsername\",\"Password\":\"myPassword\"}")]
     [TestCase(
@@ -35,7 +38,7 @@ public class SqlConnectionStringTests
         "{\"User ID\":\"root\",\"Password\":\"myPassword\",\"Host\":\"localhost\",\"Port\":\"3306\",\"Database\":\"myDataBase\",\"Direct\":\"true\",\"Protocol\":\"TCP\",\"Compress\":\"false\",\"Pooling\":\"true\",\"Min Pool Size\":\"0\",\"Max Pool Size\":\"100\",\"Connection Lifetime\":\"0\"}")]
     public void basic_connection_strings(string input, string jsonExpected)
     {
-        var parser = SqlConnectionStringExample.Connection();
+        var parser = SqlConnectionStringExample.Parser();
         var sw     = new Stopwatch();
         sw.Start();
         var result = parser.ParseEntireString(input);
@@ -71,7 +74,7 @@ public class SqlConnectionStringTests
         "{\"Server\":\"myServerAddress\",\"Database\":\"myDataBase\",\"User Id\":\"myUsername\",\"Password\":\";password\\\"with;double\\\"quotes\"}")]
     public void quoted_connection_strings(string input, string jsonExpected)
     {
-        var parser = SqlConnectionStringExample.Connection();
+        var parser = SqlConnectionStringExample.Parser();
         var sw     = new Stopwatch();
         sw.Start();
         var result = parser.ParseEntireString(input);

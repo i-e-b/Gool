@@ -1,4 +1,5 @@
 ﻿using Gool;
+using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
 
@@ -12,59 +13,62 @@ namespace Samples;
 /// </summary>
 public static class EmailAddressExample
 {
-    public static readonly BNF.Package Parser = Email();
+    public static readonly Package Parser = Email();
 
-    private static BNF.Package Email()
+    private static Package Email()
     {
-        var _mailbox = BNF.Forward();
-        
-        BNF alpha = BNF.Regex("[a-zA-Z]");
-        BNF digit = BNF.Regex("[0-9]");
-        BNF symbol = BNF.OneOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~');
-        BNF atext = alpha | digit | symbol;
+        var _mailbox = Forward();
 
-        BNF atom = +atext;
-        BNF dot_atom = atom % '.';
+        BNF // Fragments
+            alpha    = Regex("[a-zA-Z]"),
+            digit    = Regex("[0-9]"),
+            symbol   = OneOf('!', '#', '$', '%', '&', '\'', '*', '+', '-', '/', '=', '?', '^', '_', '`', '{', '|', '}', '~'),
+            chr      = alpha | digit | symbol,
+            atom     = +chr,
+            dot_atom = atom % '.';
 
-        BNF escape_char = '\\' > ((BNF)'\\' | '"');
-        BNF quoted_string = '"' > -(escape_char | BNF.RangeExcluding('!', '~', '"', '\\')) > '"'; // ASCII printables, excluding double-quote or backslash.
-        BNF domain_text = BNF.RangeExcluding('!', '~', '[', ']', '\\', '@');
-        BNF word = atom | quoted_string;
-        BNF phrase = +word;
+        BNF // String literals
+            escape_char   = '\\' > ((BNF)'\\' | '"'),
+            quoted_string = '"' > -(escape_char | RangeExcluding('!', '~', '"', '\\')) > '"', // ASCII printables, excluding double-quote or backslash.
+            domain_text   = RangeExcluding('!', '~', '[', ']', '\\', '@'),
+            word          = atom | quoted_string,
+            phrase        = +word,
+            local_part    = (atom | quoted_string) % '.';
 
-        BNF ipv4_octet = BNF.IntegerRange(0, 255);
-        BNF ipv4_address = ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet;
-        
-        BNF domain_literal = '[' > (-domain_text) > ']';
-        BNF starts_with_alphanum = BNF.Regex("^[a-zA-Z].*");
-        BNF ends_with_alphanum = BNF.Regex(".*[a-zA-Z]$");
-        BNF dns_length_limit = BNF.RemainingLength(min:1, max:253);
-        BNF contains_dot = BNF.Regex(".*\\..*");
-        BNF domain_name = dot_atom.WithValidators(starts_with_alphanum, ends_with_alphanum, dns_length_limit, contains_dot);
-        BNF domain = domain_name | domain_literal | ipv4_address;
-        
-        BNF local_part = (atom | quoted_string) % '.';
-        BNF addr_spec = local_part > '@' > domain;
-        
-        BNF mailbox_list = _mailbox % ',';
-        BNF group_list = mailbox_list;
-        BNF display_name = phrase;
-        BNF group = display_name > ':' > (!group_list) > ';';
-        BNF angle_addr = '<' > addr_spec > '>';
-        BNF name_addr = (!display_name) > angle_addr;
-        BNF mailbox = name_addr | addr_spec;
-        BNF address = mailbox | group;
+        BNF // IP Addresses
+            ipv4_octet   = IntegerRange(0, 255),
+            ipv4_address = ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet;
+
+        BNF // Domains
+            domain_literal       = '[' > (-domain_text) > ']',
+            starts_with_alphanum = Regex("^[a-zA-Z].*"),
+            ends_with_alphanum   = Regex(".*[a-zA-Z]$"),
+            dns_length_limit     = RemainingLength(min: 1, max: 253),
+            contains_dot         = Regex(".*\\..*"),
+            domain_name          = dot_atom.WithValidators(starts_with_alphanum, ends_with_alphanum, dns_length_limit, contains_dot),
+            domain               = domain_name | domain_literal | ipv4_address;
+
+        BNF // Sub-units
+            addr_spec    = local_part > '@' > domain,
+            mailbox_list = _mailbox % ',',
+            group_list   = mailbox_list,
+            display_name = phrase,
+            group        = display_name > ':' > (!group_list) > ';',
+            angle_addr   = '<' > addr_spec > '>',
+            name_addr    = (!display_name) > angle_addr,
+            mailbox      = name_addr | addr_spec,
+            address      = mailbox | group;
 
         _mailbox.Is(mailbox);
 
         addr_spec.TagWith(Address);
         domain.TagWith(Domain);
         local_part.TagWith(User);
-        
-        return address.WithOptions(BNF.Options.SkipWhitespace);
+
+        return address.WithOptions(Options.SkipWhitespace);
     }
 
     public const string Address = "Address";
-    public const string Domain = "Domain";
-    public const string User = "User";
+    public const string Domain  = "Domain";
+    public const string User    = "User";
 }

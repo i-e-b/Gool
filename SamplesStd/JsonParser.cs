@@ -1,4 +1,5 @@
 ﻿using Gool;
+using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
 
@@ -6,22 +7,22 @@ namespace Samples;
 
 public static class JsonParser
 {
-    public static readonly BNF.Package Json = BuildBnf();
+    public static readonly Package Json = BuildBnf();
 
     /// <summary>
     /// JSON parser directly from the spec at https://www.json.org/json-en.html
     /// </summary>
-    private static BNF.Package BuildBnf()
+    private static Package BuildBnf()
     {
-        var value = BNF.Forward();
+        var value = Forward();
 
         BNF // Basic components
-            ws = BNF.AnyWhiteSpace;
+            ws = AnyWhiteSpace;
 
         BNF // Strings
-            unicodeEsc    = 'u' > BNF.AnyCharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
-            escape        = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | unicodeEsc,
-            character     = BNF.AnyCharacterNotInRanges('"', '\\') | ('\\' > escape),
+            unicodeEsc    = 'u' > AnyCharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
+            escape        = OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | unicodeEsc,
+            character     = AnyCharacterNotInRanges('"', '\\') | ('\\' > escape),
             characters    = -character,
             quoted_string = '"' > characters > '"';
 
@@ -57,7 +58,7 @@ public static class JsonParser
             integer      = '0' | ((!neg) > (nonZeroDigit) > (-digit)),
             number       = integer > fraction > exponent;
         */
-        BNF number = BNF.FractionalDecimal(groupMark: "", decimalMark: "."); // this is slightly out of spec, as it allows "01234" or "+1234"
+        BNF number = FractionalDecimal(groupMark: "", decimalMark: "."); // this is slightly out of spec, as it allows "01234" or "+1234"
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
 
@@ -73,6 +74,6 @@ public static class JsonParser
         member_key.TagWith("key");
         primitive.TagWith("value");
 
-        return element.WithOptions(BNF.Options.None);
+        return element.WithOptions(Options.None);
     }
 }

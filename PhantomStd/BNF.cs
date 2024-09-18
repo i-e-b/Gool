@@ -91,7 +91,7 @@ public class BNF : IMatchingParser
 	/// <summary>
 	/// Regular expression options passed to a regexes build with BNF
 	/// </summary>
-	public static RegexOptions RegexOptions { get; set; }
+	public static RegexOptions RegexSettings { get; set; }
 
 	/// <summary>
 	/// Parse an input string, returning a match tree.
@@ -242,7 +242,7 @@ public class BNF : IMatchingParser
 			pattern = s.Substring(1);
 			if (!pattern.StartsWith("#"))
 			{
-				return new BNF(new RegularExpression(pattern, RegexOptions));
+				return new BNF(new RegularExpression(pattern, RegexSettings));
 			}
 		}
 		else
@@ -436,7 +436,7 @@ public class BNF : IMatchingParser
 	/// </summary>
 	public static BNF Regex([RegexPattern]string pattern)
 	{
-		return new BNF(new RegularExpression(pattern, RegexOptions));
+		return new BNF(new RegularExpression(pattern, RegexSettings));
 	}
 	
 	/// <summary>

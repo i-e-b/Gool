@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using Gool;
+using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
 
@@ -7,28 +7,19 @@ namespace Samples;
 
 public static class ArithmeticExample
 {
-    public static readonly BNF.Package Parser = Arithmetic();
-    
-    private static RegexOptions Options()
-    {
-        return RegexOptions.ExplicitCapture
-               | RegexOptions.IgnoreCase
-               | RegexOptions.Multiline;
-    }
+    public static readonly Package Parser = Arithmetic();
 
-    private static BNF.Package Arithmetic()
+    private static Package Arithmetic()
     {
-        BNF.RegexOptions = Options();
-
-        var _expression = BNF.Forward();
+        var _expression = Forward();
 
         BNF
-            add_sub = BNF.OneOf('+', '-'), // same as: (BNF)'+' | '-';
-            mul_div = BNF.OneOf('*', '/'),
+            add_sub = OneOf('+', '-'),
+            mul_div = OneOf('*', '/'),
             exp     = '^';
 
         BNF
-            number     = BNF.FractionalDecimal(),
+            number     = FractionalDecimal(),
             factor     = number | ('(' > _expression > ')'),
             power      = factor > !(exp > factor),
             term       = power % mul_div,
@@ -41,7 +32,7 @@ public static class ArithmeticExample
         exp.TagWith(Operation).PivotScope();
         number.TagWith(Value);
 
-        return expression.WithOptions(BNF.Options.SkipWhitespace);
+        return expression.WithOptions(Options.SkipWhitespace);
     }
 
     public const string Operation = "operation";

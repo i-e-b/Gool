@@ -10,7 +10,8 @@
 ## Examples
 
 - [ ] SQL connection strings
-- [ ] Complete basic programming language
+- [ ] Complete basic programming language (including interpreter and sample programs)
+- [ ] Full XML: https://cs.lmu.edu/~ray/notes/xmlgrammar/
 
 Huge repo of grammars here: https://github.com/antlr/grammars-v4
 

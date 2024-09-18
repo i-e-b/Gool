@@ -24,7 +24,7 @@ public static class PascalExample
     // https://archive.org/details/pascal-poster-v-3-a-1
     private static BNF.Package Pascal()
     {
-        BNF.RegexOptions = Options();
+        BNF.RegexSettings = Options();
 
         // Forward references
         var _type       = BNF.Forward();

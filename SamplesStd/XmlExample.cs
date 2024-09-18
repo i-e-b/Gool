@@ -7,13 +7,13 @@ namespace Samples;
 
 public static class XmlExample
 {
-    public static readonly BNF.Package Parser = Xml();
+    public static readonly BNF.Package Parser = SimpleXml();
 
     private static RegexOptions Options() => RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline;
 
-    private static BNF.Package Xml()
+    private static BNF.Package SimpleXml()
     {
-        BNF.RegexOptions = Options();
+        BNF.RegexSettings = Options();
 
         /*
          * This isn't a serious parser -- it can't handle

@@ -1,4 +1,5 @@
 ﻿using Gool;
+using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
 
@@ -12,20 +13,21 @@ namespace Samples;
 /// </summary>
 public static class SqlConnectionStringExample
 {
-    public static BNF.Package Connection()
+    public static Package Parser()
     {
         BNF
-            key = +(BNF.AnyChar / '='),
-            value = QuotedValue('{', BNF.AnyChar, '}') // note use of function to make BNF more readable
-                  | QuotedValue('"', BNF.AnyChar, '"')
-                  | QuotedValue("'", BNF.AnyChar, "'")
-                  | QuotedValue("",  BNF.AnyChar, ""),
-            setting = key > '=' > value > ';',
-            settings = BNF.Empty | ";" | +(setting);
+            key = +(AnyChar / '='),
+            value = QuotedValue('{', AnyChar, '}') // note use of function to make BNF more readable
+                  | QuotedValue('"', AnyChar, '"')
+                  | QuotedValue("'", AnyChar, "'")
+                  | QuotedValue("", AnyChar, ""),
+            
+            setting  = key > '=' > value,
+            settings = Empty | ";" | ((setting % ';') > Optional(';'));
 
         key.TagWith("Key").PivotScope();
 
-        return settings.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace);
+        return settings.WithOptions(Options.IgnoreCase | Options.SkipWhitespace);
     }
 
     private static BNF QuotedValue(char open, BNF content, char close)

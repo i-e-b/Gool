@@ -169,34 +169,6 @@ public class CsvTests
         
         Console.WriteLine(document.PrettyPrint());
     }
-
-    private static void PrintRecursive(ScopeNode node, int indent)
-    {
-        switch (node.NodeType)
-        {
-            case ScopeNodeType.Root:
-                Console.WriteLine("Document");
-                break;
-            case ScopeNodeType.Data:
-                Console.WriteLine($"{I(indent)}{node.DataMatch?.Value.Trim()} [{node.DataMatch?.Tag}]");
-                break;
-            case ScopeNodeType.ScopeChange:
-                Console.WriteLine($"{I(indent)}Scope [{node.OpeningMatch?.Tag}]");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        foreach (var childNode in node.Children)
-        {
-            PrintRecursive(childNode, indent+1);
-        }
-    }
-
-    private static string I(int indent)
-    {
-        return new string(' ', indent * 4);
-    }
 }
 
 
