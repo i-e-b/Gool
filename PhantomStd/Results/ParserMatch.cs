@@ -154,13 +154,13 @@ public class ParserMatch
         if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
         // Reduce overlapping matches, if it doesn't loose information
-        if (left.Contains(right) && NoMeta(left, right))
+        if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
         {
             var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
             if (!left.Empty) leftOnlyResult.ChildMatches.Add(left);
             return leftOnlyResult;
         }
-        if (right.Contains(left) && NoMeta(left, right))
+        if ((right.Contains(left) && NoMeta(left, right)) || left.Empty)
         {
             var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
             if (!right.Empty) rightOnlyResult.ChildMatches.Add(right);

@@ -136,7 +136,7 @@ public class BNF : IMatchingParser
 		_parserTree.Tag = tag;
 		return this;
 	}
-	
+
 	/// <summary>
 	/// Mark this parser as the start of a block
 	/// </summary>
@@ -145,7 +145,7 @@ public class BNF : IMatchingParser
 		_parserTree.Scope = ScopeType.OpenScope;
 		return this;
 	}
-	
+
 	/// <summary>
 	/// Mark this parser as the end of a block
 	/// </summary>
@@ -233,6 +233,10 @@ public class BNF : IMatchingParser
 	public static implicit operator BNF(string s)
 	{
 		string pattern;
+		if (s.Length < 1)
+		{
+			return new BNF(new EmptyMatch());
+		}
 		if (s.StartsWith("#"))
 		{
 			pattern = s.Substring(1);

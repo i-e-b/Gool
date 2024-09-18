@@ -176,6 +176,29 @@ public class ScopeNode
         DepthFirstWalkRec(this, action);
     }
 
+    /// <summary>
+    /// Perform an action on every node of the tree with the matching tag, visiting nodes depth-first.
+    /// See also <see cref="DepthFirstWalk"/>
+    /// </summary>
+    public void DepthFirstVisitTags(string tag, Action<ScopeNode> action)
+    {
+        DepthFirstWalkRec(this, n =>
+        {
+            if (n.Tag == tag) action(n);
+        });
+    }
+
+    /// <summary>
+    /// Read the tag from any match on this node
+    /// </summary>
+    public string? Tag => DataMatch?.Tag ?? OpeningMatch?.Tag ?? ClosingMatch?.Tag;
+
+    /// <summary>
+    /// Read the content of this node, from any match.
+    /// Returns empty string if no values found.
+    /// </summary>
+    public string Value => DataMatch?.Value ?? OpeningMatch?.Value ?? ClosingMatch?.Value ?? "";
+
     private static void DepthFirstWalkRec(ScopeNode node, Action<ScopeNode> action)
     {
         action(node);
@@ -243,7 +266,7 @@ public class ScopeNode
     /// </summary>
     public static ScopeNode FromMatch(ParserMatch root)
     {
-        var points = ParserMatch.DepthFirstWalk(root, m => m.Tag is not null || m.Scope != ScopeType.None);
+        var points = ParserMatch.DepthFirstWalk(root, m => !m.Empty && (m.Tag is not null || m.Scope != ScopeType.None));
 
         return BuildScope(points);
     }
@@ -263,7 +286,7 @@ public class ScopeNode
                     cursor.AddDataFrom(match);
                     break;
                 case ScopeType.Pivot:
-                    // TODO: We add this as normal data, then fix-up later
+                    // We add this as normal data, then fix-up later
                     cursor.AddDataFrom(match);
                     break;
                 case ScopeType.OpenScope:
@@ -292,7 +315,50 @@ public class ScopeNode
             }
         }
 
-        return root;
+        return PivotNodes(root);
+    }
+
+    private static ScopeNode PivotNodes(ScopeNode node)
+    {
+        ScopeNode? lastPivot = null;
+        var        prePivot  = new List<ScopeNode>();
+
+        for (var index = 0; index < node.Children.Count; index++)
+        {
+            var child = PivotNodes(node.Children[index]);
+            node.Children[index] = child;
+
+            if (child.DataMatch?.Scope == ScopeType.Pivot)
+            {
+                // Change pivot node's scope type
+                lastPivot = child;
+                lastPivot.NodeType = ScopeNodeType.ScopeChange;
+                lastPivot.OpeningMatch = lastPivot.DataMatch;
+
+                // Move peers to be children
+                foreach (var p in prePivot)
+                {
+                    lastPivot.Children.Add(p);
+                    node.Children.Remove(p);
+                }
+
+                prePivot.Clear();
+            }
+            else if (lastPivot is not null)
+            {
+                lastPivot.Children.Add(child);
+                node.Children.Remove(child);
+                index--;
+            }
+            else
+            {
+                prePivot.Add(child);
+            }
+        }
+
+        prePivot.Clear();
+
+        return node;
     }
 }
 

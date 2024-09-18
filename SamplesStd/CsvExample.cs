@@ -6,7 +6,7 @@ namespace Samples;
 
 /// <summary>
 /// Csv parser example, with parametric breaks.
-/// Shows a simple way to vary parserbased on settings.
+/// Shows a simple way to vary parser based on settings.
 /// <p/>
 /// From https://www.rfc-editor.org/rfc/rfc4180
 /// </summary>
@@ -34,7 +34,7 @@ public static class CsvExample
         name.TrimWith(CsvCleanup).TagWith(ColumnName);
         row_break.TagWith(NewRow);
 
-        record.EncloseScope().TagWith(Row);     // TODO: 'EncloseScope' should be like an Open and Close scope, from its start to end
+        record.EncloseScope().TagWith(Row);     // 'EncloseScope' is like an Open and Close scope, from its start to end
         header.EncloseScope().TagWith(Header);  //       (like a tagged empty result at either end of the child match range)
 
         return file.WithOptions(BNF.Options.None);

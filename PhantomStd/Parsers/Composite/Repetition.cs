@@ -51,7 +51,7 @@ public class Repetition : Unary
 		{
 			var after = Parser.Parse(scan, result);
 			if (!after.Success) break; // no more matches
-			if (after.SameAs(result)) break; // repetition must progress
+			if (after.Right <= result.Right) break; // repetition must progress
 
 			count++;
 			result = ParserMatch.Join(new NullParser(nameof(Repetition)), result, after);

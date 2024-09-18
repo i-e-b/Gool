@@ -37,7 +37,7 @@ public class Union : Parser, IMatchingParser
 		foreach (var parser in _parsers)
 		{
 			var result = parser.Parse(scan, previousMatch);
-			if (result.Success && (result.Length > (longestMatch?.Length ?? 0))) longestMatch = result;
+			if (result.Success && (result.Length > (longestMatch?.Length ?? -1))) longestMatch = result;
 		}
 
 		if (longestMatch is not null) return longestMatch.Through(this);

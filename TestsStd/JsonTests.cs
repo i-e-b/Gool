@@ -299,8 +299,5 @@ public class JsonTests
         }
     }
 
-    private static string I(int indent)
-    {
-        return new string(' ', indent * 2);
-    }
+    private static string I(int indent) => new(' ', indent * 2);
 }

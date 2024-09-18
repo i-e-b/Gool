@@ -34,6 +34,9 @@ public class ArithmeticTests
     [TestCase("(6.5 + 3) * (5.5 - -2)", 71.25)]
     [TestCase("2^(1+3)", 16)]
     [TestCase("-2.71828182", -2.71828182)]
+    [TestCase("+2.718e-5", 2.718E-05)]
+    [TestCase("(+6.5 + +3) * (+5.5 - -2)", 71.25)]
+    [TestCase("(+6.5++3)*(+5.5--2)", 71.25)] // If you ever do this, you're not my friend anymore.
     public void scanning_expression(string expression, double expected)
     {
         var sw = new Stopwatch();
@@ -67,6 +70,7 @@ public class ArithmeticTests
     [TestCase("6.5 + 3 * * 2 - 5.5")]
     [TestCase("2^()")]
     [TestCase("1 + ")]
+    [TestCase("(+6.5+++3)*(+5.5---2)")]
     public void failure_cases(string expression)
     {
         var sw = new Stopwatch();

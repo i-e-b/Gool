@@ -79,9 +79,10 @@ public class XmlTests
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
     public void can_detect_tag_mismatches_in_scoped_tree()
     {
-        var sw = new Stopwatch();
+        var parser = XmlExample.Parser;
+        var sw     = new Stopwatch();
         sw.Start();
-        var result = XmlExample.Parser.ParsePartialString(BrokenSample);
+        var result = parser.ParsePartialString(BrokenSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
