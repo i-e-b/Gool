@@ -12,17 +12,17 @@ Basic example
 ```csharp
 // Basic infix arithmetic expressions
 BNF 
-    number     = BNF.Regex("\-?[0-9]+(\.[0-9]+)?"),  // Signed numbers
+    number     = FractionalDecimal(),    // Built-in helper for signed numbers
 
-    factor     = number | ('(' > _expression > ')'), // Number or parenthesised expression
-    power      = factor > !('^' > factor),           // Factor, with optional '^' + exponent
-    term       = power % ('*' | '/'),                // Powers, optionally joined with '*' or '/'
-    expression = term % ('+' | '-');                 // Terms, optionally joined will '+' or '-'
+    factor     = number |  ('(' > _expression > ')'), // Number or parenthesised expression
+    power      = factor > !('^' > factor),            // Factor, with optional '^' + exponent
+    term       = power  %  ('*' | '/'),               // Powers, optionally joined with '*' or '/'
+    expression = term   %  ('+' | '-');               // Terms, optionally joined will '+' or '-'
 ```
 
 ```csharp
-var result = expression.ParseString(     // Run the parser
-    "(6.5 + 3) * (5.5 - -2)"
+var result = expression.ParseEntireString( // Run the parser, refuse partial matches
+    "(6.5 + 3) * (5.5 - -0.2e1)"
     );
 
 var tree = TreeNode.FromParserMatch(result, true);        // Interpret the raw parse tree
@@ -40,7 +40,7 @@ BNF Syntax
 
 - `'…'` → *Character* parser that matches a single literal character in the input
 - `"…"` → *String* parser that matches a literal string in the input
-- `"#…"` or `BNF.Regex("…")` → *Regex* parser that matches a string based on a regex pattern. The `#` prefix is not included in the pattern.
+- `BNF.Regex("…")` → *Regex* parser that matches a string based on a regex pattern.
 - `BNF.OneOf(…)` → Match a single character from the set provided
 - `BNF.NoneOf(…)` → Match any single character that is **not** in the set provided
 - `BNF.AnyChar` → Parser that matches any single character.
@@ -125,7 +125,7 @@ BNF sum = number % addSub;
 and the input:
 
 ```csharp
-var result = sum.ParseString(
+var result = sum.ParseEntireString(
                              "1+2",
                              );
 var tree = TreeNode.FromParserMatch(result, false);
@@ -154,43 +154,42 @@ See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for f
 ### Basic infix arithmetic calculator
 
 ```csharp
+using Gool;
+using static Gool.BNF;
 
 public double EvaluateExpression(string expression)
 {
-    var result = Arithmetic().ParseString(expression);          // Step 1: parse input
+    var result = Arithmetic().ParseEntireString(expression);    // Step 1: parse input
     var tree = TreeNode.FromParserMatch(result, prune: true);   // Step 2: build expression tree
     var final = TreeNode.TransformTree(tree, ApplyOperation);   // Step 3: reduce the tree to a value
     
     return final;
 }
 
-public static BNF.Package Arithmetic()
+public static Package Arithmetic()
 {
-    var _expression = BNF.Forward();      // Forward reference, to allow circular/recursive matching
+    var _expression = Forward();
 
-    BNF add_sub = (BNF)'+' | '-';         // You may need to cast one of a set to `BNF`
-    BNF mul_div = BNF.OneOf('*', '/');    // Helper, equivalent to: `(BNF)'*' | '/'`
-    BNF exp = '^';                        // Individual strings or characters are auto cast if possible
+    BNF
+        add_sub = OneOf('+', '-'),
+        mul_div = OneOf('*', '/'),
+        exp     = '^';
 
-    BNF number = @"#\-?[0-9]+(\.[0-9]+)?";// Regex for a signed number. Regexes bind as a single terminal
-    BNF factor =
-          number 
-        | ('(' > _expression > ')');      // Note the reference to `_expression` forward ref
-    BNF power = factor > !(exp > factor); // `factor`, then optional '^' + `factor`
-    BNF term = power % mul_div;           // delimited list, to handle patterns like "1 * 2 / 3 * 4"
-    BNF expression = term % add_sub;      //    ...again to handle "1 + 2 - 3 + 4"
+    BNF
+        number     = FractionalDecimal(),
+        factor     = number | ('(' > _expression > ')'),
+        power      = factor > !(exp > factor),
+        term       = power % mul_div,
+        expression = term % add_sub;
 
-    _expression.Is(expression);           // Complete the forward reference
+    _expression.Is(expression);
 
-    add_sub.Tag(Operation).PivotScope();  // Tag '+' and '-' as operations, and mark them as pivoting
-    mul_div.Tag(Operation).PivotScope();  //    ... same for '*' and '/'
-    exp.Tag(Operation).PivotScope();      //    ... and '^'
-    number.Tag(Value);                    // Tag numbers separately from operations
+    add_sub.TagWith(Operation).PivotScope();
+    mul_div.TagWith(Operation).PivotScope();
+    exp.TagWith(Operation).PivotScope();
+    number.TagWith(Value);
 
-    return expression
-        .WithOptions(                     // Package this BNF with the intended scanner settings
-            BNF.Options.SkipWhitespace
-        );
+    return expression.WithOptions(Options.SkipWhitespace);
 }
 
 public const string Operation = "operation";
@@ -228,21 +227,26 @@ private static TreeNode ApplyOperation(TreeNode node)
 ### Basic XML Parser
 
 ```csharp
-BNF text       = BNF.Regex("[^<>]+");
-BNF identifier = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*");
-BNF whitespace = BNF.Regex(@"\s+");
+BNF // Fragments
+    text       = Regex("[^<>]+"),
+    identifier = Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
+    whitespace = Regex(@"\s+");
 
-BNF quoted_string = '"' > identifier > '"';
-BNF attribute = whitespace > identifier > '=' > quoted_string;
+BNF // Literals
+    quoted_string = '"' > identifier > '"',
+    attribute     = whitespace > identifier > '=' > quoted_string;
 
-BNF tag_id = identifier.Tagged(TagId);
-BNF open_tag = '<' > tag_id > -attribute > '>';
+BNF // tags
+    tag_id    = identifier.Tagged(TagId),
+    open_tag  = '<' > tag_id > -attribute > '>',
+    close_tag = "</" > tag_id > '>';
 
-BNF close_tag = "</" > tag_id > '>';
+attribute.TagWith(Attribute);
+text.TagWith(Text);
+open_tag.TagWith(OpenTag).OpenScope();
+close_tag.TagWith(CloseTag).CloseScope();
 
-return BNF
-    .Recursive(tree => -(open_tag > -(tree | text) > close_tag))
-    .WithOptions(BNF.Options.None);
+return Recursive(tree => -(open_tag > -(tree | text) > close_tag)).WithOptions(Options.None);
 ```
 
 
@@ -251,44 +255,52 @@ return BNF
 From https://www.json.org/json-en.html
 
 ```csharp
-var _value = BNF.Forward();
+var value = Forward();
 
-BNF ws = BNF.Regex(@"\s*");
-BNF neg = '-';
-BNF digit = BNF.Regex("[0-9]");
-BNF exp = BNF.Regex("[eE]");
-BNF sign = BNF.OneOf('+', '-');
+BNF // Basic components
+    ws = AnyWhiteSpace;
 
-BNF escape = BNF.OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | BNF.Regex("u[0-9a-fA-F]{4}");
-BNF character = BNF.Regex("""[^"\\]""") | ('\\' > escape);
-BNF characters = -character;
-BNF quoted_string = '"' > characters > '"';
+BNF // Strings
+    unicodeEsc    = 'u' > AnyCharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
+    escape        = OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | unicodeEsc,
+    character     = AnyCharacterNotInRanges('"', '\\') | ('\\' > escape),
+    characters    = -character,
+    quoted_string = '"' > characters > '"';
 
-BNF element = ws > _value > ws;
-BNF elements = element % ',';
+BNF // Elements of arrays
+    element  = ws > value > ws,
+    elements = element % ',';
 
-BNF member_key = quoted_string.Copy();
-BNF member = ws > member_key > ws > ':' > element;
-BNF members = member % ',';
+BNF // Members of objects
+    member_key = quoted_string.Copy(),
+    member     = ws > member_key > ws > ':' > element,
+    members    = member % ',';
 
-BNF object_enter = '{';
-BNF object_leave = '}';
-BNF object_block = object_enter > (ws | members) > object_leave;
+BNF // Objects
+    object_enter = '{',
+    object_leave = '}',
+    object_block = object_enter > (ws | members) > object_leave;
 
-BNF array_enter = '[';
-BNF array_leave = ']';
-BNF array_block = array_enter > elements > array_leave;
+BNF // Arrays
+    array_enter = '[',
+    array_leave = ']',
+    array_block = array_enter > elements > array_leave;
 
-BNF digits = +digit;
-BNF exponent = !(exp > sign > digits);
-BNF fraction = !('.' > digits);
-BNF integer = (!neg) > (+digit); // this is slightly out of spec, as it allows "01234"
-BNF number = integer > fraction > exponent;
+BNF number = FractionalDecimal(groupMark: "", decimalMark: "."); // this is slightly out of spec, as it allows "01234" or "+1234"
 
 BNF primitive = quoted_string | number | "true" | "false" | "null";
-BNF value = object_block | array_block | primitive;
 
-_value.Is(value);
+value.Is(object_block | array_block | primitive);
 
-return element.WithOptions(BNF.Options.SkipWhitespace);
+
+array_enter.OpenScope().TagWith("array");
+array_leave.CloseScope();
+
+object_enter.OpenScope().TagWith("object");
+object_leave.CloseScope();
+
+member_key.TagWith("key");
+primitive.TagWith("value");
+
+return element.WithOptions(Options.None);
 ```

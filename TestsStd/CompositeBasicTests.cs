@@ -12,7 +12,7 @@ public class CompositeBasicTests
 {
     private static BNF DelimitedListParserSample()
     {
-        BNF item = "#[a-zA-Z]+";
+        BNF item = BNF.Regex("[a-zA-Z]+");
         BNF delimiter = ",";
 
         BNF list = item % delimiter;
@@ -123,7 +123,7 @@ public class CompositeBasicTests
 
     private static IParser DifferenceParserSample()
     {
-        BNF item = "#[a-zA-Z]+";
+        BNF item = BNF.Regex("[a-zA-Z]+");
         BNF end = "end";
 
         BNF list = +(item / end);
@@ -171,8 +171,8 @@ public class CompositeBasicTests
 
     private static IParser ExclusiveParserSample()
     {
-        BNF prefixed = "#px_[_a-zA-Z]+";
-        BNF postfixed = "#[_a-zA-Z]+_pf";
+        BNF prefixed = BNF.Regex("px_[_a-zA-Z]+");
+        BNF postfixed = BNF.Regex("[_a-zA-Z]+_pf");
 
         BNF list = +(prefixed ^ postfixed);
 
@@ -363,7 +363,7 @@ public class CompositeBasicTests
 
     private static IParser TerminatedListParserSample()
     {
-        BNF item = "#[a-z]+";
+        BNF item = BNF.Regex("[a-z]+");
         BNF terminator = ';';
 
         BNF list = item < terminator;

@@ -21,8 +21,8 @@ public class WhitespaceTests
 
     private IParser MakeParser()
     {
-        BNF word = @"#\w+";
-        BNF punctuation = @"#[.,\-]";
+        BNF word = BNF.Regex(@"\w+");
+        BNF punctuation = BNF.Regex(@"[.,\-]");
 
         BNF word_list = -(word | punctuation);
 

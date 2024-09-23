@@ -1,22 +1,22 @@
-﻿using System.Linq;
+﻿using System.Globalization;
 using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
 
 /// <summary>
-/// Match a single character inside any of the inclusive ranges
+/// Parser that will match any one character.
 /// </summary>
-public class MultiRangeCharacterSet : Parser, IMatchingParser
+public class AnyCharacterInCategory : Parser, IMatchingParser
 {
-    private readonly BNF.CharacterRange[] _ranges;
+    private readonly UnicodeCategory _category;
 
     /// <summary>
-    /// Match a single character that is in any of the given ranges
+    /// Create a matcher for a single unicode category.
     /// </summary>
-    public MultiRangeCharacterSet(BNF.CharacterRange[] ranges)
+    public AnyCharacterInCategory(UnicodeCategory category)
     {
-        _ranges = ranges;
+        _category = category;
     }
 
     /// <inheritdoc />
@@ -27,19 +27,16 @@ public class MultiRangeCharacterSet : Parser, IMatchingParser
 
         char c = scan.Peek(offset);
 
-        foreach (var range in _ranges)
-        {
-            if (c >= range.Lower && c <= range.Upper) return scan.CreateMatch(this, offset, 1);
-        }
+        if (char.GetUnicodeCategory(c) != _category) return scan.NoMatch(this, previousMatch);
 
-        // None of the ranges matched
-        return scan.NoMatch(this, previousMatch);
+        // if we arrive at this point, we have a match
+        return scan.CreateMatch(this, offset, 1);
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = '[' + string.Join("", _ranges.Select(r => r.ToString())) + ']';
+        var desc = "["+_category+"]";
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";

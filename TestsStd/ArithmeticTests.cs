@@ -32,6 +32,7 @@ public class ArithmeticTests
     [TestCase("-6.5 + 3 * -2 - 5.5", -18)]
     [TestCase("(6.5 + 3) * (2 - 5.5)", -33.25)]
     [TestCase("(6.5 + 3) * (5.5 - -2)", 71.25)]
+    [TestCase("(6.5 + 3) * (5.5 - -0.2e1)", 71.25)]
     [TestCase("2^(1+3)", 16)]
     [TestCase("-2.71828182", -2.71828182)]
     [TestCase("+2.718e-5", 2.718E-05)]

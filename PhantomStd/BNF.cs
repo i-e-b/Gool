@@ -17,9 +17,6 @@ namespace Gool;
 /// <b>Atomic parsers:</b>
 /// <dl>
 /// 
-/// <dt><![CDATA[ "#..." ]]></dt>
-/// <dd>Create a <b>regex</b> parser that matches a string based on a regex pattern. The <c>#</c> prefix is not included in the pattern</dd>
-/// 
 /// <dt><![CDATA[ '.' ]]></dt>
 /// <dd>Create a <b>character</b> parser that matches a single literal character in the input</dd>
 /// 
@@ -193,7 +190,7 @@ public class BNF : IMatchingParser
 	/// </summary>
 	/// <example><code><![CDATA[
 	/// var input = new ScanStrings("{{{w}{x}y}z}");
-	/// var myParser = BNF.Recursive(tree => +( '{' > -(tree | "#[^{}]+") > '}')).Result();
+	/// var myParser = BNF.Recursive(tree => +( '{' > -(tree | BNF.Regex("[^{}]+") ) > '}')).Result();
 	/// var result = myParser.Parse(input);
 	/// ]]></code>
 	/// </example>
@@ -232,24 +229,9 @@ public class BNF : IMatchingParser
 	/// </summary>
 	public static implicit operator BNF(string s)
 	{
-		string pattern;
-		if (s.Length < 1)
-		{
-			return new BNF(new EmptyMatch());
-		}
-		if (s.StartsWith("#"))
-		{
-			pattern = s.Substring(1);
-			if (!pattern.StartsWith("#"))
-			{
-				return new BNF(new RegularExpression(pattern, RegexSettings));
-			}
-		}
-		else
-		{
-			pattern = s;
-		}
-		return new BNF(new LiteralString(pattern));
+		return s.Length < 1
+			? new BNF(new EmptyMatch())
+			: new BNF(new LiteralString(s));
 	}
 		
 	/// <summary>
@@ -592,7 +574,15 @@ public class BNF : IMatchingParser
 	/// Match any one character
 	/// </summary>
 	public static BNF AnyChar => new(new AnyCharacter());
-	
+
+	/// <summary>
+	/// Match any one character from the given UTF character category
+	/// </summary>
+	public static BNF UtfCategory(UnicodeCategory category)
+	{
+		return new BNF(new AnyCharacterInCategory(category));
+	}
+
 	/// <summary>
 	/// Match an empty string
 	/// </summary>
@@ -798,11 +788,27 @@ public class BNF : IMatchingParser
 		}
 
 		/// <summary>
+		/// Implicitly cast a single character to a 1 character range
+		/// </summary>
+		public static implicit operator CharacterRange(int c)
+		{
+			return new CharacterRange((char)c,(char)c);
+		}
+
+		/// <summary>
 		/// Implicitly cast a tuple with an upper and lower character to a range
 		/// </summary>
 		public static implicit operator CharacterRange(ValueTuple<char,char> t)
 		{
 			return new CharacterRange(t.Item1, t.Item2);
+		}
+
+		/// <summary>
+		/// Implicitly cast a tuple with an upper and lower character to a range
+		/// </summary>
+		public static implicit operator CharacterRange(ValueTuple<int,int> t)
+		{
+			return new CharacterRange((char)t.Item1, (char)t.Item2);
 		}
 
 		/// <summary>
@@ -814,6 +820,13 @@ public class BNF : IMatchingParser
 		/// Return the highest-ordered character that is considered a match
 		/// </summary>
 		public char Upper { get; }
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			if (Lower == Upper) return Upper.ToString();
+			return Lower + "-" + Upper;
+		}
 	}
 	#endregion Internal sub-types
 
