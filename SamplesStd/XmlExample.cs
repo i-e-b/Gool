@@ -10,20 +10,16 @@ namespace Samples;
 
 public static class XmlExample
 {
-    /// <summary>
-    /// Simplified XML for fragments without any prolog.
-    /// </summary>
-    public static readonly Package SimpleXmlParser = SimpleXml();
+    /*
+     * "SimpleXmlParser" isn't a serious parser -- it can't handle
+     * all real world XML. But it does show off simple
+     * parsing of a recursive data structure
+     */
 
-    private static Package SimpleXml()
+    public static Package SimpleXmlParser()
     {
         RegexSettings = RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline;
 
-        /*
-         * This isn't a serious parser -- it can't handle
-         * all real world XML. But it does show off simple
-         * parsing of a recursive data structure
-         */
 
         BNF // Fragments
             text       = Regex("[^<>]+"),
@@ -50,6 +46,7 @@ public static class XmlExample
     public const string Text                  = "text";
     public const string OpenTag               = "open";
     public const string CloseTag              = "close";
+    public const string EmptyTag              = "empty";
     public const string TagId                 = "tagId";
     public const string Attribute             = "attribute";
     public const string Comment               = "comment";
@@ -199,8 +196,6 @@ public static class XmlExample
             name_char = letter | digit | OneOf('.', '-', ':') | combining_char | extender,
             name      = (letter | '_' | ':') > -(name_char),
             nm_token  = +name_char;
-            //names     = name > -(' ' > name), // "The Names and Nmtokens productions are used to define the validity of tokenized attribute values after normalization"
-            //nm_tokens = nm_token > -(' ' > nm_token);
 
         BNF // Character and Entity References
             char_ref     = ("&#" > Regex("[0-9]+") > ';') | ("&#x" > Regex("[0-9a-fA-F]+") > ';'),
@@ -218,7 +213,7 @@ public static class XmlExample
             pub_id_literal = ('"' > (-pub_id_char) > '"');
 
         BNF // Character data
-            char_data = -(NoneOf('<', '&') / "]]>"); // I'm not 100% sure about this. ( https://www.w3.org/TR/REC-xml/#syntax ) says: CharData  ::=  [^<&]* - ([^<&]* ']]>' [^<&]*)
+            char_data = -(NoneOf('<', '&') / "]]>");
 
         BNF // Comments
             comment = "<!--" > -((chr / '-') | ('-' > (chr / '-'))) > "-->";
@@ -290,8 +285,6 @@ public static class XmlExample
             notation_decl = "<!NOTATION" > ws > name > ws > (external_id | public_id) > !ws > '>',
             enc_name      = AnyCharacterInRanges(('A', 'Z'), ('a', 'z')) > -AnyCharacterInRanges(('A', 'Z'), ('a', 'z'), ('0', '9'), '.', '_', '-'),
             encoding_decl = ws > "encoding" > eq > (('"' > enc_name > '"') | ("'" > enc_name > "'"));
-            //text_decl     = "<?xml" > !_version_info > encoding_decl > !ws > "?>"; // Defined in "4.3.1 The Text Declaration" but not used in the syntax
-            //ext_parsed_ent = !text_decl > content // Defined in "4.3.2 Well-Formed Parsed Entities", but not used in the syntax
 
         var _conditional_sect = Forward();
         BNF // Document Type Definition
@@ -333,6 +326,7 @@ public static class XmlExample
         raw_char_data.TagWith(Text);
 
         attribute.TagWith(Attribute);
+        empty_elem_tag.TagWith(EmptyTag).EncloseScope();
         start_tag.TagWith(OpenTag).OpenScope();
         end_tag.TagWith(CloseTag).CloseScope();
 

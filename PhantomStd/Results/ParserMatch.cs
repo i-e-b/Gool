@@ -31,13 +31,14 @@ public class ParserMatch
         _mutator = mutator;
         SourceParser = source;
 
-        Scanner = scanner; // ?? throw new ArgumentNullException(nameof(scanner), "Tried to create a match from a null scanner.");
+        Scanner = scanner;
         Offset = offset;
         Length = length;
     }
 
     /// <summary>
-    /// Create a match from a string, that represents the entire string.
+    /// Create a match from a string, that represents that entire string.
+    /// This is used to represent transformed values in <see cref="TreeNode"/>s.
     /// </summary>
     public ParserMatch(string value, string? tag = null)
     {
@@ -48,11 +49,6 @@ public class ParserMatch
         Offset = 0;
         Length = value.Length;
     }
-
-    // <summary>
-    // List of child matches (should you need the AST)
-    // </summary>
-    //public readonly MaybeList<ParserMatch> ChildMatches = new();
 
     /// <summary>
     /// List of child matches (for traversing the syntax tree)

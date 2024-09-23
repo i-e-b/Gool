@@ -2,6 +2,7 @@
 using Gool.Results;
 using NUnit.Framework;
 using SkinnyJson;
+using TestsStd.Helpers;
 using JsonParser = Samples.JsonParser;
 
 // ReSharper disable InconsistentNaming
@@ -44,10 +45,9 @@ public class JsonTests
             result = parser.ParsePartialString(valid_sample);
         }
         phantomTime.Stop();
-        Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds / 100} µs on average");
+        Console.WriteLine($"Parsing took {phantomTime.Time(100)}; Per character = {phantomTime.Time(100*valid_sample.Length)}");
         Assert.That(result.Success, Is.True);
     }
-
 
     [Test]
     public void recursive_parsers_can_be_run_concurrently()
@@ -88,12 +88,13 @@ public class JsonTests
         phantomTime.Start();
         var parser = JsonParser.Json;
         phantomTime.Stop();
-        Console.WriteLine($"Creating parser took {phantomTime.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Creating parser took {phantomTime.Time()}");
+
         
         phantomTime.Restart();
         var result = parser.ParsePartialString(valid_sample);
         phantomTime.Stop();
-        Console.WriteLine($"Parsing took {phantomTime.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Parsing took {phantomTime.Time()}");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
         

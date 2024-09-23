@@ -3,16 +3,16 @@
 
 - [ ] Parser show tags of failed results as the "expected" if parsing can't continue.
 - [ ] Demo of segmenting parser: break input into (lines|expressions|statements), then parse each of those. Example of recovering parser if one line is bad.
-- [ ] Generate a BNF graphic (display of parser structure)
+- [ ] Generate a BNF graphic (display of parser structure) -- maybe Mermaid syntax?
 - [ ] Generate parser result graphic (like https://dubroy.com/blog/visualizing-packrat-parsing/ )
-- [ ] "Immediate stop" parser. If this is successful, we stop any other parsing and return the result up-to the stop parser.
+- [ ] "Immediate stop" parser? If this is successful, we stop any other parsing and return the result up-to the stop parser.
 - [ ] "Context" parser? Function that takes parser match tree so far, gives a new BNF. This continues as parser match, then continues to next result after the context parser.
 
 ## Examples
 
-- [ ] SQL connection strings
-- [ ] Complete basic programming language (including interpreter and sample programs)
+- [x] SQL connection strings
 - [x] Full XML: https://cs.lmu.edu/~ray/notes/xmlgrammar/
+- [ ] Complete basic programming language (including interpreter and sample programs)
 
 Huge repo of grammars here: https://github.com/antlr/grammars-v4
 
@@ -28,3 +28,7 @@ Sources for more examples:
   - https://www.cs.vu.nl/grammarware/browsable/cobol/#EBNF
   - https://github.com/shamrice/COBOL-Examples
 - And SQL: https://ronsavage.github.io/SQL/sql-92.bnf.html
+
+Diagrams:
+- https://github.com/mermaid-js/mermaid
+- https://mermaid.js.org/intro/syntax-reference.html

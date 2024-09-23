@@ -3,6 +3,7 @@ using System.Text;
 using Gool.Results;
 using NUnit.Framework;
 using Samples;
+using TestsStd.Helpers;
 
 namespace TestsStd;
 
@@ -53,11 +54,13 @@ public class XmlTests
     [Test]
     public void SimpleXmlDocumentParsesSuccessfully()
     {
+        var parser = XmlExample.SimpleXmlParser();
+
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.SimpleXmlParser.ParsePartialString(SimpleXmlSample);
+        var result = parser.ParsePartialString(SimpleXmlSample);
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
 
         // Faults: Something is advancing too far?
 
@@ -75,9 +78,11 @@ public class XmlTests
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
     public void WellStructuredButInvalidSimpleXmlDocumentParsesSuccessfully()
     {
+        var parser = XmlExample.SimpleXmlParser();
+
         var sw = new Stopwatch();
         sw.Start();
-        var result = XmlExample.SimpleXmlParser.ParsePartialString(BrokenSimpleXmlSample);
+        var result = parser.ParsePartialString(BrokenSimpleXmlSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -98,25 +103,25 @@ public class XmlTests
             Console.WriteLine(match.Value + " : " + tag);
         }
     }
-    
+
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]
     public void can_detect_tag_mismatches_in_scoped_tree()
     {
-        var parser = XmlExample.SimpleXmlParser;
+        var parser = XmlExample.SimpleXmlParser();
         var sw     = new Stopwatch();
         sw.Start();
         var result = parser.ParsePartialString(BrokenSimpleXmlSample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
-        var tree = ScopeNode.FromMatch(result);
+        var tree   = ScopeNode.FromMatch(result);
         var errors = new List<string>();
-        
+
         tree.BreadthFirstWalk(n =>
         {
             if (n.NodeType == ScopeNodeType.ScopeChange)
             {
-                var open = n.OpeningMatch?.FindTag(XmlExample.TagId)?.Value;
+                var open  = n.OpeningMatch?.FindTag(XmlExample.TagId)?.Value;
                 var close = n.ClosingMatch?.FindTag(XmlExample.TagId)?.Value;
                 if (open != close) errors.Add($"<{open}> does not match </{close}>");
             }
@@ -129,7 +134,7 @@ public class XmlTests
     [Test]
     public void ConvertingParsedXmlTokensIntoStructure()
     {
-        var result = XmlExample.SimpleXmlParser.ParsePartialString(SimpleXmlSample);
+        var result = XmlExample.SimpleXmlParser().ParsePartialString(SimpleXmlSample);
 
         foreach (var fail in result.Scanner.ListFailures())
         {
@@ -161,13 +166,13 @@ public class XmlTests
         }
 
         Console.WriteLine(sb.ToString());
-        Assert.That(sb.ToString().Replace("\r",""), Is.EqualTo(@"note{to{[Tove]}to
+        Assert.That(sb.ToString().Replace("\r", ""), Is.EqualTo(@"note{to{[Tove]}to
 from{[Jani]}from
 heading{[Reminder]}heading
 body{[Don't forget me this weekend!]}body
 empty{}empty
 }note
-".Replace("\r","")));
+".Replace("\r", "")));
     }
 
 
@@ -182,7 +187,7 @@ empty{}empty
         sw.Restart();
         var result = parser.ParsePartialString(FullXmlBasicDoc);
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
 
         foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
@@ -204,7 +209,7 @@ empty{}empty
         sw.Restart();
         var result = parser.ParsePartialString(FullXmlDocTypeAndStyleSheetDoc);
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlDocTypeAndStyleSheetDoc.Length)}");
 
         foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
@@ -215,21 +220,20 @@ empty{}empty
         PrintRecursive(tree, 0);
     }
 
-
     [Test(Description = "This attempts to parse the entire XML spec, defined in XML (from https://www.w3.org/TR/2008/REC-xml-20081126/REC-xml-20081126.xml )")]
     public void can_parse_a_huge_and_complicated_xml_document_with_the_full_specification_parser()
     {
         var sw     = Stopwatch.StartNew();
         var parser = XmlExample.FullXmlParser();
         sw.Stop();
-        Console.WriteLine($"Constructing parser took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Constructing parser took {sw.Time()}; ");
 
         var input = File.ReadAllText(@"Samples/xml_spec.xml");
 
         sw.Restart();
         var result = parser.ParseEntireString(input);
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMilliseconds} ms");
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(input.Length)}");
 
         foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
@@ -244,9 +248,6 @@ empty{}empty
         PrintRecursive(tree, 0);
     }
 
-
-
-
     private static void PrintRecursive(ScopeNode node, int indent)
     {
         switch (node.NodeType)
@@ -257,7 +258,10 @@ empty{}empty
                 break;
             case ScopeNodeType.Data:
                 // Hide junk
-                if (node.DataMatch?.Tag == XmlExample.WhitespaceTag || string.IsNullOrWhiteSpace(node.DataMatch?.Value)) { break; }
+                if (node.DataMatch?.Tag == XmlExample.WhitespaceTag || string.IsNullOrWhiteSpace(node.DataMatch?.Value))
+                {
+                    break;
+                }
 
                 Console.WriteLine($"{I(indent)}[{node.DataMatch?.Tag}]: {node.DataMatch?.Value.Trim()}");
                 break;

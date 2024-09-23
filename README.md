@@ -1,8 +1,12 @@
 Gool is a lexer/parser for C#
 ==================================
 
-A parser-combinator library for C#, with a fluent BNF-like interface for building parsers.
+A fast, robust, and thread-safe parser-combinator library for C#, with a fluent BNF-like interface for building parsers.
 
+Use this to read and interpret a wide range of text-based input -- including file formats, data structures, and 
+programming languages.
+
+If you have a complex and/or fragile set of regular expressions, try using a parser instead.
 
 See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
 
@@ -224,7 +228,7 @@ private static TreeNode ApplyOperation(TreeNode node)
 }
 ```
 
-### Basic XML Parser
+### Simplified XML Parser
 
 ```csharp
 BNF // Fragments
