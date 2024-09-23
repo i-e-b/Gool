@@ -1,6 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Gool.Parsers.Terminals;
 using Gool.Scanners;
@@ -8,8 +9,11 @@ using Gool.Scanners;
 namespace Gool.Results;
 
 /// <summary>
-/// Creates and stores parser matches.
+/// Creates and stores parser matches, and their child matches.
 /// </summary>
+/// <remarks>
+/// This only supports up to 2 child matches
+/// </remarks>
 public class ParserMatch
 {
     private readonly Func<string, string>? _mutator;
@@ -45,10 +49,35 @@ public class ParserMatch
         Length = value.Length;
     }
 
+    // <summary>
+    // List of child matches (should you need the AST)
+    // </summary>
+    //public readonly MaybeList<ParserMatch> ChildMatches = new();
+
     /// <summary>
-    /// List of child matches (should you need the AST)
+    /// List of child matches (for traversing the syntax tree)
     /// </summary>
-    public readonly MaybeList<ParserMatch> ChildMatches = new();
+    public IEnumerable<ParserMatch> Children()
+    {
+        if (_leftChild is not null) yield return _leftChild;
+        if (_rightChild is not null) yield return _rightChild;
+    }
+
+    [SuppressMessage("ReSharper", "InvocationIsSkipped")]
+    private void AddChild(ParserMatch child)
+    {
+        if (_leftChild is null) _leftChild = child;
+        else if (_rightChild is null) _rightChild = child;
+        else Debug.Assert(false, "Too many children");
+    }
+
+    /// <summary>
+    /// Returns true if this node has child nodes
+    /// </summary>
+    public bool HasChildren => _leftChild is not null; // left should always be populated first
+
+    private ParserMatch? _leftChild;
+    private ParserMatch? _rightChild;
 
     /// <summary>
     /// The parser that generated this match
@@ -106,7 +135,7 @@ public class ParserMatch
     /// <summary>
     /// True if match empty
     /// </summary>
-    public bool Empty => (Length <= 0) && (ChildMatches.Count < 1);
+    public bool Empty => (Length <= 0) && (!HasChildren);
 
     /// <summary>
     /// Next offset after this match
@@ -147,7 +176,7 @@ public class ParserMatch
         {
             if (string.IsNullOrEmpty(source.Tag)) return right;
             var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
-            if (!right.Empty) chainResult.ChildMatches.Add(right);
+            if (!right.Empty) chainResult.AddChild(right);
             return chainResult;
         }
         
@@ -157,13 +186,13 @@ public class ParserMatch
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
         {
             var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
-            if (!left.Empty) leftOnlyResult.ChildMatches.Add(left);
+            if (!left.Empty) leftOnlyResult.AddChild(left);
             return leftOnlyResult;
         }
         if ((right.Contains(left) && NoMeta(left, right)) || left.Empty)
         {
             var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
-            if (!right.Empty) rightOnlyResult.ChildMatches.Add(right);
+            if (!right.Empty) rightOnlyResult.AddChild(right);
             return rightOnlyResult;
         }
         
@@ -180,22 +209,22 @@ public class ParserMatch
         {
             if (left.Scope == ScopeType.Pivot)
             {
-                left.ChildMatches.Add(right);
-                joinResult.ChildMatches.Add(left);
+                left.AddChild(right);
+                joinResult.AddChild(left);
                 return joinResult;
             }
             
             if (right.Scope == ScopeType.Pivot)
             {
-                right.ChildMatches.Add(left);
-                joinResult.ChildMatches.Add(right);
+                right.AddChild(left);
+                joinResult.AddChild(right);
                 return joinResult;
             }
         }
 
         // Normal join between left and right
-        if (!left.Empty) joinResult.ChildMatches.Add(left);
-        if (!right.Empty) joinResult.ChildMatches.Add(right);
+        if (!left.Empty) joinResult.AddChild(left);
+        if (!right.Empty) joinResult.AddChild(right);
         return joinResult;
     }
 
@@ -237,7 +266,7 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> BottomLevelMatchesDepthFirst()
     {
-        return DepthFirstWalk(this, node => node.ChildMatches.Count < 1);
+        return DepthFirstWalk(this, node => !node.HasChildren);
     }
     
     /// <summary>
@@ -247,7 +276,7 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> BottomLevelMatchesBreadthFirst()
     {
-        return BreadthFirstWalk(this, node => node.ChildMatches.Count < 1);
+        return BreadthFirstWalk(this, node => !node.HasChildren);
     }
 
     /// <summary>
@@ -287,7 +316,7 @@ public class ParserMatch
         if (select(node)) yield return node; // this match
 
         var check = (ParserMatch n) => DepthFirstWalk(n, select);
-        foreach (var m in node.ChildMatches.SelectMany(check))
+        foreach (var m in node.Children().SelectMany(check))
         {
             if (select(m)) yield return m;
         }
@@ -297,20 +326,21 @@ public class ParserMatch
     /// Does a recursive, breadth-first search of this match and all children.
     /// Returns matches where <paramref name="select"/> returns <c>true</c>
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public static IEnumerable<ParserMatch> BreadthFirstWalk(ParserMatch? root, Func<ParserMatch, bool> select)
     {
         if (root is null) yield break;
         
         if (select(root)) yield return root; // this match
         
-        var nextSet = new Queue<ParserMatch>(root.ChildMatches);
+        var nextSet = new Queue<ParserMatch>(root.Children());
 
         while (nextSet.Count > 0)
         {
             var node = nextSet.Dequeue();
             if (select(node)) yield return node; // this match
             
-            foreach (var child in node.ChildMatches) nextSet.Enqueue(child);
+            foreach (var child in node.Children()) nextSet.Enqueue(child);
         }
     }
 
@@ -347,7 +377,7 @@ public class ParserMatch
         var joinMatch = new ParserMatch(source, Scanner, Offset, Length);
         
         // Join this match to the result if we have any metadata to carry
-        if (AnyMetaInTree()) joinMatch.ChildMatches.Add(this);
+        if (AnyMetaInTree()) joinMatch.AddChild(this);
 
         return joinMatch;
 
@@ -356,7 +386,7 @@ public class ParserMatch
     private bool AnyMetaInTree()
     {
         if (SourceParser?.HasMetaData() == true) return true;
-        return ChildMatches.Any(child => child.AnyMetaInTree());
+        return Children().Any(child => child.AnyMetaInTree());
     }
 
     /// <summary>
@@ -380,69 +410,4 @@ public class ParserMatch
     /// Returns true if the source parser has meta data. False otherwise
     /// </summary>
     public bool HasMetaData() => SourceParser?.HasMetaData() == true;
-}
-
-/// <summary>
-/// Reduced allocation list
-/// </summary>
-public class MaybeList<T> : IList<T>
-{
-    private IList<T> _src = Array.Empty<T>();
-
-    /// <inheritdoc />
-    public IEnumerator<T> GetEnumerator() => _src.GetEnumerator();
-
-    /// <inheritdoc />
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_src).GetEnumerator();
-
-    /// <inheritdoc />
-    public void Add(T item)
-    {
-        if (_src is List<T> list) list.Add(item);
-        else _src = new List<T>{item};
-    }
-
-    /// <inheritdoc />
-    public void Clear()
-    {
-        if (_src is List<T> lst) lst.Clear();
-    }
-
-    /// <inheritdoc />
-    public bool Contains(T item) => _src.Contains(item);
-
-    /// <inheritdoc />
-    public void CopyTo(T[] array, int arrayIndex) => _src.CopyTo(array, arrayIndex);
-
-    /// <inheritdoc />
-    public bool Remove(T item)
-    {
-        if (_src is List<T> lst) return lst.Remove(item);
-        return false;
-    }
-
-    /// <inheritdoc />
-    public int Count => _src.Count;
-
-    /// <inheritdoc />
-    public bool IsReadOnly => false;
-
-    /// <inheritdoc />
-    public int IndexOf(T item) => _src.IndexOf(item);
-
-    /// <inheritdoc />
-    public void Insert(int index, T item) => _src.Insert(index, item);
-
-    /// <inheritdoc />
-    public void RemoveAt(int index)
-    {
-        if (_src is List<T> lst) lst.RemoveAt(index);
-    }
-
-    /// <inheritdoc />
-    public T this[int index]
-    {
-        get => _src[index];
-        set => _src[index] = value;
-    }
 }

@@ -158,11 +158,11 @@ public class TreeNode
     private static TreeNode? BasicTreeFromMatch(ParserMatch match)
     {
         // Recurse, skipping any non-meta nodes
-        if (!match.HasMetaData() && match.ChildMatches.Count < 0) return null;
+        if (!match.HasMetaData() && !match.HasChildren) return null;
         
         var cursor = new TreeNode { Source = match };
 
-        foreach (var child in match.ChildMatches)
+        foreach (var child in match.Children())
         {
             var node = BasicTreeFromMatch(child);
             if (node is not null) cursor.Children.Add(node);
