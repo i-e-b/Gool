@@ -1,6 +1,7 @@
 using System;
 using Gool.Results;
 using Gool.Scanners;
+using JetBrains.Annotations;
 
 namespace Gool;
 
@@ -36,26 +37,26 @@ public interface IScanner: IScanningDiagnostics
 	public bool IncludeSkippedElements { get; set; }
 
 	/// <summary>Return a failure match.</summary>
-	ParserMatch NoMatch(IParser? source, ParserMatch? previous);
+	[MustUseReturnValue]ParserMatch NoMatch(IParser? source, ParserMatch? previous);
 
 	/// <summary>Return an empty success match</summary>
-	ParserMatch EmptyMatch(IParser source, int offset);
+	[MustUseReturnValue]ParserMatch EmptyMatch(IParser source, int offset);
 
 	/// <summary> Return an empty failure match </summary>
-	ParserMatch NullMatch(IParser? source, int offset);
+	[MustUseReturnValue]ParserMatch NullMatch(IParser? source, int offset);
 
 	/// <summary>Advance one position through the input</summary>
 	/// <returns>Returns true while there is unconsumed input remaining</returns>
 	bool Read(ref int offset);
 
 	/// <summary>Return the character at the given offset</summary>
-	char Peek(int offset);
+	[MustUseReturnValue]char Peek(int offset);
 
 	/// <summary>
 	/// Prepares the scanner for the next token.
 	/// This is mainly used for whitespace skipping.
 	/// </summary>
-	public ParserMatch? AutoAdvance(ParserMatch? previous);
+	[MustUseReturnValue]public ParserMatch? AutoAdvance(ParserMatch? previous);
 
 	/// <summary>
 	/// Return a substring from the input.
@@ -71,10 +72,10 @@ public interface IScanner: IScanningDiagnostics
 	/// </summary>
 	/// <param name="offset">Offset relative to the start of the input.</param>
 	/// <param name="length">Length of substring to return.</param>
-	string UntransformedSubstring(int offset, int length);
+	[MustUseReturnValue]string UntransformedSubstring(int offset, int length);
 
 	/// <summary>Return a match from a substring of the input</summary>
-	ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null);
+	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null);
 
 	/// <summary>
 	/// Add a success path, for diagnostic use
@@ -90,5 +91,5 @@ public interface IScanner: IScanningDiagnostics
 	/// <summary>
 	/// Get the context object for this parser, if one has been set.
 	/// </summary>
-	object? GetContext(IParser parser);
+	[MustUseReturnValue]object? GetContext(IParser parser);
 }

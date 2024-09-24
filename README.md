@@ -10,6 +10,13 @@ If you have a complex and/or fragile set of regular expressions, try using a par
 
 See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
 
+### Unique features
+
+- Can build new patterns at run-time *and* at parse time
+- Patterns can be computed using any C# code
+- Easily expanded to handle complex patterns
+- Use all your existing navigation and refactoring tools
+
 Basic example
 -------------
 
@@ -71,6 +78,8 @@ BNF Syntax
 - `!`a → Create an *option* parser that matches zero or one **a**
    - Example: `!"xy"` matches `xy` and *empty*, but not `xyxy`
    - Can also be expressed `BNF.Optional(`a`)`
+- `~`a → Create a *non-consuming* parser that must match **a**, but does not consume the match
+  - Example: `'x' > ~'y' > "yz"` matches `xyz` as `x` and `yz`
 - a `&` b → Create an *intersection* parser that matches (**a** then **b**) or (**b** then **a**)
    - Example: `'x'&'y'` matches `xy` and `yx`, but not `xx` or `yy` 
 - a `^` b → Create an *exclusion* parser that matches **a** or **b** but not both

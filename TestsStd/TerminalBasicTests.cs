@@ -367,7 +367,94 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_without_leading_whitespace()
     {
-        var subject = new VariableWidthFractionalDecimal(false, "_", ".");
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.Parse(new ScanStrings("234"), null);
+        Assert.That(result.Value, Is.EqualTo("234"));
+
+        result = subject.Parse(new ScanStrings("1.0"), null);
+        Assert.That(result.Value, Is.EqualTo("1.0"));
+
+        result = subject.Parse(new ScanStrings("0.1"), null);
+        Assert.That(result.Value, Is.EqualTo("0.1"));
+
+        result = subject.Parse(new ScanStrings("+99"), null);
+        Assert.That(result.Value, Is.EqualTo("+99"));
+
+        result = subject.Parse(new ScanStrings("-99"), null);
+        Assert.That(result.Value, Is.EqualTo("-99"));
+
+        result = subject.Parse(new ScanStrings("-9.0E5"), null);
+        Assert.That(result.Value, Is.EqualTo("-9.0E5"));
+
+        result = subject.Parse(new ScanStrings("+9.0E-5"), null);
+        Assert.That(result.Value, Is.EqualTo("+9.0E-5"));
+
+        result = subject.Parse(new ScanStrings("0.1E+5"), null);
+        Assert.That(result.Value, Is.EqualTo("0.1E+5"));
+
+        result = subject.Parse(new ScanStrings("123__000_000.0234e222"), null);
+        Assert.That(result.Value, Is.EqualTo("123__000_000.0234e222"));
+
+        result = subject.Parse(new ScanStrings("1_._0"), null);
+        Assert.That(result.Value, Is.EqualTo("1_._0"));
+
+        result = subject.Parse(new ScanStrings("0"), null);
+        Assert.That(result.Value, Is.EqualTo("0"));
+
+        result = subject.Parse(new ScanStrings("1"), null);
+        Assert.That(result.Value, Is.EqualTo("1"));
+
+        // Invalid cases
+
+        result = subject.Parse(new ScanStrings("  1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("."), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("+"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("-"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("++1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("-+1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings(".1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1."), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("00"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("_1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1.0_"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1..0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1._.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1.0e1.0"), null);
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_with_lone_decimal()
+    {
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: true, allowLeadingZero: false);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("234"), null);
@@ -397,9 +484,120 @@ public class TerminalBasicTests
         result = subject.Parse(new ScanStrings("1_._0"), null);
         Assert.That(result.Value, Is.EqualTo("1_._0"));
 
+        result = subject.Parse(new ScanStrings(".1"), null);
+        Assert.That(result.Value, Is.EqualTo(".1"));
+
+        result = subject.Parse(new ScanStrings(".1e-4"), null);
+        Assert.That(result.Value, Is.EqualTo(".1e-4"));
+
+        result = subject.Parse(new ScanStrings("1.e4"), null);
+        Assert.That(result.Value, Is.EqualTo("1.e4"));
+
+        result = subject.Parse(new ScanStrings("1."), null);
+        Assert.That(result.Value, Is.EqualTo("1."));
+
         // Invalid cases
 
         result = subject.Parse(new ScanStrings("  1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("."), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("+"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings(".e4"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("-"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("++1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("-+1"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("_1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1.0_"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1..0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1._.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("1.0e1.0"), null);
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_with_leading_zero()
+    {
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: true, allowLeadingZero: true);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.Parse(new ScanStrings("0234"), null);
+        Assert.That(result.Value, Is.EqualTo("0234"));
+
+        result = subject.Parse(new ScanStrings("0000"), null);
+        Assert.That(result.Value, Is.EqualTo("0000"));
+
+        result = subject.Parse(new ScanStrings("0"), null);
+        Assert.That(result.Value, Is.EqualTo("0"));
+
+        result = subject.Parse(new ScanStrings("+0234"), null);
+        Assert.That(result.Value, Is.EqualTo("+0234"));
+
+        result = subject.Parse(new ScanStrings("-0234"), null);
+        Assert.That(result.Value, Is.EqualTo("-0234"));
+
+        result = subject.Parse(new ScanStrings("1.0"), null);
+        Assert.That(result.Value, Is.EqualTo("1.0"));
+
+        result = subject.Parse(new ScanStrings("0.1"), null);
+        Assert.That(result.Value, Is.EqualTo("0.1"));
+
+        result = subject.Parse(new ScanStrings("00.1"), null);
+        Assert.That(result.Value, Is.EqualTo("00.1"));
+
+        result = subject.Parse(new ScanStrings("+99"), null);
+        Assert.That(result.Value, Is.EqualTo("+99"));
+
+        result = subject.Parse(new ScanStrings("-99"), null);
+        Assert.That(result.Value, Is.EqualTo("-99"));
+
+        result = subject.Parse(new ScanStrings("-9.0E5"), null);
+        Assert.That(result.Value, Is.EqualTo("-9.0E5"));
+
+        result = subject.Parse(new ScanStrings("+9.0E-5"), null);
+        Assert.That(result.Value, Is.EqualTo("+9.0E-5"));
+
+        result = subject.Parse(new ScanStrings("123__000_000.0234e222"), null);
+        Assert.That(result.Value, Is.EqualTo("123__000_000.0234e222"));
+
+        result = subject.Parse(new ScanStrings("1_._0"), null);
+        Assert.That(result.Value, Is.EqualTo("1_._0"));
+
+        result = subject.Parse(new ScanStrings(".1"), null);
+        Assert.That(result.Value, Is.EqualTo(".1"));
+
+        result = subject.Parse(new ScanStrings(".1e-4"), null);
+        Assert.That(result.Value, Is.EqualTo(".1e-4"));
+
+        result = subject.Parse(new ScanStrings("1."), null);
+        Assert.That(result.Value, Is.EqualTo("1."));
+
+        // Invalid cases
+
+        result = subject.Parse(new ScanStrings("  1.0"), null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(new ScanStrings("."), null);
         Assert.That(result.Success, Is.False);
 
         result = subject.Parse(new ScanStrings("+"), null);
@@ -412,12 +610,6 @@ public class TerminalBasicTests
         Assert.That(result.Success, Is.False);
 
         result = subject.Parse(new ScanStrings("-+1"), null);
-        Assert.That(result.Success, Is.False);
-
-        result = subject.Parse(new ScanStrings(".1"), null);
-        Assert.That(result.Success, Is.False);
-
-        result = subject.Parse(new ScanStrings("1."), null);
         Assert.That(result.Success, Is.False);
 
         result = subject.Parse(new ScanStrings("_1.0"), null);
@@ -439,7 +631,7 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_with_leading_whitespace()
     {
-        var subject = new VariableWidthFractionalDecimal(true, "_", ".");
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:true, groupMark:"_", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("   234"), null);
@@ -452,7 +644,7 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_no_grouping()
     {
-        var subject = new VariableWidthFractionalDecimal(true, "", ".");
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:true, groupMark:"", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("   234"), null);
@@ -463,9 +655,28 @@ public class TerminalBasicTests
     }
 
     [Test]
+    public void _VariableWidthFractionalDecimal_with_multi_char_marks()
+    {
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"group", decimalMark:"point", allowLoneDecimal: false, allowLeadingZero: false);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.Parse(new ScanStrings("1group000point5"), null);
+        Assert.That(result.Value, Is.EqualTo("1group000point5"));
+
+        result = subject.Parse(new ScanStrings("1point0"), null);
+        Assert.That(result.Value, Is.EqualTo("1point0"));
+
+        result = subject.Parse(new ScanStrings("1"), null);
+        Assert.That(result.Value, Is.EqualTo("1"));
+
+        result = subject.Parse(new ScanStrings("0"), null);
+        Assert.That(result.Value, Is.EqualTo("0"));
+    }
+
+    [Test]
     public void _VariableWidthFractionalDecimal_ending_characters()
     {
-        var subject = new VariableWidthFractionalDecimal(true, "_", ".");
+        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace: true, groupMark: "_", decimalMark: ".", allowLoneDecimal: false, allowLeadingZero: false);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("+123+123"), null);
@@ -509,7 +720,7 @@ public class TerminalBasicTests
     [Test]
     public void _MultiRangeCharacterSet_()
     {
-        var subject  = BNF.AnyCharacterInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var subject  = BNF.CharacterInRanges(('a', 'g'), ('A', 'G'), 'z');
         var input    = @"abcDEFghijklMNOpqrstuvwxyz";
         var expected = @"abcDEFgz";
         var scanner  = new ScanStrings(input);
@@ -531,7 +742,7 @@ public class TerminalBasicTests
     [Test]
     public void _MultiRangeExcludingCharacterSet_()
     {
-        var subject  = BNF.AnyCharacterNotInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var subject  = BNF.CharacterNotInRanges(('a', 'g'), ('A', 'G'), 'z');
         var input    = @"abcDEFghijklMNOpqrstuvwxyz";
         var expected = @"hijklMNOpqrstuvwxy";
         var scanner  = new ScanStrings(input);

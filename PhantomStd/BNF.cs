@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Gool.Parsers;
 using Gool.Parsers.Composite;
@@ -42,6 +43,9 @@ namespace Gool;
 /// 
 /// <dt><![CDATA[ !a ]]></dt>
 /// <dd>Create an <b>option</b> parser that matches zero or one <c>a</c></dd>
+///
+/// <dt><![CDATA[ ~a ]]></dt>
+/// <dd>Create an <b>non-consuming</b> parser that must match <c>a</c>, but does not consume that match</dd>
 /// 
 /// <dt><![CDATA[ a % b ]]></dt>
 /// <dd>Create a <b>delimited list</b> parser that matches a list of <c>a</c>, delimited by <c>b</c></dd>
@@ -303,6 +307,16 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Non-consuming parser that must match the <i>right side</i>, but does not consume the match
+	/// </summary>
+	public static BNF operator ~(BNF a)
+	{
+		if (a == null) throw new ArgumentNullException(nameof(a), "Non-consuming parser is null");
+
+		return new BNF(new NonConsumingMatch(a));
+	}
+
+	/// <summary>
 	/// Delimited list parser that matches a list of <i>left side</i>, separated by <i>right side</i>
 	/// </summary>
 	public static BNF operator %(BNF a, BNF b)
@@ -413,6 +427,14 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Repeat the pattern a range of times
+	/// </summary>
+	public static BNF Repeat(BNF pattern, int min, int max)
+	{
+		return new BNF(new Repetition(pattern, (uint)min, (uint)max));
+	}
+
+	/// <summary>
 	/// Match a regular expression
 	/// </summary>
 	public static BNF Regex([RegexPattern]string pattern)
@@ -438,6 +460,14 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Match any literal string from the given set
+	/// </summary>
+	public static BNF OneOf(params string[] literals)
+	{
+		return new BNF(new Union(literals.Select(l=> new LiteralString(l))));
+	}
+
+	/// <summary>
 	/// Match any single character as long as its <b>NOT</b> in the given set
 	/// </summary>
 	public static BNF NoneOf(params char[] characters)
@@ -457,7 +487,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Match a single character inside any of the inclusive ranges
 	/// </summary>
-	public static BNF AnyCharacterInRanges(params CharacterRange[] ranges)
+	public static BNF CharacterInRanges(params CharacterRange[] ranges)
 	{
 		return new BNF(new MultiRangeCharacterSet(ranges));
 	}
@@ -465,7 +495,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Match a single character OUTSIDE ALL of the inclusive ranges
 	/// </summary>
-	public static BNF AnyCharacterNotInRanges(params CharacterRange[] ranges)
+	public static BNF CharacterNotInRanges(params CharacterRange[] ranges)
 	{
 		return new BNF(new MultiRangeExcludingCharacterSet(ranges));
 	}
@@ -516,6 +546,7 @@ public class BNF : IParser
 	}
 
 	private static readonly char[] NumberCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
 	/// <summary>
 	/// Create a parser for a variable width signed decimal value.
 	/// This can contain number separators, decimal points, and 'E notation'.
@@ -544,35 +575,50 @@ public class BNF : IParser
 	/// </code>
 	/// </example>
 	/// <param name="allowLeadingWhitespace">[Optional] Default = <c>false</c>.
-	/// If <c>true</c> the input may have leading whitespace.
-	/// If <c>false</c> the input must have digits in all places.
+	///     If <c>true</c> the input may have leading whitespace.
+	///     If <c>false</c> the input must have digits in all places.
 	/// </param>
 	/// <param name="groupMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberGroupSeparator"/>
-	/// Acceptable number separator. Has no semantic meaning. This is allowed in any place in the input except the end, and can be repeated.
-	/// An empty string as the group mark will disable the use of group marks.
-	/// Must not contain characters 0-9.</param>
+	///     Acceptable number separator. Has no semantic meaning. This is allowed in any place in the input except the end, and can be repeated.
+	///     An empty string as the group mark will disable the use of group marks.
+	///     Must not contain characters 0-9.</param>
 	/// <param name="decimalMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberDecimalSeparator"/>
-	/// Acceptable decimal separator. This is allowed at most one time.
-	/// Must not be empty, must not contain characters 0-9.</param>
+	///     Acceptable decimal separator. This is allowed at most one time.
+	///     Must not be empty, must not contain characters 0-9.</param>
+	/// <param name="allowLoneDecimal">[Optional] Default = false.
+	///     If true, the decimal place can be used without a number on either side, like <c>.9</c> or <c>1.</c></param>
+	/// <param name="allowLeadingZero">[Optional] Default = false.
+	///     If true, leading zeros are allowed, like <c>007</c> or <c>+0012</c>.
+	///     A single <c>0</c>, or a zero before a decimal place is always allowed</param>
 	/// <seealso cref="FixedSizeInteger"/>
 	/// <seealso cref="IntegerRange"/>
 	/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/System.Globalization.CultureInfo.CurrentCulture"/>
-	public static BNF FractionalDecimal(bool allowLeadingWhitespace = false, string? groupMark = null, string? decimalMark = null)
+	public static BNF FractionalDecimal(bool allowLeadingWhitespace = false, string? groupMark = null, string? decimalMark = null,
+		bool allowLoneDecimal = false, bool allowLeadingZero = false)
 	{
-		//string.Compare(CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".");
 		var grp = groupMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
 		var dec = decimalMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 		if (dec == grp) throw new Exception("Group mark cannot be the same as decimal mark");
 		if (grp.IndexOfAny(NumberCharacters) > -1) throw new Exception("Group mark cannot contain numbers");
 		if (dec.IndexOfAny(NumberCharacters) > -1) throw new Exception("Decimal mark cannot contain numbers");
 
-		return new BNF(new VariableWidthFractionalDecimal(allowLeadingWhitespace, grp, dec));
+		return new BNF(new VariableWidthFractionalDecimal(allowLeadingWhitespace, grp, dec, allowLoneDecimal, allowLeadingZero));
 	}
 
 	/// <summary>
 	/// Match any one character
 	/// </summary>
 	public static BNF AnyChar => new(new AnyCharacter());
+
+	/// <summary>
+	/// Maximum value for a UTF character (limited by C# / dotnet)
+	/// </summary>
+	public const char MaxUtf = char.MaxValue;
+
+	/// <summary>
+	/// Minimum value for a printable character outside of the ASCII range
+	/// </summary>
+	public const char FirstNonAscii = '\u00A0';
 
 	/// <summary>
 	/// Match any one character from the given UTF character category

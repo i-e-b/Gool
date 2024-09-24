@@ -20,13 +20,13 @@ public static class JsonParser
             ws = AnyWhiteSpace;
 
         BNF // Strings
-            unicodeEsc    = 'u' > AnyCharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
+            unicodeEsc    = 'u' > CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
             escape        = OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | unicodeEsc,
-            character     = AnyCharacterNotInRanges('"', '\\') | ('\\' > escape),
+            character     = CharacterNotInRanges('"', '\\') | ('\\' > escape),
             characters    = -character,
             quoted_string = '"' > characters > '"';
 
-        BNF // Elements of arrays
+        BNF // Elements (lone or in arrays)
             element  = ws > value > ws,
             elements = element % ',';
 
@@ -45,7 +45,7 @@ public static class JsonParser
             array_leave = ']',
             array_block = array_enter > elements > array_leave;
 
-        BNF number = FractionalDecimal(groupMark: "", decimalMark: "."); // this is slightly out of spec, as it allows "01234" or "+1234"
+        BNF number = FractionalDecimal(groupMark: "", decimalMark: ".", allowLeadingZero: false); // this is slightly out of spec, as it allows "+1234"
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
 

@@ -65,7 +65,7 @@ public static class XmlExample
 
     #region XML spec character classes
 
-    private static readonly BNF XmlSpecBaseChar = AnyCharacterInRanges(
+    private static readonly BNF XmlSpecBaseChar = CharacterInRanges(
         (0x41, 0x5A), (0x61, 0x7A), (0xC0, 0xD6)
       , (0xD8, 0xF6), (0xF8, 0xFF), (0x100, 0x131)
       , (0x134, 0x13E), (0x141, 0x148), (0x14A, 0x17E)
@@ -124,9 +124,9 @@ public static class XmlExample
       , (0x30A1, 0x30FA), (0x3105, 0x312C), (0xAC00, 0xD7A3)
     );
 
-    private static readonly BNF XmlSpecIdeographic = AnyCharacterInRanges((0x4E00, 0x9FA5), 0x3007, (0x3021, 0x3029));
+    private static readonly BNF XmlSpecIdeographic = CharacterInRanges((0x4E00, 0x9FA5), 0x3007, (0x3021, 0x3029));
 
-    private static readonly BNF XmlSpecCombining = AnyCharacterInRanges(
+    private static readonly BNF XmlSpecCombining = CharacterInRanges(
         (0x300, 0x345), (0x360, 0x361), (0x483, 0x486)
       , (0x591, 0x5A1), (0x5A3, 0x5B9), (0x5BB, 0x5BD), 0x5BF
       , (0x5C1, 0x5C2), 0x5C4, (0x64B, 0x652), 0x670
@@ -155,7 +155,7 @@ public static class XmlExample
       , 0x3099, 0x309A
     );
 
-    private static readonly BNF XmlSpecDigit = AnyCharacterInRanges(
+    private static readonly BNF XmlSpecDigit = CharacterInRanges(
         (0x30, 0x39), (0x660, 0x669), (0x6F0, 0x6F9)
       , (0x966, 0x96F), (0x9E6, 0x9EF), (0xA66, 0xA6F)
       , (0xAE6, 0xAEF), (0xB66, 0xB6F), (0xBE7, 0xBEF)
@@ -163,13 +163,13 @@ public static class XmlExample
       , (0xE50, 0xE59), (0xED0, 0xED9), (0xF20, 0xF29)
     );
 
-    private static readonly BNF XmlSpecExtender = AnyCharacterInRanges(
+    private static readonly BNF XmlSpecExtender = CharacterInRanges(
         0xB7, 0x2D0, 0x2D1, 0x387, 0x640, 0xE46
       , 0xEC6, 0x3005, (0x3031, 0x3035), (0x309D, 0x309E)
       , (0x30FC, 0x30FE)
     );
 
-    private static readonly BNF XmlSpecChar = AnyCharacterInRanges(
+    private static readonly BNF XmlSpecChar = CharacterInRanges(
         0x9, 0xA, 0xD, (0x20, 0xD7FF), (0xE000, 0xFFFD), (0x10000, 0x10FFFF)
     );
 
@@ -209,7 +209,7 @@ public static class XmlExample
             att_value = '"' > -(NoneOf('<', '&', '"') | reference) > '"'
                       | "'" > -(NoneOf('<', '&', '\'') | reference) > "'",
             system_literal = ('"' > (-NoneOf('"')) > '"') | ("'" > (-NoneOf('\'')) > "'"),
-            pub_id_char    = AnyCharacterInRanges(0x20, 0x0D, 0x0A, ('a', 'z'), ('A', 'Z'), ('0', '9'), '-', '\'', '(', ')', '+', ',', '.', '/', ':', '=', '?', ';', '!', '*', '#', '@', '$', '_', '%'),
+            pub_id_char    = CharacterInRanges(0x20, 0x0D, 0x0A, ('a', 'z'), ('A', 'Z'), ('0', '9'), '-', '\'', '(', ')', '+', ',', '.', '/', ':', '=', '?', ';', '!', '*', '#', '@', '$', '_', '%'),
             pub_id_literal = ('"' > (-pub_id_char) > '"');
 
         BNF // Character data
@@ -283,7 +283,7 @@ public static class XmlExample
         BNF // Parsed Entities
             public_id     = "PUBLIC" > ws > pub_id_literal,
             notation_decl = "<!NOTATION" > ws > name > ws > (external_id | public_id) > !ws > '>',
-            enc_name      = AnyCharacterInRanges(('A', 'Z'), ('a', 'z')) > -AnyCharacterInRanges(('A', 'Z'), ('a', 'z'), ('0', '9'), '.', '_', '-'),
+            enc_name      = CharacterInRanges(('A', 'Z'), ('a', 'z')) > -CharacterInRanges(('A', 'Z'), ('a', 'z'), ('0', '9'), '.', '_', '-'),
             encoding_decl = ws > "encoding" > eq > (('"' > enc_name > '"') | ("'" > enc_name > "'"));
 
         var _conditional_sect = Forward();

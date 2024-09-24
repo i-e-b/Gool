@@ -417,7 +417,7 @@ public class CompositeBasicTests
     [Test]
     public void terminated_list_rejects_incorrect_input()
     {
-        const string correct_sample =
+        const string incorrect_sample =
             """
 
             ( a; )
@@ -428,7 +428,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = TerminatedListParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(incorrect_sample) { SkipWhitespace = true };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -452,7 +452,53 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.False);
     }
 
-    
+
+    private static IParser NonConsumingMatchSample()
+    {
+        BNF
+            name       = BNF.Regex("[a-zA-Z][a-zA-Z0-9]*"),
+            not_a_func = name > ~BNF.NoneOf('{', '(', '['), // the '~' means we won't consume the list separator ','
+            list       = not_a_func % ',';
+
+        not_a_func.TagWith("item");
+        return list;
+    }
+
+    [Test]
+    public void non_consuming_match()
+    {
+        const string sample =
+            """
+            one, two, one, two(), three, four
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser  = NonConsumingMatchSample();
+        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one" }).AsCollection);
+    }
+
     private static IParser UnionParserSample()
     {
         BNF item = (BNF)"one" | "two" | "three" | "not" | "in" | "the" | "sample";
@@ -500,7 +546,7 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
     }
-    
+
     
     
     private static IParser ParallelSetParserSample()

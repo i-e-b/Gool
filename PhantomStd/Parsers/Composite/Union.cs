@@ -28,6 +28,14 @@ public class Union : Parser
 		_parsers.Add(right);
 	}
 
+	/// <summary>
+	/// Creates a Union (or 'alternative') parser from a set of sub-parsers.
+	/// </summary>
+	public Union(IEnumerable<IParser> parsers)
+	{
+		_parsers.AddRange(parsers);
+	}
+
 	/// <inheritdoc />
 	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{

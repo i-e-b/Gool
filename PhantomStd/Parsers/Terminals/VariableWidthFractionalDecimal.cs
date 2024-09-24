@@ -12,39 +12,29 @@ public class VariableWidthFractionalDecimal : Parser
     private readonly bool   _allowLeadingWhitespace;
     private readonly string _groupMark;
     private readonly string _decimalMark;
+    private readonly bool   _allowLoneDecimal;
+    private readonly bool   _allowLeadingZero;
 
     /// <summary>
     /// Create a number parser
     /// </summary>
-    public VariableWidthFractionalDecimal(bool allowLeadingWhitespace, string groupMark, string decimalMark)
+    public VariableWidthFractionalDecimal(bool allowLeadingWhitespace, string groupMark, string decimalMark, bool allowLoneDecimal, bool allowLeadingZero)
     {
         _allowLeadingWhitespace = allowLeadingWhitespace;
         _groupMark = groupMark;
         _decimalMark = decimalMark;
+        _allowLoneDecimal = allowLoneDecimal;
+        _allowLeadingZero = allowLeadingZero;
     }
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        // This could be replaced with a simpler set-up using composite parsers...
-        /*
-		BNF // Number literals
-			neg      = '-',
-			digit    = AnyCharacterInRanges(('0', '9')),
-			exp      = OneOf('e', 'E'),
-			sign     = OneOf('+', '-'),
-			digits   = +digit,
-			exponent = !(exp > sign > digits),
-			fraction = !('.' > digits),
-			integer  = (!neg) > (+digit), // this is slightly out of spec, as it allows "01234"
-			number   = integer > fraction > exponent;
-
-		return number;*/
-        // ... but this custom parser is marginally faster.
-
         var start  = previousMatch?.Right ?? 0;
         var offset = previousMatch?.Right ?? 0;
         var result = scan.EmptyMatch(this, start);
+
+        var nextMustBePoint = false;
 
         // Skip leading whitespace
         if (_allowLeadingWhitespace)
@@ -67,10 +57,26 @@ public class VariableWidthFractionalDecimal : Parser
         }
 
         // Must have at least one digit
-        if (scan.Peek(offset) is >= '0' and <= '9')
+        if (scan.Peek(offset) is '0')
+        {
+            if (!_allowLeadingZero) nextMustBePoint = true;
+            offset++;
+            result.ExtendTo(offset);
+        }
+        else if (scan.Peek(offset) is >= '1' and <= '9')
         {
             offset++;
             result.ExtendTo(offset);
+        }
+        else if (_allowLoneDecimal)
+        {
+            var compare = scan.Substring(offset, _decimalMark.Length);
+            if (compare.Equals(_decimalMark, StringComparison.Ordinal))
+            {
+                offset += _decimalMark.Length;
+                result.ExtendTo(offset);
+            }
+            else return scan.NoMatch(this, previousMatch);
         }
         else
         {
@@ -89,6 +95,8 @@ public class VariableWidthFractionalDecimal : Parser
             var c = scan.Peek(offset);
             if (c is >= '0' and <= '9')
             {
+                if (nextMustBePoint) return scan.NoMatch(this, previousMatch);
+
                 lastWasNumber = true;
                 offset++;
                 result.ExtendTo(offset);
@@ -100,6 +108,7 @@ public class VariableWidthFractionalDecimal : Parser
                 var compare = scan.Substring(offset, _groupMark.Length);
                 if (compare.Equals(_groupMark, StringComparison.Ordinal))
                 {
+                    if (nextMustBePoint) return scan.NoMatch(this, previousMatch);
                     offset += _groupMark.Length;
                     lastWasNumber = false;
                     // don't extend the result until we see more numbers
@@ -112,16 +121,19 @@ public class VariableWidthFractionalDecimal : Parser
                 var compare = scan.Substring(offset, _decimalMark.Length);
                 if (compare.Equals(_decimalMark, StringComparison.Ordinal))
                 {
+                    nextMustBePoint = false;
                     if (seenDecimalMark) return scan.NoMatch(this, previousMatch); // more than one decimal marker
                     seenDecimalMark = true;
                     offset += _decimalMark.Length;
-                    lastWasNumber = false;
+                    lastWasNumber = _allowLoneDecimal;
+                    if (_allowLoneDecimal) result.ExtendTo(offset);
                     // don't extend the result until we see more numbers
                 }
                 else break;
             }
             else if (c is 'e' or 'E')
             {
+                if (nextMustBePoint) return scan.NoMatch(this, previousMatch);
                 offset++;
                 needExponent = true;
                 lastWasNumber = false;
@@ -130,6 +142,7 @@ public class VariableWidthFractionalDecimal : Parser
             else break; // end of the number?
         }
 
+        if (result.Value == _decimalMark) return scan.NoMatch(this, previousMatch); // don't allow just a decimal point on its own
         if (!needExponent) return lastWasNumber ? result : scan.NoMatch(this, previousMatch);
 
         // Check for exponent
