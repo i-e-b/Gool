@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -7,7 +6,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Match a single character inside any of the inclusive ranges
 /// </summary>
-public class MultiRangeCharacterSet : Parser, IMatchingParser
+public class MultiRangeCharacterSet : Parser
 {
     private readonly BNF.CharacterRange[] _ranges;
 
@@ -20,12 +19,12 @@ public class MultiRangeCharacterSet : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
         if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
-        char c = scan.Peek(offset);
+        var c = scan.Peek(offset);
 
         foreach (var range in _ranges)
         {

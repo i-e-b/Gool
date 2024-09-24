@@ -16,7 +16,14 @@ namespace Gool.Results;
 /// </remarks>
 public class ParserMatch
 {
+    /// <summary> Function to alter <see cref="Value"/> output </summary>
     private readonly Func<string, string>? _mutator;
+
+    /// <summary> First child match, if any </summary>
+    private ParserMatch? _leftChild;
+
+    /// <summary> Second child match, if two children </summary>
+    private ParserMatch? _rightChild;
 
     /// <summary>
     /// Builds a new match from a parser, input, and result range.
@@ -59,6 +66,10 @@ public class ParserMatch
         if (_rightChild is not null) yield return _rightChild;
     }
 
+    /// <summary>
+    /// Add a child match. There are a maximum of two children per match.
+    /// Each child may have its own children.
+    /// </summary>
     [SuppressMessage("ReSharper", "InvocationIsSkipped")]
     private void AddChild(ParserMatch child)
     {
@@ -71,9 +82,6 @@ public class ParserMatch
     /// Returns true if this node has child nodes
     /// </summary>
     public bool HasChildren => _leftChild is not null; // left should always be populated first
-
-    private ParserMatch? _leftChild;
-    private ParserMatch? _rightChild;
 
     /// <summary>
     /// The parser that generated this match
@@ -102,9 +110,10 @@ public class ParserMatch
     {
         get
         {
-            if (Length < 0) throw new Exception("no match");
-            if (_mutator is not null) return _mutator(Scanner.UntransformedSubstring(Offset, Length));
-            return Scanner.UntransformedSubstring(Offset, Length);
+            if (Length < 0) return "";
+            return _mutator is not null
+                ? _mutator(Scanner.UntransformedSubstring(Offset, Length))
+                : Scanner.UntransformedSubstring(Offset, Length);
         }
     }
 

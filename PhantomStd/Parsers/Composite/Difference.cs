@@ -19,7 +19,7 @@ public class Difference : Binary
     }
 
     /// <inheritdoc />
-    public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var targetMatch = LeftParser.Parse(scan, previousMatch);
 

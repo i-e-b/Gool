@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 using JetBrains.Annotations;
 
@@ -9,7 +8,7 @@ namespace Gool.Parsers.Terminals;
 /// Parse for a regular expression match.
 /// NOTE: It's best to keep the regular expressions simple, and deal with any recursion in the Parser structure.
 /// </summary>
-public class RegularExpression : Parser, IMatchingParser
+public class RegularExpression : Parser
 {
 	private readonly string _pattern;
 	private readonly Regex _test;
@@ -40,7 +39,7 @@ public class RegularExpression : Parser, IMatchingParser
 	/// </summary>
 	/// <remarks>This is done on the entire input.
 	/// This might cause problems with file-stream parsing.</remarks>
-	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		var offset = previousMatch?.Right ?? 0;
 		var result = _test.Match(scan.TransformedString, offset);

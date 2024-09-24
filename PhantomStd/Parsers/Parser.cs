@@ -1,5 +1,3 @@
-using System;
-using Gool.Parsers.Interfaces;
 using Gool.Parsers.Terminals;
 using Gool.Results;
 
@@ -34,11 +32,9 @@ public abstract class Parser : IParser
     /// <returns>Match (success of failure) of the parser against the scanner</returns>
     public virtual ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
     {
-        if (this is not IMatchingParser matcher) throw new Exception($"Parser '{GetType().Name}' is not capable of creating matches");
-
         var start = scan.AutoAdvance(previousMatch);
 
-        var newMatch = matcher.TryMatch(scan, start);
+        var newMatch = TryMatch(scan, start);
         if (newMatch.Success)
         {
             scan.AddPath(newMatch);
@@ -51,4 +47,9 @@ public abstract class Parser : IParser
         scan.AddFailure(this, previousMatch);
         return scan.NoMatch(this, previousMatch);
     }
+
+    /// <summary>
+    /// Try to match scanner data against the contained parser
+    /// </summary>
+    internal abstract ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch);
 }

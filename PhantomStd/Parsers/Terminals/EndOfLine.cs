@@ -1,4 +1,3 @@
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -6,10 +5,10 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parser that matches an end of line marker, either <c>\r</c>, <c>\n</c>, or <c>\r\n</c>
 /// </summary>
-public class EndOfLine : Parser, IMatchingParser
+public class EndOfLine : Parser
 {
 	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		int start = previousMatch?.Right ?? 0;
 		int cursor = start;

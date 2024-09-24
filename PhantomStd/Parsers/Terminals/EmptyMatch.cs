@@ -1,4 +1,3 @@
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -7,10 +6,10 @@ namespace Gool.Parsers.Terminals;
 /// Parser that represents no input.
 /// Always returns an empty success match
 /// </summary>
-public class EmptyMatch : Parser, IMatchingParser
+public class EmptyMatch : Parser
 {
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0);
     }

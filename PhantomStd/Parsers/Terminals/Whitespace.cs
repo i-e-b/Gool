@@ -1,4 +1,3 @@
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -6,7 +5,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parser that matches characters from the unicode WhiteSpace category.
 /// </summary>
-public class Whitespace : Parser, IMatchingParser
+public class Whitespace : Parser
 {
     /// <summary>
     /// Maximum number of characters to match
@@ -37,7 +36,7 @@ public class Whitespace : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
         var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0); // empty match with this parser

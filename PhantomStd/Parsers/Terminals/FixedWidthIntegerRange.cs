@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -8,7 +7,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parse a fixed width unsigned integer, within a given value range.
 /// </summary>
-public class FixedWidthIntegerRange : Parser, IMatchingParser
+public class FixedWidthIntegerRange : Parser
 {
     private readonly long _lower;
     private readonly long _upper;
@@ -46,7 +45,7 @@ public class FixedWidthIntegerRange : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
 

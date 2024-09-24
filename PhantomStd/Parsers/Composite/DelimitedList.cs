@@ -20,7 +20,7 @@ public class DelimitedList : Binary
     }
 
     /// <inheritdoc />
-    public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var result = scan.NullMatch(this, previousMatch?.Right ?? 0); // failure until first match
         var trailing = result;

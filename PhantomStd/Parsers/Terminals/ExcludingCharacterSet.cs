@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -7,7 +6,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parser that matches a single character <b>NOT</b> in a set
 /// </summary>
-public class ExcludingCharacterSet : Parser, IMatchingParser
+public class ExcludingCharacterSet : Parser
 {
     private readonly char[] _test;
 
@@ -20,7 +19,7 @@ public class ExcludingCharacterSet : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
         if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);

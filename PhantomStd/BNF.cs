@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Gool.Parsers;
 using Gool.Parsers.Composite;
-using Gool.Parsers.Interfaces;
 using Gool.Parsers.Terminals;
 using Gool.Results;
 using Gool.Scanners;
@@ -65,7 +64,7 @@ namespace Gool;
 ///	See <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#1243-operator-overloading">C# language spec</a>
 /// </remarks>
 // ReSharper disable once InconsistentNaming
-public class BNF : IMatchingParser
+public class BNF : IParser
 {
 	// Inspired by Spirit parser http://boost-spirit.com/home/
 	// There are a few changes compared to Spirit, all due to overloading restrictions in C#.
@@ -233,7 +232,7 @@ public class BNF : IMatchingParser
 			? new BNF(new EmptyMatch())
 			: new BNF(new LiteralString(s));
 	}
-		
+
 	/// <summary>
 	/// Implicitly wrap a parser in a BNF syntax helper
 	/// </summary>
@@ -814,12 +813,12 @@ public class BNF : IMatchingParser
 		/// <summary>
 		/// Return the lowest-ordered character that is considered a match
 		/// </summary>
-		public char Lower { get; }
+		public readonly char Lower;
 
 		/// <summary>
 		/// Return the highest-ordered character that is considered a match
 		/// </summary>
-		public char Upper { get; }
+		public readonly char Upper;
 
 		/// <inheritdoc />
 		public override string ToString()
@@ -864,10 +863,16 @@ public class BNF : IMatchingParser
 		return _parserTree.ShortDescription(depth);
 	}
 
-	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	/// <summary>
+	/// TEST THIS
+	/// </summary>
+	/// <param name="scan"></param>
+	/// <param name="previousMatch"></param>
+	/// <returns></returns>
+	/// <exception cref="Exception"></exception>
+	internal ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		if (_parserTree is not IMatchingParser imp) throw new Exception($"Invalid parser tree: expected '{nameof(IMatchingParser)}', got '{_parserTree.GetType().Name}'");
+		if (_parserTree is not Parser imp) throw new Exception($"Invalid parser tree: expected '{nameof(Parser)}', got '{_parserTree.GetType().Name}'");
 		return imp.TryMatch(scan, previousMatch);
 	}
 

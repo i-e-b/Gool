@@ -1,4 +1,3 @@
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -6,10 +5,10 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parser that will match any one character.
 /// </summary>
-public class AnyCharacter : Parser, IMatchingParser
+public class AnyCharacter : Parser
 {
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var left = previousMatch?.Right ?? 0;
         return scan.EndOfInput(left)

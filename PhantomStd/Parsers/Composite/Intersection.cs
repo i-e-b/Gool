@@ -19,7 +19,7 @@ public class Intersection : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		var a = LeftParser.Parse(scan, previousMatch);
 

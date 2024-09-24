@@ -1,5 +1,4 @@
 using System;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -7,7 +6,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parser that matches an exact string sequence
 /// </summary>
-public class LiteralString : Parser, IMatchingParser
+public class LiteralString : Parser
 {
     private readonly string           _test;
     private readonly StringComparison _comparisonType;
@@ -22,7 +21,7 @@ public class LiteralString : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
 

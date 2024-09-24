@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Gool.Parsers.Interfaces;
+using Gool.Parsers.Terminals;
 using Gool.Results;
 
 namespace Gool.Parsers;
@@ -10,29 +10,41 @@ namespace Gool.Parsers;
 /// and passes all parsing instructions to it.
 /// This is for use with mutually dependent parser trees.
 /// </summary>
-public class Recursion : Parser, IMatchingParser
+public class Recursion : Parser
 {
+	/// <summary> Global fall-back for an invalid recursion definition </summary>
+	private static readonly IParser  _fallbackParser = new NullParser("Unassigned recursion parser");
+
+	/// <summary> The assigned parser for this instance </summary>
+	private IParser _parser = _fallbackParser;
+
 	/// <summary>
 	/// Contained recursive parser
 	/// </summary>
-	public IParser? Source { get; set; }
+	public IParser Source
+	{
+		get => _parser;
+		set {
+			if (value is null) throw new Exception("Invalid recursion parser (must reference a valid parser)");
+			if (value == this) throw new Exception("Invalid recursion parser (must not reference self)");
+			if (value is Recursion) throw new Exception("Invalid recursion parser (must not reference another recursion parser)");
+			_parser = value;
+		}
+	}
 
 	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
-	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		if (Source == null) throw new Exception("Empty holding parser");
-		if (Source is not IMatchingParser parser) throw new Exception("Holding parser was non terminating");
-		if (parser == this) throw new Exception("Unbounded recursion in parser");
-
 		// Recursion safety checks:
-		var key = ((long)(previousMatch?.SourceParser?.GetHashCode()??0) << 32) + (previousMatch?.Right ?? 0);
+		var key  = ((long)(previousMatch?.SourceParser?.GetHashCode() ?? 0) << 32) + (previousMatch?.Right ?? 0);
 		var hits = GetContext(scan);
 
 		if (!hits.Add(key)) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
 
-		var result = parser.TryMatch(scan, previousMatch);
+		var result = _parser.Parse(scan, previousMatch);
+
 		if (result.SameAs(previousMatch)) return scan.NoMatch(this, previousMatch); // recursion must progress
 
 		return result;
@@ -53,7 +65,7 @@ public class Recursion : Parser, IMatchingParser
 	/// </summary>
 	public override string ToString()
 	{
-		return $"Recursion({Source?.GetType().Name ?? "<none>"})";
+		return $"Recursion({_parser.GetType().Name})";
 	}
 
 	/// <summary>
@@ -72,6 +84,6 @@ public class Recursion : Parser, IMatchingParser
 	public override string ShortDescription(int depth)
 	{
 		if (depth < 1) return GetType().Name;
-		return $"Recursion({Source?.ShortDescription(depth - 1) ?? "<none>"})";
+		return $"Recursion({_parser.ShortDescription(depth - 1)})";
 	}
 }

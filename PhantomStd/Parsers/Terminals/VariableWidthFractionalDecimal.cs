@@ -1,5 +1,4 @@
 ﻿using System;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
@@ -8,7 +7,7 @@ namespace Gool.Parsers.Terminals;
 /// Parse a variable width signed fractional decimal number.
 /// This does <b>not</b> try to fit the result in a float representation.
 /// </summary>
-public class VariableWidthFractionalDecimal : Parser, IMatchingParser
+public class VariableWidthFractionalDecimal : Parser
 {
     private readonly bool   _allowLeadingWhitespace;
     private readonly string _groupMark;
@@ -25,7 +24,7 @@ public class VariableWidthFractionalDecimal : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         // This could be replaced with a simpler set-up using composite parsers...
         /*

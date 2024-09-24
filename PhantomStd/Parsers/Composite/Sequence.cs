@@ -17,7 +17,7 @@ public class Sequence : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		// apply the first parser
 		var left = LeftParser.Parse(scan, previousMatch);

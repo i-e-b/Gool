@@ -1,12 +1,11 @@
-﻿using Gool.Parsers.Interfaces;
-using Gool.Results;
+﻿using Gool.Results;
 
 namespace Gool.Parsers.Terminals;
 
 /// <summary>
 /// Matches all remaining input if its length is between min and max (inclusive)
 /// </summary>
-public class RemainingLength : Parser, IMatchingParser
+public class RemainingLength : Parser
 {
     private readonly int _min;
     private readonly int _max;
@@ -25,7 +24,7 @@ public class RemainingLength : Parser, IMatchingParser
     /// </summary>
     /// <remarks>This is done on the entire input.
     /// This might cause problems with file-stream parsing.</remarks>
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
 

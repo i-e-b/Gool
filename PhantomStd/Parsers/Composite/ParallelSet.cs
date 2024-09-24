@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -10,7 +9,7 @@ namespace Gool.Parsers.Composite;
 /// set of patterns. The final result is only successful if <b>all</b> the given
 /// patterns match the original result.
 /// </summary>
-public class ParallelSet : Parser, IMatchingParser
+public class ParallelSet : Parser
 {
     private readonly IParser _capture;
     private readonly List<IParser> _parsers = new();
@@ -27,7 +26,7 @@ public class ParallelSet : Parser, IMatchingParser
     }
 
     /// <inheritdoc />
-    public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         // The capture parser must match
         var baseMatch = _capture.Parse(scan, previousMatch);

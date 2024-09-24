@@ -1,4 +1,4 @@
-﻿namespace Gool;
+﻿namespace Gool.Results;
 
 /// <summary>
 /// Change in tree scope that this match represents

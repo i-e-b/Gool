@@ -170,8 +170,9 @@ public class ScanStrings : IScanner
 	/// </summary>
 	public ParserMatch? AutoAdvance(ParserMatch? previous)
 	{
-		var left = previous?.Right ?? 0;
 		if (!SkipWhitespace) return previous;
+
+		var left = previous?.Right ?? 0;
 		if (EndOfInput(left)) return previous;
 
 		var ws = NullMatch(null, left);

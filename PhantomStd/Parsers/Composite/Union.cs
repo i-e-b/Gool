@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Gool.Parsers.Interfaces;
 using Gool.Results;
 
 namespace Gool.Parsers.Composite;
@@ -8,7 +7,7 @@ namespace Gool.Parsers.Composite;
 /// <summary>
 /// Creates a Union (or 'alternative') parser from two sub-parsers.
 /// </summary>
-public class Union : Parser, IMatchingParser
+public class Union : Parser
 {
 	private readonly List<IParser> _parsers = new();
 	
@@ -30,7 +29,7 @@ public class Union : Parser, IMatchingParser
 	}
 
 	/// <inheritdoc />
-	public ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		ParserMatch? longestMatch = null;
 

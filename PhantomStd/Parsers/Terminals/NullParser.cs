@@ -16,6 +16,7 @@ public class NullParser : IParser
     {
         _source = source;
     }
+
     /// <inheritdoc />
     public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
     {

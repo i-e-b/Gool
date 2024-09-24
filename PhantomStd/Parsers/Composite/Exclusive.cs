@@ -19,7 +19,7 @@ public class Exclusive : Binary
 	}
 
 	/// <inheritdoc />
-	public override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		// apply the first parser
 		var leftMatch = LeftParser.Parse(scan, previousMatch);
