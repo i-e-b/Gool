@@ -12,7 +12,7 @@ See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for f
 
 ### Unique features
 
-- Can build new patterns at run-time *and* at parse time
+- Contextual parsing: can build new patterns at run-time *and* at parse time
 - Patterns can be computed using any C# code
 - Easily expanded to handle complex patterns
 - Use all your existing navigation and refactoring tools

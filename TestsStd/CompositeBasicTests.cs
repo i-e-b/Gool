@@ -547,8 +547,133 @@ public class CompositeBasicTests
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one", "two", "three" }).AsCollection);
     }
 
-    
-    
+
+    private static IParser ContextParserSample()
+    {
+
+        var _wrapped = BNF.Forward();
+        BNF
+            tag_id  = BNF.Regex("[a-zA-Z][a-zA-Z0-9]*"),
+            text    = -(BNF.AnyChar / "<"),
+            wrapped =
+                BNF.Context(
+                    prefix: '<' > tag_id > '>',
+                    select: result =>
+                        result.FindTag("TagId"),
+                    next: tag =>
+                        -(text|_wrapped) > "</" > ((BNF)tag.Value).TagWith("TagId") > '>'
+                );
+
+        _wrapped.Is(wrapped);
+        tag_id.TagWith("TagId");
+        text.TagWith("Text");
+
+        return wrapped;
+    }
+
+    [Test]
+    public void context_parser_allows_forward_references()
+    {
+        const string sample =
+            """
+            <one>two</one>
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser  = ContextParserSample();
+        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine(result.SourceParser?.ToString());
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "one" }).AsCollection);
+    }
+
+    [Test]
+    public void context_parser_allows_recursive_forward_references()
+    {
+        const string sample =
+            """
+            <one>two<three>four</three></one>
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser  = ContextParserSample();
+        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine(result.SourceParser?.ToString());
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four", "three", "one" }).AsCollection);
+    }
+
+    [Test]
+    public void context_parser_can_reject_on_incorrect_forward_references()
+    {
+        const string sample =
+            """
+            <one>two</three>
+            """;
+
+        Console.WriteLine("\r\n=================================================================================");
+        var parser  = ContextParserSample();
+        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.False, result + ": " + result.Value);
+    }
+
+
     private static IParser ParallelSetParserSample()
     {
         BNF words = +BNF.AnyChar;

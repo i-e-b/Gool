@@ -11,13 +11,15 @@ namespace TestsStd;
 public class XmlTests
 {
     private const string SimpleXmlSample =
-        @"<note>
-	<to>Tove</to>
-	<from>Jani</from>
-	<heading>Reminder</heading>
-	<body>Don't forget me this weekend!</body>
-	<empty></empty>
-</note>";
+        """
+        <note type="basic">
+        	<to>Tove</to>
+        	<from>Jani</from>
+        	<heading>Reminder</heading>
+        	<body>Don't forget me this weekend!</body>
+        	<empty></empty>
+        </note>
+        """;
 
     private const string BrokenSimpleXmlSample =
         @"<note type=""private"" class=""sheer"">
@@ -62,8 +64,6 @@ public class XmlTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
 
-        // Faults: Something is advancing too far?
-
         foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
@@ -102,6 +102,47 @@ public class XmlTests
 
             Console.WriteLine(match.Value + " : " + tag);
         }
+    }
+
+    [Test]
+    public void ContextualXmlParser_can_read_simple_Xml_document_successfully()
+    {
+        var parser = XmlExample.ContextualXmlParser();
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.ParsePartialString(SimpleXmlSample);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
+
+        foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.Value, Is.EqualTo(SimpleXmlSample));
+
+        /*foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.WriteLine(match.Value);
+        }*/
+
+        var tree = ScopeNode.FromMatch(result);
+        PrintRecursive(tree, 0);
+    }
+
+    [Test]
+    public void ContextualXmlParser_natively_fails_mismatched_elements()
+    {
+        var parser = XmlExample.ContextualXmlParser();
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.ParsePartialString(BrokenSimpleXmlSample);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
+
+        foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
+
+        Assert.That(result.Success, Is.False, result + ": " + result.Value);
     }
 
     [Test, Description("This demonstrates that long-distance relationships between tokens are not expressed in the parser")]

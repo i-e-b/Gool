@@ -10,12 +10,23 @@ namespace Samples;
 
 public static class XmlExample
 {
-    /*
-     * "SimpleXmlParser" isn't a serious parser -- it can't handle
-     * all real world XML. But it does show off simple
-     * parsing of a recursive data structure, with context features.
-     */
+    #region tags
+    public const string Text                  = "text";
+    public const string OpenTag               = "open";
+    public const string CloseTag              = "close";
+    public const string EmptyTag              = "empty";
+    public const string TagId                 = "tagId";
+    public const string Attribute             = "attribute";
+    public const string Comment               = "comment";
+    public const string ProcessingInstruction = "processingInstruction";
+    public const string WhitespaceTag         = "whitespace";
+    public const string DocumentType          = "documentType";
+    #endregion tags
 
+    /// <summary>
+    /// "SimpleXmlParser" isn't a serious parser -- it can't handle real world XML.
+    /// But it does show off simple parsing of a recursive data structure
+    /// </summary>
     public static Package SimpleXmlParser()
     {
         RegexSettings = RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline;
@@ -43,16 +54,43 @@ public static class XmlExample
         return Recursive(tree => -(open_tag > -(tree | text) > close_tag)).WithOptions(Options.None);
     }
 
-    public const string Text                  = "text";
-    public const string OpenTag               = "open";
-    public const string CloseTag              = "close";
-    public const string EmptyTag              = "empty";
-    public const string TagId                 = "tagId";
-    public const string Attribute             = "attribute";
-    public const string Comment               = "comment";
-    public const string ProcessingInstruction = "processingInstruction";
-    public const string WhitespaceTag         = "whitespace";
-    public const string DocumentType          = "documentType";
+    /// <summary>
+    /// This is another toy parser that shows how to use a <see cref="BNF.Context"/>
+    /// to correctly match the opening and closing tags without a post-process.
+    /// </summary>
+    public static Package ContextualXmlParser()
+    {
+
+        var _wrapped = Forward();
+        BNF
+            identifier    = Regex("[a-zA-Z][a-zA-Z0-9]*"),
+            whitespace    = Regex(@"\s+"),
+
+            tag_id       = identifier.Tagged(TagId),
+
+            text          = -(AnyChar / "<"),
+            quoted_string = '"' > identifier > '"',
+            attribute     = whitespace > identifier > '=' > quoted_string,
+
+            open_tag = '<' > tag_id > -attribute > '>',
+
+            wrapped =
+                Context(
+                    prefix: open_tag,
+                    select: result =>
+                        result.FindTag(TagId),
+                    next: tag =>
+                        -( text | _wrapped) >
+                        ((BNF)"</" > tag.Value > '>').TagWith(CloseTag).CloseScope()
+                );
+
+        _wrapped.Is(wrapped);
+        open_tag.TagWith(OpenTag).OpenScope();
+        attribute.TagWith(Attribute);
+        text.TagWith(Text);
+
+        return wrapped.WithOptions(Options.None);
+    }
 
     /*
      * A proper XML syntax below.

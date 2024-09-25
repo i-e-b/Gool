@@ -209,6 +209,26 @@ public class BNF : IParser
 		return hold;
 	}
 
+
+	/// <summary>
+	/// Create a contextualised parser from a previous result.
+	/// </summary>
+	/// <param name="prefix">
+	/// Parser that reads context. This must match for the generated parser to be run.
+	/// The result tree from this parser will be available to build the 'next' one.
+	/// </param>
+	/// <param name="select">
+	/// Optional function to select parts of the match to use.
+	/// If not provided, the entire match will be given.
+	/// If the function is given, but returns null, the context will fail to match</param>
+	/// <param name="next">
+	/// Function to generate the next parser fragment
+	/// </param>
+	public static BNF Context(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF> next)
+	{
+		return new ContextParser(prefix, select, next);
+	}
+
 	/// <summary>
 	/// Convert a character into a parser
 	/// </summary>
