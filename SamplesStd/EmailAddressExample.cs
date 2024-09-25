@@ -20,8 +20,8 @@ public static class EmailAddressExample
         var _mailbox = Forward();
 
         BNF // Fragments
-            alpha    = Regex("[a-zA-Z]"),
-            digit    = Regex("[0-9]"),
+            alpha    = CharacterInRanges(('a','z'), ('A','Z')),
+            digit    = CharacterInRanges(('0','9')),
             symbol   = OneOf('!', '#', '$', '%', '&', '\'', '*', '+', '-', '/', '=', '?', '^', '_', '`', '{', '|', '}', '~'),
             chr      = alpha | digit | symbol,
             atom     = +chr,

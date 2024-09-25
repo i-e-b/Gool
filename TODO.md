@@ -7,6 +7,7 @@
 - [ ] Generate parser result graphic (like https://dubroy.com/blog/visualizing-packrat-parsing/ )
 - [ ] "Immediate stop" parser? If this is successful, we stop any other parsing and return the result up-to the stop parser.
 - [x] "Context" parser? Function that takes parser match tree so far, gives a new BNF. This continues as parser match, then continues to next result after the context parser.
+- [ ] More extensive read-me that covers all of BNF with examples
 
 ## Examples
 
