@@ -13,7 +13,7 @@ public static class XmlExample
     /*
      * "SimpleXmlParser" isn't a serious parser -- it can't handle
      * all real world XML. But it does show off simple
-     * parsing of a recursive data structure
+     * parsing of a recursive data structure, with context features.
      */
 
     public static Package SimpleXmlParser()

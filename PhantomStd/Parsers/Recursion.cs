@@ -12,6 +12,11 @@ namespace Gool.Parsers;
 /// </summary>
 public class Recursion : Parser
 {
+	/// <summary>
+	/// Set to <c>true</c> to write diagnostic output
+	/// </summary>
+	public static bool TraceRecursion = false;
+
 	/// <summary> Global fall-back for an invalid recursion definition </summary>
 	private static readonly IParser  _fallbackParser = new NullParser("Unassigned recursion parser");
 
@@ -41,11 +46,19 @@ public class Recursion : Parser
 		var key  = ((long)(previousMatch?.SourceParser?.GetHashCode() ?? 0) << 32) + (previousMatch?.Right ?? 0);
 		var hits = GetContext(scan);
 
-		if (!hits.Add(key)) return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
+		if (!hits.Add(key))
+		{
+			if (TraceRecursion) Console.WriteLine($"Recursion re-applied to same location at: {previousMatch?.Description() ?? "zero"}; Parser={Source.ShortDescription(5)};");
+			return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
+		}
 
 		var result = _parser.Parse(scan, previousMatch);
 
-		if (result.SameAs(previousMatch)) return scan.NoMatch(this, previousMatch); // recursion must progress
+		if (result.SameAs(previousMatch))
+		{
+			if (TraceRecursion) Console.WriteLine($"Recursion did not progress from: {result.Description()}; Parser={Source.ShortDescription(5)};");
+			return scan.NoMatch(this, previousMatch); // recursion must progress
+		}
 
 		return result;
 	}

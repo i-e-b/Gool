@@ -3,6 +3,7 @@ using System.Text;
 using Gool.Results;
 using NUnit.Framework;
 using Samples;
+using TestsStd.Helpers;
 
 namespace TestsStd;
 
@@ -25,7 +26,7 @@ public class CsvTests
         sw.Start();
         var result = CsvExample.Csv(true, ",", "\n").ParsePartialString(CsvFileExample);
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Parsing took {sw.Time()}");
         
         foreach (var fail in result.Scanner.ListFailures())
         {

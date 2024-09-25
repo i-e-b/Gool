@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Gool;
@@ -30,10 +31,21 @@ public static class Css3Example
     /// <summary> Handle a string for case-insensitive AND escapable CSS keywords</summary>
     private static BNF CssStrEsc(string s) => new Union(s.Select(CssCharEsc));
 
-    public static Package Css3()
+    /// <summary>
+    /// This is translated from https://github.com/antlr/grammars-v4/tree/master/css3
+    /// which is a set of samples for Antlr.
+    /// </summary>
+    public static Package Css3_Antlr()
+    {
+        throw new Exception("not ready");
+    }
+
+    /// <summary>
+    /// This is from the w3.org 'railroad' diagrams, which do not seem to be complete or correct
+    /// </summary>
+    public static Package Css3_W3C()
     {
         // Normative = https://www.w3.org/TR/css-syntax-3/
-        // This is from the w3.org 'railroad' diagrams
 
         BNF // Fragments
             dash           = CssCharEsc('-'),
@@ -78,32 +90,39 @@ public static class Css3Example
         BNF
             non_func_token = whitespace_tok | ident_tok | at_keyword_tok | hash_tok | string_tok
                            | url_tok | number_tok | dimension_tok | percent_tok | cdo_tok | cdc_tok,
-            preserved_tok = non_func_token > ~NoneOf('{', '(', '[');
+            preserved_tok = non_func_token / OneOf('{', '(', '[');
 
-        var _component_value = Forward();
-
-        BNF // Block definitions
-            brace_block    = '{' > -_component_value > '}',
-            paren_block    = '(' > -_component_value > ')',
-            bracket_block  = '[' > -_component_value > ']',
-            function_block = function_tok > -_component_value > ')';
 
         var _decl_list = Forward();
-        var _at_rule   = Forward();
-        BNF
-            component_value = preserved_tok | brace_block | paren_block | bracket_block | function_block,
+        var _any_block = Forward();
+        var _brace_block = Forward();
+
+        BNF // Stylesheet parts
+            component_value = ws > (preserved_tok | _any_block) > ws,
             important       = bang > ws > CssStrEsc("important") > ws,
             declaration     = ident_tok > ws > ':' > (-component_value) > !important,
-            decl_list       = ws > ((!declaration > !(';' > _decl_list)) | (_at_rule > _decl_list)),
-            qualified_rule  = -(component_value) > brace_block,
-            at_rule         = at_keyword_tok > -(component_value) > (brace_block | ';'),
+            at_rule         = at_keyword_tok > -(component_value) > (_brace_block | ';'),
+            decl_list       = ws > ((!declaration > !(';' > _decl_list)) | (at_rule > _decl_list)),
+            qualified_rule  = -component_value > _brace_block,
             rule_list       = -(whitespace_tok | qualified_rule | at_rule),
-            stylesheet      = -(cdo_tok | cdc_tok | whitespace_tok | qualified_rule | at_rule);
+            stylesheet      = -(cdo_tok | cdc_tok | comment | rule_list);
 
 
-        _at_rule.Is(at_rule);
+        BNF // Block definitions
+            brace_block    = '{' > -component_value > '}',
+            paren_block    = '(' > -component_value > ')',
+            bracket_block  = '[' > -component_value > ']',
+            function_block = function_tok > -component_value > ')',
+            any_block      = brace_block | paren_block | bracket_block | function_block;
+
+        _brace_block.Is(brace_block);
+        _any_block.Is(any_block);
         _decl_list.Is(decl_list);
-        _component_value.Is(component_value);
+
+        comment.TagWith("comment");
+        qualified_rule.TagWith("qualified rule");
+        at_rule.TagWith("at rule");
+        whitespace_tok.TagWith("whitespace");
 
         // Antlr:
         // Lexer side https://github.com/antlr/grammars-v4/blob/master/css3/css3Lexer.g4
