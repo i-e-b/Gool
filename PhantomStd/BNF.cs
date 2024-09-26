@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -209,7 +210,6 @@ public class BNF : IParser
 		return hold;
 	}
 
-
 	/// <summary>
 	/// Create a contextualised parser from a previous result.
 	/// </summary>
@@ -227,6 +227,24 @@ public class BNF : IParser
 	public static BNF Context(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF> next)
 	{
 		return new ContextParser(prefix, select, next);
+	}
+
+	/// <summary>
+	/// Match an ordered sequence of sub-parsers as a single match.
+	/// The entire set of sub-parsers must match for a successful match.
+	/// </summary>
+	public static BNF Composite(IEnumerable<BNF> items)
+	{
+		return new CompositeSequence(items);
+	}
+
+	/// <summary>
+	/// Match an ordered sequence of sub-parsers as a single match.
+	/// The entire set of sub-parsers must match for a successful match.
+	/// </summary>
+	public static BNF Composite(params BNF[] items)
+	{
+		return new CompositeSequence(items);
 	}
 
 	/// <summary>
@@ -435,6 +453,10 @@ public class BNF : IParser
 	/// </summary>
 	public BNF Repeat(int i)
 	{
+		if (i < 0) throw new Exception("Repeat count must be greater than or equal to zero");
+		if (i == 1) return this;
+		if (i == 0) return Empty;
+
 		return new BNF(new Repetition(this, (uint)i, (uint)i));
 	}
 
@@ -962,5 +984,22 @@ public static class BnfExtensions
 	public static BNF CaseInsensitive(this string pattern)
 	{
 		return new BNF(new LiteralString(pattern, StringComparison.OrdinalIgnoreCase));
+	}
+
+
+	/// <summary>
+	/// Repeat the pattern a specific number of times
+	/// </summary>
+	public static BNF Repeat(this string pattern, int i)
+	{
+		return new BNF(new Repetition((BNF)pattern, (uint)i, (uint)i));
+	}
+
+	/// <summary>
+	/// Repeat the pattern a range of times
+	/// </summary>
+	public static BNF Repeat(this string pattern, int min, int max)
+	{
+		return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
 	}
 }

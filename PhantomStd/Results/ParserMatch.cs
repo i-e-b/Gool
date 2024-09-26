@@ -171,6 +171,17 @@ public class ParserMatch
     /// flags can change this (see <see cref="ScopeType"/>)
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
+    public ParserMatch Join(IParser source, ParserMatch right)
+    {
+        return Join(source, this, right);
+    }
+
+    /// <summary>
+    /// Create a new match by joining a pair of existing matches.
+    /// Most of the time this performs a binary join, but some parser
+    /// flags can change this (see <see cref="ScopeType"/>)
+    /// </summary>
+    /// <returns>Match covering and containing both left and right</returns>
     public static ParserMatch Join(IParser source, ParserMatch? left, ParserMatch right)
     {
         if (right == null) throw new NullReferenceException("Can't Join null match");

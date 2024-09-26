@@ -674,6 +674,61 @@ public class CompositeBasicTests
     }
 
 
+    private static IParser CompositeSample()
+    {
+        return CssStrEsc("Hello World");
+
+        BNF CssStrEsc(string s) => BNF.Composite(s.Select(CssCharEsc));
+
+        BNF CssCharEsc(char c)
+        {
+            BNF
+                u       = char.ToUpper(c), // upper case char
+                l       = char.ToLower(c), // lower case char
+                zs      = BNF.Repeat('0', 0, 4), // up to 4 '0'
+                esc     = ((int)c).ToString("X2") | BNF.CharacterInRanges(('g','z'),('G','Z')), // and two hex chars for the character
+                pattern = u | l | ('\\' > zs > esc); // any of the above
+
+            return pattern;
+        }
+    }
+
+    [Test]
+    [TestCase("hello world", true)]
+    [TestCase("Hello World", true)]
+    [TestCase("hELLo wORLd", true)]
+    [TestCase("hELL\\o w\\ORLd", true)]
+    [TestCase("hELL\\6F w\\6FRLd", true)]
+    [TestCase("Hello", false)]
+    [TestCase("Hello Earth", false)]
+    [TestCase("hELL\\6E w\\6RLd", false)]
+    public void composite_sequence_matches_all_items(string sample, bool matches)
+    {
+        var parser  = CompositeSample();
+        var scanner = new ScanStrings(sample);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.EqualTo(matches), result + ": " + result.Value);
+    }
+
     private static IParser ParallelSetParserSample()
     {
         BNF words = +BNF.AnyChar;
