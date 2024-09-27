@@ -69,7 +69,7 @@ public static class Css3Example
 
         BNF // Composite fragments
             DashChar       = CssCharEsc('-'),
-            Number         = FractionalDecimal(allowLeadingZero: true, allowLoneDecimal: true),
+            Number         = FractionalDecimal(allowLoneDecimal: true, allowLeadingZero: true),
             NonAscii       = CharacterInRanges((FirstNonAscii, MaxUtf)),
             Hex            = CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')),
             Space          = +OneOf(' ', '\t', '\r', '\n', '\f'),
@@ -235,6 +235,7 @@ public static class Css3Example
             namespace_ = (Namespace > ws > !(namespacePrefix > ws) > (String_ | url) > ws > ';' > ws)
                        | (Namespace > ws > !(namespacePrefix > ws) > (String_ | url) > ws);
 
+
         BNF stylesheet = ws >
                          -(charset > -(Comment | Space | Cdo | Cdc)) >
                          -(imports > (Comment | Space | Cdo | Cdc)) >
@@ -286,7 +287,7 @@ public static class Css3Example
             hash_tok       = '#' > -name_char_esc,
             string_tok     = dbl_string | sgl_string,
             url_tok        = url > '(' > ws > (-url_string) > ws > ')',
-            number_tok     = FractionalDecimal(allowLeadingZero: true, allowLoneDecimal: true),
+            number_tok     = FractionalDecimal(allowLoneDecimal: true, allowLeadingZero: true),
             dimension_tok  = number_tok > ident_tok,
             percent_tok    = number_tok > '%',
             cdo_tok        = "<!--",

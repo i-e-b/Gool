@@ -6,9 +6,18 @@ A fast, robust, and thread-safe parser-combinator library for C#, with a fluent 
 Use this to read and interpret a wide range of text-based input -- including file formats, data structures, and 
 programming languages.
 
-If you have a complex and/or fragile set of regular expressions, try using a parser instead.
+By being a run-time library inside the main program, grammars can be built and modified as required,
+with even complex structures taking microseconds to build.
 
-See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
+### Parser-Combinators?
+
+Parser-Combinators are components that you can build into structures that encode languages: "Grammars".
+The building can be done using a human-readable syntax, building parsers of increasing complexity on top of simpler parts.
+Detailed grammars and languages can be processed in an efficient way.
+
+By structuring the parser-combinator library in a particular way, building parsers is the same as writing a grammar itself.
+Therefore instead of describing how to parse a language, a user must only specify the language itself.
+The result is a working parser.
 
 ### Unique features
 
@@ -17,12 +26,19 @@ See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for f
 - Easily expanded to handle complex patterns
 - Use all your existing navigation and refactoring tools
 
+### When should I use this?
+
+If you have a complex and/or fragile set of regular expressions, try using a parser instead.
+
+See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
+
 Basic example
 -------------
 
+Defining the parser: 
+
 ```csharp
-// Basic infix arithmetic expressions
-BNF 
+BNF // Basic infix arithmetic expressions
     number     = FractionalDecimal(),    // Built-in helper for signed numbers
 
     factor     = number |  ('(' > _expression > ')'), // Number or parenthesised expression
@@ -30,6 +46,8 @@ BNF
     term       = power  %  ('*' | '/'),               // Powers, optionally joined with '*' or '/'
     expression = term   %  ('+' | '-');               // Terms, optionally joined will '+' or '-'
 ```
+
+Reading an input:
 
 ```csharp
 var result = expression.ParseEntireString( // Run the parser, refuse partial matches
@@ -42,7 +60,7 @@ var final = TreeNode.TransformTree(tree, ApplyOperation); // Apply functions to 
 Console.WriteLine(final); // 71.25
 ```
 
-Some details removed for clarity -- see bottom of document for full implementation)
+(some details removed for clarity -- see bottom of this readme for full implementation)
 
 BNF Syntax
 ----------
@@ -62,7 +80,7 @@ BNF Syntax
 
 ### Combining parsers:
 
-- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if only one of **a** and **b** match, *and* if both **a** and **b** match.
+- a `|` b → Create a *union* parser that matches the **longest** result from either **a** or **b**. Parser will match if only one of **a** and **b** match, *or* if both **a** and **b** match.
     - Example: `"hello" | "world"` matches `hello` or `world` 
     - Example: `"on" | "one"` matches `on` and `one`. `+( "on" | "one" )` will match `oneone` as {`one`, `one`}
 - a `>` b → Create a *sequence* parser that matches **a** then **b**
@@ -97,7 +115,7 @@ For common cases, you won't need to create one directly -- just use `BNF.ParseSt
 
 Scanners handle case-conversion and white-space skipping if you use those options.
 
-Because scanners hold context for a parse, they cannot be reused, or shared between parse attempts.
+Because scanners hold context for a parse, they cannot be reused or shared between parse attempts.
 
 Tags, scopes, and trees
 -----------------------
@@ -162,13 +180,13 @@ but changing `addSub` to `BNF.OneOf('+', '-').Tag("op").PivotScope();` results i
 Detailed examples
 -----------------
 
-See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for fully functional examples.
+See [Sample Parsers](https://github.com/i-e-b/Gool/tree/master/SamplesStd) for more fully functional examples.
 
 ### Basic infix arithmetic calculator
 
 ```csharp
 using Gool;
-using static Gool.BNF;
+using static Gool.BNF; // Include BNF methods without needing 'BNF.' everywhere
 
 public double EvaluateExpression(string expression)
 {
@@ -199,8 +217,8 @@ public static Package Arithmetic()
 
     add_sub.TagWith(Operation).PivotScope();
     mul_div.TagWith(Operation).PivotScope();
-    exp.TagWith(Operation).PivotScope();
-    number.TagWith(Value);
+    exp    .TagWith(Operation).PivotScope();
+    number .TagWith(Value);
 
     return expression.WithOptions(Options.SkipWhitespace);
 }
@@ -219,7 +237,8 @@ private static TreeNode ApplyOperation(TreeNode node)
     var left = node.Children[0].Source;
     var right = node.Children[1].Source;
 
-    if (!double.TryParse(left.Value, out var a) || !double.TryParse(right.Value, out var b)) return node; // one of our children is not a number
+    if (!double.TryParse(left.Value, out var a)
+     || !double.TryParse(right.Value, out var b)) return node; // one of our children is not a number
 
     // Both children are values: perform the operation
     var result = operation switch

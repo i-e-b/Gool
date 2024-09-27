@@ -616,10 +616,6 @@ public class BNF : IParser
 	/// 123x04
 	/// </code>
 	/// </example>
-	/// <param name="allowLeadingWhitespace">[Optional] Default = <c>false</c>.
-	///     If <c>true</c> the input may have leading whitespace.
-	///     If <c>false</c> the input must have digits in all places.
-	/// </param>
 	/// <param name="groupMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberGroupSeparator"/>
 	///     Acceptable number separator. Has no semantic meaning. This is allowed in any place in the input except the end, and can be repeated.
 	///     An empty string as the group mark will disable the use of group marks.
@@ -627,16 +623,23 @@ public class BNF : IParser
 	/// <param name="decimalMark">[Optional] Default = <see cref="CultureInfo.CurrentCulture"/>.NumberFormat.<see cref="NumberFormatInfo.NumberDecimalSeparator"/>
 	///     Acceptable decimal separator. This is allowed at most one time.
 	///     Must not be empty, must not contain characters 0-9.</param>
+	/// <param name="allowLeadingWhitespace">[Optional] Default = <c>false</c>.
+	///     If <c>true</c> the input may have leading whitespace.
+	///     If <c>false</c> the input must have digits in all places.
+	/// </param>
 	/// <param name="allowLoneDecimal">[Optional] Default = false.
 	///     If true, the decimal place can be used without a number on either side, like <c>.9</c> or <c>1.</c></param>
 	/// <param name="allowLeadingZero">[Optional] Default = false.
 	///     If true, leading zeros are allowed, like <c>007</c> or <c>+0012</c>.
 	///     A single <c>0</c>, or a zero before a decimal place is always allowed</param>
+	/// <param name="allowLeadingPlus">[Optional] Default = true.
+	///     If true, starting numbers with <c>+</c> is allowed, like <c>+5.0</c>.
+	///     Otherwise, only starting with a negative or digit is allowed, like <c>-1</c> or <c>42</c></param>
 	/// <seealso cref="FixedSizeInteger"/>
 	/// <seealso cref="IntegerRange"/>
 	/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/System.Globalization.CultureInfo.CurrentCulture"/>
-	public static BNF FractionalDecimal(bool allowLeadingWhitespace = false, string? groupMark = null, string? decimalMark = null,
-		bool allowLoneDecimal = false, bool allowLeadingZero = false)
+	public static BNF FractionalDecimal(string? groupMark = null, string? decimalMark = null,
+		bool allowLeadingWhitespace = false, bool allowLoneDecimal = false, bool allowLeadingZero = false, bool allowLeadingPlus = true)
 	{
 		var grp = groupMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
 		var dec = decimalMark ?? CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
@@ -644,7 +647,7 @@ public class BNF : IParser
 		if (grp.IndexOfAny(NumberCharacters) > -1) throw new Exception("Group mark cannot contain numbers");
 		if (dec.IndexOfAny(NumberCharacters) > -1) throw new Exception("Decimal mark cannot contain numbers");
 
-		return new BNF(new VariableWidthFractionalDecimal(allowLeadingWhitespace, grp, dec, allowLoneDecimal, allowLeadingZero));
+		return new BNF(new VariableWidthFractionalDecimal(grp, dec, allowLeadingWhitespace, allowLoneDecimal, allowLeadingZero, allowLeadingPlus));
 	}
 
 	/// <summary>

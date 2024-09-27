@@ -45,7 +45,7 @@ public static class JsonParser
             array_leave = ']',
             array_block = array_enter > elements > array_leave;
 
-        BNF number = FractionalDecimal(groupMark: "", decimalMark: ".", allowLeadingZero: false); // this is slightly out of spec, as it allows "+1234"
+        BNF number = FractionalDecimal(groupMark: "", decimalMark: ".", allowLeadingZero: false, allowLeadingPlus: false);
 
         BNF primitive = quoted_string | number | "true" | "false" | "null";
 

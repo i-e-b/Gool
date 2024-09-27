@@ -14,17 +14,20 @@ public class VariableWidthFractionalDecimal : Parser
     private readonly string _decimalMark;
     private readonly bool   _allowLoneDecimal;
     private readonly bool   _allowLeadingZero;
+    private readonly bool   _allowLeadingPlus;
 
     /// <summary>
     /// Create a number parser
     /// </summary>
-    public VariableWidthFractionalDecimal(bool allowLeadingWhitespace, string groupMark, string decimalMark, bool allowLoneDecimal, bool allowLeadingZero)
+    public VariableWidthFractionalDecimal(string groupMark, string decimalMark,
+        bool allowLeadingWhitespace, bool allowLoneDecimal, bool allowLeadingZero, bool allowLeadingPlus)
     {
         _allowLeadingWhitespace = allowLeadingWhitespace;
         _groupMark = groupMark;
         _decimalMark = decimalMark;
         _allowLoneDecimal = allowLoneDecimal;
         _allowLeadingZero = allowLeadingZero;
+        _allowLeadingPlus = allowLeadingPlus;
     }
 
     /// <inheritdoc />
@@ -50,10 +53,21 @@ public class VariableWidthFractionalDecimal : Parser
         }
 
         // Optional '+' or '-'
-        if (scan.Peek(offset) is '+' or '-')
+        if (_allowLeadingPlus)
         {
-            offset++;
-            result.ExtendTo(offset);
+            if (scan.Peek(offset) is '+' or '-')
+            {
+                offset++;
+                result.ExtendTo(offset);
+            }
+        }
+        else
+        {
+            if (scan.Peek(offset) is '-')
+            {
+                offset++;
+                result.ExtendTo(offset);
+            }
         }
 
         // Must have at least one digit

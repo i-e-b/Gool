@@ -367,7 +367,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_without_leading_whitespace()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: false, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("234"), null);
@@ -454,7 +455,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_with_lone_decimal()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: true, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: false, allowLoneDecimal: true, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("234"), null);
@@ -538,7 +540,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_with_leading_zero()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"_", decimalMark:".", allowLoneDecimal: true, allowLeadingZero: true);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: false, allowLoneDecimal: true, allowLeadingZero: true, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("0234"), null);
@@ -631,7 +634,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_with_leading_whitespace()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:true, groupMark:"_", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: true, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("   234"), null);
@@ -644,7 +648,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_no_grouping()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:true, groupMark:"", decimalMark:".", allowLoneDecimal: false, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "", decimalMark: ".",
+            allowLeadingWhitespace: true, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("   234"), null);
@@ -657,7 +662,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_with_multi_char_marks()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace:false, groupMark:"group", decimalMark:"point", allowLoneDecimal: false, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "group", decimalMark: "point",
+            allowLeadingWhitespace: false, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("1group000point5"), null);
@@ -676,7 +682,8 @@ public class TerminalBasicTests
     [Test]
     public void _VariableWidthFractionalDecimal_ending_characters()
     {
-        var subject = new VariableWidthFractionalDecimal(allowLeadingWhitespace: true, groupMark: "_", decimalMark: ".", allowLoneDecimal: false, allowLeadingZero: false);
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: true, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
         Console.WriteLine(subject.ToString());
 
         var result = subject.Parse(new ScanStrings("+123+123"), null);
