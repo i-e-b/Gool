@@ -13,6 +13,7 @@
 
 - [x] SQL connection strings
 - [x] Full XML: https://cs.lmu.edu/~ray/notes/xmlgrammar/
+- [ ] cron expressions: https://docs.rs/cronexpr/latest/cronexpr/
 - [ ] Complete basic programming language (including interpreter and sample programs)
 
 Huge repo of grammars here: https://github.com/antlr/grammars-v4
