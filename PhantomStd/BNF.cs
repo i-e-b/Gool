@@ -1005,4 +1005,20 @@ public static class BnfExtensions
 	{
 		return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
 	}
+
+	/// <summary>
+	/// Repeat the pattern a specific number of times
+	/// </summary>
+	public static BNF Repeat(this char pattern, int i)
+	{
+		return new BNF(new Repetition((BNF)pattern, (uint)i, (uint)i));
+	}
+
+	/// <summary>
+	/// Repeat the pattern a range of times
+	/// </summary>
+	public static BNF Repeat(this char pattern, int min, int max)
+	{
+		return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
+	}
 }

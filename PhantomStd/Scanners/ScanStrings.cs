@@ -129,6 +129,7 @@ public class ScanStrings : IScanner
 
 	private static string ParserStringFrag(ParserPoint p)
 	{
+		if (!string.IsNullOrWhiteSpace(p.Parser.Tag)) return p.Parser.Tag;
 		var str = p.Parser.ShortDescription(depth: 7);
 		return str;
 	}

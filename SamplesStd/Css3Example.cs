@@ -1,8 +1,8 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using Gool;
 using static Gool.BNF;
+
+// ReSharper disable SuggestVarOrType_SimpleTypes
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StringLiteralTypo
@@ -40,32 +40,17 @@ public static class Css3Example
         #region Lexer side
 
         BNF // Fragments
-            OpenBracket  = '[',
-            CloseBracket = ']',
-            OpenParen    = '(',
-            CloseParen   = ')',
-            OpenBrace    = '{',
-            CloseBrace   = '}',
-            SemiColon    = ';',
-            Equal        = '=',
-            Colon        = ':',
-            Dot          = '.',
-            Multiply     = '*',
-            Divide       = '/',
-            Pipe         = '|',
-            Underscore   = '_',
-            DblQuote     = '"',
-            SingleQuote  = '\'',
-            Cdo          = "<!--",
-            Cdc          = "-->",
-            Plus         = '+',
-            Minus        = '-',
-            Greater      = '>',
-            Comma        = ',',
-            Tilde        = '~',
-            EscChar      = '\\',
-            Bang         = '!',
-            At           = '@';
+            DblQuote    = '"',
+            SingleQuote = '\'',
+            Cdo         = "<!--",
+            Cdc         = "-->",
+            Plus        = '+',
+            Minus       = '-',
+            Greater     = '>',
+            Comma       = ',',
+            Tilde       = '~',
+            EscChar     = '\\',
+            At          = '@';
 
         BNF // Composite fragments
             DashChar       = CssCharEsc('-'),
@@ -78,24 +63,28 @@ public static class Css3Example
             NewlineOrSpace = !(Newline | OneOf(' ', '\t', '\f')),
             Unicode        = '\\' > Hex.Repeat(1, 6) > NewlineOrSpace,
             Escape         = Unicode | ('\\' > CharacterNotInRanges('\r', '\n', '\f', ('0', '9'), ('a', 'f'), ('A', 'F'))),
-            Nmstart        = CharacterInRanges('_', ('a', 'z'), ('A', 'Z')) | NonAscii | Escape,
-            Nmchar         = CharacterInRanges('_', '-', ('a', 'z'), ('A', 'Z'), ('0', '9')) | NonAscii | Escape,
+            NameStart      = CharacterInRanges('_', ('a', 'z'), ('A', 'Z')) | NonAscii | Escape,
+            NameChar       = CharacterInRanges('_', '-', ('a', 'z'), ('A', 'Z'), ('0', '9')) | NonAscii | Escape,
             Comment        = "/*" > -(AnyChar / "*/") > "*/",
-            Name           = +Nmchar,
-            Variable       = "--" > Nmstart > -Nmchar,
-            Ident          = !DashChar > Nmstart > -Nmchar,
+            Name           = +NameChar,
+            Variable       = "--" > NameStart > -NameChar,
+            Ident          = !DashChar > NameStart > -NameChar,
             EscBreak       = (Newline | Hex),
             EscSeq         = EscChar > ((AnyChar / EscBreak) | (Hex.Repeat(1, 6) > Whitespace)),
             DblString      = '"' > -((AnyChar / ('"' | EscChar)) | EscSeq | (EscChar > Newline)) > '"',
             SglString      = "'" > -((AnyChar / ("'" | EscChar)) | EscSeq | (EscChar > Newline)) > "'",
             String_        = DblString | SglString,
-            UrlSymbol      = OneOf('!', '#', '$', '%', '&', '*', '-', '~'),
-            UrlStringDbl   = Whitespace > !DblQuote > -(Escape | NonAscii | UrlSymbol) > !DblQuote > Whitespace,
-            UrlStringSgl   = Whitespace > !SingleQuote > -(Escape | NonAscii | UrlSymbol) > !SingleQuote > Whitespace,
-            Url            = CssStrEsc("url") > '(' > (UrlStringDbl | UrlStringSgl) > ')',
+            UrlEsc         = '%' > Hex > Hex,
+            UrlChar        = UrlEsc | CharacterInRanges('_', ':', '/', '-', ('a', 'z'), ('A', 'Z'), ('0', '9')),
+            UrlSymbol      = OneOf('!', '#', '$', '&', '*', '-', '~', ':', ';', '/', '@', '=', '.', '+', ','), // https://www.ietf.org/rfc/rfc3986.txt
+            UrlExtSym      = OneOf('(', ')'),
+            UrlStringDbl   = Whitespace > DblQuote > -(Escape | NonAscii | UrlSymbol | UrlChar | UrlExtSym | "'") > DblQuote > Whitespace,
+            UrlStringSgl   = Whitespace > SingleQuote > -(Escape | NonAscii | UrlSymbol | UrlChar | UrlExtSym | '"') > SingleQuote > Whitespace,
+            UrlStringUnq   = Whitespace > -(Escape | NonAscii | UrlSymbol | UrlChar) > Whitespace,
+            Url            = CssStrEsc("url") > '(' > (UrlStringDbl | UrlStringSgl | UrlStringUnq) > ')',
             Url_           = "url(",
             Calc           = "calc(",
-            Function       = Ident > '(',
+            Function_      = Ident > '(',
             Hash           = '#' > Name;
 
         BNF // Directives
@@ -112,13 +101,14 @@ public static class Css3Example
             FontFeatureValues = '@' > CssStrEsc("font-feature-values"),
             Supports          = '@' > CssStrEsc("supports"),
             PseudoNot         = ':' > CssStrEsc("not") > '(',
-            DxImageTransform  = "progid:DXImageTransform.Microsoft." > Function,
+            DxImageTransform  = "progid:DXImageTransform.Microsoft." > Function_,
             MediaOnly         = CssStrEsc("only"),
             Not               = CssStrEsc("not"),
             And               = CssStrEsc("and"),
             Or                = CssStrEsc("or"),
             From              = CssStrEsc("from"),
             To                = CssStrEsc("to"),
+            Keyframes         = At > !VendorPrefix > CssStrEsc("keyframes"),
             Var               = "var(",
             AtKeyword         = '@' > Ident;
 
@@ -180,7 +170,7 @@ public static class Css3Example
             calcProduct      = calcValue > -(('*' > ws > calcValue) | ('/' > ws > number > ws)),
             calcSum          = calcProduct > -(Space > ws > (Plus | Minus) > ws > Space > ws > calcProduct),
             calc             = Calc > ws > calcSum > ')' > ws,
-            function_        = Function > ws > _expr > ')' > ws,
+            function_        = Function_ > ws > _expr > ')' > ws,
             dxImageTransform = DxImageTransform > ws > _expr > ')' > ws,
             term = (number > ws)
                  | (percentage > ws)
@@ -194,7 +184,8 @@ public static class Css3Example
                  | calc
                  | function_
                  | (unknownDimension > ws)
-                 | dxImageTransform,
+                 | dxImageTransform
+                 ,
             expr = term > -(!operator_ > term);
 
         _calcSum.Is(calcSum);
@@ -216,13 +207,21 @@ public static class Css3Example
             pseudoPage = ':' > ident > ws,
             page       = Page > ws > !pseudoPage > '{' > ws > !declaration > -(';' > ws > !declaration) > '}' > ws;
 
+
+        var _any_            = Forward();
+        var _nestedStatement = Forward();
+        var _block           = Forward();
+
         BNF // Media Expressions
             mediaType       = ident,
             mediaFeature    = ident > ws,
             mediaExpression = '(' > ws > mediaFeature > !(':' > ws > expr) > ')' > ws,
             mediaQuery = (!(MediaOnly | Not) > ws > mediaType > ws > -(And > ws > mediaExpression))
                        | (mediaExpression > -(And > ws > mediaExpression)),
-            mediaQueryList = !(mediaQuery > -(Comma > ws > mediaQuery)) > ws;
+            mediaQueryList = !(mediaQuery > -(Comma > ws > mediaQuery)) > ws,
+            groupRuleBody  = '{' > ws > -_nestedStatement > '}' > ws,
+            media          = Media > ws > mediaQueryList > groupRuleBody > ws
+            ;
 
         BNF // Major parts
             charset = (Charset > ws > String_ > ws > ';' > ws) // Good charset
@@ -235,107 +234,115 @@ public static class Css3Example
             namespace_ = (Namespace > ws > !(namespacePrefix > ws) > (String_ | url) > ws > ';' > ws)
                        | (Namespace > ws > !(namespacePrefix > ws) > (String_ | url) > ws);
 
+        BNF
+            block = '{' > ws > -(declarationList | _nestedStatement | _any_ | _block | (AtKeyword > ws) | (';' > ws)) > '}' > ws,
+            unused = block
+                   | (AtKeyword > ws)
+                   | (';' > ws)
+                   | (Cdo > ws)
+                   | (Cdc > ws);
+        _block.Is(block);
+
+        BNF
+            any_ = (ident > ws)
+                 | (number > ws)
+                 | (percentage > ws)
+                 | (dimension > ws)
+                 | (unknownDimension > ws)
+                 | (String_ > ws)
+                 | (url > ws)
+                 | (Hash > ws)
+                 | (UnicodeRange > ws)
+                 | (Includes > ws)
+                 | (DashMatch > ws)
+                 | (':' > ws)
+                 | (Function_ > ws > -(_any_ | unused) > ')' > ws)
+                 | ('(' > ws > -(_any_ | unused) > ')' > ws)
+                 | ('[' > ws > -(_any_ | unused) > ']' > ws);
+        _any_.Is(any_);
+
+        BNF
+            combinator          = (Plus > ws) | (Greater > ws) | (Tilde > ws) | (Space > ws),
+            elementName         = ident,
+            typeNamespacePrefix = !(ident | '*') > '|',
+            typeSelector        = (!typeNamespacePrefix) > elementName,
+            universal           = '*' | (typeNamespacePrefix > '*'),
+            className           = '.' > ident,
+            attrib = '[' > ws > !typeNamespacePrefix > ident > ws >
+                     !((PrefixMatch | SuffixMatch | SubstringMatch | '=' | Includes | DashMatch) > ws > (ident | String_) > ws)
+                   > ']',
+            expression       = +((Plus | Minus | Dimension | UnknownDimension | Number | String_ | ident) > ws),
+            functionalPseudo = Function_ > ws > expression > ')',
+            pseudo           = ':'.Repeat(1, 2) > (ident | functionalPseudo),
+            negationArg      = typeSelector | universal | Hash | className | attrib | pseudo,
+            negation         = PseudoNot > ws > negationArg > ws > ')',
+            simpleSelectorSequence = (-(typeSelector | universal) > -(Hash | className | attrib | pseudo | negation))
+                                   | +(Hash | className | attrib | pseudo | negation),
+            selector      = simpleSelectorSequence > ws > -(combinator > simpleSelectorSequence > ws),
+            selectorGroup = selector > -(Comma > ws > selector),
+            ruleset = (selectorGroup > '{' > ws > !declarationList > '}' > ws) // knownRuleset
+                    | (-any_ > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
+
+        BNF
+            viewport = Viewport > ws > '{' > ws > !declarationList > '}' > ws,
+            value    = +(any_ | block | (AtKeyword > ws)),
+            atRule   = AtKeyword > ws > -any_ > (block | (';' > ws)), // unknownAtRule
+            fontFaceDeclaration = (property_ > ':' > ws > expr) // knownFontFaceDeclaration
+                                | (property_ > ':' > ws > value), // unknownFontFaceDeclaration
+            fontFaceRule     = FontFace > ws > '{' > ws > !fontFaceDeclaration > -(';' > ws > !fontFaceDeclaration) > '}' > ws,
+            keyframeSelector = (From | To | Percentage) > ws > -(Comma > ws > (From | To | Percentage) > ws),
+            keyframeBlock    = keyframeSelector > '{' > ws > !declarationList > '}' > ws,
+            keyframesRule    = Keyframes > ws > Space > ws > ident > ws > '{' > ws > -keyframeBlock > '}' > ws;
+
+        var _supportsCondition = Forward();
+        BNF
+            generalEnclosed              = (Function_ | '(') > -(any_ | unused) > ')',
+            supportsDeclarationCondition = '(' > ws > declaration > ')',
+            supportsConditionInParens    = ('(' > ws > _supportsCondition > ws > ')') | supportsDeclarationCondition | generalEnclosed,
+            supportsDisjunction          = supportsConditionInParens > +(ws > Space > ws > Or > ws > Space > ws > supportsConditionInParens),
+            supportsConjunction          = supportsConditionInParens > +(ws > Space > ws > And > ws > Space > ws > supportsConditionInParens),
+            supportsNegation             = Not > ws > Space > ws > supportsConditionInParens,
+            supportsCondition            = supportsNegation | supportsConjunction | supportsDisjunction | supportsConditionInParens,
+            supportsRule                 = Supports > ws > supportsCondition > ws > groupRuleBody;
+        _supportsCondition.Is(supportsCondition);
+
+
+        BNF // Statements
+            nestedStatement = ruleset
+                            | media
+                            | page
+                            | fontFaceRule
+                            | keyframesRule
+                            | supportsRule
+                            | viewport
+                            | counterStyle
+                            | fontFeatureValuesRule
+                            | atRule;
+        _nestedStatement.Is(nestedStatement);
 
         BNF stylesheet = ws >
                          -(charset > -(Comment | Space | Cdo | Cdc)) >
                          -(imports > (Comment | Space | Cdo | Cdc)) >
                          -(namespace_ > -(Comment | Space | Cdo | Cdc)) >
-                         -(nestedStatement > -(Comment | Space | Cdo | Cdc));
+                         -(nestedStatement > -(Comment | Space | Cdo | Cdc)) >
+                         EndOfInput;
 
         #endregion Parser side
 
-        throw new Exception("not ready");
-    }
+        #region Tagging
 
-    /// <summary>
-    /// This is from the w3.org 'railroad' diagrams, which do not seem to be complete or correct
-    /// </summary>
-    public static Package Css3_W3C()
-    {
-        // Normative = https://www.w3.org/TR/css-syntax-3/
+        ruleset.TagWith("ruleset");
+        media.TagWith("media");
+        page.TagWith("page");
+        fontFaceRule.TagWith("fontFaceRule");
+        keyframesRule.TagWith("keyframesRule");
+        supportsRule.TagWith("supportsRule");
+        viewport.TagWith("viewport");
+        counterStyle.TagWith("counterStyle");
+        fontFeatureValuesRule.TagWith("fontFeatureValuesRule");
+        atRule.TagWith("atRule");
 
-        BNF // Fragments
-            dash           = CssCharEsc('-'),
-            any_quote      = OneOf('"', '\''),
-            esc_char       = '\\',
-            bang           = '!',
-            name_start     = CharacterInRanges(('a', 'z'), ('A', 'Z'), '_', (FirstNonAscii, MaxUtf)),
-            name_char      = CharacterInRanges(('a', 'z'), ('A', 'Z'), ('0', '9'), '-', '_', (FirstNonAscii, MaxUtf)),
-            newline        = (BNF)"\r\n" | '\r' | '\n' | '\f',
-            whitespace     = OneOf(' ', '\t') | newline,
-            ws             = -whitespace,
-            non_printable  = UtfCategory(UnicodeCategory.Control),
-            url            = CssStrEsc("url"),
-            hex_digit      = CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')),
-            escape_brk     = (newline | hex_digit),
-            escape_seq     = esc_char > ((AnyChar / escape_brk) | (hex_digit.Repeat(1, 6) > !whitespace)),
-            name_start_esc = name_start | escape_seq,
-            name_char_esc  = name_char | escape_seq;
-
-        BNF // Comments and String types
-            comment    = "/*" > -(AnyChar / "*/") > "*/",
-            dbl_string = '"' > -((AnyChar / ('"' | esc_char)) | escape_seq | (esc_char > newline)) > '"',
-            sgl_string = "'" > -((AnyChar / ("'" | esc_char)) | escape_seq | (esc_char > newline)) > "'",
-            url_brk    = esc_char | "'" | '"' | '(' | ')' | ws | non_printable,
-            url_string = !any_quote > -((AnyChar / url_brk) | escape_seq) > !any_quote;
-
-        BNF // Tokens
-            whitespace_tok = +whitespace,
-            ident_tok      = ("--" | (!dash > name_start_esc)) > -name_char_esc,
-            function_tok   = ident_tok > '(',
-            at_keyword_tok = '@' > ident_tok,
-            hash_tok       = '#' > -name_char_esc,
-            string_tok     = dbl_string | sgl_string,
-            url_tok        = url > '(' > ws > (-url_string) > ws > ')',
-            number_tok     = FractionalDecimal(allowLoneDecimal: true, allowLeadingZero: true),
-            dimension_tok  = number_tok > ident_tok,
-            percent_tok    = number_tok > '%',
-            cdo_tok        = "<!--",
-            cdc_tok        = "-->";
-
-        // https://www.w3.org/TR/css-syntax-3/#preserved-tokens "Any token produced by the tokenizer except for <function-token>s, <{-token>s, <(-token>s, and <[-token>s."
-        BNF
-            non_func_token = whitespace_tok | ident_tok | at_keyword_tok | hash_tok | string_tok
-                           | url_tok | number_tok | dimension_tok | percent_tok | cdo_tok | cdc_tok,
-            preserved_tok = non_func_token / OneOf('{', '(', '[');
-
-
-        var _decl_list   = Forward();
-        var _any_block   = Forward();
-        var _brace_block = Forward();
-
-        BNF // Stylesheet parts
-            component_value = ws > (preserved_tok | _any_block) > ws,
-            important       = bang > ws > CssStrEsc("important") > ws,
-            declaration     = ident_tok > ws > ':' > (-component_value) > !important,
-            at_rule         = at_keyword_tok > -(component_value) > (_brace_block | ';'),
-            decl_list       = ws > ((!declaration > !(';' > _decl_list)) | (at_rule > _decl_list)),
-            qualified_rule  = -component_value > _brace_block,
-            rule_list       = -(whitespace_tok | qualified_rule | at_rule),
-            stylesheet      = -(cdo_tok | cdc_tok | comment | rule_list);
-
-
-        BNF // Block definitions
-            brace_block    = '{' > -component_value > '}',
-            paren_block    = '(' > -component_value > ')',
-            bracket_block  = '[' > -component_value > ']',
-            function_block = function_tok > -component_value > ')',
-            any_block      = brace_block | paren_block | bracket_block | function_block;
-
-        _brace_block.Is(brace_block);
-        _any_block.Is(any_block);
-        _decl_list.Is(decl_list);
-
-        comment.TagWith("comment");
-        qualified_rule.TagWith("qualified rule");
-        at_rule.TagWith("at rule");
-        whitespace_tok.TagWith("whitespace");
-
-        // Antlr:
-        // Lexer side https://github.com/antlr/grammars-v4/blob/master/css3/css3Lexer.g4
-        //   see also https://github.com/antlr/antlr4/blob/4.13.2/doc/lexer-rules.md
-        // Parser side (https://github.com/antlr/grammars-v4/blob/master/css3/css3Parser.g4)
-
+        #endregion Tagging
 
         return stylesheet.WithOptions(Options.None);
     }
