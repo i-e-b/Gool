@@ -10,6 +10,19 @@ using static Gool.BNF;
 namespace Samples;
 
 /// <summary>
+///
+/// </summary>
+public class TestThing
+{
+    private BNF
+        x = "",
+        y = "hello",
+        z = "world";
+
+    // IEB: TODO: This kind of pattern, and use reflection to give a name to the parts.
+}
+
+/// <summary>
 /// CSS 3 Parser, based on https://github.com/antlr/grammars-v4/tree/master/css3
 /// </summary>
 public static class Css3Example
