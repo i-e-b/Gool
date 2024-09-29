@@ -14,12 +14,13 @@ namespace Samples;
 /// </summary>
 public class TestThing
 {
-    private BNF
-        x = "",
+    private static BNF
+        x = "!",
         y = "hello",
-        z = "world";
+        z = y > "world" > x;
 
     // IEB: TODO: This kind of pattern, and use reflection to give a name to the parts.
+    // TODO: Add 'Name' as well as Tag. Name for diagnostics only.
 }
 
 /// <summary>
