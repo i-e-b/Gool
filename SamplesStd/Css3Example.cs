@@ -10,20 +10,6 @@ using static Gool.BNF;
 namespace Samples;
 
 /// <summary>
-///
-/// </summary>
-public class TestThing
-{
-    private static BNF
-        x = "!",
-        y = "hello",
-        z = y > "world" > x;
-
-    // IEB: TODO: This kind of pattern, and use reflection to give a name to the parts.
-    // TODO: Add 'Name' as well as Tag. Name for diagnostics only.
-}
-
-/// <summary>
 /// CSS 3 Parser, based on https://github.com/antlr/grammars-v4/tree/master/css3
 /// </summary>
 public static class Css3Example
@@ -71,7 +57,7 @@ public static class Css3Example
             Number         = FractionalDecimal(allowLoneDecimal: true, allowLeadingZero: true),
             NonAscii       = CharacterInRanges((FirstNonAscii, MaxUtf)),
             Hex            = CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')),
-            Space          = +OneOf(' ', '\t', '\r', '\n', '\f'),
+            Space          = OneOf(' ', '\t', '\r', '\n', '\f'),
             Whitespace     = !Space,
             Newline        = OneOf('\r', '\n') | "\r\n",
             NewlineOrSpace = !(Newline | OneOf(' ', '\t', '\f')),
@@ -177,12 +163,15 @@ public static class Css3Example
         var _expr    = Forward();
         var _calcSum = Forward();
         BNF // Calc and Func Expressions
-            ident            = Ident | MediaOnly | Not | And | Or | From | To,
-            operator_        = ('/' > ws) | (Comma > ws) | (Space > ws) | ('=' > ws),
-            var_             = Var > ws > Variable > ws > ')' > ws,
-            calcValue        = (number > ws) | (dimension > ws) | (unknownDimension > ws) | (percentage > ws) | ('(' > ws > _calcSum > ')' > ws),
+            ct        = !Comment,
+            ident     = Ident | MediaOnly | Not | And | Or | From | To,
+            operator_ = ('/' > ws) | (Comma > ws) | (Space > ws) | ('=' > ws),
+            var_      = Var > ws > Variable > ws > ')' > ws,
+            // IEB: We should be able to handle conflicting 'optional' patterns.
+            // IEB: Here, calcValue 'ws' eats the required 'Space' in calcSum.
+            calcValue        = (number > /*these: */ws) | (dimension > ws) | (unknownDimension > ws) | (percentage > ws) | ('(' > ws > _calcSum > ')' > ws),
             calcProduct      = calcValue > -(('*' > ws > calcValue) | ('/' > ws > number > ws)),
-            calcSum          = calcProduct > -(Space > ws > (Plus | Minus) > ws > Space > ws > calcProduct),
+            calcSum          = calcProduct > -( /*this: */ /*Space >*/ ws > (Plus | Minus) > ct > Space > ws > calcProduct),
             calc             = Calc > ws > calcSum > ')' > ws,
             function_        = Function_ > ws > _expr > ')' > ws,
             dxImageTransform = DxImageTransform > ws > _expr > ')' > ws,
@@ -198,9 +187,9 @@ public static class Css3Example
                  | calc
                  | function_
                  | (unknownDimension > ws)
-                 | dxImageTransform
-                 ,
-            expr = term > -(!operator_ > term);
+                 | dxImageTransform,
+            expr = term > -(!operator_ > term)
+            ;
 
         _calcSum.Is(calcSum);
         _expr.Is(expr);
@@ -209,7 +198,7 @@ public static class Css3Example
             featureValueDefinition = ident > ws > ':' > ws > number > -(ws > number),
             featureType            = AtKeyword,
             featureValueBlock      = featureType > ws > '{' > ws > !featureValueDefinition > -(ws > ';' > ws > featureValueDefinition) > '}' > ws,
-            fontFamilyName         = String_ | (ident % ws), //(ident > -(ws > ident))
+            fontFamilyName         = String_ | (ident > -(ws > ident)),
             fontFamilyNameList     = fontFamilyName > -(ws > Comma > ws > fontFamilyName),
             fontFeatureValuesRule  = FontFeatureValues > ws > fontFamilyNameList > ws > '{' > ws > -featureValueBlock > '}' > ws,
             property_              = (ident > ws) | (Variable > ws) | ('*' > ident) | ('_' > ident),
@@ -294,8 +283,8 @@ public static class Css3Example
                                    | +(Hash | className | attrib | pseudo | negation),
             selector      = simpleSelectorSequence > ws > -(combinator > simpleSelectorSequence > ws),
             selectorGroup = selector > -(Comma > ws > selector),
-            ruleset = (selectorGroup > '{' > ws > !declarationList > '}' > ws) // knownRuleset
-                    | (-any_ > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
+            ruleset = (selectorGroup > ws > '{' > ws > !declarationList > '}' > ws) // knownRuleset
+                    | (-any_ > ws > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
 
         BNF
             viewport = Viewport > ws > '{' > ws > !declarationList > '}' > ws,
@@ -331,15 +320,15 @@ public static class Css3Example
                             | viewport
                             | counterStyle
                             | fontFeatureValuesRule
-                            | atRule;
+                            | atRule
+            ;
         _nestedStatement.Is(nestedStatement);
 
         BNF stylesheet = ws >
                          -(charset > -(Comment | Space | Cdo | Cdc)) >
                          -(imports > (Comment | Space | Cdo | Cdc)) >
                          -(namespace_ > -(Comment | Space | Cdo | Cdc)) >
-                         -(nestedStatement > -(Comment | Space | Cdo | Cdc)) >
-                         EndOfInput;
+                         -(nestedStatement > -(Comment | Space | Cdo | Cdc));
 
         #endregion Parser side
 

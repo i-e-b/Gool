@@ -120,6 +120,7 @@ public class ScanStrings : IScanner
 		{
 			foreach (var m in _matchPaths)
 			{
+				if (string.IsNullOrWhiteSpace(m.Tag)) continue;
 				lst.Add(" ¿" + m.Description() + "? ");
 			}
 		}

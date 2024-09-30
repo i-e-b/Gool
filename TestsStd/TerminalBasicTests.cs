@@ -364,6 +364,18 @@ public class TerminalBasicTests
         
     }
 
+
+    [Test]
+    public void _VariableWidthFractionalDecimal_does_not_eat_trailing_E()
+    {
+        var subject = new VariableWidthFractionalDecimal(groupMark: "_", decimalMark: ".",
+            allowLeadingWhitespace: false, allowLoneDecimal: false, allowLeadingZero: false, allowLeadingPlus: true);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.Parse(new ScanStrings("234e"), null);
+        Assert.That(result.Value, Is.EqualTo("234"));
+    }
+
     [Test]
     public void _VariableWidthFractionalDecimal_without_leading_whitespace()
     {

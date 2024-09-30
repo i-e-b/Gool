@@ -6,12 +6,12 @@ using Gool.Results;
 namespace Gool.Parsers.Composite;
 
 /// <summary>
-/// Create a generalised repetition parser from a single subparser
+/// Create a generalised repetition parser from a single sub-parser
 /// </summary>
 public class Repetition : Unary
 {
 	/// <summary>
-	/// Create a generalised repetition parser from a single subparser
+	/// Create a generalised repetition parser from a single sub-parser
 	/// </summary>
 	public Repetition(IParser parser, uint lowerBound, uint upperBound)
 		: base(parser)
@@ -22,22 +22,22 @@ public class Repetition : Unary
 	/// <summary>
 	/// The lower bound of allowed repeat count
 	/// </summary>
-	public uint LowerBound { get; private set; }
+	private uint _lowerBound;
 
 	/// <summary>
 	/// The upper bound of allowed repeat count
 	/// </summary>
-	public uint UpperBound { get; private set; }
+	private uint _upperBound;
 
 	/// <summary>
 	/// Set allowable range of repeats
 	/// </summary>
-	public void SetBounds(uint lowerBound, uint upperBound)
+	private void SetBounds(uint lowerBound, uint upperBound)
 	{
 		if (upperBound < lowerBound)
 			throw new ArgumentException("Lower bound must be less than upper bound");
-		LowerBound = lowerBound;
-		UpperBound = upperBound;
+		_lowerBound = lowerBound;
+		_upperBound = upperBound;
 	}
 
 	/// <inheritdoc />
@@ -47,7 +47,7 @@ public class Repetition : Unary
 
 		int count = 0;
 
-		while (count < UpperBound && !scan.EndOfInput(result.Right))
+		while (count < _upperBound && !scan.EndOfInput(result.Right))
 		{
 			var after = Parser.Parse(scan, result);
 			if (!after.Success) break; // no more matches
@@ -57,7 +57,7 @@ public class Repetition : Unary
 			result = ParserMatch.Join(new NullParser(nameof(Repetition)), result, after);
 		}
 
-		if (count < LowerBound || count > UpperBound)
+		if (count < _lowerBound || count > _upperBound)
 		{
 			return scan.NoMatch(this, result);
 		}
@@ -69,10 +69,10 @@ public class Repetition : Unary
 	public override string ToString()
 	{
 		string desc;
-		if (LowerBound == 0 && UpperBound > 1) desc = "("+Parser + ")*";
-		else if (LowerBound == 0 && UpperBound == 1) desc = "("+Parser + ")?";
-		else if (LowerBound == 1 && UpperBound > 1) desc = "("+Parser + ")+";
-		else desc = "[" + LowerBound + ".." + UpperBound + ":" + Parser + "]";
+		if (_lowerBound == 0 && _upperBound > 1) desc = "("+Parser + ")*";
+		else if (_lowerBound == 0 && _upperBound == 1) desc = "("+Parser + ")?";
+		else if (_lowerBound == 1 && _upperBound > 1) desc = "("+Parser + ")+";
+		else desc = "[" + _lowerBound + ".." + _upperBound + ":" + Parser + "]";
 
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
@@ -85,9 +85,9 @@ public class Repetition : Unary
 
 		const int large = int.MaxValue >> 1;
 
-		if (LowerBound == 0 && UpperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")*";
-		if (LowerBound == 0 && UpperBound == 1)     return "(" + Parser.ShortDescription(depth - 1) + ")?";
-		if (LowerBound == 1 && UpperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")+";
-		return "[" + LowerBound + ".." + UpperBound + ":" + Parser.ShortDescription(depth - 1) + "]";
+		if (_lowerBound == 0 && _upperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")*";
+		if (_lowerBound == 0 && _upperBound == 1)     return "(" + Parser.ShortDescription(depth - 1) + ")?";
+		if (_lowerBound == 1 && _upperBound >= large) return "(" + Parser.ShortDescription(depth - 1) + ")+";
+		return "[" + _lowerBound + ".." + _upperBound + ":" + Parser.ShortDescription(depth - 1) + "]";
 	}
 }

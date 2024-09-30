@@ -12,7 +12,9 @@ public class Css3Tests
     [Test]
     [TestCase(BasicSample)]
     [TestCase(TestSample)]
-    [TestCase(ComplexSample)]
+    [TestCase(TinySample)]
+    [TestCase(EscapeSample)]
+    [TestCase(MediaSample)]
     public void can_parse_css_files(string sample)
     {
         // IEB: TODO: Use the failures to improve parser failure output
@@ -61,70 +63,44 @@ public class Css3Tests
         """;
 
     private const string TestSample =
+	    """
+	    .blokken {
+	    	position: relative;
+	    	background-color: #fff;
+	    	width: calc(100vw - 10rem);
+	    	min-height: calc(100vh - 10rem);
+	    	box-shadow: -0.5rem 0.5rem 1rem rgba(0,0,0,0.3);
+	    	margin: 5rem;
+	    	font-size: 2rem;
+	    	background-image: linear-gradient(to bottom, #fff calc(1em - 1px), #ccc calc(1em - 1px), #ccc 1em, #fff 1em);
+	    	background-position: 0% 1em;
+	    	background-size: 100% 1em;
+	    	background-repeat: repeat-y;
+	    }
+	    """;
+
+    private const string TinySample =
         """
         test {
-        	size: 1em
+        	width: calc(100vw + 10rem);
         }
         """;
 
-    private const string ComplexSample =
+    private const string EscapeSample =
+	    """
+	    c\0066fde {
+	        \66\o\n\t-si\ze: 1em;
+	        \te\x\t-ali\g\n: left;
+	        \white-\s\pace: \p\re\-\w\ra\p;
+	    }
+	    """;
+
+    private const string MediaSample =
         """
         /* Style for a "Candidate Recommendation Draft" */
     
         @import "base.css";
         
-        .clearfix:after {
-            clear: both;
-            content: " ";
-            display: block;
-            font-size: 0;
-            height: 0;
-            visibility: hidden;
-        }
-        .clearfix { display: inline-block; }
-        /* * html .clearfix { height: 1%; } */
-        .clearfix { display: block; }
-        
-        body {
-            background-image: url(logos/CRD.svg);
-            animation: bounce 300ms linear 2s infinite alternate-reverse forwards normal;
-        }
-        
-        .blokken {
-        	position: relative;
-        	background-color: #fff;
-        	width: calc(100vw - 10rem);
-        	min-height: calc(100vh - 10rem);
-        	box-shadow: -0.5rem 0.5rem 1rem rgba(0,0,0,0.3);
-        	margin: 5rem;
-        	font-size: 2rem;
-        	background-image: linear-gradient(to bottom, #fff calc(1em - 1px), #ccc calc(1em - 1px), #ccc 1em, #fff 1em);
-        	background-position: 0% 1em;
-        	background-size: 100% 1em;
-        	background-repeat: repeat-y;
-        	
-        	&:before,
-        	&:after {
-        		content: "";
-        		position: absolute;
-        		top: 0;
-        		left: 0;
-        		width: 100%;
-        		height: 100%;
-        		background-color: #fff;
-        		box-shadow: -0.5rem 0.5rem 1rem rgba(0,0,0,0.1);
-        	}
-        	
-        	&:before {
-        		transform: rotate(-2deg);
-        		z-index: -1;
-        	}
-        	
-        	&:after {
-        		transform: rotate(2deg);
-        		z-index: -2;
-        	}
-        }
         @media screen and (max-width: 500px) {
             .q-drawer--left,.q-header {
                 top:64px

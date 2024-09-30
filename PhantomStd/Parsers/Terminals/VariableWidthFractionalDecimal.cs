@@ -159,6 +159,9 @@ public class VariableWidthFractionalDecimal : Parser
         if (result.Value == _decimalMark) return scan.NoMatch(this, previousMatch); // don't allow just a decimal point on its own
         if (!needExponent) return lastWasNumber ? result : scan.NoMatch(this, previousMatch);
 
+        // If we didn't return, we saw an 'E' marker.
+        // This *might* be an exponent, or it might be something else (e.g. "1.0em;" in CSS)
+
         // Check for exponent
         // Optional '+' or '-'
         if (scan.Peek(offset) is '+' or '-')
@@ -176,7 +179,7 @@ public class VariableWidthFractionalDecimal : Parser
         }
         else
         {
-            return scan.NoMatch(this, previousMatch);
+            return result; // not an exponent. Return whatever we found before the 'E'.
         }
 
         while (!scan.EndOfInput(offset))
