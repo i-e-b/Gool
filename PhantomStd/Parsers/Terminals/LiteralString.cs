@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -20,6 +21,12 @@ public class LiteralString : Parser
         _test = toMatch;
         _comparisonType = comparisonType;
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false;
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)

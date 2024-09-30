@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Gool.Results;
@@ -42,6 +43,12 @@ public class VariableWidthIntegerRange : Parser
         if (useHex) _style |= NumberStyles.AllowHexSpecifier;
         if (allowLeadingWhitespace) _style |= NumberStyles.AllowLeadingWhite;
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false;
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)

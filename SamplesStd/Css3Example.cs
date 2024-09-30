@@ -171,7 +171,7 @@ public static class Css3Example
             // IEB: Here, calcValue 'ws' eats the required 'Space' in calcSum.
             calcValue        = (number > /*these: */ws) | (dimension > ws) | (unknownDimension > ws) | (percentage > ws) | ('(' > ws > _calcSum > ')' > ws),
             calcProduct      = calcValue > -(('*' > ws > calcValue) | ('/' > ws > number > ws)),
-            calcSum          = calcProduct > -( /*this: */ /*Space >*/ ws > (Plus | Minus) > ct > Space > ws > calcProduct),
+            calcSum          = calcProduct > -( /*this: */ Space > ws > (Plus | Minus) > ct > Space > ws > calcProduct),
             calc             = Calc > ws > calcSum > ')' > ws,
             function_        = Function_ > ws > _expr > ')' > ws,
             dxImageTransform = DxImageTransform > ws > _expr > ')' > ws,
@@ -328,7 +328,9 @@ public static class Css3Example
                          -(charset > -(Comment | Space | Cdo | Cdc)) >
                          -(imports > (Comment | Space | Cdo | Cdc)) >
                          -(namespace_ > -(Comment | Space | Cdo | Cdc)) >
-                         -(nestedStatement > -(Comment | Space | Cdo | Cdc));
+                         -(nestedStatement > -(Comment | Space | Cdo | Cdc))
+                         > EndOfInput
+                         ;
 
         #endregion Parser side
 

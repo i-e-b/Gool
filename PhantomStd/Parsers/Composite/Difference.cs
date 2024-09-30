@@ -39,6 +39,9 @@ public class Difference : Binary
     }
 
     /// <inheritdoc />
+    public override bool IsOptional() => LeftParser.IsOptional();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         if (Tag is null) return LeftParser + " not " + RightParser;

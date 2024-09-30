@@ -78,7 +78,10 @@ public class Repetition : Unary
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
 	}
-	
+
+	/// <inheritdoc />
+	public override bool IsOptional() => _lowerBound == 0 || Parser.IsOptional();
+
 	/// <inheritdoc />
 	public override string ShortDescription(int depth)
 	{

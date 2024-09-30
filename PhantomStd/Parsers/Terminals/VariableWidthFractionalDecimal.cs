@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -30,6 +31,13 @@ public class VariableWidthFractionalDecimal : Parser
         _allowLeadingZero = allowLeadingZero;
         _allowLeadingPlus = allowLeadingPlus;
     }
+
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false;
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)

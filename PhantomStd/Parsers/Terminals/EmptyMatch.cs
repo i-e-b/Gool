@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -14,6 +15,12 @@ public class EmptyMatch : Parser
     {
         return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0);
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false; // because it's always empty
 
     /// <inheritdoc />
     public override string ToString()

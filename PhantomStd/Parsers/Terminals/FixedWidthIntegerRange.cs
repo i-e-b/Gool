@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Gool.Results;
 using Gool.Scanners;
@@ -34,6 +35,7 @@ public class FixedWidthIntegerRange : Parser
     {
         if (lower < 0) throw new ArgumentOutOfRangeException(nameof(lower));
         if (lower >= upper) throw new ArgumentOutOfRangeException(nameof(upper));
+        if (fixedWidth < 1) throw new ArgumentOutOfRangeException(nameof(fixedWidth));
         
         _lower = lower;
         _upper = upper;
@@ -44,6 +46,12 @@ public class FixedWidthIntegerRange : Parser
         if (useHex) _style |= NumberStyles.AllowHexSpecifier;
         if (allowLeadingWhitespace) _style |= NumberStyles.AllowLeadingWhite;
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false;
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)

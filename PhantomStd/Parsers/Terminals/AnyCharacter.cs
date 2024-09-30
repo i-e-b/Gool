@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -18,12 +19,18 @@ public class AnyCharacter : Parser
     }
 
     /// <inheritdoc />
+    public override bool IsOptional() => false;
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
         var desc = ".";
 
         if (Tag is null) return desc;
-        return desc + " Tag='" + Tag + "'";
+        return desc + " Tag=‘" + Tag + "’";
     }
     
     /// <inheritdoc />

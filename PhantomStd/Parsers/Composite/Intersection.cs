@@ -42,6 +42,9 @@ public class Intersection : Binary
 	}
 
 	/// <inheritdoc />
+	public override bool IsOptional() => LeftParser.IsOptional() || RightParser.IsOptional();
+
+	/// <inheritdoc />
 	public override string ToString()
 	{
 		if (Tag is null) return LeftParser + " & " + RightParser;

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Gool.Parsers.Composite.Abstracts;
 
 /// <summary>
@@ -12,6 +14,12 @@ public abstract class Binary : Parser
 	{
 		LeftParser = left;
 		RightParser = right;
+	}
+
+	/// <inheritdoc />
+	public override IEnumerable<IParser> ChildParsers() {
+		yield return LeftParser;
+		yield return RightParser;
 	}
 
 	/// <summary>

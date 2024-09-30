@@ -16,7 +16,7 @@ public class NullScanner : IScanner
     public void AddFailure(IParser failedParser, ParserMatch? previousMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public List<string> ListFailures(bool includePartialMatches = false) => throw new InvalidOperationException(ErrorMsg);
+    public List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void ClearFailures() => throw new InvalidOperationException(ErrorMsg);

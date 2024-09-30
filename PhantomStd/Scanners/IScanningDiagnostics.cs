@@ -18,7 +18,7 @@ public interface IScanningDiagnostics {
 	/// This is intended for lower-level diagnostics.
 	/// For parser output to show users, see <see cref="IScanner.FurthestMatch"/>
 	/// </summary>
-	List<string> ListFailures(bool includePartialMatches = false);
+	List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false);
 
 	/// <summary>
 	/// Clear the stored list of failures. Should be called whenever a parser succeeds

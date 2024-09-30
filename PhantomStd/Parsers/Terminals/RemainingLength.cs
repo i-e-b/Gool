@@ -1,4 +1,5 @@
-﻿using Gool.Results;
+﻿using System.Collections.Generic;
+using Gool.Results;
 using Gool.Scanners;
 
 namespace Gool.Parsers.Terminals;
@@ -19,6 +20,12 @@ public class RemainingLength : Parser
         _min = min;
         _max = max;
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
+    public override bool IsOptional() => _min < 1;
 
     /// <summary>
     /// Test the regular expression.

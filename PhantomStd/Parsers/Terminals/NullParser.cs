@@ -1,4 +1,5 @@
-﻿using Gool.Results;
+﻿using System.Collections.Generic;
+using Gool.Results;
 using Gool.Scanners;
 
 namespace Gool.Parsers.Terminals;
@@ -19,10 +20,16 @@ public class NullParser : IParser
     }
 
     /// <inheritdoc />
+    public bool IsOptional() => false;
+
+    /// <inheritdoc />
     public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
     {
         throw new System.InvalidOperationException();
     }
+
+    /// <inheritdoc />
+    public IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />
     public string? Tag { get; set; }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -14,6 +15,12 @@ public class EndOfInput : Parser
 		var offset = previousMatch?.Right ?? 0;
 		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset) : scan.NoMatch(this, previousMatch);
 	}
+
+	/// <inheritdoc />
+	public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+	/// <inheritdoc />
+	public override bool IsOptional() => false;
 
 	/// <inheritdoc />
 	public override string ToString()

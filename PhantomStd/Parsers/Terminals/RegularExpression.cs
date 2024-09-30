@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Gool.Results;
 using Gool.Scanners;
@@ -23,6 +24,12 @@ public class RegularExpression : Parser
 		_pattern = pattern;
 		_test = new Regex(pattern);
 	}
+
+	/// <inheritdoc />
+	public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+	/// <inheritdoc />
+	public override bool IsOptional() => false;
 
 	/// <summary>
 	/// Create a regular expression parser with customised options

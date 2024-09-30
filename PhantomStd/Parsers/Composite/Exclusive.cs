@@ -43,13 +43,15 @@ public class Exclusive : Binary
 	}
 
 	/// <inheritdoc />
+	public override bool IsOptional() => LeftParser.IsOptional() || RightParser.IsOptional();
+
+	/// <inheritdoc />
 	public override string ToString()
 	{
 		if (Tag is null) return LeftParser + " ^ " + RightParser;
 		return LeftParser + " ^ " + RightParser + " Tag='" + Tag + "'";
 	}
-	
-    
+
 	/// <inheritdoc />
 	public override string ShortDescription(int depth)
 	{

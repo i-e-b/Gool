@@ -35,6 +35,9 @@ public class Sequence : Binary
 	}
 
 	/// <inheritdoc />
+	public override bool IsOptional() => LeftParser.IsOptional() && RightParser.IsOptional();
+
+	/// <inheritdoc />
 	public override string ToString()
 	{
 		var desc = LeftParser + " > " + RightParser;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -35,6 +36,12 @@ public interface IParser
 	public ScopeType Scope { get; set; }
 
 	/// <summary>
+	/// If true, this parser can match an empty result as well as a non-empty one.
+	/// This is used with ambiguous grammars.
+	/// </summary>
+	bool IsOptional();
+
+	/// <summary>
 	/// Returns true if this parser carries tags or scopes. False otherwise
 	/// </summary>
 	bool HasMetaData();
@@ -43,4 +50,10 @@ public interface IParser
 	/// Limited depth description of this parser
 	/// </summary>
 	string ShortDescription(int depth);
+
+	/// <summary>
+	/// Child parser of this parser.
+	/// If this is a terminal parser, empty is returned
+	/// </summary>
+	IEnumerable<IParser> ChildParsers();
 }

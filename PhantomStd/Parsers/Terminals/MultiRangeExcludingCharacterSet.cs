@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -20,6 +21,9 @@ public class MultiRangeExcludingCharacterSet : Parser
     }
 
     /// <inheritdoc />
+    public override bool IsOptional() => false;
+
+    /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
@@ -35,6 +39,9 @@ public class MultiRangeExcludingCharacterSet : Parser
         // None of the ranges matched
         return scan.CreateMatch(this, offset, 1);
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />
     public override string ToString()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -48,6 +49,12 @@ public class ContextParser : Parser
         if (result.Success) return ParserMatch.Join(this, preamble, result);
         return result;
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; } // we treat this as empty
+
+    /// <inheritdoc />
+    public override bool IsOptional() => false; // it could be, but probably not worth calculating
 
     /// <inheritdoc />
     public override string ShortDescription(int depth)

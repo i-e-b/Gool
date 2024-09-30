@@ -32,15 +32,14 @@ public class Css3Tests
 
         Console.WriteLine("\r\n==[ Failures ]===============================================================================");
 
-        Console.WriteLine($"Reached right-offset={result.Scanner.FurthestOffset}: {result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, -50)}▲{result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, 50)}");
+        Console.WriteLine($"Reached right-offset={result.Scanner.FurthestOffset}: {result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, -50)}◢◣{result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, 50)}");
 
         Console.WriteLine(result.Scanner.FurthestMatch?.Description() ?? "<no match>");
 
-        /*
-        foreach (var fail in result.Scanner.ListFailures(true))
+        foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
-        }*/
+        }
 
         Console.WriteLine("\r\n=================================================================================");
 

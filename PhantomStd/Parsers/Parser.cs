@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Parsers.Terminals;
 using Gool.Results;
 using Gool.Scanners;
@@ -16,6 +17,9 @@ public abstract class Parser : IParser
     public ScopeType Scope { get; set; }
 
     /// <inheritdoc />
+    public abstract bool IsOptional();
+
+    /// <inheritdoc />
     public bool HasMetaData()
     {
         return !(Tag is null && Scope == ScopeType.None);
@@ -24,6 +28,9 @@ public abstract class Parser : IParser
     /// <inheritdoc />
     public abstract string ShortDescription(int depth);
 
+    /// <inheritdoc />
+    public abstract IEnumerable<IParser> ChildParsers();
+
     /// <summary>
     /// Public scanner method. Test scanner input for this parser's patterns.
     /// </summary>
@@ -31,7 +38,7 @@ public abstract class Parser : IParser
     /// <param name="scan">Scanner to parse from</param>
     /// <param name="previousMatch">Match to continue from. <c>null</c> if starting</param>
     /// <returns>Match (success of failure) of the parser against the scanner</returns>
-    public virtual ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
+    public /*virtual*/ ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
     {
         var start = scan.AutoAdvance(previousMatch);
 
@@ -43,6 +50,11 @@ public abstract class Parser : IParser
 
             if (scan.IncludeSkippedElements) return ParserMatch.Join(new NullParser("Skipped elements"), start, newMatch);
             return newMatch;
+        }
+
+        if (IsOptional() && previousMatch?.Length != 0)
+        {
+            return start ?? scan.EmptyMatch(this, 0);
         }
 
         scan.AddFailure(this, previousMatch);

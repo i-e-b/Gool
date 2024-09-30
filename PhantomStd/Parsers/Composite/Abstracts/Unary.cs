@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Gool.Parsers.Composite.Abstracts;
 
 /// <summary>
@@ -12,6 +14,11 @@ public abstract class Unary : Parser
 	protected Unary(IParser parser)
 	{
 		Parser = parser;
+	}
+
+	/// <inheritdoc />
+	public override IEnumerable<IParser> ChildParsers() {
+		yield return Parser;
 	}
 
 	/// <summary>

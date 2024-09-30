@@ -39,6 +39,9 @@ public class NonConsumingMatch : Unary
     }
 
     /// <inheritdoc />
+    public override bool IsOptional() => false; // always zero-length
+
+    /// <inheritdoc />
     public override string ToString()
     {
         var desc = "~" + Parser;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -31,6 +32,12 @@ public class EndOfLine : Parser
 
 		return scan.NoMatch(this, previousMatch);
 	}
+
+	/// <inheritdoc />
+	public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+	/// <inheritdoc />
+	public override bool IsOptional() => false;
 
 	/// <inheritdoc />
 	public override string ToString()

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -25,6 +26,9 @@ public class RangeExcludingCharacterSet : Parser
     }
 
     /// <inheritdoc />
+    public override bool IsOptional() => false;
+
+    /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
@@ -40,13 +44,16 @@ public class RangeExcludingCharacterSet : Parser
     }
 
     /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() { yield break; }
+
+    /// <inheritdoc />
     public override string ToString()
     {
-        var desc = "{'"+_lower+"'..'"+_upper+"'; NOT '"
-                   + string.Join("','",_exclusions.Select(c=>c.ToString())) + "'}";
+        var desc = "["+_lower+"-"+_upper+"'; NOT "
+                   + string.Join("",_exclusions.Select(c=>c.ToString())) + "']";
 
         if (Tag is null) return desc;
-        return desc + " Tag='" + Tag + "'";
+        return desc + " Tag=‘" + Tag + "’";
     }
     
     /// <inheritdoc />

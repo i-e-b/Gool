@@ -739,6 +739,24 @@ public class BNF : IParser
 		return new BnfForward(new Recursion());
 	}
 
+	/// <summary>
+	/// Left single quote <c>‘</c> ("smart quotes")
+	/// </summary>
+	public BNF LeftSingleQuote => new LiteralCharacterSet('‘');
+	/// <summary>
+	/// Right single quote <c>’</c> ("smart quotes")
+	/// </summary>
+	public BNF RightSingleQuote => new LiteralCharacterSet('’');
+
+	/// <summary>
+	/// Left single quote <c>“</c> ("smart quotes")
+	/// </summary>
+	public BNF LeftDoubleQuote => new LiteralCharacterSet('“');
+	/// <summary>
+	/// Right single quote <c>”</c> ("smart quotes")
+	/// </summary>
+	public BNF RightDoubleQuote => new LiteralCharacterSet('”');
+
 	#region Internal sub-types
 
 	/// <summary>
@@ -928,6 +946,12 @@ public class BNF : IParser
 	{
 		return _parserTree.Parse(scan, previousMatch);
 	}
+
+	/// <inheritdoc />
+	public IEnumerable<IParser> ChildParsers() => _parserTree.ChildParsers();
+
+	/// <inheritdoc />
+	public bool IsOptional() => _parserTree.IsOptional();
 
 	/// <inheritdoc />
 	public string? Tag

@@ -106,12 +106,14 @@ public class ScanStrings : IScanner
     }
 
     /// <inheritdoc />
-    public List<string> ListFailures(bool includePartialMatches = false)
+    public List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false)
     {
         var lst = new List<string>();
 
         foreach (var p in _failurePoints)
         {
+            if (p.Position < minimumOffset) continue;
+
             var prev  = _input[..p.Position];
             var left  = p.Length >= 0 ? _input.Substring(p.Position, p.Length) : "";
             var right = _input[(p.Position + p.Length)..];
