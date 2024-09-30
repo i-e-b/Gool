@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Gool.Scanners;
 using NUnit.Framework;
 using Samples;
 using TestsStd.Helpers;
@@ -31,10 +32,15 @@ public class Css3Tests
 
         Console.WriteLine("\r\n==[ Failures ]===============================================================================");
 
+        Console.WriteLine($"Reached right-offset={result.Scanner.FurthestOffset}: {result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, -50)}▲{result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, 50)}");
+
+        Console.WriteLine(result.Scanner.FurthestMatch?.Description() ?? "<no match>");
+
+        /*
         foreach (var fail in result.Scanner.ListFailures(true))
         {
             Console.WriteLine(fail);
-        }
+        }*/
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -163,7 +169,7 @@ public class Css3Tests
                 width: auto
             }
         
-            .table-responsive table {
+            .table-responsive table { /* <-- this is failing */
                 border: 0
             }
         

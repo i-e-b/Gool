@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers.Terminals;
 

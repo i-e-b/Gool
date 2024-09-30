@@ -1,7 +1,8 @@
 ﻿using System;
 using Gool.Results;
+using Gool.Scanners;
 
-namespace Gool.Parsers;
+namespace Gool.Parsers.Transforms;
 
 /// <summary>
 /// Generate a contextualised parser from a previous result.

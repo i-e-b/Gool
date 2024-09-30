@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Gool.Parsers;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -14,6 +15,8 @@ public interface IScanningDiagnostics {
 
 	/// <summary>
 	/// Output a list of all fail points since the last success.
+	/// This is intended for lower-level diagnostics.
+	/// For parser output to show users, see <see cref="IScanner.FurthestMatch"/>
 	/// </summary>
 	List<string> ListFailures(bool includePartialMatches = false);
 

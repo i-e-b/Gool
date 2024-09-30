@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using Gool;
 using Gool.Results;
+using Gool.Scanners;
 using NUnit.Framework;
 using Samples;
 

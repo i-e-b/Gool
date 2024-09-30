@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gool.Parsers;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -44,6 +45,12 @@ public class NullScanner : IScanner
         get => throw new InvalidOperationException(ErrorMsg);
         set => throw new InvalidOperationException(ErrorMsg);
     }
+
+    /// <inheritdoc />
+    public int FurthestOffset => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public ParserMatch? FurthestMatch => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);

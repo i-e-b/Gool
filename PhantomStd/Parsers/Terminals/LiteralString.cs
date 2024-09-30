@@ -1,5 +1,6 @@
 using System;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers.Terminals;
 

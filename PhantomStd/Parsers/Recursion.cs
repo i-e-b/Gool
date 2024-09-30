@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Gool.Parsers.Terminals;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers;
 

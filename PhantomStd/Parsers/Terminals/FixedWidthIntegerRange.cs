@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers.Terminals;
 

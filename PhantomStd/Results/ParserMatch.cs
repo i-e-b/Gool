@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Gool.Parsers;
 using Gool.Parsers.Terminals;
 using Gool.Scanners;
 

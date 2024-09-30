@@ -9,6 +9,7 @@
 - [x] "Context" parser? Function that takes parser match tree so far, gives a new BNF. This continues as parser match, then continues to next result after the context parser.
 - [ ] More extensive read-me that covers all of BNF with examples
 - [ ] Query for point in text. Given a location, list all parsers that examined it, and what the result was.
+- [ ] Parent parser tree? (so we can query in parse results, and failures. Needs to handle context)
 
 ## Examples
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers.Composite;
 

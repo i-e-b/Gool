@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Gool.Results;
+using Gool.Scanners;
 using JetBrains.Annotations;
 
 namespace Gool.Parsers.Terminals;

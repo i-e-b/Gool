@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Gool.Parsers;
 using Gool.Parsers.Composite;
 using Gool.Parsers.Terminals;
+using Gool.Parsers.Transforms;
 using Gool.Results;
 using Gool.Scanners;
 using JetBrains.Annotations;

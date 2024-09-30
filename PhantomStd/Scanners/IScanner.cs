@@ -1,9 +1,9 @@
 using System;
+using Gool.Parsers;
 using Gool.Results;
-using Gool.Scanners;
 using JetBrains.Annotations;
 
-namespace Gool;
+namespace Gool.Scanners;
 
 /// <summary>
 /// Scanners provide an interface to the input stream to be parsed,
@@ -35,6 +35,16 @@ public interface IScanner: IScanningDiagnostics
 	/// If <c>true</c>, auto-advanced elements (like white-space skips) will be added to the result tree.
 	/// </summary>
 	public bool IncludeSkippedElements { get; set; }
+
+	/// <summary>
+	/// Greatest right position (offset + length) that recorded a successful match.
+	/// </summary>
+	int FurthestOffset { get; }
+
+	/// <summary>
+	/// Rightmost successful match, if any
+	/// </summary>
+	ParserMatch? FurthestMatch { get; }
 
 	/// <summary>Return a failure match.</summary>
 	[MustUseReturnValue]ParserMatch NoMatch(IParser? source, ParserMatch? previous);

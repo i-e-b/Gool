@@ -1,6 +1,7 @@
 using Gool.Parsers.Composite.Abstracts;
 using Gool.Parsers.Terminals;
 using Gool.Results;
+using Gool.Scanners;
 
 namespace Gool.Parsers.Composite;
 

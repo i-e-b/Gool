@@ -1,7 +1,8 @@
 using Gool.Parsers.Composite.Abstracts;
 using Gool.Results;
+using Gool.Scanners;
 
-namespace Gool.Parsers.Composite;
+namespace Gool.Parsers.Transforms;
 
 /// <summary>
 /// Non-consuming match.

@@ -1,6 +1,7 @@
 using Gool.Results;
+using Gool.Scanners;
 
-namespace Gool;
+namespace Gool.Parsers;
 
 /// <summary>
 /// Interface for a parser that can interpret the content of an <see cref="IScanner"/>,
