@@ -37,7 +37,7 @@ public class MultiRangeExcludingCharacterSet : Parser
         }
 
         // None of the ranges matched
-        return scan.CreateMatch(this, offset, 1);
+        return scan.CreateMatch(this, offset, 1, previousMatch);
     }
 
     /// <inheritdoc />

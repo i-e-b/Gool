@@ -23,7 +23,7 @@ public class DelimitedList : Binary
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var result = scan.NullMatch(this, previousMatch?.Right ?? 0); // failure until first match
+        var result   = scan.NullMatch(this, previousMatch?.Right ?? 0, previousMatch); // failure until first match
         var trailing = result;
         
         while (!scan.EndOfInput(result.Right))
@@ -32,23 +32,23 @@ public class DelimitedList : Binary
 
             if (!item.Success)
             {
-                return trailing.Through(this);
+                return trailing.Through(this, previousMatch);
             }
 
-            result = ParserMatch.Join(new NullParser(nameof(DelimitedList)), result, item);
+            result = ParserMatch.Join(previousMatch, new NullParser(nameof(DelimitedList)), result, item);
             trailing = result; // last non-separator match
             
             var separator = RightParser.Parse(scan, item);
 
             if (!separator.Success)
             {
-                return result.Through(this);
+                return result.Through(this, previousMatch);
             }
 
-            result = ParserMatch.Join(new NullParser(nameof(DelimitedList)), result, separator);
+            result = ParserMatch.Join(previousMatch, new NullParser(nameof(DelimitedList)), result, separator);
         }
 
-        return trailing.Through(this);
+        return trailing.Through(this, previousMatch);
     }
 
     /// <inheritdoc />

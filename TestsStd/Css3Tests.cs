@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Gool.Scanners;
 using NUnit.Framework;
 using Samples;
 using TestsStd.Helpers;
@@ -9,7 +8,6 @@ namespace TestsStd;
 [TestFixture]
 public class Css3Tests
 {
-
     [Test]
     [TestCase(BasicSample)]
     [TestCase(TestSample)]
@@ -18,8 +16,6 @@ public class Css3Tests
     [TestCase(MediaSample)]
     public void can_parse_css_files(string sample)
     {
-        // IEB: TODO: Use the failures to improve parser failure output
-
         var sw     = Stopwatch.StartNew();
         var parser = Css3Example.Css3_Antlr();
         sw.Stop();
@@ -168,7 +164,7 @@ public class Css3Tests
                 width: auto
             }
         
-            .table-responsive table { /* <-- this is failing */
+            .table-responsive table {
                 border: 0
             }
         

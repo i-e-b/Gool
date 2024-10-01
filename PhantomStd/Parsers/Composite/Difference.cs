@@ -35,7 +35,7 @@ public class Difference : Binary
         }
 
         // Good match
-        return targetMatch.Through(this);
+        return targetMatch.Through(this, previousMatch);
     }
 
     /// <inheritdoc />

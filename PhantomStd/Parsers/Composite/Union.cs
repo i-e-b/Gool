@@ -48,7 +48,7 @@ public class Union : Parser
 			if (result.Success && (result.Length > (longestMatch?.Length ?? -1))) longestMatch = result;
 		}
 
-		if (longestMatch is not null) return longestMatch.Through(this);
+		if (longestMatch is not null) return longestMatch.Through(this, previousMatch);
 		return scan.NoMatch(this, previousMatch);
 	}
 

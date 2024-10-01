@@ -50,10 +50,10 @@ public interface IScanner: IScanningDiagnostics
 	[MustUseReturnValue]ParserMatch NoMatch(IParser? source, ParserMatch? previous);
 
 	/// <summary>Return an empty success match</summary>
-	[MustUseReturnValue]ParserMatch EmptyMatch(IParser source, int offset);
+	[MustUseReturnValue]ParserMatch EmptyMatch(IParser source, int offset, ParserMatch? previous);
 
 	/// <summary> Return an empty failure match </summary>
-	[MustUseReturnValue]ParserMatch NullMatch(IParser? source, int offset);
+	[MustUseReturnValue]ParserMatch NullMatch(IParser? source, int offset, ParserMatch? previous);
 
 	/// <summary>Advance one position through the input</summary>
 	/// <returns>Returns true while there is unconsumed input remaining</returns>
@@ -85,7 +85,7 @@ public interface IScanner: IScanningDiagnostics
 	[MustUseReturnValue]string UntransformedSubstring(int offset, int length);
 
 	/// <summary>Return a match from a substring of the input</summary>
-	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length);
+	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous);
 
 	/// <summary>
 	/// Add a success path, for diagnostic use

@@ -33,7 +33,7 @@ public class MultiRangeCharacterSet : Parser
 
         foreach (var range in _ranges)
         {
-            if (c >= range.Lower && c <= range.Upper) return scan.CreateMatch(this, offset, 1);
+            if (c >= range.Lower && c <= range.Upper) return scan.CreateMatch(this, offset, 1, previousMatch);
         }
 
         // None of the ranges matched

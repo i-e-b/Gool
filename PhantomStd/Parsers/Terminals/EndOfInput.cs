@@ -13,7 +13,7 @@ public class EndOfInput : Parser
 	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
 		var offset = previousMatch?.Right ?? 0;
-		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset) : scan.NoMatch(this, previousMatch);
+		return scan.EndOfInput(offset) ? scan.EmptyMatch(this, offset, previousMatch) : scan.NoMatch(this, previousMatch);
 	}
 
 	/// <inheritdoc />

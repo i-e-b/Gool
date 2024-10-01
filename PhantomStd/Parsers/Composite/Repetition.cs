@@ -44,7 +44,7 @@ public class Repetition : Unary
 	/// <inheritdoc />
 	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
 	{
-		var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0); // empty match with this parser
+		var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0, previousMatch); // empty match with this parser
 
 		int count = 0;
 
@@ -55,7 +55,7 @@ public class Repetition : Unary
 			if (after.Right <= result.Right) break; // repetition must progress
 
 			count++;
-			result = ParserMatch.Join(new NullParser(nameof(Repetition)), result, after);
+			result = ParserMatch.Join(previousMatch, new NullParser(nameof(Repetition)), result, after);
 		}
 
 		if (count < _lowerBound || count > _upperBound)
@@ -63,7 +63,7 @@ public class Repetition : Unary
 			return scan.NoMatch(this, result);
 		}
 		
-		return result.Through(this);
+		return result.Through(this, previousMatch);
 	}
 
 	/// <inheritdoc />

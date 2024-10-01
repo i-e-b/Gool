@@ -36,7 +36,7 @@ public class LiteralString : Parser
         var compare = scan.Substring(offset, _test.Length);
 
         return compare.Equals(_test, _comparisonType)
-            ? scan.CreateMatch(this, offset, _test.Length)
+            ? scan.CreateMatch(this, offset, _test.Length, previousMatch)
             : scan.NoMatch(this, previousMatch);
     }
 

@@ -118,7 +118,12 @@ public class JsonTests
         phantomTime.Start();
         FillObject(scopes, dict);
         phantomTime.Stop();
-        Console.WriteLine(Json.Beautify(Json.Freeze(dict)));
+
+        var expected = "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]},\"meta\":{\"index\":[1,2.5,3.14E-10],\"affirmative\":true,\"declined\":false,\"tricky-string\":\"Hello \\\\\\\\\\\\\\\"World\\\\\\\"\\\\r\\\\n\"}}}";
+        var output = Json.Freeze(dict);
+
+        Console.WriteLine(Json.Beautify(output));
+        Assert.That(output, Is.EqualTo(expected));
 
         Console.WriteLine("\r\n=================================================================================");
 

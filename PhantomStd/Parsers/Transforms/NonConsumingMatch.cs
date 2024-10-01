@@ -28,13 +28,13 @@ public class NonConsumingMatch : Unary
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var left = previousMatch ?? scan.EmptyMatch(this, 0);
+        var left = previousMatch ?? scan.EmptyMatch(this, 0, previousMatch);
 
         // test the first parser
         var check = Parser.Parse(scan, previousMatch);
 
         return check.Success
-            ? scan.CreateMatch(this, left.Offset, 0)
+            ? scan.CreateMatch(this, left.Offset, 0, previousMatch)
             : scan.NoMatch(this, previousMatch);
     }
 

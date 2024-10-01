@@ -44,7 +44,7 @@ public class VariableWidthFractionalDecimal : Parser
     {
         var start  = previousMatch?.Right ?? 0;
         var offset = previousMatch?.Right ?? 0;
-        var result = scan.EmptyMatch(this, start);
+        var result = scan.EmptyMatch(this, start, previousMatch);
 
         var nextMustBePoint = false;
 

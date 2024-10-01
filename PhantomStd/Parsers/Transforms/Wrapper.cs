@@ -16,7 +16,9 @@ public class Wrapper : Unary
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
-    public Wrapper(IParser parser) : base(parser) { }
+    public Wrapper(IParser parser) : base(parser)
+    {
+    }
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
@@ -25,7 +27,7 @@ public class Wrapper : Unary
         var innerMatch = Parser.Parse(scan, previousMatch);
 
         return innerMatch.Success
-            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length)
+            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, previousMatch)
             : scan.NoMatch(this, innerMatch);
     }
 

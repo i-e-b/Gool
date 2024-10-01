@@ -40,7 +40,7 @@ public class RemainingLength : Parser
 
         if (remainingLength < _min || remainingLength > _max) return scan.NoMatch(this, previousMatch);
 
-        return scan.CreateMatch(this, offset, remainingLength);
+        return scan.CreateMatch(this, offset, remainingLength, previousMatch);
     }
 
     /// <inheritdoc />

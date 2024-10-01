@@ -182,7 +182,7 @@ public class ScanStrings : IScanner
         var left = previous?.Right ?? 0;
         if (EndOfInput(left)) return previous;
 
-        var ws     = NullMatch(null, left);
+        var ws     = NullMatch(null, left, previous);
         var offset = ws.Right;
         var c      = Peek(offset);
 
@@ -226,30 +226,30 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous)
     {
-        return new ParserMatch(source, this, previous?.Offset ?? 0, -1);
+        return new ParserMatch(source, this, previous?.Offset ?? 0, -1, previous);
     }
 
     /// <inheritdoc />
-    public ParserMatch EmptyMatch(IParser source, int offset)
+    public ParserMatch EmptyMatch(IParser source, int offset,ParserMatch? previous)
     {
-        return new ParserMatch(source, this, offset, 0);
+        return new ParserMatch(source, this, offset, 0, previous);
     }
 
     /// <inheritdoc />
-    public ParserMatch NullMatch(IParser? source, int offset)
+    public ParserMatch NullMatch(IParser? source, int offset,ParserMatch? previous)
     {
-        return new ParserMatch(source, this, offset, -1);
+        return new ParserMatch(source, this, offset, -1, previous);
     }
 
     /// <inheritdoc />
-    public ParserMatch CreateMatch(IParser source, int offset, int length)
+    public ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous)
     {
         if ((offset + length) > FurthestOffset)
         {
             FurthestOffset = offset + length;
         }
 
-        return new ParserMatch(source, this, offset, length);
+        return new ParserMatch(source, this, offset, length, previous);
     }
 
     #endregion

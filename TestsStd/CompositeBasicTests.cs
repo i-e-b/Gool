@@ -804,4 +804,47 @@ public class CompositeBasicTests
 
         Assert.That(result.Success, Is.False);
     }
+
+
+
+    private static IParser PreviousCharCheckSample()
+    {
+        // deliberately ambiguous grammar
+        BNF
+            a_space = 'a' > -BNF.WhiteSpace,
+            b_no_sp = 'b',
+            space_c = BNF.RequiredWhiteSpace > 'c'; // 'RequiredWhiteSpace' allows us to resolve the ambiguity.
+
+        return -( (a_space | b_no_sp) > space_c > ',' > !BNF.WhiteSpace);
+    }
+
+    [Test]
+    public void previous_match_tests()
+    {
+        const string sample  = "a c, b c,";
+        var          parser  = PreviousCharCheckSample();
+        var          scanner = new ScanStrings(sample);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        foreach (var match in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(match.Value);
+            Console.Write(" ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.ToString(), Is.EqualTo(sample));
+    }
 }

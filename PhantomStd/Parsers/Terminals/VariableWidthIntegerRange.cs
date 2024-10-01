@@ -68,7 +68,7 @@ public class VariableWidthIntegerRange : Parser
         var compare = src.ToString();
         if (long.TryParse(compare, _style, null, out var result))
         {
-            if (result <= _upper && result >= _lower) return scan.CreateMatch(this, start, compare.Length);
+            if (result <= _upper && result >= _lower) return scan.CreateMatch(this, start, compare.Length, previousMatch);
         }
 
         return scan.NoMatch(this, previousMatch);

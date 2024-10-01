@@ -35,8 +35,8 @@ public class Exclusive : Binary
 		}
 
 		// now return whichever one succeeded
-		if (leftMatch.Success) return leftMatch.Through(this);
-		if (rightMatch.Success) return rightMatch.Through(this);
+		if (leftMatch.Success) return leftMatch.Through(this, previousMatch);
+		if (rightMatch.Success) return rightMatch.Through(this, previousMatch);
 
 		// neither were matched!
 		return scan.NoMatch(this, previousMatch);

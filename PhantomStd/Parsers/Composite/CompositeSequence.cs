@@ -30,7 +30,7 @@ public class CompositeSequence : Parser
             var next = parser.Parse(scan, cursor);
             if (!next.Success) return next;
 
-            cursor = cursor.Join(parser, next);
+            cursor = cursor.Join(previousMatch, parser, next);
         }
 
         return cursor;

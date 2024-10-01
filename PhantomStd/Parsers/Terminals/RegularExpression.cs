@@ -55,7 +55,7 @@ public class RegularExpression : Parser
 		if (result.Success != true) return scan.NoMatch(this, previousMatch);
 		if (result.Index != offset) return scan.NoMatch(this, previousMatch); // so we don't jump far into the input
 
-		return scan.CreateMatch(this, offset, result.Length);
+		return scan.CreateMatch(this, offset, result.Length, previousMatch);
 	}
 
 	/// <inheritdoc />

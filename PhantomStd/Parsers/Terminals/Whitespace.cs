@@ -41,7 +41,7 @@ public class Whitespace : Parser
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0); // empty match with this parser
+        var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0, previousMatch); // empty match with this parser
 
         int count = 0;
 
@@ -60,7 +60,7 @@ public class Whitespace : Parser
             return scan.NoMatch(this, result);
         }
 
-        return result.Through(this);
+        return result.Through(this, previousMatch);
     }
 
     /// <inheritdoc />

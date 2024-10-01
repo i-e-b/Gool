@@ -56,10 +56,13 @@ public class NullScanner : IScanner
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch EmptyMatch(IParser source, int offset) => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch EmptyMatch(IParser source, int offset, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch NullMatch(IParser? source, int offset) => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch NullMatch(IParser? source, int offset, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public bool Read(ref int offset) => throw new InvalidOperationException(ErrorMsg);
@@ -75,9 +78,6 @@ public class NullScanner : IScanner
 
     /// <inheritdoc />
     public string UntransformedSubstring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
-
-    /// <inheritdoc />
-    public ParserMatch CreateMatch(IParser source, int offset, int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void AddPath(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);

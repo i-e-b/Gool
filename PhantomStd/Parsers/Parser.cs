@@ -48,18 +48,10 @@ public abstract class Parser : IParser
             scan.AddPath(newMatch);
             scan.ClearFailures();
 
-            if (scan.IncludeSkippedElements) return ParserMatch.Join(new NullParser("Skipped elements"), start, newMatch);
+            if (scan.IncludeSkippedElements) return ParserMatch.Join(start, new NullParser("Skipped elements"), start, newMatch);
             return newMatch;
         }
 
-        // IEB: Maybe having parser match include parent, and an 'optional' flag, we can back out of them on failure?
-        // IEB: Or try running the next element after an optional parser, and only run the optional parser if it fails?
-/*
-        if (AnyOptionalChildren(this) && previousMatch?.Length != 0)
-        {
-            //return start ?? scan.EmptyMatch(this, 0);
-        }
-*/
         scan.AddFailure(this, previousMatch);
         return scan.NoMatch(this, previousMatch);
     }

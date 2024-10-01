@@ -42,13 +42,19 @@ public class ParserMatch
     /// <param name="scanner">Scanner for this match. This is used for the final output</param>
     /// <param name="offset">Start of the match</param>
     /// <param name="length">Number of characters in the match</param>
-    public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
+    /// <param name="previous">Parser match before this one, to be part of prev/next chain</param>
+    public ParserMatch(IParser? source, IScanner scanner, int offset, int length, ParserMatch? previous)
     {
         SourceParser = source;
 
         Scanner = scanner;
         Offset = offset;
         Length = length;
+        Previous = previous;
+        if (length >= 0 && previous is not null)
+        {
+            previous.Next = this;
+        }
     }
 
     /// <summary>
@@ -170,9 +176,9 @@ public class ParserMatch
     /// flags can change this (see <see cref="ScopeType"/>)
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
-    public ParserMatch Join(IParser source, ParserMatch right)
+    public ParserMatch Join(ParserMatch? previous, IParser source, ParserMatch right)
     {
-        return Join(source, this, right);
+        return Join(previous, source, this, right);
     }
 
     /// <summary>
@@ -181,7 +187,7 @@ public class ParserMatch
     /// flags can change this (see <see cref="ScopeType"/>)
     /// </summary>
     /// <returns>Match covering and containing both left and right</returns>
-    public static ParserMatch Join(IParser source, ParserMatch? left, ParserMatch right)
+    public static ParserMatch Join(ParserMatch? previous, IParser source, ParserMatch? left, ParserMatch right)
     {
         if (right == null) throw new NullReferenceException("Can't Join null match");
         if (!right.Success) throw new ArgumentException("Can't Join failure match");
@@ -190,7 +196,7 @@ public class ParserMatch
         if (left?.Success != true)
         {
             if (string.IsNullOrEmpty(source.Tag)) return right;
-            var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
+            var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length, previous);
             if (!right.Empty) chainResult.AddChild(right);
             return chainResult;
         }
@@ -200,20 +206,20 @@ public class ParserMatch
         // Reduce overlapping matches, if it doesn't loose information
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
         {
-            var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length);
+            var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length, previous);
             if (!left.Empty) leftOnlyResult.AddChild(left);
             return leftOnlyResult;
         }
         if ((right.Contains(left) && NoMeta(left, right)) || left.Empty)
         {
-            var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length);
+            var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length, previous);
             if (!right.Empty) rightOnlyResult.AddChild(right);
             return rightOnlyResult;
         }
         
         
         var length = right.Right - left.Offset;
-        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length);
+        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length, previous);
         
         
         // If one of the parsers is a 'pivot' scope, and the other isn't
@@ -383,13 +389,13 @@ public class ParserMatch
     /// This match is being passed through a composite,
     /// and may need to collect a tag.
     /// </summary>
-    public ParserMatch Through(IParser source)
+    public ParserMatch Through(IParser source, ParserMatch? previous)
     {
         // If the parser doesn't add any meta-data, skip joining
         if (!source.HasMetaData()) return this;
         
         // Make a match covering this one, with the new source
-        var joinMatch = new ParserMatch(source, Scanner, Offset, Length);
+        var joinMatch = new ParserMatch(source, Scanner, Offset, Length, previous);
         
         // Join this match to the result if we have any metadata to carry
         if (AnyMetaInTree()) joinMatch.AddChild(this);
@@ -418,7 +424,7 @@ public class ParserMatch
     /// </summary>
     public static ParserMatch NullMatch()
     {
-        return new ParserMatch(null, new NullScanner(), 0, -1);
+        return new ParserMatch(null, new NullScanner(), 0, -1, null);
     }
 
     /// <summary>

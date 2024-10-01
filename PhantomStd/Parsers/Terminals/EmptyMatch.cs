@@ -13,7 +13,7 @@ public class EmptyMatch : Parser
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0);
+        return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0, previousMatch);
     }
 
     /// <inheritdoc />

@@ -28,7 +28,7 @@ public class Sequence : Binary
 		{
 			var right = RightParser.Parse(scan, left);
 
-			return right.Success ? ParserMatch.Join(this, left, right) : scan.NoMatch(this, previousMatch);
+			return right.Success ? ParserMatch.Join(previousMatch, this, left, right) : scan.NoMatch(this, previousMatch);
 		}
 
 		return scan.NoMatch(this, previousMatch);

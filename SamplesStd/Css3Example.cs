@@ -282,7 +282,7 @@ public static class Css3Example
                                    | +(Hash | className | attrib | pseudo | negation),
             selector      = simpleSelectorSequence > ws > -(combinator > simpleSelectorSequence > ws),
             selectorGroup = selector > -((Comma|ReqSpace) > ws > selector),
-            ruleset = (selectorGroup  > '{' > ws > !declarationList > '}' > ws) // knownRuleset // IEB: <-- these trailing 'ws' are causing more issues
+            ruleset = (selectorGroup  > '{' > ws > !declarationList > '}' > ws) // knownRuleset
                     | (-any_ > ws > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
 
         BNF

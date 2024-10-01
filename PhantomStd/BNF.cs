@@ -112,7 +112,7 @@ public class BNF : IParser
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
 		if (options.HasFlag(Options.IncludeSkippedElements)) scanner.IncludeSkippedElements = true;
 
-		var result = _parserTree.Parse(scanner, new ParserMatch(null, scanner, offset, -1));
+		var result = _parserTree.Parse(scanner, scanner.CreateMatch(this, offset, -1, null));
 		(scanner as IScanningDiagnostics).Complete();
 
 		if (mustConsumeAll && result.Length < input.Length) return scanner.NoMatch(_parserTree, null);
@@ -263,17 +263,37 @@ public class BNF : IParser
 	/// </summary>
 	public static BNF PreviousEndsWith(IParser pattern)
 	{
-		throw new NotImplementedException();
+		return new PreviousCharacterCheck(pattern);
 	}
 
 	/// <summary>
-	/// Test if the previous match matches the given pattern.
+	/// Test if the previous match's last character matches the given pattern.
 	/// Non-capturing: this returns an empty result if the pattern matches,
 	/// and a failure if not.
 	/// </summary>
-	public static BNF PreviousMatches(IParser pattern)
+	public static BNF PreviousEndsWith(BNF pattern)
 	{
-		throw new NotImplementedException();
+		return new PreviousCharacterCheck(pattern);
+	}
+
+	/// <summary>
+	/// Test if the previous non-empty match matches the given pattern.
+	/// Non-capturing: this returns an empty result if the pattern matches,
+	/// and a failure if not.
+	/// </summary>
+	public static BNF PreviousMatches(BNF pattern)
+	{
+		return new PreviousMatchCheck(pattern);
+	}
+
+	/// <summary>
+	/// If this parser matches, test the <b>match text</b> against a further
+	/// set of patterns. The final result is only successful if <b>all</b> the given
+	/// patterns match the original result.
+	/// </summary>
+	public BNF WithValidators(params BNF[] validators)
+	{
+		return new BNF(new ParallelSet(this, validators));
 	}
 
 	/// <summary>
@@ -723,6 +743,11 @@ public class BNF : IParser
 	public static BNF WhiteSpace => new(new Whitespace());
 
 	/// <summary>
+	/// Either the previous match ends in whitespace, or match a single character of white-space.
+	/// </summary>
+	public static BNF RequiredWhiteSpace => (PreviousEndsWith(WhiteSpace) | WhiteSpace);
+
+	/// <summary>
 	/// Match a range of white-space characters
 	/// </summary>
 	public static BNF WhiteSpaceCount(int min, int max) => new(new Whitespace(min, max));
@@ -731,16 +756,6 @@ public class BNF : IParser
 	/// Match any number of white-space characters, or none
 	/// </summary>
 	public static BNF AnyWhiteSpace => new(new Whitespace(0, int.MaxValue));
-	
-	/// <summary>
-	/// If this parser matches, test the <b>match text</b> against a further
-	/// set of patterns. The final result is only successful if <b>all</b> the given
-	/// patterns match the original result.
-	/// </summary>
-	public BNF WithValidators(params BNF[] validators)
-	{
-		return new BNF(new ParallelSet(this, validators));
-	}
 
 	#region Static values
 	private static readonly char[] NumberCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };

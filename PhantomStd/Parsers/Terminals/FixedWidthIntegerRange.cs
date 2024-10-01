@@ -63,7 +63,7 @@ public class FixedWidthIntegerRange : Parser
 
         if (long.TryParse(compare, _style, null, out var result))
         {
-            if (result <= _upper && result >= _lower) return scan.CreateMatch(this, offset, compare.Length);
+            if (result <= _upper && result >= _lower) return scan.CreateMatch(this, offset, compare.Length, previousMatch);
         }
 
         return scan.NoMatch(this, previousMatch);

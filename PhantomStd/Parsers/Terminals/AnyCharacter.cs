@@ -15,7 +15,7 @@ public class AnyCharacter : Parser
         var left = previousMatch?.Right ?? 0;
         return scan.EndOfInput(left)
             ? scan.NoMatch(this, previousMatch)
-            : scan.CreateMatch(this, left, 1);
+            : scan.CreateMatch(this, left, 1, previousMatch);
     }
 
     /// <inheritdoc />

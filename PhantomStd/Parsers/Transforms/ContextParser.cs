@@ -46,7 +46,7 @@ public class ContextParser : Parser
         var appendix = _next(fragment);
         var result = appendix.Parse(scan, preamble);
 
-        if (result.Success) return ParserMatch.Join(this, preamble, result);
+        if (result.Success) return ParserMatch.Join(previousMatch, this, preamble, result);
         return result;
     }
 

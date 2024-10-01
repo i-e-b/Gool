@@ -37,7 +37,7 @@ public class ExcludingCharacterSet : Parser
         if (_test.Contains(c)) return scan.NoMatch(this, previousMatch);
 
         // if we arrive at this point, we have a match
-        return scan.CreateMatch(this, offset, 1);
+        return scan.CreateMatch(this, offset, 1, previousMatch);
     }
 
     /// <inheritdoc />

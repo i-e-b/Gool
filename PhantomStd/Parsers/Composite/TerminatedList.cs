@@ -27,7 +27,7 @@ public class TerminatedList : Binary
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
-        var result = scan.NullMatch(this, previousMatch?.Right ?? 0);
+        var result = scan.NullMatch(this, previousMatch?.Right ?? 0, previousMatch);
 
         while (!scan.EndOfInput(result.Right))
         {
@@ -35,21 +35,21 @@ public class TerminatedList : Binary
 
             if (!item.Success)
             {
-                return result.Through(this);
+                return result.Through(this, previousMatch);
             }
 
             var terminator = RightParser.Parse(scan, item);
 
             if (!terminator.Success)
             {
-                return result.Through(this);
+                return result.Through(this, previousMatch);
             }
 
-            result = ParserMatch.Join(new NullParser(nameof(TerminatedList)), result, item);
-            result = ParserMatch.Join(new NullParser(nameof(TerminatedList)), result, terminator);
+            result = ParserMatch.Join(previousMatch, new NullParser(nameof(TerminatedList)), result, item);
+            result = ParserMatch.Join(previousMatch, new NullParser(nameof(TerminatedList)), result, terminator);
         }
 
-        return result.Through(this);
+        return result.Through(this, previousMatch);
     }
 
     /// <inheritdoc />

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Gool.Results;
 using Gool.Scanners;
+using JetBrains.Annotations;
 
 namespace Gool.Parsers;
 
@@ -15,7 +16,7 @@ public interface IParser
 	/// <summary>
 	/// Try to interpret the content of <paramref name="scan"/>
 	/// </summary>
-	ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
+	[MustUseReturnValue]ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
 
 	/// <summary>
 	/// Optional tag value for this parser.
