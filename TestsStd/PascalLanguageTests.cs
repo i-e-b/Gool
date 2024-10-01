@@ -90,9 +90,7 @@ public class PascalLanguageTests
         Console.WriteLine("==================================================");
         Console.WriteLine(check);
         Console.WriteLine("==================================================");
-        Assert.That(check.ToString(), Is.EqualTo("program WriteName ; var i , j : Integer ; name : String ;" +
-                                                 " begin Write ( 'Please tell me your name: ' ); ReadLn ( name ); for i := 1  to 100  do begin WriteLn ( 'Hello ' , name )" +
-                                                 "endend. "));
+        Assert.That(check.ToString(), Is.EqualTo("program WriteName ; var i , j : Integer ; name : String ; begin Write ( 'Please tell me your name: ' ); ReadLn ( name ); for i := 1  to 100  do begin WriteLn ( 'Hello ' , name )endend. "));
         
 
         Assert.That(result.Success, Is.True, "Parsing failed");

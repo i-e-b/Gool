@@ -10,6 +10,7 @@
 - [ ] More extensive read-me that covers all of BNF with examples
 - [ ] Query for point in text. Given a location, list all parsers that examined it, and what the result was.
 - [ ] Parent parser tree? (so we can query in parse results, and failures. Needs to handle context)
+- [ ] Ability to turn off auto-advance within a specific parser and its children.
 
 ## Examples
 

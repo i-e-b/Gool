@@ -3,6 +3,7 @@ using System.Globalization;
 using Gool.Results;
 using NUnit.Framework;
 using Samples;
+using TestsStd.Helpers;
 
 namespace TestsStd;
 
@@ -24,7 +25,7 @@ public class ArithmeticTests
         }
 
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds / 100:0.0} µs on average");
+        Console.WriteLine($"Parsing took {sw.Time(100)}");
     }
 
     [Test]

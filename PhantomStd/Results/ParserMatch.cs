@@ -184,9 +184,11 @@ public class ParserMatch
     /// <summary>
     /// Create a new match by joining a pair of existing matches.
     /// Most of the time this performs a binary join, but some parser
-    /// flags can change this (see <see cref="ScopeType"/>)
+    /// flags can change this (see <see cref="ScopeType"/>).
+    /// <p/>
+    /// In some cases, this will merge the two results. If that is not desired, see <see cref="Pair"/>.
     /// </summary>
-    /// <returns>Match covering and containing both left and right</returns>
+    /// <returns>Match covering both left and right</returns>
     public static ParserMatch Join(ParserMatch? previous, IParser source, ParserMatch? left, ParserMatch right)
     {
         if (right == null) throw new NullReferenceException("Can't Join null match");
@@ -246,6 +248,20 @@ public class ParserMatch
         // Normal join between left and right
         if (!left.Empty) joinResult.AddChild(left);
         if (!right.Empty) joinResult.AddChild(right);
+        return joinResult;
+    }
+
+    /// <summary>
+    /// Create a match from two children.
+    /// These are never merged, unlike <see cref="Join(ParserMatch?, IParser, ParserMatch?, ParserMatch)"/>
+    /// </summary>
+    /// <returns>Match containing both left and right</returns>
+    public static ParserMatch Pair(ParserMatch? previous, IParser source, ParserMatch left, ParserMatch right)
+    {
+        var length     = right.Right - left.Offset;
+        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length, previous);
+        joinResult.AddChild(left);
+        joinResult.AddChild(right);
         return joinResult;
     }
 

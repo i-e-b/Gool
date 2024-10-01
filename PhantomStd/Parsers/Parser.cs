@@ -63,6 +63,7 @@ public abstract class Parser : IParser
         {
             if (AnyOptionalChildren(child)) return true;
         }
+
         return false;
     }
 

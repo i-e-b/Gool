@@ -14,23 +14,6 @@ namespace Samples;
 /// </summary>
 public static class Css3Example
 {
-    /// <summary> Handle characters for case-insensitive AND escapable CSS keywords </summary>
-    private static BNF CssCharEsc(char c)
-    {
-        BNF
-            u       = char.ToUpper(c), // upper case char
-            l       = char.ToLower(c), // lower case char
-            zs      = Repeat('0', 0, 4), // up to 4 '0's
-            esc     = ((int)c).ToString("X2").CaseInsensitive(),
-            no_esc  = CharacterNotInRanges(('0', '9'), ('a', 'f'), ('A', 'F'), ' ', '\t', '\r', '\n', '\f') | "\r\n",
-            pattern = u | l | ('\\' > zs > (esc | no_esc));
-
-        return pattern;
-    }
-
-    /// <summary> Handle a string for case-insensitive AND escapable CSS keywords</summary>
-    private static BNF CssStrEsc(string s) => Composite(s.Select(CssCharEsc));
-
     /// <summary>
     /// This is translated from https://github.com/antlr/grammars-v4/tree/master/css3
     /// which is a set of samples for Antlr.
@@ -58,7 +41,7 @@ public static class Css3Example
             NonAscii       = CharacterInRanges((FirstNonAscii, MaxUtf)),
             Hex            = CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')),
             Space          = OneOf(' ', '\t', '\r', '\n', '\f'),
-            ReqSpace       = BNF.PreviousEndsWith(Space) | Space,
+            ReqSpace       = PreviousEndsWith(Space) | Space,
             Whitespace     = !Space,
             Newline        = OneOf('\r', '\n') | "\r\n",
             NewlineOrSpace = !(Newline | OneOf(' ', '\t', '\f')),
@@ -153,16 +136,16 @@ public static class Css3Example
             percentage       = !(Plus | Minus) > Percentage,
             unknownDimension = !(Plus | Minus) > UnknownDimension,
             dimension        = !(Plus | Minus) > Dimension,
-            hexcolor         = Hash > ws
+            hexColor         = Hash > ws
             ;
 
         BNF // Strings and Markers
-            prio = Important > ws,
-            url  = (Url_ > ws > String_ > ws > ')') | Url
-            ;
+            important = Important > ws,
+            url       = (Url_ > ws > String_ > ws > ')') | Url;
 
         var _expr    = Forward();
         var _calcSum = Forward();
+
         BNF // Calc and Func Expressions
             ct               = !Comment,
             ident            = Ident | MediaOnly | Not | And | Or | From | To,
@@ -170,7 +153,7 @@ public static class Css3Example
             var_             = Var > ws > Variable > ws > ')' > ws,
             calcValue        = (number > ct) | (dimension > ct) | (unknownDimension > ct) | (percentage > ct) | ('(' > ws > _calcSum > ')' > ct),
             calcProduct      = calcValue > -(('*' > ws > calcValue) | ('/' > ws > number > ws)),
-            calcSum          = calcProduct > -( ReqSpace > ws > (Plus | Minus) > ct > ReqSpace > ws > calcProduct),
+            calcSum          = calcProduct > -(ReqSpace > ws > (Plus | Minus) > ct > ReqSpace > ws > calcProduct),
             calc             = Calc > ws > calcSum > ')' > ws,
             function_        = Function_ > ws > _expr > ')' > ws,
             dxImageTransform = DxImageTransform > ws > _expr > ')' > ws,
@@ -182,7 +165,7 @@ public static class Css3Example
                  | (ident > ws)
                  | var_
                  | (url > ws)
-                 | hexcolor
+                 | hexColor
                  | calc
                  | function_
                  | (unknownDimension > ws)
@@ -201,7 +184,7 @@ public static class Css3Example
             fontFamilyNameList     = fontFamilyName > -(ws > Comma > ws > fontFamilyName),
             fontFeatureValuesRule  = FontFeatureValues > ws > fontFamilyNameList > ws > '{' > ws > -featureValueBlock > '}' > ws,
             property_              = (ident > ws) | (Variable > ws) | ('*' > ident) | ('_' > ident),
-            declaration            = property_ > ':' > ws > expr > !prio,
+            declaration            = property_ > ':' > ws > expr > !important,
             declarationList        = -(';' > ws) > declaration > ws > -(';' > ws > !declaration),
             counterStyle           = CounterStyle > ws > ident > ws > '{' > ws > !declarationList > '}' > ws;
 
@@ -281,8 +264,8 @@ public static class Css3Example
             simpleSelectorSequence = (-(typeSelector | universal) > -(Hash | className | attrib | pseudo | negation))
                                    | +(Hash | className | attrib | pseudo | negation),
             selector      = simpleSelectorSequence > ws > -(combinator > simpleSelectorSequence > ws),
-            selectorGroup = selector > -((Comma|ReqSpace) > ws > selector),
-            ruleset = (selectorGroup  > '{' > ws > !declarationList > '}' > ws) // knownRuleset
+            selectorGroup = selector > -((Comma | ReqSpace) > ws > selector),
+            ruleset = (selectorGroup > '{' > ws > !declarationList > '}' > ws) // knownRuleset
                     | (-any_ > ws > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
 
         BNF
@@ -328,8 +311,8 @@ public static class Css3Example
                          -(imports > -(Comment | Space | Cdo | Cdc)) >
                          -(namespace_ > -(Comment | Space | Cdo | Cdc)) >
                          -(nestedStatement > -(Comment | Space | Cdo | Cdc))
-                         > EndOfInput
-                         ;
+                       > EndOfInput
+            ;
 
         #endregion Parser side
 
@@ -350,4 +333,21 @@ public static class Css3Example
 
         return stylesheet.WithOptions(Options.None);
     }
+
+    /// <summary> Handle characters for case-insensitive AND escapable CSS keywords </summary>
+    private static BNF CssCharEsc(char c)
+    {
+        BNF
+            u       = char.ToUpper(c), // upper case char
+            l       = char.ToLower(c), // lower case char
+            zs      = Repeat('0', 0, 4), // up to 4 '0's
+            esc     = ((int)c).ToString("X2").CaseInsensitive(),
+            no_esc  = CharacterNotInRanges(('0', '9'), ('a', 'f'), ('A', 'F'), ' ', '\t', '\r', '\n', '\f') | "\r\n",
+            pattern = u | l | ('\\' > zs > (esc | no_esc));
+
+        return pattern;
+    }
+
+    /// <summary> Handle a string for case-insensitive AND escapable CSS keywords</summary>
+    private static BNF CssStrEsc(string s) => Composite(s.Select(CssCharEsc));
 }

@@ -17,12 +17,13 @@ public static class JsonParser
         var value = Forward();
 
         BNF // Basic components
-            ws = AnyWhiteSpace;
+            ws     = AnyWhiteSpace,
+            number = FractionalDecimal(groupMark: "", decimalMark: ".", allowLeadingZero: false, allowLeadingPlus: false);
 
         BNF // Strings
             unicodeEsc    = 'u' > CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
             escape        = OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't') | unicodeEsc,
-            character     = CharacterNotInRanges('"', '\\') | ('\\' > escape),
+            character     = NoneOf('"', '\\') | ('\\' > escape),
             characters    = -character,
             quoted_string = '"' > characters > '"';
 
@@ -45,12 +46,10 @@ public static class JsonParser
             array_leave = ']',
             array_block = array_enter > elements > array_leave;
 
-        BNF number = FractionalDecimal(groupMark: "", decimalMark: ".", allowLeadingZero: false, allowLeadingPlus: false);
-
-        BNF primitive = quoted_string | number | "true" | "false" | "null";
+        BNF // Single values
+            primitive = quoted_string | number | "true" | "false" | "null";
 
         value.Is(object_block | array_block | primitive);
-
 
         array_enter.OpenScope().TagWith("array");
         array_leave.CloseScope();
