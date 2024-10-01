@@ -78,19 +78,6 @@ public class BNF : IParser
 	//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
 
 	/// <summary>
-	/// Internal reference to the real parser instance
-	/// </summary>
-	private readonly IParser _parserTree;
-
-	/// <summary>
-	/// Create a BNF wrapper for an <see cref="IParser"/> instance
-	/// </summary>
-	internal BNF(IParser parserTree)
-	{
-		_parserTree = parserTree;
-	}
-
-	/// <summary>
 	/// Regular expression options passed to a regexes build with BNF
 	/// </summary>
 	public static RegexOptions RegexSettings { get; set; }
@@ -129,6 +116,7 @@ public class BNF : IParser
 		return new Package(this, options);
 	}
 
+	#region Tagging
 	/// <summary>
 	/// Add a tag to the base parser.
 	/// This is used to interpret the parser result
@@ -146,6 +134,28 @@ public class BNF : IParser
 	{
 		return Copy().TagWith(name);
 	}
+
+	/// <summary>
+	/// Set the given tag on all items
+	/// </summary>
+	public static void TagAll(string tag, params BNF[] items)
+	{
+		foreach (var item in items)
+		{
+			item.TagWith(tag);
+		}
+	}
+
+	/// <summary>
+	/// Make a copy of this BNF, which can be given different tags from the original
+	/// </summary>
+	public BNF Copy()
+	{
+		return new BNF(new Wrapper(_parserTree));
+	}
+	#endregion Tagging
+
+	#region Scopes
 
 	/// <summary>
 	/// Mark this parser as the start of a block
@@ -186,14 +196,9 @@ public class BNF : IParser
 		return this;
 	}
 
-	/// <summary>
-	/// Make a copy of this BNF, which can be given different tags from the original
-	/// </summary>
-	public BNF Copy()
-	{
-		return new BNF(new Wrapper(_parserTree));
-	}
+	#endregion Scopes
 
+	#region Contextual and recursive
 	/// <summary>
 	/// Create a self-recursive parser structure.
 	/// <p/>
@@ -220,6 +225,15 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Create a forward reference to populate later.
+	/// This enables recursive definitions.
+	/// </summary>
+	public static BnfForward Forward()
+	{
+		return new BnfForward(new Recursion());
+	}
+
+	/// <summary>
 	/// Create a contextualised parser from a previous result.
 	/// </summary>
 	/// <param name="prefix">
@@ -236,24 +250,6 @@ public class BNF : IParser
 	public static BNF Context(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF> next)
 	{
 		return new ContextParser(prefix, select, next);
-	}
-
-	/// <summary>
-	/// Match an ordered sequence of sub-parsers as a single match.
-	/// The entire set of sub-parsers must match for a successful match.
-	/// </summary>
-	public static BNF Composite(IEnumerable<BNF> items)
-	{
-		return new CompositeSequence(items);
-	}
-
-	/// <summary>
-	/// Match an ordered sequence of sub-parsers as a single match.
-	/// The entire set of sub-parsers must match for a successful match.
-	/// </summary>
-	public static BNF Composite(params BNF[] items)
-	{
-		return new CompositeSequence(items);
 	}
 
 	/// <summary>
@@ -295,15 +291,7 @@ public class BNF : IParser
 	{
 		return new BNF(new ParallelSet(this, validators));
 	}
-
-	/// <summary>
-	/// Create a forward reference to populate later.
-	/// This enables recursive definitions.
-	/// </summary>
-	public static BnfForward Forward()
-	{
-		return new BnfForward(new Recursion());
-	}
+	#endregion Contextual and recursive
 
 	#region Operators and implicit conversions
 
@@ -482,6 +470,25 @@ public class BNF : IParser
 	}
 
 	#endregion Operators and implicit conversions
+
+	#region Composite/combination helpers
+	/// <summary>
+	/// Match an ordered sequence of sub-parsers as a single match.
+	/// The entire set of sub-parsers must match for a successful match.
+	/// </summary>
+	public static BNF Composite(IEnumerable<BNF> items)
+	{
+		return new CompositeSequence(items);
+	}
+
+	/// <summary>
+	/// Match an ordered sequence of sub-parsers as a single match.
+	/// The entire set of sub-parsers must match for a successful match.
+	/// </summary>
+	public static BNF Composite(params BNF[] items)
+	{
+		return new CompositeSequence(items);
+	}
 
 	/// <summary>
 	/// Optional variant of the given pattern.
@@ -693,6 +700,9 @@ public class BNF : IParser
 		return new BNF(new VariableWidthFractionalDecimal(grp, dec, allowLeadingWhitespace, allowLoneDecimal, allowLeadingZero, allowLeadingPlus));
 	}
 
+	#endregion Composite/combination helpers
+
+	#region Common patterns and terminal helpers
 	/// <summary>
 	/// Match any one character
 	/// </summary>
@@ -720,17 +730,6 @@ public class BNF : IParser
 	/// Match anything except the end of a line
 	/// </summary>
 	public static BNF NotLineEnd => new(new LiteralCharacterSet('\r', '\n'));
-
-	/// <summary>
-	/// Set the given tag on all items
-	/// </summary>
-	public static void TagAll(string tag, params BNF[] items)
-	{
-		foreach (var item in items)
-		{
-			item.TagWith(tag);
-		}
-	}
 	
 	/// <summary>
 	/// Match the end of input
@@ -756,6 +755,7 @@ public class BNF : IParser
 	/// Match any number of white-space characters, or none
 	/// </summary>
 	public static BNF AnyWhiteSpace => new(new Whitespace(0, int.MaxValue));
+	#endregion Common patterns and terminal helpers
 
 	#region Static values
 	private static readonly char[] NumberCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
@@ -973,6 +973,19 @@ public class BNF : IParser
 
 	#region IParser pass-through
 
+	/// <summary>
+	/// Internal reference to the real parser instance
+	/// </summary>
+	private readonly IParser _parserTree;
+
+	/// <summary>
+	/// Create a BNF wrapper for an <see cref="IParser"/> instance
+	/// </summary>
+	internal BNF(IParser parserTree)
+	{
+		_parserTree = parserTree;
+	}
+
 	/// <inheritdoc />
 	public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
 	{
@@ -1031,50 +1044,4 @@ public class BNF : IParser
 	}
 
 	#endregion IParser pass-through
-}
-
-/// <summary>
-/// Extension methods for BNF
-/// </summary>
-public static class BnfExtensions
-{
-	/// <summary>
-	/// Match a literal string in a case insensitive way
-	/// </summary>
-	public static BNF CaseInsensitive(this string pattern)
-	{
-		return new BNF(new LiteralString(pattern, StringComparison.OrdinalIgnoreCase));
-	}
-
-	/// <summary>
-	/// Repeat the pattern a specific number of times
-	/// </summary>
-	public static BNF Repeat(this string pattern, int i)
-	{
-		return new BNF(new Repetition((BNF)pattern, (uint)i, (uint)i));
-	}
-
-	/// <summary>
-	/// Repeat the pattern a range of times
-	/// </summary>
-	public static BNF Repeat(this string pattern, int min, int max)
-	{
-		return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
-	}
-
-	/// <summary>
-	/// Repeat the pattern a specific number of times
-	/// </summary>
-	public static BNF Repeat(this char pattern, int i)
-	{
-		return new BNF(new Repetition((BNF)pattern, (uint)i, (uint)i));
-	}
-
-	/// <summary>
-	/// Repeat the pattern a range of times
-	/// </summary>
-	public static BNF Repeat(this char pattern, int min, int max)
-	{
-		return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
-	}
 }
