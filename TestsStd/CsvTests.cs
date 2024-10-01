@@ -44,7 +44,7 @@ public class CsvTests
                     Console.WriteLine();
                     break;
                 default:
-                    Console.Write($"{token.Value} [{token.Tag}]; ");
+                    Console.Write($"{CsvExample.Cleanup(token.Value)} [{token.Tag}]; ");
                     break;
             }
         }
@@ -75,7 +75,7 @@ public class CsvTests
                     Console.WriteLine();
                     break;
                 default:
-                    Console.Write($"{token.Value} [{token.Tag}]; ");
+                    Console.Write($"{CsvExample.Cleanup(token.Value)} [{token.Tag}]; ");
                     break;
             }
         }
@@ -109,7 +109,7 @@ public class CsvTests
                     Console.WriteLine();
                     break;
                 default:
-                    Console.Write($"{token.Value} [{token.Tag}]; ");
+                    Console.Write($"{CsvExample.Cleanup(token.Value)} [{token.Tag}]; ");
                     break;
             }
         }
@@ -138,7 +138,7 @@ public class CsvTests
         foreach (var token in tokens)
         {
             if (token.Tag == CsvExample.NewRow) Console.WriteLine();
-            else Console.Write($"{token.Value} [{token.Tag}]; ");
+            else Console.Write($"{CsvExample.Cleanup(token.Value)} [{token.Tag}]; ");
         }
     }
     
@@ -181,7 +181,7 @@ public class CsvDocument
     public void SetHeaders(List<string> headers)
     {
         Headers.Clear();
-        Headers.AddRange(headers);
+        Headers.AddRange(headers.Select(CsvExample.Cleanup));
     }
 
     public void AddRow(List<string> row)
@@ -248,7 +248,7 @@ public class CsvRow
 {
     public CsvRow(List<string> row)
     {
-        Entries.AddRange(row);
+        Entries.AddRange(row.Select(CsvExample.Cleanup));
     }
 
     public List<string> Entries { get; set; } = new();

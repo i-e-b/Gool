@@ -17,14 +17,23 @@ namespace Gool.Results;
 /// </remarks>
 public class ParserMatch
 {
-    /// <summary> Function to alter <see cref="Value"/> output </summary>
-    private readonly Func<string, string>? _mutator;
-
     /// <summary> First child match, if any </summary>
     private ParserMatch? _leftChild;
 
     /// <summary> Second child match, if two children </summary>
     private ParserMatch? _rightChild;
+
+    /// <summary>
+    /// Experimental: previous sibling parser match, if any.
+    /// Will always be <c>null</c> for first match.
+    /// </summary>
+    public ParserMatch? Previous;
+
+    /// <summary>
+    /// Experimental: next sibling parser match, if any.
+    /// Will always be <c>null</c> for last match.
+    /// </summary>
+    public ParserMatch? Next;
 
     /// <summary>
     /// Builds a new match from a parser, input, and result range.
@@ -33,10 +42,8 @@ public class ParserMatch
     /// <param name="scanner">Scanner for this match. This is used for the final output</param>
     /// <param name="offset">Start of the match</param>
     /// <param name="length">Number of characters in the match</param>
-    /// <param name="mutator">Optional function to modify the output of <see cref="Value"/></param>
-    public ParserMatch(IParser? source, IScanner scanner, int offset, int length, Func<string,string>? mutator = null)
+    public ParserMatch(IParser? source, IScanner scanner, int offset, int length)
     {
-        _mutator = mutator;
         SourceParser = source;
 
         Scanner = scanner;
@@ -107,16 +114,7 @@ public class ParserMatch
     /// <summary>
     /// Extracts the match value
     /// </summary>
-    public string Value
-    {
-        get
-        {
-            if (Length < 0) return "";
-            return _mutator is not null
-                ? _mutator(Scanner.UntransformedSubstring(Offset, Length))
-                : Scanner.UntransformedSubstring(Offset, Length);
-        }
-    }
+    public string Value => Length < 0 ? "" : Scanner.UntransformedSubstring(Offset, Length);
 
     /// <summary>
     /// Tag added to the parser that resulted in this match, if any.

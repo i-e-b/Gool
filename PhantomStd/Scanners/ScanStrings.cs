@@ -242,14 +242,14 @@ public class ScanStrings : IScanner
     }
 
     /// <inheritdoc />
-    public ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null)
+    public ParserMatch CreateMatch(IParser source, int offset, int length)
     {
         if ((offset + length) > FurthestOffset)
         {
             FurthestOffset = offset + length;
         }
 
-        return new ParserMatch(source, this, offset, length, mutator);
+        return new ParserMatch(source, this, offset, length);
     }
 
     #endregion

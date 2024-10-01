@@ -1,5 +1,4 @@
-﻿using System;
-using Gool.Parsers.Composite.Abstracts;
+﻿using Gool.Parsers.Composite.Abstracts;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -14,20 +13,10 @@ namespace Gool.Parsers.Transforms;
 /// </summary>
 public class Wrapper : Unary
 {
-    private readonly Func<string, string>? _mutator;
-
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
     public Wrapper(IParser parser) : base(parser) { }
-    
-    /// <summary>
-    /// Create a wrapper around another parser, with a function to modify the output
-    /// </summary>
-    public Wrapper(IParser parser, Func<string, string> mutator) : base(parser)
-    {
-        _mutator = mutator;
-    }
 
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
@@ -36,7 +25,7 @@ public class Wrapper : Unary
         var innerMatch = Parser.Parse(scan, previousMatch);
 
         return innerMatch.Success
-            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, _mutator)
+            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length)
             : scan.NoMatch(this, innerMatch);
     }
 

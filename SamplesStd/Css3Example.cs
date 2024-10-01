@@ -58,6 +58,7 @@ public static class Css3Example
             NonAscii       = CharacterInRanges((FirstNonAscii, MaxUtf)),
             Hex            = CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')),
             Space          = OneOf(' ', '\t', '\r', '\n', '\f'),
+            ReqSpace       = BNF.PreviousEndsWith(Space) | Space,
             Whitespace     = !Space,
             Newline        = OneOf('\r', '\n') | "\r\n",
             NewlineOrSpace = !(Newline | OneOf(' ', '\t', '\f')),
@@ -66,6 +67,7 @@ public static class Css3Example
             NameStart      = CharacterInRanges('_', ('a', 'z'), ('A', 'Z')) | NonAscii | Escape,
             NameChar       = CharacterInRanges('_', '-', ('a', 'z'), ('A', 'Z'), ('0', '9')) | NonAscii | Escape,
             Comment        = "/*" > -(AnyChar / "*/") > "*/",
+            ws             = -(Comment | Space),
             Name           = +NameChar,
             Variable       = "--" > NameStart > -NameChar,
             Ident          = !DashChar > NameStart > -NameChar,
@@ -140,8 +142,7 @@ public static class Css3Example
                 (Hex.Repeat(3) > "?".Repeat(0, 3)) |
                 (Hex.Repeat(4) > "?".Repeat(0, 2)) |
                 (Hex.Repeat(1) > "?".Repeat(0, 1))
-            ),
-            ws = -(Comment | Space);
+            );
 
         #endregion Lexer side
 
@@ -163,15 +164,13 @@ public static class Css3Example
         var _expr    = Forward();
         var _calcSum = Forward();
         BNF // Calc and Func Expressions
-            ct        = !Comment,
-            ident     = Ident | MediaOnly | Not | And | Or | From | To,
-            operator_ = ('/' > ws) | (Comma > ws) | (Space > ws) | ('=' > ws),
-            var_      = Var > ws > Variable > ws > ')' > ws,
-            // IEB: We should be able to handle conflicting 'optional' patterns.
-            // IEB: Here, calcValue 'ws' eats the required 'Space' in calcSum.
-            calcValue        = (number > /*these: */ws) | (dimension > ws) | (unknownDimension > ws) | (percentage > ws) | ('(' > ws > _calcSum > ')' > ws),
+            ct               = !Comment,
+            ident            = Ident | MediaOnly | Not | And | Or | From | To,
+            operator_        = ('/' > ws) | (Comma > ws) | (ReqSpace > ws) | ('=' > ws),
+            var_             = Var > ws > Variable > ws > ')' > ws,
+            calcValue        = (number > ct) | (dimension > ct) | (unknownDimension > ct) | (percentage > ct) | ('(' > ws > _calcSum > ')' > ct),
             calcProduct      = calcValue > -(('*' > ws > calcValue) | ('/' > ws > number > ws)),
-            calcSum          = calcProduct > -( /*this: */ Space > ws > (Plus | Minus) > ct > Space > ws > calcProduct),
+            calcSum          = calcProduct > -( ReqSpace > ws > (Plus | Minus) > ct > ReqSpace > ws > calcProduct),
             calc             = Calc > ws > calcSum > ')' > ws,
             function_        = Function_ > ws > _expr > ')' > ws,
             dxImageTransform = DxImageTransform > ws > _expr > ')' > ws,
@@ -265,7 +264,7 @@ public static class Css3Example
         _any_.Is(any_);
 
         BNF
-            combinator          = (Plus > ws) | (Greater > ws) | (Tilde > ws) | (Space > ws),
+            combinator          = (Plus > ws) | (Greater > ws) | (Tilde > ws) | (ReqSpace > ws),
             elementName         = ident,
             typeNamespacePrefix = !(ident | '*') > '|',
             typeSelector        = (!typeNamespacePrefix) > elementName,
@@ -282,8 +281,8 @@ public static class Css3Example
             simpleSelectorSequence = (-(typeSelector | universal) > -(Hash | className | attrib | pseudo | negation))
                                    | +(Hash | className | attrib | pseudo | negation),
             selector      = simpleSelectorSequence > ws > -(combinator > simpleSelectorSequence > ws),
-            selectorGroup = selector > -(Comma > ws > selector),
-            ruleset = (selectorGroup > ws > '{' > ws > !declarationList > '}' > ws) // knownRuleset
+            selectorGroup = selector > -((Comma|ReqSpace) > ws > selector),
+            ruleset = (selectorGroup  > '{' > ws > !declarationList > '}' > ws) // knownRuleset // IEB: <-- these trailing 'ws' are causing more issues
                     | (-any_ > ws > '{' > ws > !declarationList > '}' > ws); // unknownRuleset
 
         BNF
@@ -295,16 +294,16 @@ public static class Css3Example
             fontFaceRule     = FontFace > ws > '{' > ws > !fontFaceDeclaration > -(';' > ws > !fontFaceDeclaration) > '}' > ws,
             keyframeSelector = (From | To | Percentage) > ws > -(Comma > ws > (From | To | Percentage) > ws),
             keyframeBlock    = keyframeSelector > '{' > ws > !declarationList > '}' > ws,
-            keyframesRule    = Keyframes > ws > Space > ws > ident > ws > '{' > ws > -keyframeBlock > '}' > ws;
+            keyframesRule    = Keyframes > ws > ReqSpace > ws > ident > ws > '{' > ws > -keyframeBlock > '}' > ws;
 
         var _supportsCondition = Forward();
         BNF
             generalEnclosed              = (Function_ | '(') > -(any_ | unused) > ')',
             supportsDeclarationCondition = '(' > ws > declaration > ')',
             supportsConditionInParens    = ('(' > ws > _supportsCondition > ws > ')') | supportsDeclarationCondition | generalEnclosed,
-            supportsDisjunction          = supportsConditionInParens > +(ws > Space > ws > Or > ws > Space > ws > supportsConditionInParens),
-            supportsConjunction          = supportsConditionInParens > +(ws > Space > ws > And > ws > Space > ws > supportsConditionInParens),
-            supportsNegation             = Not > ws > Space > ws > supportsConditionInParens,
+            supportsDisjunction          = supportsConditionInParens > +(ws > ReqSpace > ws > Or > ws > ReqSpace > ws > supportsConditionInParens),
+            supportsConjunction          = supportsConditionInParens > +(ws > ReqSpace > ws > And > ws > ReqSpace > ws > supportsConditionInParens),
+            supportsNegation             = Not > ws > ReqSpace > ws > supportsConditionInParens,
             supportsCondition            = supportsNegation | supportsConjunction | supportsDisjunction | supportsConditionInParens,
             supportsRule                 = Supports > ws > supportsCondition > ws > groupRuleBody;
         _supportsCondition.Is(supportsCondition);
@@ -326,7 +325,7 @@ public static class Css3Example
 
         BNF stylesheet = ws >
                          -(charset > -(Comment | Space | Cdo | Cdc)) >
-                         -(imports > (Comment | Space | Cdo | Cdc)) >
+                         -(imports > -(Comment | Space | Cdo | Cdc)) >
                          -(namespace_ > -(Comment | Space | Cdo | Cdc)) >
                          -(nestedStatement > -(Comment | Space | Cdo | Cdc))
                          > EndOfInput

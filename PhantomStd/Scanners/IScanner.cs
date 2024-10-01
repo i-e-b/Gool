@@ -85,7 +85,7 @@ public interface IScanner: IScanningDiagnostics
 	[MustUseReturnValue]string UntransformedSubstring(int offset, int length);
 
 	/// <summary>Return a match from a substring of the input</summary>
-	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length, Func<string, string>? mutator = null);
+	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length);
 
 	/// <summary>
 	/// Add a success path, for diagnostic use

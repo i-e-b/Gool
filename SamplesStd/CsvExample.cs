@@ -30,8 +30,8 @@ public static class CsvExample
         if (hasHeader) file = header > row_break > (record % row_break) > (!row_break);
         else file = (record % row_break) > (!row_break);
 
-        field.TrimWith(CsvCleanup).TagWith(Field);
-        name.TrimWith(CsvCleanup).TagWith(ColumnName);
+        field.TagWith(Field);
+        name.TagWith(ColumnName);
         row_break.TagWith(NewRow);
 
         record.EncloseScope().TagWith(Row);     // 'EncloseScope' is like an Open and Close scope, from its start to end
@@ -41,7 +41,7 @@ public static class CsvExample
     }
     
 
-    private static string CsvCleanup(string src)
+    public static string Cleanup(string src)
     {
         src = src.Trim();
         return src.StartsWith('"')

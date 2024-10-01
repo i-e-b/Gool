@@ -80,7 +80,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Internal reference to the real parser instance
 	/// </summary>
-	private IParser _parserTree;
+	private readonly IParser _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
@@ -137,6 +137,14 @@ public class BNF : IParser
 	{
 		_parserTree.Tag = tag;
 		return this;
+	}
+
+	/// <summary>
+	/// Create a copy of this BNF, with a new tag
+	/// </summary>
+	public BNF Tagged(string name)
+	{
+		return Copy().TagWith(name);
 	}
 
 	/// <summary>
@@ -247,6 +255,37 @@ public class BNF : IParser
 	{
 		return new CompositeSequence(items);
 	}
+
+	/// <summary>
+	/// Test if the previous match's last character matches the given pattern.
+	/// Non-capturing: this returns an empty result if the pattern matches,
+	/// and a failure if not.
+	/// </summary>
+	public static BNF PreviousEndsWith(IParser pattern)
+	{
+		throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Test if the previous match matches the given pattern.
+	/// Non-capturing: this returns an empty result if the pattern matches,
+	/// and a failure if not.
+	/// </summary>
+	public static BNF PreviousMatches(IParser pattern)
+	{
+		throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Create a forward reference to populate later.
+	/// This enables recursive definitions.
+	/// </summary>
+	public static BnfForward Forward()
+	{
+		return new BnfForward(new Recursion());
+	}
+
+	#region Operators and implicit conversions
 
 	/// <summary>
 	/// Convert a character into a parser
@@ -422,23 +461,8 @@ public class BNF : IParser
 		return new BNF(new Exclusive(a, b));
 	}
 
-	/// <summary>
-	/// Create a copy of this BNF, with a new tag
-	/// </summary>
-	public BNF Tagged(string name)
-	{
-		return Copy().TagWith(name);
-	}
-	
-	/// <summary>
-	/// Wrap this BNF with a function that will change the result string
-	/// </summary>
-	public BNF TrimWith(Func<string, string> trimFunction)
-	{
-		_parserTree = new Wrapper(_parserTree, trimFunction);
-		return this;
-	}
-	
+	#endregion Operators and implicit conversions
+
 	/// <summary>
 	/// Optional variant of the given pattern.
 	/// This is an alias for <c>!opt</c>,
@@ -588,8 +612,6 @@ public class BNF : IParser
 		return new BNF(new VariableWidthIntegerRange(min, max, allowLeadingWhitespace, useHex));
 	}
 
-	private static readonly char[] NumberCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-
 	/// <summary>
 	/// Create a parser for a variable width signed decimal value.
 	/// This can contain number separators, decimal points, and 'E notation'.
@@ -657,16 +679,6 @@ public class BNF : IParser
 	public static BNF AnyChar => new(new AnyCharacter());
 
 	/// <summary>
-	/// Maximum value for a UTF character (limited by C# / dotnet)
-	/// </summary>
-	public const char MaxUtf = char.MaxValue;
-
-	/// <summary>
-	/// Minimum value for a printable character outside of the ASCII range
-	/// </summary>
-	public const char FirstNonAscii = '\u00A0';
-
-	/// <summary>
 	/// Match any one character from the given UTF character category
 	/// </summary>
 	public static BNF UtfCategory(UnicodeCategory category)
@@ -730,32 +742,37 @@ public class BNF : IParser
 		return new BNF(new ParallelSet(this, validators));
 	}
 
+	#region Static values
+	private static readonly char[] NumberCharacters = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
 	/// <summary>
-	/// Create a forward reference to populate later.
-	/// This enables recursive definitions.
+	/// Maximum value for a UTF character (limited by C# / dotnet)
 	/// </summary>
-	public static BnfForward Forward()
-	{
-		return new BnfForward(new Recursion());
-	}
+	public const char MaxUtf = char.MaxValue;
+
+	/// <summary>
+	/// Minimum value for a printable character outside of the ASCII range
+	/// </summary>
+	public const char FirstNonAscii = '\u00A0';
 
 	/// <summary>
 	/// Left single quote <c>‘</c> ("smart quotes")
 	/// </summary>
-	public BNF LeftSingleQuote => new LiteralCharacterSet('‘');
+	public static BNF LeftSingleQuote => new LiteralCharacterSet('‘');
 	/// <summary>
 	/// Right single quote <c>’</c> ("smart quotes")
 	/// </summary>
-	public BNF RightSingleQuote => new LiteralCharacterSet('’');
+	public static BNF RightSingleQuote => new LiteralCharacterSet('’');
 
 	/// <summary>
 	/// Left single quote <c>“</c> ("smart quotes")
 	/// </summary>
-	public BNF LeftDoubleQuote => new LiteralCharacterSet('“');
+	public static BNF LeftDoubleQuote => new LiteralCharacterSet('“');
 	/// <summary>
 	/// Right single quote <c>”</c> ("smart quotes")
 	/// </summary>
-	public BNF RightDoubleQuote => new LiteralCharacterSet('”');
+	public static BNF RightDoubleQuote => new LiteralCharacterSet('”');
+	#endregion Static values
 
 	#region Internal sub-types
 
@@ -1013,7 +1030,6 @@ public static class BnfExtensions
 	{
 		return new BNF(new LiteralString(pattern, StringComparison.OrdinalIgnoreCase));
 	}
-
 
 	/// <summary>
 	/// Repeat the pattern a specific number of times

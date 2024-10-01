@@ -50,7 +50,7 @@ public class NullScanner : IScanner
     public int FurthestOffset => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch? FurthestMatch => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch FurthestMatch => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
@@ -77,7 +77,7 @@ public class NullScanner : IScanner
     public string UntransformedSubstring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch CreateMatch(IParser source, int offset, int length, Func<string,string>? mutator) => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch CreateMatch(IParser source, int offset, int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void AddPath(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);
