@@ -12,8 +12,8 @@ public static class XmlExample
 {
     #region tags
     public const string Text                  = "text";
-    public const string OpenTag               = "open";
-    public const string CloseTag              = "close";
+    public const string OpenElement               = "open";
+    public const string CloseElement              = "close";
     public const string EmptyTag              = "empty";
     public const string TagId                 = "tagId";
     public const string Attribute             = "attribute";
@@ -33,9 +33,9 @@ public static class XmlExample
 
 
         BNF // Fragments
-            text       = Regex("[^<>]+"),
-            identifier = Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
-            whitespace = Regex(@"\s+");
+            text       = StringTerminatedBy("<"),
+            identifier = IdentifierString(),
+            whitespace = WhiteSpaceString;
 
         BNF // Literals
             quoted_string = '"' > identifier > '"',
@@ -48,8 +48,8 @@ public static class XmlExample
 
         attribute.TagWith(Attribute);
         text.TagWith(Text);
-        open_tag.TagWith(OpenTag).OpenScope();
-        close_tag.TagWith(CloseTag).CloseScope();
+        open_tag.TagWith(OpenElement).OpenScope();
+        close_tag.TagWith(CloseElement).CloseScope();
 
         return Recursive(tree => -(open_tag > -(tree | text) > close_tag)).WithOptions(Options.None);
     }
@@ -63,29 +63,29 @@ public static class XmlExample
 
         var _wrapped = Forward();
         BNF
-            identifier    = Regex("[a-zA-Z][a-zA-Z0-9]*"),
-            whitespace    = Regex(@"\s+"),
+            identifier    = IdentifierString(allowUnderscore: false),
+            whitespace    = WhiteSpaceString,
 
-            tag_id       = identifier.Tagged(TagId),
+            element_id    = identifier.Tagged(TagId),
 
-            text          = -(AnyChar / "<"),
+            text          = StringTerminatedBy("<"),
             quoted_string = '"' > identifier > '"',
             attribute     = whitespace > identifier > '=' > quoted_string,
 
-            open_tag = '<' > tag_id > -attribute > '>',
+            open_elem     = '<' > element_id > -attribute > '>',
 
-            wrapped =
+            wrapped = // use the opening tag to make a contextual parser to match the end tag exactly.
                 Context(
-                    prefix: open_tag,
+                    prefix: open_elem,
                     select: result =>
                         result.FindTag(TagId),
                     next: tag =>
                         -( text | _wrapped) >
-                        ((BNF)"</" > tag.Value > '>').TagWith(CloseTag).CloseScope()
+                        ((BNF)"</" > tag.Value > '>').TagWith(CloseElement).CloseScope()
                 );
 
         _wrapped.Is(wrapped);
-        open_tag.TagWith(OpenTag).OpenScope();
+        open_elem.TagWith(OpenElement).OpenScope();
         attribute.TagWith(Attribute);
         text.TagWith(Text);
 
@@ -219,7 +219,7 @@ public static class XmlExample
     /// </summary>
     public static Package FullXmlParser()
     {
-        BNF // Character ranges and whitespace (source was very specific about ranges, I have approximated with categories)
+        BNF // Character ranges and whitespace (XML spec is very specific about ranges)
             ws             = +(OneOf(' ', '\t', '\n', '\r')),
             chr            = XmlSpecChar,
             digit          = XmlSpecDigit,
@@ -365,8 +365,8 @@ public static class XmlExample
 
         attribute.TagWith(Attribute);
         empty_elem_tag.TagWith(EmptyTag).EncloseScope();
-        start_tag.TagWith(OpenTag).OpenScope();
-        end_tag.TagWith(CloseTag).CloseScope();
+        start_tag.TagWith(OpenElement).OpenScope();
+        end_tag.TagWith(CloseElement).CloseScope();
 
         return document.WithOptions(Options.None);
     }

@@ -196,11 +196,11 @@ public class XmlTests
                     if (!string.IsNullOrWhiteSpace(token.Value)) sb.Append($"[{token.Value}]");
                     break;
 
-                case XmlExample.OpenTag:
+                case XmlExample.OpenElement:
                     sb.Append(token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value + "{");
                     break;
 
-                case XmlExample.CloseTag:
+                case XmlExample.CloseElement:
                     sb.AppendLine("}" + token.ChildrenWithTag(XmlExample.TagId).FirstOrDefault()?.Value);
                     break;
             }

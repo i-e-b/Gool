@@ -90,4 +90,7 @@ public class NullScanner : IScanner
 
     /// <inheritdoc />
     public object GetContext(IParser parser) => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public int IndexOf(int offset, string toFind, StringComparison comparisonType) => throw new InvalidOperationException(ErrorMsg);
 }

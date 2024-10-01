@@ -50,6 +50,6 @@ public class Sequence : Binary
 	public override string ShortDescription(int depth)
 	{
 		if (depth < 1) return GetType().Name;
-		return LeftParser.ShortDescription(depth - 1) + " > " + RightParser.ShortDescription(depth - 1);
+		return LeftParser.ShortDescription(depth - 1) + " " + RightParser.ShortDescription(depth - 1);
 	}
 }

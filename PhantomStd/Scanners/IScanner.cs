@@ -102,4 +102,11 @@ public interface IScanner: IScanningDiagnostics
 	/// Get the context object for this parser, if one has been set.
 	/// </summary>
 	[MustUseReturnValue]object? GetContext(IParser parser);
+
+	/// <summary>
+	/// Find the next occurrence of a string.
+	/// Returns the absolute offset in the original input.
+	/// If not found, returns -1
+	/// </summary>
+	int IndexOf(int offset, string toFind, StringComparison comparisonType);
 }

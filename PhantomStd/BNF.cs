@@ -700,6 +700,26 @@ public class BNF : IParser
 		return new BNF(new VariableWidthFractionalDecimal(grp, dec, allowLeadingWhitespace, allowLoneDecimal, allowLeadingZero, allowLeadingPlus));
 	}
 
+	/// <summary>
+	/// Common string pattern for names and identifiers in programming languages and data formats.
+	/// Must be at least 1 character. First character must be alphabetic.
+	/// Subsequent characters may be alphanumeric.
+	/// </summary>
+	/// <param name="allowUnderscore">Default: true. If true, '_' is allowed at the start, end, or middle of the identifier</param>
+	public static BNF IdentifierString(bool allowUnderscore = true)
+	{
+		return new BNF(new IdentifierString(allowUnderscore));
+	}
+
+	/// <summary>
+	/// Match any length of string, upto but not including the terminating sub-string.
+	/// If the terminator is not found, this fails to match.
+	/// </summary>
+	/// <param name="terminator">String that ends the match</param>
+	public static BNF StringTerminatedBy(string terminator)
+	{
+		return new BNF(new StringTerminatedString(terminator));
+	}
 	#endregion Composite/combination helpers
 
 	#region Common patterns and terminal helpers
@@ -755,6 +775,12 @@ public class BNF : IParser
 	/// Match any number of white-space characters, or none
 	/// </summary>
 	public static BNF AnyWhiteSpace => new(new Whitespace(0, int.MaxValue));
+
+	/// <summary>
+	/// Match any number of white-space characters, at least 1
+	/// </summary>
+	public static BNF WhiteSpaceString => new(new Whitespace(1, int.MaxValue));
+
 	#endregion Common patterns and terminal helpers
 
 	#region Static values
@@ -1044,4 +1070,5 @@ public class BNF : IParser
 	}
 
 	#endregion IParser pass-through
+
 }

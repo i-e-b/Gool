@@ -14,14 +14,14 @@ public static class ArithmeticExample
         var _expression = Forward();
 
         BNF
-            add_sub = OneOf('+', '-'),
-            mul_div = OneOf('*', '/'),
-            exp     = '^';
+            add_sub  = OneOf('+', '-'),
+            mul_div  = OneOf('*', '/'),
+            exponent = '^';
 
         BNF
             number     = FractionalDecimal(),
             factor     = number | ('(' > _expression > ')'),
-            power      = factor > !(exp > factor),
+            power      = factor > !(exponent > factor),
             term       = power % mul_div,
             expression = term % add_sub;
 
@@ -29,12 +29,12 @@ public static class ArithmeticExample
 
         add_sub.TagWith(Operation).PivotScope();
         mul_div.TagWith(Operation).PivotScope();
-        exp.TagWith(Operation).PivotScope();
+        exponent.TagWith(Operation).PivotScope();
         number.TagWith(Value);
 
         return expression.WithOptions(Options.SkipWhitespace);
     }
 
     public const string Operation = "operation";
-    public const string Value = "value";
+    public const string Value     = "value";
 }

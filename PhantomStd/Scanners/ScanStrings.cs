@@ -203,6 +203,12 @@ public class ScanStrings : IScanner
     }
 
     /// <inheritdoc />
+    public int IndexOf(int offset, string toFind, StringComparison comparisonType)
+    {
+        return TransformedString.IndexOf(toFind, offset, comparisonType);
+    }
+
+    /// <inheritdoc />
     public string UntransformedSubstring(int offset, int length)
     {
         if (length == 0) return "";
