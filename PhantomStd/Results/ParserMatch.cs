@@ -24,16 +24,18 @@ public class ParserMatch
     private ParserMatch? _rightChild;
 
     /// <summary>
-    /// Experimental: previous sibling parser match, if any.
+    /// Previous sibling parser match, if any.
     /// Will always be <c>null</c> for first match.
     /// </summary>
-    public ParserMatch? Previous;
+    public readonly ParserMatch? Previous;
 
+    /*
     /// <summary>
     /// Experimental: next sibling parser match, if any.
     /// Will always be <c>null</c> for last match.
     /// </summary>
     public ParserMatch? Next;
+*/
 
     /// <summary>
     /// Builds a new match from a parser, input, and result range.
@@ -51,10 +53,10 @@ public class ParserMatch
         Offset = offset;
         Length = length;
         Previous = previous;
-        if (length >= 0 && previous is not null)
+        /*if (length >= 0 && previous is not null)
         {
             previous.Next = this;
-        }
+        }*/
     }
 
     /// <summary>

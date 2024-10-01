@@ -11,6 +11,8 @@ namespace Gool.Parsers.Terminals;
 public class LiteralCharacterSet : Parser
 {
     private readonly char[] _test;
+    private readonly char   _lowest;
+    private readonly char   _highest;
 
     /// <summary>
     /// Parser that matches a single character from a set
@@ -18,6 +20,8 @@ public class LiteralCharacterSet : Parser
     public LiteralCharacterSet(params char[] c)
     {
         _test = c;
+        _lowest = _test.Min();
+        _highest = _test.Max();
     }
 
     /// <inheritdoc />
@@ -27,9 +31,9 @@ public class LiteralCharacterSet : Parser
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
         char c = scan.Peek(offset);
+        if (c == 0 || c < _lowest || c > _highest) return scan.NoMatch(this, previousMatch); // can't be in any of the ranges
 
         if (!_test.Contains(c)) return scan.NoMatch(this, previousMatch);
 

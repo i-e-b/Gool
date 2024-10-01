@@ -11,6 +11,8 @@ namespace Gool.Parsers.Terminals;
 public class ExcludingCharacterSet : Parser
 {
     private readonly char[] _test;
+    private readonly char   _lowest;
+    private readonly char   _highest;
 
     /// <summary>
     /// Parser that matches a single character <b>NOT</b> in a set
@@ -18,6 +20,8 @@ public class ExcludingCharacterSet : Parser
     public ExcludingCharacterSet(params char[] c)
     {
         _test = c;
+        _lowest = _test.Min();
+        _highest = _test.Max();
     }
 
     /// <inheritdoc />
@@ -30,9 +34,10 @@ public class ExcludingCharacterSet : Parser
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
         char c = scan.Peek(offset);
+        if (c == 0) return scan.NoMatch(this, previousMatch); // can't be in any of the ranges
+        if (c < _lowest || c > _highest) return scan.CreateMatch(this, offset, 1, previousMatch); // must be out of all ranges
 
         if (_test.Contains(c)) return scan.NoMatch(this, previousMatch);
 

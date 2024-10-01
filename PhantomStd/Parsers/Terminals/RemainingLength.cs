@@ -36,7 +36,7 @@ public class RemainingLength : Parser
     {
         var offset = previousMatch?.Right ?? 0;
 
-        var remainingLength = scan.InputString.Length - offset;//RemainingData(offset).Length;
+        var remainingLength = scan.InputString.Length - offset;
 
         if (remainingLength < _min || remainingLength > _max) return scan.NoMatch(this, previousMatch);
 

@@ -12,20 +12,20 @@ public class Whitespace : Parser
     /// <summary>
     /// Maximum number of characters to match
     /// </summary>
-    public int UpperBound { get; }
+    private readonly int _upperBound;
 
     /// <summary>
     /// Minimum number of characters to make a match
     /// </summary>
-    public int LowerBound { get; }
+    private readonly int _lowerBound;
 
     /// <summary>
     /// Parser that matches a single whitespace character
     /// </summary>
     public Whitespace()
     {
-        UpperBound = 1;
-        LowerBound = 1;
+        _upperBound = 1;
+        _lowerBound = 1;
     }
 
     /// <summary>
@@ -33,8 +33,8 @@ public class Whitespace : Parser
     /// </summary>
     public Whitespace(int min, int max)
     {
-        LowerBound = min;
-        UpperBound = max;
+        _lowerBound = min;
+        _upperBound = max;
     }
 
     /// <inheritdoc />
@@ -45,7 +45,7 @@ public class Whitespace : Parser
 
         int count = 0;
 
-        while (count < UpperBound && !scan.EndOfInput(result.Right))
+        while (count < _upperBound && !scan.EndOfInput(result.Right))
         {
             var isWhiteSpace = char.IsWhiteSpace(scan.Peek(offset));
             if (!isWhiteSpace) break; // no more matches
@@ -55,7 +55,7 @@ public class Whitespace : Parser
             result.ExtendTo(offset);
         }
 
-        if (count < LowerBound || count > UpperBound)
+        if (count < _lowerBound || count > _upperBound)
         {
             return scan.NoMatch(this, result);
         }

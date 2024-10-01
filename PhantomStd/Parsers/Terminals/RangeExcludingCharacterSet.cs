@@ -32,12 +32,10 @@ public class RangeExcludingCharacterSet : Parser
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
         char c = scan.Peek(offset);
 
-        
-        if (c < _lower || c > _upper|| _exclusions.Contains(c)) return scan.NoMatch(this, previousMatch);
+        if (c == 0 || c < _lower || c > _upper|| _exclusions.Contains(c)) return scan.NoMatch(this, previousMatch);
 
         // if we arrive at this point, we have a match
         return scan.CreateMatch(this, offset, 1, previousMatch);

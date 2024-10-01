@@ -12,12 +12,17 @@ public class MultiRangeExcludingCharacterSet : Parser
 {
     private readonly BNF.CharacterRange[] _ranges;
 
+    private readonly char _lowest;
+    private readonly char _highest;
+
     /// <summary>
     /// Match a single character that is in NONE of the given ranges
     /// </summary>
     public MultiRangeExcludingCharacterSet(BNF.CharacterRange[] ranges)
     {
         _ranges = ranges;
+        _lowest = ranges.Min(r => r.Lower);
+        _highest = ranges.Max(r => r.Upper);
     }
 
     /// <inheritdoc />
@@ -27,9 +32,10 @@ public class MultiRangeExcludingCharacterSet : Parser
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
     {
         var offset = previousMatch?.Right ?? 0;
-        if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
         char c = scan.Peek(offset);
+        if (c == 0) return scan.NoMatch(this, previousMatch); // can't be in any of the ranges
+        if (c < _lowest || c > _highest) return scan.CreateMatch(this, offset, 1, previousMatch); // must be out of all ranges
 
         foreach (var range in _ranges)
         {

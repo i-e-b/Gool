@@ -16,16 +16,17 @@ public class ArithmeticTests
         var parser = ArithmeticExample.Parser;
         var expression = "2^(1+3) * 3 * -2 - 5.5";
 
-        var sw = new Stopwatch();
+        var tryCount = 1000;
+        var sw       = new Stopwatch();
         sw.Start();
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < tryCount; i++)
         {
             var result = parser.ParseEntireString(expression);
             if (!result.Success) Assert.Fail("Did not parse");
         }
 
         sw.Stop();
-        Console.WriteLine($"Parsing took {sw.Time(100)}");
+        Console.WriteLine($"Parsing took {sw.Time(tryCount)}. Per character: {sw.Time(tryCount * expression.Length)}");
     }
 
     [Test]
