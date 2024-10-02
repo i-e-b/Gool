@@ -45,15 +45,14 @@ public abstract class Parser : IParser
         var newMatch = TryMatch(scan, start);
         if (newMatch.Success)
         {
-            scan.AddPath(newMatch);
-            scan.ClearFailures();
+            scan.AddSuccess(newMatch);
 
             if (scan.IncludeSkippedElements) return ParserMatch.Join(start, new NullParser("Skipped elements"), start, newMatch);
             return newMatch;
         }
 
-        scan.AddFailure(this, previousMatch);
-        return scan.NoMatch(this, previousMatch);
+        scan.AddFailure(this, newMatch);
+        return newMatch.Through(this, previousMatch);
     }
 
     private bool AnyOptionalChildren(IParser node)

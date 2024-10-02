@@ -160,6 +160,8 @@ public class PascalLanguageTests
 
     private static void PrintFailures(IScanner scanner)
     {
+        Console.WriteLine($"\r\nAfter [{scanner.FurthestMatch}], expected:");
+        Console.WriteLine($"[{scanner.FurthestMatch?.Next?.SourceParser?.ToString() ?? "<null>"}]\r\n");
         foreach (var mismatch in scanner.ListFailures())
         {
             Console.WriteLine("==================================================");

@@ -29,13 +29,11 @@ public class ParserMatch
     /// </summary>
     public readonly ParserMatch? Previous;
 
-    /*
     /// <summary>
-    /// Experimental: next sibling parser match, if any.
+    /// Next sibling parser match, if any.
     /// Will always be <c>null</c> for last match.
     /// </summary>
     public ParserMatch? Next;
-*/
 
     /// <summary>
     /// Builds a new match from a parser, input, and result range.
@@ -45,7 +43,7 @@ public class ParserMatch
     /// <param name="offset">Start of the match</param>
     /// <param name="length">Number of characters in the match</param>
     /// <param name="previous">Parser match before this one, to be part of prev/next chain</param>
-    public ParserMatch(IParser? source, IScanner scanner, int offset, int length, ParserMatch? previous)
+    public ParserMatch(IParser source, IScanner scanner, int offset, int length, ParserMatch? previous)
     {
         SourceParser = source;
 
@@ -53,10 +51,11 @@ public class ParserMatch
         Offset = offset;
         Length = length;
         Previous = previous;
-        /*if (length >= 0 && previous is not null)
+
+        if (previous is not null && (previous.Next is null || previous.Next.Length < 0))
         {
             previous.Next = this;
-        }*/
+        }
     }
 
     /// <summary>
@@ -102,7 +101,7 @@ public class ParserMatch
     /// <summary>
     /// The parser that generated this match
     /// </summary>
-    public readonly IParser? SourceParser;
+    public readonly IParser SourceParser;
 
     /// <summary>
     /// Scanner
@@ -127,8 +126,8 @@ public class ParserMatch
     /// <summary>
     /// Tag added to the parser that resulted in this match, if any.
     /// </summary>
-    public string? Tag => SourceParser?.Tag;
-    
+    public string? Tag => SourceParser.Tag;
+
     /// <summary>
     /// Get the scope direction of the source parser
     /// <ul>
@@ -137,7 +136,7 @@ public class ParserMatch
     /// <li>Zero value does not change scope (default)</li>
     /// </ul>
     /// </summary>
-    public ScopeType Scope => SourceParser?.Scope ?? ScopeType.None;
+    public ScopeType Scope => SourceParser.Scope;
 
     /// <summary>
     /// True if match successful
@@ -168,8 +167,8 @@ public class ParserMatch
     /// </summary>
     public string Description()
     {
-        if (Success) return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"}; Value='{Value}';";
-        return $"Offset={Offset}; Length={Length}; Source={(SourceParser?.GetType().Name)??"<null>"};";
+        if (Success) return $"Offset={Offset}; Length={Length}; Source={SourceParser.GetType().Name}; Value='{Value}';";
+        return $"Offset={Offset}; Length={Length}; Source={SourceParser.GetType().Name};";
     }
 
     /// <summary>
@@ -424,7 +423,7 @@ public class ParserMatch
 
     private bool AnyMetaInTree()
     {
-        if (SourceParser?.HasMetaData() == true) return true;
+        if (SourceParser.HasMetaData()) return true;
         return Children().Any(child => child.AnyMetaInTree());
     }
 
@@ -440,13 +439,13 @@ public class ParserMatch
     /// <summary>
     /// Placeholder for an invalid match
     /// </summary>
-    public static ParserMatch NullMatch()
+    public static ParserMatch NullMatch(string source)
     {
-        return new ParserMatch(null, new NullScanner(), 0, -1, null);
+        return new ParserMatch(new NullParser(source), new NullScanner(), 0, -1, null);
     }
 
     /// <summary>
     /// Returns true if the source parser has meta data. False otherwise
     /// </summary>
-    public bool HasMetaData() => SourceParser?.HasMetaData() == true;
+    public bool HasMetaData() => SourceParser.HasMetaData();
 }

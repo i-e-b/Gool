@@ -47,13 +47,13 @@ public interface IScanner: IScanningDiagnostics
 	ParserMatch? FurthestMatch { get; }
 
 	/// <summary>Return a failure match.</summary>
-	[MustUseReturnValue]ParserMatch NoMatch(IParser? source, ParserMatch? previous);
+	[MustUseReturnValue]ParserMatch NoMatch(IParser source, ParserMatch? previous);
 
 	/// <summary>Return an empty success match</summary>
 	[MustUseReturnValue]ParserMatch EmptyMatch(IParser source, int offset, ParserMatch? previous);
 
 	/// <summary> Return an empty failure match </summary>
-	[MustUseReturnValue]ParserMatch NullMatch(IParser? source, int offset, ParserMatch? previous);
+	[MustUseReturnValue]ParserMatch NullMatch(IParser source, int offset, ParserMatch? previous);
 
 	/// <summary>Advance one position through the input</summary>
 	/// <returns>Returns true while there is unconsumed input remaining</returns>
@@ -86,11 +86,6 @@ public interface IScanner: IScanningDiagnostics
 
 	/// <summary>Return a match from a substring of the input</summary>
 	[MustUseReturnValue]ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous);
-
-	/// <summary>
-	/// Add a success path, for diagnostic use
-	/// </summary>
-	void AddPath(ParserMatch newMatch);
 
 	/// <summary>
 	/// Set a context object for a parser.

@@ -13,16 +13,10 @@ public class NullScanner : IScanner
     private const string ErrorMsg = "The scanner used is a place-holder. Please check you have passed in an input scanner.";
 
     /// <inheritdoc />
-    public void AddFailure(IParser failedParser, ParserMatch? previousMatch) => throw new InvalidOperationException(ErrorMsg);
+    public void AddFailure(IParser failedParser, ParserMatch failMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false) => throw new InvalidOperationException(ErrorMsg);
-
-    /// <inheritdoc />
-    public void ClearFailures() => throw new InvalidOperationException(ErrorMsg);
-
-    /// <inheritdoc />
-    public string BadPatch(int length) => throw new InvalidOperationException(ErrorMsg);
+    public List<string> ListFailures(int minimumOffset = 0) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public string InputString => throw new InvalidOperationException(ErrorMsg);
@@ -80,7 +74,7 @@ public class NullScanner : IScanner
     public string UntransformedSubstring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public void AddPath(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);
+    public void AddSuccess(ParserMatch newMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public void Complete() => throw new InvalidOperationException(ErrorMsg);

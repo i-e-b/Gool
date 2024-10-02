@@ -41,5 +41,8 @@ public class NullParser : IParser
     public bool HasMetaData() => false;
 
     /// <inheritdoc />
+    public override string ToString() => $"Null parser from {_source}";
+
+    /// <inheritdoc />
     public string ShortDescription(int depth) => $"Null parser from {_source}";
 }

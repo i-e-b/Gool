@@ -11,25 +11,20 @@ public interface IScanningDiagnostics {
 	/// <summary>
 	/// Set a point at which a parser failed
 	/// </summary>
-	void AddFailure(IParser failedParser, ParserMatch? previousMatch);
+	void AddFailure(IParser failedParser, ParserMatch failMatch);
+
+	/// <summary>
+	/// Add a success path, for diagnostic use
+	/// </summary>
+	void AddSuccess(ParserMatch newMatch);
 
 	/// <summary>
 	/// Output a list of all fail points since the last success.
 	/// This is intended for lower-level diagnostics.
 	/// For parser output to show users, see <see cref="IScanner.FurthestMatch"/>
 	/// </summary>
-	List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false);
+	List<string> ListFailures(int minimumOffset = 0);
 
-	/// <summary>
-	/// Clear the stored list of failures. Should be called whenever a parser succeeds
-	/// </summary>
-	void ClearFailures();
-
-	/// <summary>
-	/// Returns a sample string from after the scanner stops.
-	/// </summary>
-	string BadPatch(int length);
-	
 	/// <summary>
 	/// Mark this scanner as having been used
 	/// </summary>

@@ -14,9 +14,12 @@ public class ParserPoint
 	
 	/// <summary> Previous ParserMatch </summary>
 	public readonly ParserMatch? PreviousMatch;
-	
+
+	/// <summary> Scanner </summary>
+	public readonly IScanner Scanner;
+
 	/// <summary> Position </summary>
-	public readonly int Position;
+	public readonly int Offset;
 
 	/// <summary>
 	/// Length of region. Zero if a single point
@@ -26,11 +29,21 @@ public class ParserPoint
 	/// <summary>
 	/// Match of parser and scanner location
 	/// </summary>
-	public ParserPoint(IParser p, ParserMatch? prevMatch)
+	public ParserPoint(IParser p, ParserMatch? prevMatch, IScanner scanner)
 	{
 		Parser = p;
 		PreviousMatch = prevMatch;
-		Position = Math.Max(0, prevMatch?.Offset ?? 0);
+		Scanner = scanner;
+		Offset = Math.Max(0, prevMatch?.Offset ?? 0);
 		Length = Math.Max(0, prevMatch?.Length ?? 0);
+	}
+
+	/// <summary>
+	/// Describe the parser point
+	/// </summary>
+	public override string ToString()
+	{
+		if (PreviousMatch is null) return $"{Offset}:{Length} = [{Scanner.UntransformedSubstring(Offset, Length)}] from [{Parser.ShortDescription(1)}]";
+		return $"[[{PreviousMatch}]] ... {Offset}:{Length} = [{Scanner.UntransformedSubstring(Offset, Length)}] from [{Parser.ShortDescription(1)}]";
 	}
 }

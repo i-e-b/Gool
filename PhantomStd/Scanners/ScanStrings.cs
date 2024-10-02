@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Gool.Parsers;
+using Gool.Parsers.Terminals;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -12,7 +13,6 @@ public class ScanStrings : IScanner
 {
     private readonly string                      _input;
     private readonly List<ParserPoint>           _failurePoints = new();
-    private readonly List<ParserMatch>           _matchPaths    = new();
     private readonly Dictionary<object, object?> _contexts      = new();
     private          bool                        _completed;
 
@@ -69,10 +69,10 @@ public class ScanStrings : IScanner
     /// <summary>
     /// Add a success path, for diagnostic use
     /// </summary>
-    public void AddPath(ParserMatch newMatch)
+    public void AddSuccess(ParserMatch newMatch)
     {
-        _matchPaths.Add(newMatch);
         if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
+        _failurePoints.Clear();
     }
 
     /// <inheritdoc />
@@ -94,40 +94,25 @@ public class ScanStrings : IScanner
     }
 
     /// <inheritdoc />
-    public void AddFailure(IParser failedParser, ParserMatch? previousMatch)
+    public void AddFailure(IParser failedParser, ParserMatch failMatch)
     {
-        _failurePoints.Add(new ParserPoint(failedParser, previousMatch));
+        _failurePoints.Add(new ParserPoint(failedParser, failMatch, this));
     }
 
     /// <inheritdoc />
-    public void ClearFailures()
-    {
-        _failurePoints.Clear();
-    }
-
-    /// <inheritdoc />
-    public List<string> ListFailures(int minimumOffset = 0, bool includePartialMatches = false)
+    public List<string> ListFailures(int minimumOffset = 0)
     {
         var lst = new List<string>();
 
         foreach (var p in _failurePoints)
         {
-            if (p.Position < minimumOffset) continue;
+            if (p.Offset < minimumOffset) continue;
 
-            var prev  = _input[..p.Position];
-            var left  = p.Length >= 0 ? _input.Substring(p.Position, p.Length) : "";
-            var right = _input[(p.Position + p.Length)..];
+            var prev  = _input[..p.Offset];
+            var left  = p.Length >= 0 ? _input.Substring(p.Offset, p.Length) : "";
+            var right = _input[(p.Offset + p.Length)..];
 
             lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
-        }
-
-        if (includePartialMatches)
-        {
-            foreach (var m in _matchPaths)
-            {
-                if (string.IsNullOrWhiteSpace(m.Tag)) continue;
-                lst.Add(" ¿" + m.Description() + "? ");
-            }
         }
 
         return lst;
@@ -138,13 +123,6 @@ public class ScanStrings : IScanner
         if (!string.IsNullOrWhiteSpace(p.Parser.Tag)) return p.Parser.Tag;
         var str = p.Parser.ShortDescription(depth: 7);
         return str;
-    }
-
-    /// <inheritdoc />
-    public string BadPatch(int length)
-    {
-        int l = Math.Min(_inputLength, (FurthestOffset + length)) - FurthestOffset;
-        return _input.Substring(FurthestOffset, l);
     }
 
     /// <inheritdoc />
@@ -171,6 +149,7 @@ public class ScanStrings : IScanner
         return TransformedString[offset];
     }
 
+    private readonly IParser _autoAdvanceParser = new NullParser("Auto advance");
     /// <summary>
     /// If skip whitespace is set and current position is whitespace,
     /// seek forward until on non-whitespace position or EOF.
@@ -182,7 +161,7 @@ public class ScanStrings : IScanner
         var left = previous?.Right ?? 0;
         if (EndOfInput(left)) return previous;
 
-        var ws     = NullMatch(null, left, previous);
+        var ws     = NullMatch(_autoAdvanceParser, left, previous);
         var offset = ws.Right;
         var c      = Peek(offset);
 
@@ -230,7 +209,7 @@ public class ScanStrings : IScanner
     public ParserMatch? FurthestMatch { get; private set; }
 
     /// <inheritdoc />
-    public ParserMatch NoMatch(IParser? source, ParserMatch? previous)
+    public ParserMatch NoMatch(IParser source, ParserMatch? previous)
     {
         return new ParserMatch(source, this, previous?.Offset ?? 0, -1, previous);
     }
@@ -242,7 +221,7 @@ public class ScanStrings : IScanner
     }
 
     /// <inheritdoc />
-    public ParserMatch NullMatch(IParser? source, int offset,ParserMatch? previous)
+    public ParserMatch NullMatch(IParser source, int offset,ParserMatch? previous)
     {
         return new ParserMatch(source, this, offset, -1, previous);
     }

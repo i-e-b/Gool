@@ -12,7 +12,7 @@ public class TreeNode
     /// <summary>
     /// Parser that created this match
     /// </summary>
-    public ParserMatch Source { get; private set; } = ParserMatch.NullMatch();
+    public ParserMatch Source { get; private set; } = ParserMatch.NullMatch("Unknown source in TreeNode");
     
     /// <summary>
     /// Nodes below this match

@@ -26,20 +26,23 @@ public class Css3Tests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Time()}");
 
-        Console.WriteLine("\r\n==[ Failures ]===============================================================================");
 
-        Console.WriteLine($"Reached right-offset={result.Scanner.FurthestOffset}: {result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, -50)}◢◣{result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, 50)}");
-
-        Console.WriteLine(result.Scanner.FurthestMatch?.Description() ?? "<no match>");
-
-        foreach (var fail in result.Scanner.ListFailures())
+        if (!result.Success)
         {
-            Console.WriteLine(fail);
+            Console.WriteLine("\r\n==[ Failures ]===============================================================================");
+
+            Console.WriteLine(
+                $"Reached right-offset={result.Scanner.FurthestOffset}: {result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, -50)}◢◣{result.Scanner.UntransformedSubstring(result.Scanner.FurthestOffset, 50)}");
+            Console.WriteLine(result.Scanner.FurthestMatch?.Description() ?? "<no match>");
+            foreach (var fail in result.Scanner.ListFailures())
+            {
+                Console.WriteLine(fail);
+            }
+
+            Console.WriteLine("\r\n=================================================================================");
+
+            Console.WriteLine("[[" + result.Value + "]]");
         }
-
-        Console.WriteLine("\r\n=================================================================================");
-
-        Console.WriteLine("[["+result.Value+"]]");
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -64,21 +67,21 @@ public class Css3Tests
         """;
 
     private const string TestSample =
-	    """
-	    .blokken {
-	    	position: relative;
-	    	background-color: #fff;
-	    	width: calc(100vw - 10rem);
-	    	min-height: calc(100vh - 10rem);
-	    	box-shadow: -0.5rem 0.5rem 1rem rgba(0,0,0,0.3);
-	    	margin: 5rem;
-	    	font-size: 2rem;
-	    	background-image: linear-gradient(to bottom, #fff calc(1em - 1px), #ccc calc(1em - 1px), #ccc 1em, #fff 1em);
-	    	background-position: 0% 1em;
-	    	background-size: 100% 1em;
-	    	background-repeat: repeat-y;
-	    }
-	    """;
+        """
+        .blokken {
+        	position: relative;
+        	background-color: #fff;
+        	width: calc(100vw - 10rem);
+        	min-height: calc(100vh - 10rem);
+        	box-shadow: -0.5rem 0.5rem 1rem rgba(0,0,0,0.3);
+        	margin: 5rem;
+        	font-size: 2rem;
+        	background-image: linear-gradient(to bottom, #fff calc(1em - 1px), #ccc calc(1em - 1px), #ccc 1em, #fff 1em);
+        	background-position: 0% 1em;
+        	background-size: 100% 1em;
+        	background-repeat: repeat-y;
+        }
+        """;
 
     private const string TinySample =
         """
@@ -88,20 +91,20 @@ public class Css3Tests
         """;
 
     private const string EscapeSample =
-	    """
-	    c\0066fde {
-	        \66\o\n\t-si\ze: 1em;
-	        \te\x\t-ali\g\n: left;
-	        \white-\s\pace: \p\re\-\w\ra\p;
-	    }
-	    """;
+        """
+        c\0066fde {
+            \66\o\n\t-si\ze: 1em;
+            \te\x\t-ali\g\n: left;
+            \white-\s\pace: \p\re\-\w\ra\p;
+        }
+        """;
 
     private const string MediaSample =
         """
         /* Style for a "Candidate Recommendation Draft" */
-    
+
         @import "base.css";
-        
+
         @media screen and (max-width: 500px) {
             .q-drawer--left,.q-header {
                 top:64px

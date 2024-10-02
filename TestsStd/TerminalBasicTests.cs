@@ -113,14 +113,15 @@ public class TerminalBasicTests
     [Test]
     public void _ExcludingCharacterSet_()
     {
-        var subject = new ExcludingCharacterSet('i', 'e', 'b');
-        var input = "abcdefghijklmnop";
-        var scanner = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = new ExcludingCharacterSet('i', 'e', 'b');
+        var input      = "abcdefghijklmnop";
+        var scanner    = new ScanStrings(input);
 
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(null, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -139,14 +140,15 @@ public class TerminalBasicTests
     [Test]
     public void _LiteralCharacterSet_()
     {
-        var subject = new LiteralCharacterSet('i', 'e', 'b');
-        var input = "abcdefghijklmnop";
-        var scanner = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = new LiteralCharacterSet('i', 'e', 'b');
+        var input      = "abcdefghijklmnop";
+        var scanner    = new ScanStrings(input);
 
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(null, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -230,14 +232,15 @@ public class TerminalBasicTests
     [Test]
     public void _Whitespace_()
     {
-        var subject = new Whitespace();
-        var input = "abc def\tghi\rjkl\nmno";
-        var scanner = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = new Whitespace();
+        var input      = "abc def\tghi\rjkl\nmno";
+        var scanner    = new ScanStrings(input);
 
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(null, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -717,10 +720,11 @@ public class TerminalBasicTests
     [Test]
     public void _RangeExcludingCharacterSet_()
     {
-        var subject  = new RangeExcludingCharacterSet('a', 'z', 'q', 'p', 'b', 'd');
-        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
-        var expected = @"acghijklrstuvwxyz";
-        var scanner  = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = new RangeExcludingCharacterSet('a', 'z', 'q', 'p', 'b', 'd');
+        var input      = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected   = @"acghijklrstuvwxyz";
+        var scanner    = new ScanStrings(input);
 
         var result = new StringBuilder();
 
@@ -728,7 +732,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(null, scanner, offset, index, null));
+            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
             if (match.Success) result.Append(c);
         }
 
@@ -739,10 +743,11 @@ public class TerminalBasicTests
     [Test]
     public void _MultiRangeCharacterSet_()
     {
-        var subject  = BNF.CharacterInRanges(('a', 'g'), ('A', 'G'), 'z');
-        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
-        var expected = @"abcDEFgz";
-        var scanner  = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = BNF.CharacterInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var input      = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected   = @"abcDEFgz";
+        var scanner    = new ScanStrings(input);
 
         var result = new StringBuilder();
 
@@ -750,7 +755,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(null, scanner, offset, index, null));
+            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
             if (match.Success) result.Append(c);
         }
 
@@ -761,10 +766,11 @@ public class TerminalBasicTests
     [Test]
     public void _MultiRangeExcludingCharacterSet_()
     {
-        var subject  = BNF.CharacterNotInRanges(('a', 'g'), ('A', 'G'), 'z');
-        var input    = @"abcDEFghijklMNOpqrstuvwxyz";
-        var expected = @"hijklMNOpqrstuvwxy";
-        var scanner  = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+        var subject    = BNF.CharacterNotInRanges(('a', 'g'), ('A', 'G'), 'z');
+        var input      = @"abcDEFghijklMNOpqrstuvwxyz";
+        var expected   = @"hijklMNOpqrstuvwxy";
+        var scanner    = new ScanStrings(input);
 
         var result = new StringBuilder();
 
@@ -772,7 +778,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(null, scanner, offset, index, null));
+            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
             if (match.Success) result.Append(c);
         }
 
