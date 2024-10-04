@@ -36,16 +36,17 @@ public class JsonTests
     [Test]
     public void recursive_parsers_can_be_applied_multiple_times()
     {
-        var parser = JsonParser.Json;
+        var parser      = JsonParser.Json;
         var phantomTime = new Stopwatch();
-        var result = parser.ParsePartialString(valid_sample);
+        var result      = parser.ParsePartialString(valid_sample);
         phantomTime.Start();
         for (int i = 0; i < 99; i++)
         {
             result = parser.ParsePartialString(valid_sample);
         }
+
         phantomTime.Stop();
-        Console.WriteLine($"Parsing took {phantomTime.Time(100)}; Per character = {phantomTime.Time(100*valid_sample.Length)}");
+        Console.WriteLine($"Parsing took {phantomTime.Time(100)}; Per character = {phantomTime.Time(100 * valid_sample.Length)}");
         Assert.That(result.Success, Is.True);
     }
 
@@ -63,7 +64,7 @@ public class JsonTests
                 Console.Write('a');
             }
         });
-        
+
         var t2 = new Thread(() =>
         {
             for (int i = 0; i < 99; i++)
@@ -90,14 +91,14 @@ public class JsonTests
         phantomTime.Stop();
         Console.WriteLine($"Creating parser took {phantomTime.Time()}");
 
-        
+
         phantomTime.Restart();
         var result = parser.ParsePartialString(valid_sample);
         phantomTime.Stop();
         Console.WriteLine($"Parsing took {phantomTime.Time()}");
 
         Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
-        
+
         foreach (var fail in result.Scanner.ListFailures())
         {
             Console.WriteLine(fail);
@@ -110,7 +111,7 @@ public class JsonTests
         phantomTime.Stop();
 
         PrintRecursive(scopes, 0);
-        
+
         Console.WriteLine("\r\n=================================================================================");
 
         // "Deserialise" the scope tree, test it against a proper JSON library.
@@ -119,7 +120,8 @@ public class JsonTests
         FillObject(scopes, dict);
         phantomTime.Stop();
 
-        var expected = "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]},\"meta\":{\"index\":[1,2.5,3.14E-10],\"affirmative\":true,\"declined\":false,\"tricky-string\":\"Hello \\\\\\\\\\\\\\\"World\\\\\\\"\\\\r\\\\n\"}}}";
+        var expected =
+            "{\"menu\":{\"id\":\"file\",\"value\":\"File\",\"popup\":{\"menuitem\":[{\"value\":\"New\",\"onclick\":\"CreateNewDoc()\"},{\"value\":\"Open\",\"onclick\":\"OpenDoc()\"},{\"value\":\"Close\",\"onclick\":\"CloseDoc()\"}]},\"meta\":{\"index\":[1,2.5,3.14E-10],\"affirmative\":true,\"declined\":false,\"tricky-string\":\"Hello \\\\\\\\\\\\\\\"World\\\\\\\"\\\\r\\\\n\"}}}";
         var output = Json.Freeze(dict);
 
         Console.WriteLine(Json.Beautify(output));
@@ -127,14 +129,14 @@ public class JsonTests
 
         Console.WriteLine("\r\n=================================================================================");
 
-  
+
         var sjTime = new Stopwatch();
         sjTime.Start();
         Json.Parse(valid_sample); // this has a more special purpose parser
         sjTime.Stop();
         Console.WriteLine($"Gool deserialising took {phantomTime.Elapsed.TotalMicroseconds} µs");
         Console.WriteLine($"Real serialiser took {sjTime.Elapsed.TotalMicroseconds} µs");
-        
+
 
         Assert.That(result.Success, Is.True);
     }
@@ -153,12 +155,16 @@ public class JsonTests
                 var firstChild = node.Children[0];
 
                 if (firstChild.NodeType != ScopeNodeType.ScopeChange
-                    || firstChild.OpeningMatch?.Tag != "object") throw new Exception("This only accepts an object at the root level");
+                 || firstChild.OpeningMatch?.Tag != "object") throw new Exception("This only accepts an object at the root level");
 
                 var skip = false;
                 foreach (var childNode in firstChild.Children)
                 {
-                    if (skip) { skip = false; continue; }
+                    if (skip)
+                    {
+                        skip = false;
+                        continue;
+                    }
 
                     skip = FillObject(childNode, target);
                 }
@@ -175,7 +181,7 @@ public class JsonTests
 
                         var key = GetPrimitiveValue(node).ToString()!;
                         if (node.NextNode is null) throw new Exception($"Key '{key}' has no value");
-                            
+
                         var value = GetNodeValue(node.NextNode);
                         if (!dict.TryAdd(key, value)) throw new Exception($"Key '{key}' is duplicated");
                         return true;
@@ -200,7 +206,7 @@ public class JsonTests
                     case List<object> list:
                         list.Add(GetNodeValue(node));
                         break;
-                    
+
                     default: throw new Exception($"Expected to write to array, got {target.GetType().Name}");
                 }
 
@@ -224,7 +230,7 @@ public class JsonTests
             case ScopeNodeType.Data: // should be a value
             {
                 if (node.DataMatch?.Tag != "value") throw new Exception($"Expected a value to go with key, got {node.DataMatch?.Tag ?? "<null>"}");
-                
+
                 value = GetPrimitiveValue(node);
                 break;
             }
@@ -248,7 +254,11 @@ public class JsonTests
                 var skip = false;
                 foreach (var childNode in node.Children)
                 {
-                    if (skip) { skip = false; continue; }
+                    if (skip)
+                    {
+                        skip = false;
+                        continue;
+                    }
 
                     skip = FillObject(childNode, value);
                 }
@@ -275,8 +285,8 @@ public class JsonTests
         if (bool.TryParse(clean, out var b)) return b;
 
         if (clean == "null") return "<null>"; // cheating for demo
-        
-        return "unhandled value: "+node.DataMatch.Value.Trim().Trim('"');
+
+        return "unhandled value: " + node.DataMatch.Value.Trim().Trim('"');
     }
 
     private static void PrintRecursive(ScopeNode node, int indent)

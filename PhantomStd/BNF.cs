@@ -706,9 +706,10 @@ public class BNF : IParser
 	/// Subsequent characters may be alphanumeric.
 	/// </summary>
 	/// <param name="allowUnderscore">Default: true. If true, '_' is allowed at the start, end, or middle of the identifier</param>
-	public static BNF IdentifierString(bool allowUnderscore = true)
+	/// <param name="allowHyphen">Default: false. If true, '-' is allowed in the middle, but not the start or end, of the identifier</param>
+	public static BNF IdentifierString(bool allowUnderscore = true, bool allowHyphen = false)
 	{
-		return new BNF(new IdentifierString(allowUnderscore));
+		return new BNF(new IdentifierString(allowUnderscore, allowHyphen));
 	}
 
 	/// <summary>

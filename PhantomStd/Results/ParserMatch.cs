@@ -36,6 +36,12 @@ public class ParserMatch
     public ParserMatch? Next;
 
     /// <summary>
+    /// Parent match, if any.
+    /// Will always be <c>null</c> for root match.
+    /// </summary>
+    public ParserMatch? Parent;
+
+    /// <summary>
     /// Builds a new match from a parser, input, and result range.
     /// </summary>
     /// <param name="source">The parser that made this match. This is required for tags and scopes</param>
@@ -88,6 +94,7 @@ public class ParserMatch
     [SuppressMessage("ReSharper", "InvocationIsSkipped")]
     private void AddChild(ParserMatch child)
     {
+        child.Parent = this;
         if (_leftChild is null) _leftChild = child;
         else if (_rightChild is null) _rightChild = child;
         else Debug.Assert(false, "Too many children");

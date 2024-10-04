@@ -10,13 +10,15 @@ namespace Gool.Parsers.Terminals;
 public class IdentifierString : Parser
 {
     private readonly bool _allowUnderscore;
+    private readonly bool _allowHyphen;
 
     /// <summary>
     /// Parser that matches a single whitespace character
     /// </summary>
-    public IdentifierString(bool allowUnderscore)
+    public IdentifierString(bool allowUnderscore, bool allowHyphen)
     {
         _allowUnderscore = allowUnderscore;
+        _allowHyphen = allowHyphen;
     }
 
     /// <inheritdoc />
@@ -29,6 +31,7 @@ public class IdentifierString : Parser
 
         while (!scan.EndOfInput(result.Right))
         {
+            bool valid = true;
             var c = scan.Peek(offset);
             if (c == 0) break; // ran off end
 
@@ -46,6 +49,11 @@ public class IdentifierString : Parser
             {
                 if (count == 0) break;
             }
+            else if (c is '-')
+            {
+                if (count == 0) break;
+                valid = false;
+            }
             else
             {
                 break;
@@ -53,7 +61,7 @@ public class IdentifierString : Parser
 
             count++;
             offset++;
-            result.ExtendTo(offset);
+            if (valid) result.ExtendTo(offset); // only grow the result if we have a valid end character.
         }
 
         return count < 1 ? scan.NoMatch(this, result) : result.Through(this, previousMatch);

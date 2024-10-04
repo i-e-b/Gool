@@ -9,20 +9,21 @@
 - [x] "Context" parser? Function that takes parser match tree so far, gives a new BNF. This continues as parser match, then continues to next result after the context parser.
 - [ ] More extensive read-me that covers all of BNF with examples
 - [ ] Query for point in text. Given a location, list all parsers that examined it, and what the result was.
-- [ ] Parent parser tree? (so we can query in parse results, and failures. Needs to handle context)
 - [ ] Ability to turn off auto-advance within a specific parser and its children.
+- [ ] Explore `FieldGrammarExperiment`
 
 ## Examples
 
 - [x] SQL connection strings
 - [x] Full XML: https://cs.lmu.edu/~ray/notes/xmlgrammar/
-- [ ] cron expressions: https://docs.rs/cronexpr/latest/cronexpr/
+- [x] cron expressions: https://docs.rs/cronexpr/latest/cronexpr/
 - [ ] Complete basic programming language (including interpreter and sample programs)
 
 Huge repo of grammars here: https://github.com/antlr/grammars-v4
 
 Sources for more examples:
 
+- https://github.com/TheAlgorithms
 - https://rosettacode.org/wiki/BNF_Grammar
 - https://docs.python.org/3/reference/grammar.html
 - https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
