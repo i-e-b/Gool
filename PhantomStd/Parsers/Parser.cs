@@ -37,12 +37,15 @@ public abstract class Parser : IParser
     /// <remarks>Most parsers won't need to override this method</remarks>
     /// <param name="scan">Scanner to parse from</param>
     /// <param name="previousMatch">Match to continue from. <c>null</c> if starting</param>
+    /// <param name="allowAutoAdvance">if true, auto-advance will be tried</param>
     /// <returns>Match (success of failure) of the parser against the scanner</returns>
-    public /*virtual*/ ParserMatch Parse(IScanner scan, ParserMatch? previousMatch)
+    public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance = true)
     {
-        var start = scan.AutoAdvance(previousMatch);
+        var start = allowAutoAdvance ? scan.DoAutoAdvance(previousMatch) : previousMatch;
 
-        var newMatch = TryMatch(scan, start);
+        if (Tag is not null) scan.LastTag = Tag;
+
+        var newMatch = TryMatch(scan, start, allowAutoAdvance);
         if (newMatch.Success)
         {
             scan.AddSuccess(newMatch);
@@ -69,5 +72,5 @@ public abstract class Parser : IParser
     /// <summary>
     /// Try to match scanner data against the contained parser
     /// </summary>
-    internal abstract ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch);
+    internal abstract ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance);
 }

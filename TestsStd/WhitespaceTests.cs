@@ -37,7 +37,7 @@ public class WhitespaceTests
     public void decompose_with_scanner_whitespace_skip()
     {
         var parser = MakeParser();
-        var scanner = new ScanStrings(Sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(Sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var result = parser.Parse(scanner);
 

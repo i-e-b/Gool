@@ -26,17 +26,17 @@ public class ParallelSet : Parser
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         // The capture parser must match
-        var baseMatch = _capture.Parse(scan, previousMatch);
+        var baseMatch = _capture.Parse(scan, previousMatch, allowAutoAdvance);
         if (!baseMatch.Success) return baseMatch;
         
         // Every validation parser must match the result of the capture parser
         var capture = new ScanStrings(baseMatch.Value);
         foreach (var parser in _parsers)
         {
-            var result = parser.Parse(capture);
+            var result = parser.Parse(capture, null, allowAutoAdvance);
             if (!result.Success) return scan.NoMatch(this, previousMatch);
         }
 

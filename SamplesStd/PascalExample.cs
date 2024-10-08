@@ -16,8 +16,8 @@ public static class PascalExample
     private static RegexOptions Options()
     {
         return RegexOptions.ExplicitCapture
-               | RegexOptions.IgnoreCase
-               | RegexOptions.Multiline;
+             | RegexOptions.IgnoreCase
+             | RegexOptions.Multiline;
     }
 
 
@@ -36,65 +36,67 @@ public static class PascalExample
         var _factor     = BNF.Forward();
 
         BNF // Basic literals
-            unsignedInteger = BNF.Regex(@"\d+"),
-            identifier      = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
-            pascalString    = BNF.Regex("'([^']|'')*'"), // Pascal uses two single-quotes to mark a single quote.
-            plusOrMinus     = BNF.OneOf('-', '+');
+            unsignedInteger     = BNF.Regex(@"\d+"),
+            identifier          = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
+            pascalString        = BNF.Regex("'([^']|'')*'"), // Pascal uses two single-quotes to mark a single quote.
+            comment             = '{' > -(BNF.AnyChar / '}') > '}',
+            whiteSpaceOrComment = +(BNF.WhiteSpaceString | comment),
+            plusOrMinus         = BNF.OneOf('-', '+');
 
         BNF // Keywords
-            k_program   = "program",
-            k_if        = "if",
-            k_set       = "set",
-            k_of        = "of",
-            k_array     = "array",
-            k_record    = "record",
-            k_end       = "end",
-            k_to        = "to",
-            k_down_to   = "downto",
-            k_begin     = "begin",
-            k_file      = "file",
-            k_exit      = "exit",
-            k_var       = "var",
-            k_else      = "else",
-            k_label     = "label",
-            k_const     = "const",
-            k_type      = "type",
-            k_packed    = "packed",
-            k_nil       = "nil",
-            k_function  = "function",
-            k_do        = "do",
-            k_then      = "then",
-            k_for       = "for",
-            k_case      = "case",
-            k_until     = "until",
-            k_procedure = "procedure",
-            k_repeat    = "repeat",
-            k_while     = "while",
-            k_with      = "with",
-            k_goto      = "goto";
+            k_program   = "program".Keyword(),
+            k_if        = "if".Keyword(),
+            k_set       = "set".Keyword(),
+            k_of        = "of".Keyword(),
+            k_array     = "array".Keyword(),
+            k_record    = "record".Keyword(),
+            k_end       = "end".Keyword(),
+            k_to        = "to".Keyword(),
+            k_down_to   = "downto".Keyword(),
+            k_begin     = "begin".Keyword(),
+            k_file      = "file".Keyword(),
+            k_exit      = "exit".Keyword(),
+            k_var       = "var".Keyword(),
+            k_else      = "else".Keyword(),
+            k_label     = "label".Keyword(),
+            k_const     = "const".Keyword(),
+            k_type      = "type".Keyword(),
+            k_packed    = "packed".Keyword(),
+            k_nil       = "nil".Keyword(),
+            k_function  = "function".Keyword(),
+            k_do        = "do".Keyword(),
+            k_then      = "then".Keyword(),
+            k_for       = "for".Keyword(),
+            k_case      = "case".Keyword(),
+            k_until     = "until".Keyword(),
+            k_procedure = "procedure".Keyword(),
+            k_repeat    = "repeat".Keyword(),
+            k_while     = "while".Keyword(),
+            k_with      = "with".Keyword(),
+            k_goto      = "goto".Keyword();
 
         BNF // Operators
-            o_comma = ',',
-            o_dot   = '.',
-            o_colon = ':',
-            o_equal = '=',
-            o_slash = '/',
-            o_mul   = '*',
-            o_ref   = '^',
-            o_range = "..",
-            o_or    = "or",
-            o_not   = "not",
-            o_and   = "and",
-            o_div   = "div",
-            o_mod   = "mod",
-            o_set   = ":=";
+            o_comma = ','.Keyword(),
+            o_dot   = '.'.Keyword(),
+            o_colon = ':'.Keyword(),
+            o_equal = '='.Keyword(),
+            o_slash = '/'.Keyword(),
+            o_mul   = '*'.Keyword(),
+            o_ref   = '^'.Keyword(),
+            o_range = "..".Keyword(),
+            o_or    = "or".Keyword(),
+            o_not   = "not".Keyword(),
+            o_and   = "and".Keyword(),
+            o_div   = "div".Keyword(),
+            o_mod   = "mod".Keyword(),
+            o_set   = ":=".Keyword();
 
         BNF // Scope markers
-            s_open_paren    = '(',
-            s_close_paren   = ')',
-            s_open_bracket  = '[',
-            s_close_bracket = ']';
-        
+            s_open_paren    = '('.Keyword(),
+            s_close_paren   = ')'.Keyword(),
+            s_open_bracket  = '['.Keyword(),
+            s_close_bracket = ']'.Keyword();
+
         BNF // Terminators / Separators
             t_semi = ';';
 
@@ -183,14 +185,6 @@ public static class PascalExample
         _factor.Is(expression);
 
         // Apply tags
-        BNF.TagAll(Keyword, 
-            k_program, k_set, k_of, k_array, k_record, k_end, k_to, k_down_to, k_begin, k_file,
-            k_exit, k_var, k_else, k_label, k_const, k_type, k_packed, k_nil, k_function, k_do,
-            k_then, k_for, k_case, k_until, k_procedure, k_repeat, k_while, k_with, k_goto);
-
-        BNF.TagAll(Operator, o_comma, o_dot, o_colon, o_equal, o_slash, o_mul, o_ref, o_range,
-            o_or, o_not, o_and, o_div, o_mod, o_set);
-
         t_semi.TagWith(StatementEnd);
         identifier.TagWith(Identifier);
         pascalString.TagWith(PascalString);
@@ -206,21 +200,20 @@ public static class PascalExample
         s_open_bracket.TagWith(OpenBracket).OpenScope();
         s_close_bracket.TagWith(CloseBracket).CloseScope();
 
-        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.SkipWhitespace | BNF.Options.IncludeSkippedElements);
+        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.IncludeSkippedElements, autoAdvance: whiteSpaceOrComment);
     }
 
     // ReSharper disable MemberCanBePrivate.Global
-    public const string Identifier = "identifier";
+    public const string Identifier   = "identifier";
     public const string PascalString = "string";
-    public const string Expression = "expression";
-    public const string Constant = "constant";
-    public const string Keyword = "keyword";
-    public const string Operator = "operator";
-    public const string Inequality = "inequality";
-    public const string OpenParen = "openParen";
-    public const string CloseParen = "closeParen";
-    public const string OpenBracket = "openBracket";
+    public const string Expression   = "expression";
+    public const string Constant     = "constant";
+    public const string Inequality   = "inequality";
+    public const string OpenParen    = "openParen";
+    public const string CloseParen   = "closeParen";
+    public const string OpenBracket  = "openBracket";
     public const string CloseBracket = "closeBracket";
+
     public const string StatementEnd = "statement";
     // ReSharper restore MemberCanBePrivate.Global
 }

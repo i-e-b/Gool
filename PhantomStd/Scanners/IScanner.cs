@@ -30,6 +30,17 @@ public interface IScanner: IScanningDiagnostics
 
 	/// <summary>Get or set the current input transform.</summary>
 	ITransform Transform { get; set; }
+
+	/// <summary>
+	/// Get or set the auto-advance pattern.
+	/// If this is null, no auto-advance is performed.
+	/// </summary>
+	/// <remarks>
+	///	The auto-advance parser is run between each parser in
+	/// the syntax pattern. Any input consumed by this is not
+	/// seen by the main syntax pattern.
+	/// </remarks>
+	IParser? AutoAdvance { get; set; }
 	
 	/// <summary>
 	/// If <c>true</c>, auto-advanced elements (like white-space skips) will be added to the result tree.
@@ -45,6 +56,16 @@ public interface IScanner: IScanningDiagnostics
 	/// Rightmost successful match, if any
 	/// </summary>
 	ParserMatch? FurthestMatch { get; }
+
+	/// <summary>
+	/// Rightmost failed match, if any
+	/// </summary>
+	ParserMatch? FurthestTest { get; }
+
+	/// <summary>
+	/// Most recent tag that was tested by a parser.
+	/// </summary>
+	string? LastTag { get; set; }
 
 	/// <summary>Return a failure match.</summary>
 	[MustUseReturnValue]ParserMatch NoMatch(IParser source, ParserMatch? previous);
@@ -66,7 +87,7 @@ public interface IScanner: IScanningDiagnostics
 	/// Prepares the scanner for the next token.
 	/// This is mainly used for whitespace skipping.
 	/// </summary>
-	[MustUseReturnValue]public ParserMatch? AutoAdvance(ParserMatch? previous);
+	[MustUseReturnValue]public ParserMatch? DoAutoAdvance(ParserMatch? previous);
 
 	/// <summary>
 	/// Return a substring from the input.

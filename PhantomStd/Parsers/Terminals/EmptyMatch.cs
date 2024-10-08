@@ -11,7 +11,7 @@ namespace Gool.Parsers.Terminals;
 public class EmptyMatch : Parser
 {
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         return scan.CreateMatch(this, previousMatch?.Right ?? 0, 0, previousMatch);
     }

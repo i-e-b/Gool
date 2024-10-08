@@ -18,15 +18,15 @@ public class Sequence : Binary
 	}
 
 	/// <inheritdoc />
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		// apply the first parser
-		var left = LeftParser.Parse(scan, previousMatch);
+		var left = LeftParser.Parse(scan, previousMatch, allowAutoAdvance);
 
 		// if left successful, do right
 		if (left.Success)
 		{
-			var right = RightParser.Parse(scan, left);
+			var right = RightParser.Parse(scan, left, allowAutoAdvance);
 
 			return right.Success ? ParserMatch.Join(previousMatch, this, left, right) : scan.NoMatch(this, previousMatch);
 		}

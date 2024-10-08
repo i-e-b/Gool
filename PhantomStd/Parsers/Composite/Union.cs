@@ -38,13 +38,13 @@ public class Union : Parser
 	}
 
 	/// <inheritdoc />
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		ParserMatch? longestMatch = null;
 
 		foreach (var parser in _parsers)
 		{
-			var result = parser.Parse(scan, previousMatch);
+			var result = parser.Parse(scan, previousMatch, allowAutoAdvance);
 			if (result.Success && (result.Length > (longestMatch?.Length ?? -1))) longestMatch = result;
 		}
 

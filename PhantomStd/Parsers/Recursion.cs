@@ -41,7 +41,7 @@ public class Recursion : Parser
 	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		// Recursion safety checks:
 		var key  = ((long)(previousMatch?.SourceParser?.GetHashCode() ?? 0) << 32) + (previousMatch?.Right ?? 0);
@@ -53,7 +53,7 @@ public class Recursion : Parser
 			return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
 		}
 
-		var result = _parser.Parse(scan, previousMatch);
+		var result = _parser.Parse(scan, previousMatch, allowAutoAdvance);
 
 		if (result.SameAs(previousMatch))
 		{

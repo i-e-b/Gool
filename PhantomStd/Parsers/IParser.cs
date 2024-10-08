@@ -16,7 +16,7 @@ public interface IParser
 	/// <summary>
 	/// Try to interpret the content of <paramref name="scan"/>
 	/// </summary>
-	[MustUseReturnValue]ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null);
+	[MustUseReturnValue]ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null, bool allowAutoAdvance = true);
 
 	/// <summary>
 	/// Optional tag value for this parser.

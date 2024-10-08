@@ -20,13 +20,13 @@ public class Exclusive : Binary
 	}
 
 	/// <inheritdoc />
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		// apply the first parser
-		var leftMatch = LeftParser.Parse(scan, previousMatch);
+		var leftMatch = LeftParser.Parse(scan, previousMatch, allowAutoAdvance);
 
 		// apply the second parser
-		var rightMatch = RightParser.Parse(scan, previousMatch);
+		var rightMatch = RightParser.Parse(scan, previousMatch, allowAutoAdvance);
 
 		if (rightMatch.Success && leftMatch.Success)
 		{

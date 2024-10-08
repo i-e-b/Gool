@@ -21,10 +21,10 @@ public class Wrapper : Unary
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         // apply the first parser
-        var innerMatch = Parser.Parse(scan, previousMatch);
+        var innerMatch = Parser.Parse(scan, previousMatch, allowAutoAdvance);
 
         return innerMatch.Success
             ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, previousMatch)

@@ -21,7 +21,7 @@ public class PreviousMatchCheck : Unary
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         // Walk back until null or non-empty.
         while (previousMatch is not null && previousMatch.Length < 1)
@@ -32,7 +32,7 @@ public class PreviousMatchCheck : Unary
         // Didn't find any previous characters
         if (previousMatch is null) return scan.NoMatch(this, null);
 
-        var check = Parser.Parse(scan, scan.CreateMatch(this, previousMatch.Offset, 0, null));
+        var check = Parser.Parse(scan, scan.CreateMatch(this, previousMatch.Offset, 0, null), allowAutoAdvance);
 
         return check.Success
             ? scan.CreateMatch(this, previousMatch.Right, 0, previousMatch)

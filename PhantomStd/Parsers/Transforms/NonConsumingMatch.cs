@@ -26,12 +26,12 @@ public class NonConsumingMatch : Unary
     public NonConsumingMatch(IParser parser) : base(parser) { }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var left = previousMatch ?? scan.EmptyMatch(this, 0, previousMatch);
 
         // test the first parser
-        var check = Parser.Parse(scan, previousMatch);
+        var check = Parser.Parse(scan, previousMatch, allowAutoAdvance);
 
         return check.Success
             ? scan.CreateMatch(this, left.Offset, 0, previousMatch)

@@ -23,7 +23,7 @@ public interface IScanningDiagnostics {
 	/// This is intended for lower-level diagnostics.
 	/// For parser output to show users, see <see cref="IScanner.FurthestMatch"/>
 	/// </summary>
-	List<string> ListFailures(int minimumOffset = 0);
+	List<string> ListFailures(int minimumOffset = 0, bool showDetails = false);
 
 	/// <summary>
 	/// Mark this scanner as having been used

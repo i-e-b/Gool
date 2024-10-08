@@ -10,6 +10,23 @@ namespace Gool;
 public static class BnfExtensions
 {
     /// <summary>
+    /// Match a string literal, tagged with its own pattern.
+    /// </summary>
+    public static BNF Keyword(this string pattern)
+    {
+        return new BNF(new LiteralString(pattern) { Tag = pattern });
+    }
+
+    /// <summary>
+    /// Match a character literal, tagged with its own pattern.
+    /// </summary>
+    public static BNF Keyword(this char pattern)
+    {
+        return new BNF(new LiteralCharacterSet(pattern) { Tag = pattern.ToString() });
+    }
+
+
+    /// <summary>
     /// Match a literal string in a case insensitive way
     /// </summary>
     public static BNF CaseInsensitive(this string pattern)

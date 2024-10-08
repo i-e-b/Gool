@@ -35,9 +35,9 @@ public class ContextParser : Parser
         _select = select ?? (match => match);
     }
 
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
-        var preamble = _prefix.Parse(scan, previousMatch);
+        var preamble = _prefix.Parse(scan, previousMatch, allowAutoAdvance);
         if (!preamble.Success) return preamble;
 
         var fragment = _select(preamble);

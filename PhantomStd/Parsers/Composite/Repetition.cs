@@ -42,7 +42,7 @@ public class Repetition : Unary
 	}
 
 	/// <inheritdoc />
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0, previousMatch); // empty match with this parser
 
@@ -50,7 +50,7 @@ public class Repetition : Unary
 
 		while (count < _upperBound && !scan.EndOfInput(result.Right))
 		{
-			var after = Parser.Parse(scan, result);
+			var after = Parser.Parse(scan, result, allowAutoAdvance);
 			if (!after.Success) break; // no more matches
 			if (after.Right <= result.Right) break; // repetition must progress
 

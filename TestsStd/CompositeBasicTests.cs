@@ -144,7 +144,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = DifferenceParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -193,7 +193,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = ExclusiveParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -242,7 +242,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = IntersectionParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -335,7 +335,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = SequenceParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         Console.WriteLine(parser.ToString());
 
@@ -390,7 +390,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = TerminatedListParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -429,7 +429,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = TerminatedListParserSample();
-        var scanner = new ScanStrings(incorrect_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(incorrect_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -475,7 +475,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser  = NonConsumingMatchSample();
-        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -521,7 +521,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser = UnionParserSample();
-        var scanner = new ScanStrings(correct_sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -582,7 +582,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser  = ContextParserSample();
-        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -619,7 +619,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser  = ContextParserSample();
-        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();
@@ -656,7 +656,7 @@ public class CompositeBasicTests
 
         Console.WriteLine("\r\n=================================================================================");
         var parser  = ContextParserSample();
-        var scanner = new ScanStrings(sample) { SkipWhitespace = true };
+        var scanner = new ScanStrings(sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
         sw.Start();

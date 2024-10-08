@@ -10,7 +10,7 @@ namespace Gool.Parsers.Terminals;
 public class AnyCharacter : Parser
 {
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var left = previousMatch?.Right ?? 0;
         return scan.EndOfInput(left)

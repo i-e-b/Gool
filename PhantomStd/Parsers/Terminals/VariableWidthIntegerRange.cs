@@ -51,7 +51,7 @@ public class VariableWidthIntegerRange : Parser
     public override bool IsOptional() => false;
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var start = previousMatch?.Right ?? 0;
         var offset = previousMatch?.Right ?? 0;

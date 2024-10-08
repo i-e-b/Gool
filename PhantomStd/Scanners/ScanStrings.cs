@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Gool.Parsers;
-using Gool.Parsers.Terminals;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -11,10 +10,15 @@ namespace Gool.Scanners;
 /// </summary>
 public class ScanStrings : IScanner
 {
+    private bool    _completed;
+    private string? _transformedString;
+    private string? _furthestTag;
+
     private readonly string                      _input;
-    private readonly List<ParserPoint>           _failurePoints = new();
-    private readonly Dictionary<object, object?> _contexts      = new();
-    private          bool                        _completed;
+    private readonly List<ParserPoint>           _failurePoints     = new();
+    private readonly Dictionary<object, object?> _contexts          = new();
+    private readonly HashSet<string>             _failedTags        = new();
+    private readonly int                         _inputLength;
 
     /// <summary>
     /// Create a new scanner from an input string.
@@ -28,14 +32,7 @@ public class ScanStrings : IScanner
         _completed = false;
 
         Transform = new NoTransform();
-        SkipWhitespace = false;
     }
-
-    /// <summary>
-    /// Gets or sets a boolean value that controls whitespace skipping.
-    /// If set to true, white space will be skipped whenever Normalised() is called.
-    /// </summary>
-    public bool SkipWhitespace { get; set; }
 
     /// <summary>
     /// If <c>true</c>, auto-advanced elements (like white-space skips)
@@ -61,9 +58,6 @@ public class ScanStrings : IScanner
         }
     }
 
-    private          string? _transformedString;
-    private readonly int     _inputLength;
-
     #region IScanner Members
 
     /// <summary>
@@ -72,7 +66,9 @@ public class ScanStrings : IScanner
     public void AddSuccess(ParserMatch newMatch)
     {
         if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
+        _furthestTag = LastTag;
         _failurePoints.Clear();
+        _failedTags.Clear();
     }
 
     /// <inheritdoc />
@@ -96,13 +92,35 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public void AddFailure(IParser failedParser, ParserMatch failMatch)
     {
+        if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
+        if (LastTag is not null) _failedTags.Add(LastTag);
         _failurePoints.Add(new ParserPoint(failedParser, failMatch, this));
     }
 
     /// <inheritdoc />
-    public List<string> ListFailures(int minimumOffset = 0)
+    public List<string> ListFailures(int minimumOffset = 0, bool showDetails = false)
     {
         var lst = new List<string>();
+
+        if (FurthestTest is not null)
+        {
+            if (_failedTags.Count > 0)
+            {
+                lst.Add($"Expected '{string.Join("', '", _failedTags)}'");
+            }
+
+            if (_furthestTag is not null) lst.Add($"After '{_furthestTag}'");
+
+            var offset = FurthestMatch?.Offset ?? 0;
+            var prev   = UntransformedSubstring(0, offset);
+            var length = Math.Max(0, (FurthestTest?.Right ?? _input.Length) - offset);
+            var left   = UntransformedSubstring(offset, length);
+            var right  = UntransformedSubstring(offset + length, _input.Length);
+            lst.Add($"{prev}◢{left}◣{right}");
+        }
+
+        if (!showDetails) return lst;
+
 
         foreach (var p in _failurePoints)
         {
@@ -112,7 +130,7 @@ public class ScanStrings : IScanner
             var left  = p.Length >= 0 ? _input.Substring(p.Offset, p.Length) : "";
             var right = _input[(p.Offset + p.Length)..];
 
-            lst.Add(prev + "◢" + left + "◣" + right + " --> " + ParserStringFrag(p));
+            lst.Add($"{prev}◢{left}◣{right} --> ({FurthestMatch?.Offset ?? 0},{FurthestMatch?.Right ?? 0}..{FurthestTest?.Offset ?? 0},{FurthestTest?.Right ?? 0}) {ParserStringFrag(p)}");
         }
 
         return lst;
@@ -149,30 +167,46 @@ public class ScanStrings : IScanner
         return TransformedString[offset];
     }
 
-    private readonly IParser _autoAdvanceParser = new NullParser("Auto advance");
     /// <summary>
     /// If skip whitespace is set and current position is whitespace,
     /// seek forward until on non-whitespace position or EOF.
     /// </summary>
-    public ParserMatch? AutoAdvance(ParserMatch? previous)
+    public ParserMatch? DoAutoAdvance(ParserMatch? previous)
     {
-        if (!SkipWhitespace) return previous;
+
+        /*
+         *
+       if (!SkipWhitespace) return previous;
+
+       var left = previous?.Right ?? 0;
+       if (EndOfInput(left)) return previous;
+
+       var ws     = NullMatch(_autoAdvanceParser, left, previous);
+       var offset = ws.Right;
+       var c      = Peek(offset);
+
+       while (char.IsWhiteSpace(c)) // if this is whitespace
+       {
+           ws.ExtendTo(offset + 1); // mark our match up to this character
+           if (!Read(ref offset)) break; // try to advance to next character
+           c = Peek(offset); // read that character
+       }
+       // It's very important to have auto-advance off!
+       if (AutoAdvance is null) return previous;
+
+       return ws;
+
+         */
+        // It's very important to have auto-advance off!
+        if (AutoAdvance is null) return previous;
+
 
         var left = previous?.Right ?? 0;
-        if (EndOfInput(left)) return previous;
+        var prev   = NullMatch(AutoAdvance, left, previous);
+        if (EndOfInput(left)) return prev;
 
-        var ws     = NullMatch(_autoAdvanceParser, left, previous);
-        var offset = ws.Right;
-        var c      = Peek(offset);
-
-        while (char.IsWhiteSpace(c)) // if this is whitespace
-        {
-            ws.ExtendTo(offset + 1); // mark our match up to this character
-            if (!Read(ref offset)) break; // try to advance to next character
-            c = Peek(offset); // read that character
-        }
-
-        return ws;
+        var skipMatch = AutoAdvance.Parse(this, prev, allowAutoAdvance: false);
+        return (skipMatch.Length > 0) ? skipMatch : prev;
     }
 
     /// <inheritdoc />
@@ -203,10 +237,19 @@ public class ScanStrings : IScanner
     public ITransform Transform { get; set; }
 
     /// <inheritdoc />
+    public IParser? AutoAdvance { get; set; }
+
+    /// <inheritdoc />
     public int FurthestOffset { get; private set; }
 
     /// <inheritdoc />
     public ParserMatch? FurthestMatch { get; private set; }
+
+    /// <inheritdoc />
+    public ParserMatch? FurthestTest { get; private set; }
+
+    /// <inheritdoc />
+    public string? LastTag { get; set; }
 
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser source, ParserMatch? previous)

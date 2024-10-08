@@ -16,7 +16,7 @@ public class NullScanner : IScanner
     public void AddFailure(IParser failedParser, ParserMatch failMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public List<string> ListFailures(int minimumOffset = 0) => throw new InvalidOperationException(ErrorMsg);
+    public List<string> ListFailures(int minimumOffset = 0, bool showDetails = false) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public string InputString => throw new InvalidOperationException(ErrorMsg);
@@ -34,6 +34,9 @@ public class NullScanner : IScanner
     }
 
     /// <inheritdoc />
+    public IParser? AutoAdvance { get; set; }
+
+    /// <inheritdoc />
     public bool IncludeSkippedElements
     {
         get => throw new InvalidOperationException(ErrorMsg);
@@ -45,6 +48,12 @@ public class NullScanner : IScanner
 
     /// <inheritdoc />
     public ParserMatch FurthestMatch => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public ParserMatch FurthestTest => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public string? LastTag { get; set; }
 
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser? source, ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
@@ -65,7 +74,7 @@ public class NullScanner : IScanner
     public char Peek(int offset) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
-    public ParserMatch AutoAdvance(ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
+    public ParserMatch DoAutoAdvance(ParserMatch? previous) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public ReadOnlySpan<char> Substring(int offset, int length) => throw new InvalidOperationException(ErrorMsg);

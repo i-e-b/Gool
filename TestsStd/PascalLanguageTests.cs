@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text;
-using Gool;
 using Gool.Results;
 using Gool.Scanners;
 using NUnit.Framework;
@@ -15,7 +14,7 @@ public class PascalLanguageTests
 {
     private const string sample_program =
         """
-        program WriteName;
+        program WriteName; { This is a sample program }
         var
           i, j : Integer;
           name : String;
@@ -65,16 +64,9 @@ public class PascalLanguageTests
     {
         var sw = new Stopwatch();
         sw.Start();
-        var result = PascalExample.Parser.ParsePartialString(sample_program);
+        var result = PascalExample.Parser.ParseEntireString(sample_program);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
-
-        /*
-        Console.WriteLine("==================================================");
-        foreach (var m in result.TaggedTokensDepthFirst())
-        {
-            Console.WriteLine($"{m} [{m.Tag}] : {m.SourceParser?.GetType().Name}");
-        }*/
 
         Console.WriteLine("==================================================");
         var scopeTree = ScopeNode.FromMatch(result);
@@ -160,11 +152,8 @@ public class PascalLanguageTests
 
     private static void PrintFailures(IScanner scanner)
     {
-        Console.WriteLine($"\r\nAfter [{scanner.FurthestMatch}], expected:");
-        Console.WriteLine($"[{scanner.FurthestMatch?.Next?.SourceParser?.ToString() ?? "<null>"}]\r\n");
         foreach (var mismatch in scanner.ListFailures())
         {
-            Console.WriteLine("==================================================");
             Console.WriteLine(mismatch);
         }
     }

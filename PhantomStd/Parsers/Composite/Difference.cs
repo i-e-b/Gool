@@ -20,14 +20,14 @@ public class Difference : Binary
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
-        var targetMatch = LeftParser.Parse(scan, previousMatch);
+        var targetMatch = LeftParser.Parse(scan, previousMatch, allowAutoAdvance);
 
         if (!targetMatch.Success) return scan.NoMatch(this, previousMatch);
 
         // doing difference
-        var refuseMatch = RightParser.Parse(scan, previousMatch);
+        var refuseMatch = RightParser.Parse(scan, previousMatch, allowAutoAdvance);
         if (refuseMatch.Success)
         {
             // fail: must match left but NOT right

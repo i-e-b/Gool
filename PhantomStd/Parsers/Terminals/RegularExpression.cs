@@ -47,7 +47,7 @@ public class RegularExpression : Parser
 	/// </summary>
 	/// <remarks>This is done on the entire input.
 	/// This might cause problems with file-stream parsing.</remarks>
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		var offset = previousMatch?.Right ?? 0;
 		var result = _test.Match(scan.TransformedString, offset);

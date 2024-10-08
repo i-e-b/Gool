@@ -141,6 +141,34 @@ public class JsonTests
         Assert.That(result.Success, Is.True);
     }
 
+    [Test]
+    public void json_parsing_fails_on_invalid_input()
+    {
+        Console.WriteLine("\r\n=================================================================================");
+        var phantomTime = new Stopwatch();
+        phantomTime.Start();
+        var parser = JsonParser.Json;
+        phantomTime.Stop();
+        Console.WriteLine($"Creating parser took {phantomTime.Time()}");
+
+        var broken = valid_sample[..(valid_sample.Length / 2)] + ": !!!?"; // chop the input in half
+        Console.WriteLine("\r\n=================================================================================");
+
+        phantomTime.Restart();
+        var result = parser.ParseEntireString(broken);
+        phantomTime.Stop();
+        Console.WriteLine($"Parsing took {phantomTime.Time()}");
+
+        Console.WriteLine($"Total matches = {result.DepthFirstWalk().Count()}");
+
+        foreach (var fail in result.Scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.False, "Should be a failure");
+    }
+
     /// <summary>
     /// Returns true if next item should be skipped
     /// </summary>

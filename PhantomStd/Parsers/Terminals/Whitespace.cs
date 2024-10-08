@@ -38,7 +38,7 @@ public class Whitespace : Parser
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var offset = previousMatch?.Right ?? 0;
         var result = scan.EmptyMatch(this, previousMatch?.Right ?? 0, previousMatch); // empty match with this parser

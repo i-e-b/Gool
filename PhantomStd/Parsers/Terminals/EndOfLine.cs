@@ -10,7 +10,7 @@ namespace Gool.Parsers.Terminals;
 public class EndOfLine : Parser
 {
 	/// <inheritdoc />
-	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		int start = previousMatch?.Right ?? 0;
 		int cursor = start;

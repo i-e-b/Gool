@@ -25,20 +25,20 @@ public class TerminatedList : Binary
     }
 
     /// <inheritdoc />
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var result = scan.NullMatch(this, previousMatch?.Right ?? 0, previousMatch);
 
         while (!scan.EndOfInput(result.Right))
         {
-            var item = LeftParser.Parse(scan, result);
+            var item = LeftParser.Parse(scan, result, allowAutoAdvance);
 
             if (!item.Success)
             {
                 return result.Through(this, previousMatch);
             }
 
-            var terminator = RightParser.Parse(scan, item);
+            var terminator = RightParser.Parse(scan, item, allowAutoAdvance);
 
             if (!terminator.Success)
             {

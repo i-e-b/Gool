@@ -21,13 +21,13 @@ public class CompositeSequence : Parser
         _parsers = new List<IParser>(parsers);
     }
 
-    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+    internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var cursor = previousMatch ?? scan.NoMatch(this, previousMatch);
 
         foreach (var parser in _parsers)
         {
-            var next = parser.Parse(scan, cursor);
+            var next = parser.Parse(scan, cursor, allowAutoAdvance);
             if (!next.Success) return next;
 
             cursor = cursor.Join(previousMatch, parser, next);

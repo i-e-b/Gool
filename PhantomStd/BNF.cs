@@ -88,16 +88,19 @@ public class BNF : IParser
 	/// <param name="input">String to parse</param>
 	/// <param name="offset">Optional: Offset into the input to start parsing</param>
 	/// <param name="options">Optional: Settings for parsing, which can significantly change result</param>
+	/// <param name="autoAdvance">Optional: Custom auto-advance. This overrides <c>Options.SkipWhitespace</c></param>
 	/// <param name="mustConsumeAll">
 	/// Optional, default = <c>false</c>.
 	/// If true, parsing will fail if it does not consume all of the input.</param>
-	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, bool mustConsumeAll = false)
+	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, IParser? autoAdvance = null, bool mustConsumeAll = false)
 	{
 		var scanner = new ScanStrings(input);
 		
-		if (options.HasFlag(Options.SkipWhitespace)) scanner.SkipWhitespace = true;
+		if (options.HasFlag(Options.SkipWhitespace)) scanner.AutoAdvance = WhiteSpaceString;
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
 		if (options.HasFlag(Options.IncludeSkippedElements)) scanner.IncludeSkippedElements = true;
+
+		if (autoAdvance is not null) scanner.AutoAdvance = autoAdvance;
 
 		var result = _parserTree.Parse(scanner, scanner.CreateMatch(this, offset, -1, null));
 		(scanner as IScanningDiagnostics).Complete();
@@ -113,7 +116,16 @@ public class BNF : IParser
 	/// </summary>
 	public Package WithOptions(Options options)
 	{
-		return new Package(this, options);
+		return new Package(this, options, null);
+	}
+
+	/// <summary>
+	/// Wrap this BNF up with the correct scanner options,
+	/// ready for user to pass in strings.
+	/// </summary>
+	public Package WithOptions(Options options, IParser autoAdvance)
+	{
+		return new Package(this, options, autoAdvance);
 	}
 
 	#region Tagging
@@ -838,7 +850,7 @@ public class BNF : IParser
 		/// <summary>
 		/// Lower-case the input before applying parsers.
 		/// Case is preserved in output.
-		/// Parsers should expect lowercase input
+		/// <b>Parsers should expect lowercase input</b>
 		/// </summary>
 		IgnoreCase = 2,
 		
@@ -854,16 +866,18 @@ public class BNF : IParser
 	/// </summary>
 	public class Package
 	{
-		private readonly BNF _bnf;
-		private readonly Options _options;
+		private readonly BNF      _bnf;
+		private readonly Options  _options;
+		private readonly IParser? _autoAdvance;
 
 		/// <summary>
 		/// BNF structure, plus the correct scanner options
 		/// </summary>
-		internal Package(BNF bnf, Options options)
+		internal Package(BNF bnf, Options options, IParser? autoAdvance)
 		{
 			_bnf = bnf;
 			_options = options;
+			_autoAdvance = autoAdvance;
 		}
 
 		/// <summary>
@@ -876,7 +890,7 @@ public class BNF : IParser
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
 		public ParserMatch ParsePartialString(string input, int offset = 0)
 		{
-			return _bnf.ParseString(input, offset, _options, mustConsumeAll: false);
+			return _bnf.ParseString(input, offset, _options, _autoAdvance, mustConsumeAll: false);
 		}
 		
 		/// <summary>
@@ -889,7 +903,7 @@ public class BNF : IParser
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
 		public ParserMatch ParseEntireString(string input, int offset = 0)
 		{
-			return _bnf.ParseString(input, offset, _options, mustConsumeAll: true);
+			return _bnf.ParseString(input, offset, _options, _autoAdvance, mustConsumeAll: true);
 		}
 	}
 
@@ -1014,9 +1028,9 @@ public class BNF : IParser
 	}
 
 	/// <inheritdoc />
-	public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null)
+	public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null, bool allowAutoAdvance = true)
 	{
-		return _parserTree.Parse(scan, previousMatch);
+		return _parserTree.Parse(scan, previousMatch, allowAutoAdvance);
 	}
 
 	/// <inheritdoc />
@@ -1052,16 +1066,12 @@ public class BNF : IParser
 	}
 
 	/// <summary>
-	/// TEST THIS
+	/// Try to match scanner data against the contained parser
 	/// </summary>
-	/// <param name="scan"></param>
-	/// <param name="previousMatch"></param>
-	/// <returns></returns>
-	/// <exception cref="Exception"></exception>
-	internal ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch)
+	internal ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		if (_parserTree is not Parser imp) throw new Exception($"Invalid parser tree: expected '{nameof(Parser)}', got '{_parserTree.GetType().Name}'");
-		return imp.TryMatch(scan, previousMatch);
+		return imp.TryMatch(scan, previousMatch, allowAutoAdvance);
 	}
 
 	/// <inheritdoc />
