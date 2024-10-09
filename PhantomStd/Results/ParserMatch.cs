@@ -415,6 +415,9 @@ public class ParserMatch
     /// </summary>
     public ParserMatch Through(IParser source, ParserMatch? previous)
     {
+        // In case of over-enthusiastic .Through()
+        if (source == SourceParser) return this;
+
         // If the parser doesn't add any meta-data, skip joining
         if (!source.HasMetaData()) return this;
         

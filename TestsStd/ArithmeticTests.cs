@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using Gool.Results;
 using NUnit.Framework;
 using Samples;
@@ -13,7 +14,7 @@ public class ArithmeticTests
     [Test]
     public void timing_test()
     {
-        var parser = ArithmeticExample.Parser;
+        var parser = ArithmeticExample.Arithmetic();
         var expression = "2^(1+3) * 3 * -2 - 5.5";
 
         var tryCount = 1000;
@@ -43,8 +44,10 @@ public class ArithmeticTests
     public void scanning_expression(string expression, double expected)
     {
         var sw = new Stopwatch();
+        var parser = ArithmeticExample.Arithmetic();
+
         sw.Start();
-        var result = ArithmeticExample.Parser.ParseEntireString(expression);
+        var result = parser.ParseEntireString(expression);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -76,9 +79,11 @@ public class ArithmeticTests
     [TestCase("(+6.5+++3)*(+5.5---2)")]
     public void failure_cases(string expression)
     {
+        var parser = ArithmeticExample.Arithmetic();
+
         var sw = new Stopwatch();
         sw.Start();
-        var result = ArithmeticExample.Parser.ParseEntireString(expression);
+        var result = parser.ParseEntireString(expression);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -87,10 +92,59 @@ public class ArithmeticTests
         Assert.That(result.Success, Is.False, "Invalid expression should result in failure");
     }
 
+    [Test]
+    public void partial_evaluation_of_expression()
+    {
+        var sw     = new Stopwatch();
+        var parser = ArithmeticExample.ExpressionWithVariablesAndFunctions();
+
+        sw.Start();
+        var result = parser.ParseEntireString("2 * 4 * pi + cos((1+2) * phi) + random()");
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        var expectedPr = parser.ParseEntireString("8 * pi + cos(3 * phi) + random()");
+        var expectedTn = TreeNode.FromParserMatch(expectedPr, prune: true);
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        if (!result.Success) Console.WriteLine(string.Join("\r\n", result.Scanner.ListFailures()));
+        Console.WriteLine(result.Value);
+        Assert.That(result.Success, Is.True);
+
+        foreach (var token in result.TaggedTokensDepthFirst())
+        {
+            Console.Write(token.Value + " " + token.Tag + ", ");
+        }
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        // Get a tree from the matches
+        var tree = TreeNode.FromParserMatch(result, prune: true);
+        PrintRecursive(tree, 0);
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        // Try to reduce to a single value
+        var final = TreeNode.TransformTree(tree, ApplyOperation);
+        var sb1   = new StringBuilder();
+        PrintRecursive(final, 0, sb1);
+        Console.Write(sb1.ToString());
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        var sb2 = new StringBuilder();
+        PrintRecursive(expectedTn, 0, sb2);
+        Console.Write(sb2.ToString());
+
+        Assert.That(sb1.ToString(), Is.EqualTo(sb2.ToString()));
+    }
+
     private static TreeNode? ApplyOperation(TreeNode node)
     {
         if (node.Source.Tag is null)
         {
+            if (node.Children.Count > 1) return node;
             if (node.Children.Count > 0) return node.Children[0]; // pull child up through joining nodes
             return null;
         }
@@ -119,17 +173,27 @@ public class ArithmeticTests
         return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), ArithmeticExample.Value);
     }
 
-
     private static void PrintRecursive(TreeNode? node, int indent)
     {
+        var sb = new StringBuilder();
+        PrintRecursive(node, indent, sb);
+        Console.Write(sb.ToString());
+    }
+
+    private static void PrintRecursive(TreeNode? node, int indent, StringBuilder sb)
+    {
         if (node is null) return;
-        
-        if (node.Source.Tag is not null) Console.WriteLine($"{I(indent)}{node.Source.Value} [{node.Source.Tag}] from {node.Source.SourceParser?.GetType().Name}");
-        else Console.WriteLine($"{I(indent)}...");
+
+        var nextIndent = indent;
+        if (node.Source.Tag is not null)
+        {
+            nextIndent++;
+            sb.AppendLine($"{I(indent)}{node.Source.Value} [{node.Source.Tag}]");// from {node.Source.SourceParser.GetType().Name}");
+        }
 
         foreach (var childNode in node.Children)
         {
-            PrintRecursive(childNode, indent+1);
+            PrintRecursive(childNode, nextIndent, sb);
         }
     }
 

@@ -189,7 +189,7 @@ public class TreeNode
         if (node is null) return null;
 
         TreeNode? lastPivot = null;
-        var prePivot = new List<TreeNode>();
+        TreeNode? prePivot  = null;
         for (var index = 0; index < node.Children.Count; index++)
         {
             var child = PivotTree(node.Children[index]);
@@ -204,27 +204,26 @@ public class TreeNode
             if (child.Source.Scope == ScopeType.Pivot)
             {
                 lastPivot = child;
-                foreach (var p in prePivot)
+                if (prePivot is not null)
                 {
-                    lastPivot.Children.Add(p);
-                    node.Children.Remove(p);
+                    lastPivot.Children.Add(prePivot);
+                    node.Children.Remove(prePivot);
                 }
 
-                prePivot.Clear();
+                prePivot = null;
             }
             else if (lastPivot is not null)
             {
                 lastPivot.Children.Add(child);
                 node.Children.Remove(child);
+                lastPivot = null;
                 index--;
             }
             else
             {
-                prePivot.Add(child);
+                prePivot = child;
             }
         }
-
-        prePivot.Clear();
 
         return node;
     }

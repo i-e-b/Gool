@@ -64,7 +64,7 @@ public class IdentifierString : Parser
             if (valid) result.ExtendTo(offset); // only grow the result if we have a valid end character.
         }
 
-        return count < 1 ? scan.NoMatch(this, result) : result.Through(this, previousMatch);
+        return count < 1 ? scan.NoMatch(this, previousMatch) : result;
     }
 
     /// <inheritdoc />
