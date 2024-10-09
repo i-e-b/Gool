@@ -303,6 +303,18 @@ public class BNF : IParser
 	{
 		return new BNF(new ParallelSet(this, validators));
 	}
+
+	/// <summary>
+	/// Perform an action when the parser is matched.
+	/// This modifies the current parser.
+	/// <p/>
+	/// The action should return a resulting ParserMatch. If no changes
+	/// are desired, return the given match.
+	/// </summary>
+	public void MatchAction(Func<ParserMatch, ParserMatch> action)
+	{
+		_parserTree = _parserTree.WithMatchAction(action);
+	}
 	#endregion Contextual and recursive
 
 	#region Operators and implicit conversions
@@ -405,7 +417,7 @@ public class BNF : IParser
 	}
 
 	/// <summary>
-	/// Non-consuming parser that must match the <i>right side</i>, but does not consume the match
+	/// Positive look-ahead. Non-consuming parser that must match the <i>right side</i>, but does not consume the match
 	/// </summary>
 	public static BNF operator ~(BNF a)
 	{
@@ -455,7 +467,7 @@ public class BNF : IParser
 	}
 	
 	/// <summary>
-	/// Difference parser that matches <i>left</i> but not <i>right</i>
+	/// Negative look-ahead. Difference parser that matches <i>left</i> but not <i>right</i>
 	/// </summary>
 	public static BNF operator /(BNF a, BNF b)
 	{
@@ -1017,7 +1029,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Internal reference to the real parser instance
 	/// </summary>
-	private readonly IParser _parserTree;
+	private IParser _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance
@@ -1081,5 +1093,4 @@ public class BNF : IParser
 	}
 
 	#endregion IParser pass-through
-
 }

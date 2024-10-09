@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using Gool;
 
 // ReSharper disable InconsistentNaming
@@ -41,6 +42,7 @@ public static class PascalExample
             pascalString        = BNF.Regex("'([^']|'')*'"), // Pascal uses two single-quotes to mark a single quote.
             comment             = '{' > -(BNF.AnyChar / '}') > '}',
             whiteSpaceOrComment = +(BNF.WhiteSpaceString | comment),
+            compilerDirective   = '#' > identifier > -(BNF.AnyChar / ';'),
             plusOrMinus         = BNF.OneOf('-', '+');
 
         BNF // Keywords
@@ -145,7 +147,8 @@ public static class PascalExample
               | caseBlock
               | (k_with > (variable % o_comma) > k_do > _statement)
               | (k_goto > unsignedInteger)
-              | (k_exit > s_open_paren > (identifier | k_program) > s_close_paren),
+              | (k_exit > s_open_paren > (identifier | k_program) > s_close_paren)
+              | compilerDirective,
             statementBlock = k_begin > (statement % t_semi) > k_end;
 
         BNF // Case and field list
@@ -199,6 +202,9 @@ public static class PascalExample
         s_close_paren.TagWith(CloseParen).CloseScope();
         s_open_bracket.TagWith(OpenBracket).OpenScope();
         s_close_bracket.TagWith(CloseBracket).CloseScope();
+
+        // Actions
+        compilerDirective.MatchAction(match => throw new Exception("Hit the compiler directive: "+match));
 
         return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.IncludeSkippedElements, autoAdvance: whiteSpaceOrComment);
     }

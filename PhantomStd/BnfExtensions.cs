@@ -1,6 +1,9 @@
 ﻿using System;
+using Gool.Parsers;
 using Gool.Parsers.Composite;
 using Gool.Parsers.Terminals;
+using Gool.Parsers.Transforms;
+using Gool.Results;
 
 namespace Gool;
 
@@ -64,5 +67,14 @@ public static class BnfExtensions
     public static BNF Repeat(this char pattern, int min, int max)
     {
         return new BNF(new Repetition((BNF)pattern, (uint)min, (uint)max));
+    }
+
+    /// <summary>
+    /// Perform an action when the parser is matched.
+    /// This returns a new parser without modifying the base.
+    /// </summary>
+    public static BNF WithMatchAction(this IParser src, Func<ParserMatch, ParserMatch> action)
+    {
+        return new Wrapper(src, action);
     }
 }

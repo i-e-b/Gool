@@ -1,4 +1,5 @@
-﻿using Gool.Parsers.Composite.Abstracts;
+﻿using System;
+using Gool.Parsers.Composite.Abstracts;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -9,10 +10,12 @@ namespace Gool.Parsers.Transforms;
 /// <p/>
 /// This is used to allow a parser pattern to be
 /// reused with different tags in a larger composite;
-/// And allows an optional modification function.
+/// And allows an optional on-match function.
 /// </summary>
 public class Wrapper : Unary
 {
+    private readonly Func<ParserMatch, ParserMatch>? _action;
+
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
@@ -20,11 +23,21 @@ public class Wrapper : Unary
     {
     }
 
+    /// <summary>
+    /// Create a wrapper around another parser
+    /// </summary>
+    public Wrapper(IParser parser, Func<ParserMatch, ParserMatch> action) : base(parser)
+    {
+        _action = action;
+    }
+
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         // apply the first parser
         var innerMatch = Parser.Parse(scan, previousMatch, allowAutoAdvance);
+
+        if (innerMatch.Success && _action is not null) innerMatch = _action(innerMatch);
 
         return innerMatch.Success
             ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, previousMatch)

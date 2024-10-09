@@ -28,6 +28,23 @@ public class PascalLanguageTests
         end.
         """;
 
+    private const string dead_stop_program =
+        """
+        program WriteName;
+        var
+          i, j : Integer;
+          name : String;
+        begin
+          #error This should stop the parser with an exception;
+          Write('Please tell me your name: ');
+          ReadLn(name);
+          for i := 1 to 100 do
+          begin
+            WriteLn('Hello ', name)
+          end
+        end.
+        """;
+
     private const string missing_begin =
         """
         program WriteName;
@@ -87,6 +104,14 @@ public class PascalLanguageTests
 
         Assert.That(result.Success, Is.True, "Parsing failed");
         Assert.That(result.Value.ToLower(), Is.EqualTo(sample_program.ToLower()));
+    }
+
+    [Test]
+    public void DirectActionAllowsImmediateStop()
+    {
+        var ex = Assert.Throws<Exception>(() => PascalExample.Parser.ParseEntireString(dead_stop_program));
+
+        Assert.That(ex?.Message, Is.EqualTo("Hit the compiler directive: #error This should stop the parser with an exception"));
     }
 
     [Test]
