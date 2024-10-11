@@ -441,9 +441,18 @@ public class ParserMatch
     /// Find and return the first match with the given tag.
     /// Returns <c>null</c> if none found.
     /// </summary>
-    public ParserMatch? FindTag(string tag)
+    public ParserMatch? GetTag(string tag)
     {
         return DepthFirstWalk(this, _ => true).FirstOrDefault(m=>m.Tag == tag);
+    }
+
+    /// <summary>
+    /// Find and return all matches with the given tag.
+    /// Returns empty if none found.
+    /// </summary>
+    public IEnumerable<ParserMatch> FindByTag(string tag)
+    {
+        return DepthFirstWalk(this, _ => true).Where(m=>m.Tag == tag);
     }
 
     /// <summary>

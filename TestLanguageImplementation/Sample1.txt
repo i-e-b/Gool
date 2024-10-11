@@ -1,0 +1,33 @@
+﻿#tli version=1;entry=main;
+
+# This is a comment
+
+# The sample language is somewhat rust-like
+# It's designed to be reasonably simple,
+# but still be complex enough to show how to
+# handle languages more complex than Lisp or Basic.
+
+fn main {
+    name = get_name(); # get user name in sub-function
+
+    # Output a response, based on the input
+    if name = "" {
+        print("All right then, keep your secrets.\r\n");
+    } else {
+        print("Greetings, " + name + "!\r\n");
+    }
+
+    # Output numbers in a loop
+    i = 0;
+    loop countingLoop {
+        i = i + 1;
+        print(i);
+        if i >= 5  { break countingLoop; }
+    }
+}
+
+fn get_name {
+    print("Hello. What is your name?\r\n");
+    name = read_line();
+    return name;
+}

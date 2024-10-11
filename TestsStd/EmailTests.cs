@@ -37,10 +37,10 @@ public class EmailTests
         
         Assert.That(result.Success, Is.True);
 
-        Console.WriteLine(result.FindTag(EmailAddressExample.Address)?.Value ?? "<not found>");
-        Console.Write(result.FindTag(EmailAddressExample.User)?.Value ?? "<not found>");
+        Console.WriteLine(result.GetTag(EmailAddressExample.Address)?.Value ?? "<not found>");
+        Console.Write(result.GetTag(EmailAddressExample.User)?.Value ?? "<not found>");
         Console.Write(" -> ");
-        Console.WriteLine(result.FindTag(EmailAddressExample.Domain)?.Value ?? "<not found>");
+        Console.WriteLine(result.GetTag(EmailAddressExample.Domain)?.Value ?? "<not found>");
     }
     
     [Test]

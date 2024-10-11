@@ -78,7 +78,7 @@ public static class XmlExample
                 Context(
                     prefix: open_elem,
                     select: result =>
-                        result.FindTag(TagId),
+                        result.GetTag(TagId),
                     next: tag =>
                         -( text | _wrapped) >
                         ((BNF)"</" > tag.Value > '>').TagWith(CloseElement).CloseScope()

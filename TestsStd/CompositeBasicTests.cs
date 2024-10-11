@@ -560,7 +560,7 @@ public class CompositeBasicTests
                 BNF.Context(
                     prefix: '<' > tag_id > '>',
                     select: result =>
-                        result.FindTag("TagId"),
+                        result.GetTag("TagId"),
                     next: tag =>
                         -(text|_wrapped) > "</" > ((BNF)tag.Value).TagWith("TagId") > '>'
                 );

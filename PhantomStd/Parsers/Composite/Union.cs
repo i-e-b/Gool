@@ -7,6 +7,7 @@ namespace Gool.Parsers.Composite;
 
 /// <summary>
 /// Creates a Union (or 'alternative') parser from two sub-parsers.
+/// This returns the longest match.
 /// </summary>
 public class Union : Parser
 {

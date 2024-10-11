@@ -142,7 +142,7 @@ public class ScopeNode
     {
         if (Children.Count > 0)
         {
-            var endChild = Children[Children.Count - 1];
+            var endChild = Children[^1];
             endChild.NextNode = newChild;
             newChild.PrevNode = endChild;
         }
@@ -200,6 +200,12 @@ public class ScopeNode
     /// </summary>
     public string Value => DataMatch?.Value ?? OpeningMatch?.Value ?? ClosingMatch?.Value ?? "";
 
+    /// <summary>
+    /// Find the parser match for this node, from any match.
+    /// Returns <c>null</c> if no values found.
+    /// </summary>
+    public ParserMatch? AnyMatch => DataMatch ?? OpeningMatch ?? ClosingMatch;
+
     private static void DepthFirstWalkRec(ScopeNode node, Action<ScopeNode> action)
     {
         action(node);
@@ -250,7 +256,7 @@ public class ScopeNode
     /// <summary>
     /// Create a new root node
     /// </summary>
-    public static ScopeNode RootNode()
+    private static ScopeNode RootNode()
     {
         return new ScopeNode
         {
@@ -360,6 +366,21 @@ public class ScopeNode
         prePivot.Clear();
 
         return node;
+    }
+
+    /// <summary>
+    /// Find the first scope node, breadth-first, that has the given tag.
+    /// </summary>
+    public ScopeNode? FirstByTag(string tagName)
+    {
+        if (Tag == tagName) return this;
+        foreach (var child in Children)
+        {
+            var found = child.FirstByTag(tagName);
+            if (found is not null) return found;
+        }
+
+        return null;
     }
 }
 

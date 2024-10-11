@@ -162,8 +162,8 @@ public class XmlTests
         {
             if (n.NodeType == ScopeNodeType.ScopeChange)
             {
-                var open  = n.OpeningMatch?.FindTag(XmlExample.TagId)?.Value;
-                var close = n.ClosingMatch?.FindTag(XmlExample.TagId)?.Value;
+                var open  = n.OpeningMatch?.GetTag(XmlExample.TagId)?.Value;
+                var close = n.ClosingMatch?.GetTag(XmlExample.TagId)?.Value;
                 if (open != close) errors.Add($"<{open}> does not match </{close}>");
             }
         });

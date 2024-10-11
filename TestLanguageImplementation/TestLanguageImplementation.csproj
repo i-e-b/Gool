@@ -9,6 +9,17 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
       <PackageReference Include="NUnit" Version="4.2.2" />
+      <PackageReference Include="SkinnyJson" Version="3.0.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Sample1.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PhantomStd\PhantomStd.csproj" />
     </ItemGroup>
 
 </Project>

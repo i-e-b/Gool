@@ -102,10 +102,24 @@ public class BNF : IParser
 
 		if (autoAdvance is not null) scanner.AutoAdvance = autoAdvance;
 
+		// Parse as much input as we can
 		var result = _parserTree.Parse(scanner, scanner.CreateMatch(this, offset, -1, null));
 		(scanner as IScanningDiagnostics).Complete();
 
-		if (mustConsumeAll && result.Length < input.Length) return scanner.NoMatch(_parserTree, null);
+		var endPosition = result.Right;
+
+		// If there is trailing insignificant data, consume it
+		if (scanner.AutoAdvance is not null)
+		{
+			var trailing = scanner.AutoAdvance.Parse(scanner, result, false);
+			if (trailing.Success)
+			{
+				if (scanner.IncludeSkippedElements) result = ParserMatch.Join(result, new NullParser("Skipped elements"), result, trailing);
+				else endPosition = trailing.Right;
+			}
+		}
+
+		if (mustConsumeAll && endPosition < input.Length) return scanner.NoMatch(_parserTree, null);
 		
 		return result;
 	}
@@ -510,9 +524,10 @@ public class BNF : IParser
 	/// <summary>
 	/// Compact all sub-matches into a single result, regardless of tagging or scopes.
 	/// </summary>
-	public void Atomic()
+	public BNF Atomic()
 	{
 		_atomic = true;
+		return this;
 	}
 
 	/// <summary>
@@ -597,7 +612,7 @@ public class BNF : IParser
 	}
 
 	/// <summary>
-	/// Match any literal string from the given set
+	/// Match the longest literal string from the given set
 	/// </summary>
 	public static BNF OneOf(params string[] literals)
 	{
