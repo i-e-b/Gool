@@ -496,6 +496,25 @@ public class BNF : IParser
 	#endregion Operators and implicit conversions
 
 	#region Composite/combination helpers
+
+	/// <summary>
+	/// Turn off auto-advance when matching this pattern and its sub-patterns.
+	/// Has no effect if neither <see cref="Options.SkipWhitespace"/> nor
+	/// <see cref="Package.AutoAdvance"/> is set.
+	/// </summary>
+	public void NoAutoAdvance()
+	{
+		_autoAdvanceEnabled = false;
+	}
+
+	/// <summary>
+	/// Compact all sub-matches into a single result, regardless of tagging or scopes.
+	/// </summary>
+	public void Atomic()
+	{
+		_atomic = true;
+	}
+
 	/// <summary>
 	/// Match an ordered sequence of sub-parsers as a single match.
 	/// The entire set of sub-parsers must match for a successful match.
@@ -880,7 +899,11 @@ public class BNF : IParser
 	{
 		private readonly BNF      _bnf;
 		private readonly Options  _options;
-		private readonly IParser? _autoAdvance;
+
+		/// <summary>
+		/// [Optional] Parser used to skip insignificant patterns in the input.
+		/// </summary>
+		public IParser? AutoAdvance { get; }
 
 		/// <summary>
 		/// BNF structure, plus the correct scanner options
@@ -889,7 +912,7 @@ public class BNF : IParser
 		{
 			_bnf = bnf;
 			_options = options;
-			_autoAdvance = autoAdvance;
+			AutoAdvance = autoAdvance;
 		}
 
 		/// <summary>
@@ -902,7 +925,7 @@ public class BNF : IParser
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
 		public ParserMatch ParsePartialString(string input, int offset = 0)
 		{
-			return _bnf.ParseString(input, offset, _options, _autoAdvance, mustConsumeAll: false);
+			return _bnf.ParseString(input, offset, _options, AutoAdvance, mustConsumeAll: false);
 		}
 		
 		/// <summary>
@@ -915,7 +938,7 @@ public class BNF : IParser
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
 		public ParserMatch ParseEntireString(string input, int offset = 0)
 		{
-			return _bnf.ParseString(input, offset, _options, _autoAdvance, mustConsumeAll: true);
+			return _bnf.ParseString(input, offset, _options, AutoAdvance, mustConsumeAll: true);
 		}
 	}
 
@@ -1026,6 +1049,9 @@ public class BNF : IParser
 
 	#region IParser pass-through
 
+	private bool _autoAdvanceEnabled = true;
+	private bool _atomic;
+
 	/// <summary>
 	/// Internal reference to the real parser instance
 	/// </summary>
@@ -1042,7 +1068,8 @@ public class BNF : IParser
 	/// <inheritdoc />
 	public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null, bool allowAutoAdvance = true)
 	{
-		return _parserTree.Parse(scan, previousMatch, allowAutoAdvance);
+		var result = _parserTree.Parse(scan, previousMatch, _autoAdvanceEnabled && allowAutoAdvance);
+		return _atomic ? result.Compact() : result;
 	}
 
 	/// <inheritdoc />

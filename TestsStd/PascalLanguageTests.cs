@@ -28,6 +28,17 @@ public class PascalLanguageTests
         end.
         """;
 
+    private const string tricky_strings =
+        """
+        program WriteName; { This is a sample program }
+        var
+          i, j : Integer;
+          name : String;
+        begin
+          Write('Here is a nasty ''{string'' for} you')
+        end.
+        """;
+
     private const string dead_stop_program =
         """
         program WriteName;
@@ -107,6 +118,25 @@ public class PascalLanguageTests
     }
 
     [Test]
+    public void string_escape_sequences_are_correct()
+    {
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = PascalExample.Parser.ParseEntireString(tricky_strings);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        Console.WriteLine("==================================================");
+
+        PrintRecursive(result, 0);
+
+        //PrintFailures(result.Scanner);
+
+        Assert.That(result.Success, Is.True, "Parsing failed");
+        Assert.That(result.Value.ToLower(), Is.EqualTo(tricky_strings.ToLower()));
+    }
+
+    [Test]
     public void DirectActionAllowsImmediateStop()
     {
         var ex = Assert.Throws<Exception>(() => PascalExample.Parser.ParseEntireString(dead_stop_program));
@@ -180,6 +210,25 @@ public class PascalLanguageTests
         foreach (var mismatch in scanner.ListFailures())
         {
             Console.WriteLine(mismatch);
+        }
+    }
+
+    private static void PrintRecursive(ParserMatch? node, int indent)
+    {
+        if (node is null) return;
+        if (node.HasChildren)
+        {
+            if (node.Tag is not null) Console.WriteLine($"{I(indent)}'{node.Tag}' =>");
+            else Console.WriteLine($"{I(indent)} =>");
+        }
+        else
+        {
+            Console.WriteLine($"{I(indent)}{node.Value}");
+        }
+
+        foreach (var child in node.Children())
+        {
+            PrintRecursive(child, indent + 1);
         }
     }
 
@@ -259,6 +308,6 @@ public class PascalLanguageTests
     
     private static string I(int indent)
     {
-        return new string(' ', indent * 4);
+        return new string(' ', indent * 2);
     }
 }

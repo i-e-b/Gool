@@ -458,4 +458,12 @@ public class ParserMatch
     /// Returns true if the source parser has meta data. False otherwise
     /// </summary>
     public bool HasMetaData() => SourceParser.HasMetaData();
+
+    /// <summary>
+    /// Return this match with no child matches
+    /// </summary>
+    public ParserMatch Compact()
+    {
+        return new ParserMatch(SourceParser, Scanner, Offset, Length, Previous);
+    }
 }

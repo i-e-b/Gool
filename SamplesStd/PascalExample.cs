@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using Gool;
 
 // ReSharper disable InconsistentNaming
@@ -14,19 +13,9 @@ public static class PascalExample
 {
     public static readonly BNF.Package Parser = Pascal();
 
-    private static RegexOptions Options()
-    {
-        return RegexOptions.ExplicitCapture
-             | RegexOptions.IgnoreCase
-             | RegexOptions.Multiline;
-    }
-
-
     // https://archive.org/details/pascal-poster-v-3-a-1
     private static BNF.Package Pascal()
     {
-        BNF.RegexSettings = Options();
-
         // Forward references
         var _type       = BNF.Forward();
         var _fieldList  = BNF.Forward();
@@ -37,13 +26,17 @@ public static class PascalExample
         var _factor     = BNF.Forward();
 
         BNF // Basic literals
-            unsignedInteger     = BNF.Regex(@"\d+"),
-            identifier          = BNF.Regex("[_a-zA-Z][_a-zA-Z0-9]*"),
-            pascalString        = BNF.Regex("'([^']|'')*'"), // Pascal uses two single-quotes to mark a single quote.
+            unsignedInteger     = BNF.IntegerRange(0, long.MaxValue),
+            identifier          = BNF.IdentifierString(),
+            pascalString        = "'" > -((BNF.AnyChar / "'") | ("''")) > "'",
             comment             = '{' > -(BNF.AnyChar / '}') > '}',
             whiteSpaceOrComment = +(BNF.WhiteSpaceString | comment),
             compilerDirective   = '#' > identifier > -(BNF.AnyChar / ';'),
             plusOrMinus         = BNF.OneOf('-', '+');
+
+        pascalString.NoAutoAdvance(); // Don't skip whitespace or comments in here
+        pascalString.Atomic(); // compact all sub-matches into a single result
+        comment.Atomic();
 
         BNF // Keywords
             k_program   = "program".Keyword(),

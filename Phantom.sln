@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesStd", "SamplesStd\Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsStd", "TestsStd\TestsStd.csproj", "{A9C47F20-D923-4B34-B819-2D4E6D6F6676}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLanguageImplementation", "TestLanguageImplementation\TestLanguageImplementation.csproj", "{95E95995-B027-43E7-AF6B-B2ECB55EA0C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{A9C47F20-D923-4B34-B819-2D4E6D6F6676}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9C47F20-D923-4B34-B819-2D4E6D6F6676}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9C47F20-D923-4B34-B819-2D4E6D6F6676}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95E95995-B027-43E7-AF6B-B2ECB55EA0C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95E95995-B027-43E7-AF6B-B2ECB55EA0C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95E95995-B027-43E7-AF6B-B2ECB55EA0C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95E95995-B027-43E7-AF6B-B2ECB55EA0C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,5 +50,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{56CA085B-62D3-4792-B922-6FA8AA31842B} = {19E922EF-E839-4CC3-9AF3-1BB26D76CB36}
 		{A9C47F20-D923-4B34-B819-2D4E6D6F6676} = {3306E773-9AEF-4FD3-A8B4-7963912A7AD8}
+		{95E95995-B027-43E7-AF6B-B2ECB55EA0C3} = {3306E773-9AEF-4FD3-A8B4-7963912A7AD8}
 	EndGlobalSection
 EndGlobal
