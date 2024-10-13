@@ -285,6 +285,12 @@ public class ScopeNode
         var cursor = (ScopeNode?)root;
         foreach (var match in points)
         {
+            // Exit ranged scope if we've got to the end of it
+            while (scopeEnds.Count > 0 && match.Offset > scopeEnds.Peek())
+            {
+                scopeEnds.Pop();
+                cursor = cursor?.Parent;
+            }
             if (cursor is null) break; // this will happen if there are too many scope closes
 
             switch (match.Scope)
@@ -308,17 +314,9 @@ public class ScopeNode
                     cursor = cursor.OpenScope(match);
                     cursor.ClosingMatch = match;
                     scopeEnds.Push(match.Right);
-                    continue; // so we don't hit the scope-end logic for the scope we defined
-                
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-
-            // Exit ranged scope if we've got to the end of it
-            if (scopeEnds.Count > 0 && match.Right >= scopeEnds.Peek())
-            {
-                scopeEnds.Pop();
-                cursor = cursor?.Parent;
             }
         }
 

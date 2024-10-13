@@ -29,7 +29,6 @@ public static class LanguageDefinition
             characters   = -character,
             quotedString = '"' > characters > '"';
 
-        var _expression = Forward();
 
         BNF // identifier types
             variable = IdentifierString(),
@@ -45,21 +44,22 @@ public static class LanguageDefinition
             mul_div  = OneOf('*', '/'),
             exponent = '^';
 
+        var _innerExpr = Forward();
         BNF // general expression
-            factor     = quotedString | number | variable | (function > '(' > !_expression > ')') | ('(' > _expression > ')'),
+            factor     = quotedString | number | variable | (function > '(' > !_innerExpr > ')') | ('(' > _innerExpr > ')'),
             power      = factor > !(exponent > factor),
             term       = power % mul_div,
-            expression = term % add_sub;
-
-        _expression.Is(expression);
+            expression = term % add_sub,
+            rootExpr   = expression.Copy();
+        _innerExpr.Is(expression);
 
         var _statement = Forward();
         BNF // Parts
-            call          = function > '(' > expression > ')' > ';',
-            assign        = variable > '=' > expression > ';',
+            call          = function > '(' > rootExpr > ')' > ';',
+            assign        = variable > '=' > rootExpr > ';',
             equality      = OneOf("=", "<", ">", "<=", ">="),
             else_block    = "else" > start_block > (-_statement) > end_block,
-            if_block      = "if" > expression > equality > expression > start_block > (-_statement) > end_block > !else_block,
+            if_block      = "if" > rootExpr > equality > rootExpr > start_block > (-_statement) > end_block > !else_block,
             break_call    = "break" > variable > ';',
             continue_call = "continue" > variable > ';',
             loop          = "loop" > variable > '{' > (-_statement) > '}',
@@ -87,7 +87,7 @@ public static class LanguageDefinition
         else_block.EncloseScope().TagWith(ElseBlock);
 
         assign.EncloseScope().TagWith(Assignment);
-        expression.TagWith(Expression);
+        rootExpr.TagWith(Expression);
         loop.TagWith(Loop);
 
         add_sub.TagWith(MathOp).PivotScope();

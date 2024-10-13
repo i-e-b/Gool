@@ -56,6 +56,7 @@ public class ParserMatch
         Scanner = scanner;
         Offset = offset;
         Length = length;
+        Right = length > 0 ? offset + length : offset;
         Previous = previous;
 
         if (previous is not null && (previous.Next is null || previous.Next.Length < 0))
@@ -76,6 +77,7 @@ public class ParserMatch
         Scanner = new ScanStrings(value);
         Offset = 0;
         Length = value.Length;
+        Right = Offset + Length;
     }
 
     /// <summary>
@@ -126,6 +128,11 @@ public class ParserMatch
     public int Length;
 
     /// <summary>
+    /// Next offset after this match
+    /// </summary>
+    public int Right;
+
+    /// <summary>
     /// Extracts the match value
     /// </summary>
     public string Value => Length < 0 ? "" : Scanner.UntransformedSubstring(Offset, Length);
@@ -154,11 +161,6 @@ public class ParserMatch
     /// True if match empty
     /// </summary>
     public bool Empty => (Length <= 0) && (!HasChildren);
-
-    /// <summary>
-    /// Next offset after this match
-    /// </summary>
-    public int Right => Length > 0 ? Offset + Length : Offset;
 
     /// <summary>
     /// Return the match value string
@@ -396,7 +398,11 @@ public class ParserMatch
     internal void ExtendTo(int offset)
     {
         var newLength = offset - Offset;
-        if (newLength > Length) Length = newLength;
+        if (newLength > Length)
+        {
+            Length = newLength;
+            Right = Offset + Length;
+        }
     }
 
     /// <summary>

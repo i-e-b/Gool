@@ -16,7 +16,8 @@ public class Interpreter
     private readonly Stack<VarScope>               _scopeStack   = new();
     private readonly Queue<string>                 _userInput    = new();
     private readonly StringBuilder                 _output       = new();
-    private readonly ScopeNode?                    _programPointer;
+
+    private  ScopeNode?                    _programPointer;
 
     public Interpreter(string program)
     {
@@ -69,7 +70,7 @@ public class Interpreter
 
         _returnStack.Push(entryFunc);
         _programPointer = entryFunc.Children.FirstOrDefault();
-        _scopeStack.Push(new VarScope());
+        _scopeStack.Push(new VarScope(null));
 
         Console.WriteLine($"Should start at {entryFunc}, {_programPointer?.Value ?? "<null>"}");
     }
@@ -84,8 +85,7 @@ public class Interpreter
         switch (_programPointer.Tag)
         {
             case LanguageDefinition.Assignment:
-                AssignInScope();
-                break;
+                return AssignInScope();
 
             case LanguageDefinition.FunctionCall:
                 Console.WriteLine("not done: func");
@@ -110,9 +110,9 @@ public class Interpreter
         return false;
     }
 
-    private void AssignInScope()
+    private bool AssignInScope()
     {
-        if (_programPointer is null) return;
+        if (_programPointer is null) return false;
 
         var source = _programPointer.FirstByTag(LanguageDefinition.Expression);
         var target = _programPointer.FirstByTag(LanguageDefinition.Variable);
@@ -130,7 +130,55 @@ public class Interpreter
         var tree  = TreeNode.FromParserMatch(source.AnyMatch, prune: true);
         var final = TreeNode.TransformTree(tree, ApplyOperation);
 
+        if (final?.Children.Count == 0) // we have a single value or name
+        {
+            var isNumber = double.TryParse(final.Source.Value, out var num);
+            if (isNumber)
+            {
+                SetScopeValue(name: target.Value, value: new Value(num));
+                AdvanceProgramPointer();
+                return true;
+            }
+
+            // a function call, string, or variable name
+            throw new Exception($"Not implemented: {final.Source.Tag}");
+        }
+
+        // need to resolve variables, or call functions
+        //var toResolve = final.DeepestFirst().FirstOrDefault();
+        // TODO: need to store 'final' as the next _programPointer.
+
         Console.WriteLine($"Assign '{target.Value}' with '{source.Value}'");
+        throw new Exception("Not implemented");
+    }
+
+    private void AdvanceProgramPointer()
+    {
+        // Either move the pointer to its next sibling, or walk up stack and do the same
+
+        while (_programPointer is not null)
+        {
+            var next = _programPointer.NextNode;
+            if (next is not null)
+            {
+                Console.WriteLine($"Next -> {next.Value}");
+                _programPointer = next;
+                return;
+            }
+
+            _programPointer = _programPointer.Parent;
+        }
+
+        Console.WriteLine("End of program.");
+    }
+
+    /// <summary>
+    /// Try to change a value.
+    /// If not found, create a new value in the current scope
+    /// </summary>
+    private void SetScopeValue(string name, Value value)
+    {
+        _scopeStack.Peek().Set(name, value);
     }
 
 
@@ -141,6 +189,10 @@ public class Interpreter
             if (node.Children.Count > 1) return node;
             if (node.Children.Count > 0) return node.Children[0]; // pull child up through joining nodes
             return null;
+        }
+
+        if (node.Source.Tag == LanguageDefinition.Expression)
+        {
         }
 
         if (node.Source.Tag != LanguageDefinition.MathOp) return node; // only look at operation nodes
