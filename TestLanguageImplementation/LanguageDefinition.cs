@@ -68,10 +68,9 @@ public static class LanguageDefinition
 
         _statement.Is(statement);
 
-        BNF // Full definition
+        BNF // Func definition and full program file.
             definition = "fn" > function > start_block > -(statement) > end_block,
-            language   = !shebang > headerDecl > -(comment | definition)
-            ;
+            language   = !shebang > headerDecl > -(comment | definition);
 
         comment.Atomic().TagWith(Comment);
         headerDecl.TagWith(FileHeader);
@@ -82,7 +81,7 @@ public static class LanguageDefinition
 
         definition.EncloseScope().TagWith(FunctionDefinition);
         function.TagWith(FunctionName);
-        call.TagWith(FunctionCall);
+        call.TagWith(FunctionCall).EncloseScope();
         if_block.EncloseScope().TagWith(IfBlock);
         else_block.EncloseScope().TagWith(ElseBlock);
 
@@ -93,8 +92,12 @@ public static class LanguageDefinition
         add_sub.TagWith(MathOp).PivotScope();
         mul_div.TagWith(MathOp).PivotScope();
         exponent.TagWith(MathOp).PivotScope();
+
         start_block.TagWith(StartBlock).OpenScope();
         end_block.TagWith(EndBlock).CloseScope();
+        break_call.TagWith(BreakCall).EncloseScope();
+        continue_call.TagWith(ContinueCall).EncloseScope();
+        return_call.TagWith(ReturnCall).EncloseScope();
 
         number.TagWith(Number);
         variable.TagWith(Variable);
@@ -120,6 +123,10 @@ public static class LanguageDefinition
     public const string EndBlock   = "EndBlock";
     public const string IfBlock    = "IfBlock";
     public const string ElseBlock  = "ElseBlock";
+
+    public const string BreakCall    = "BreakCall";
+    public const string ContinueCall = "ContinueCall";
+    public const string ReturnCall   = "ReturnCall";
 
     public const string FunctionDefinition = "FunctionDefinition";
     public const string FunctionName       = "FunctionName";
