@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Gool.Results;
 using SkinnyJson;
 
@@ -86,6 +87,18 @@ public class Interpreter
                 AssignInScope();
                 break;
 
+            case LanguageDefinition.FunctionCall:
+                Console.WriteLine("not done: func");
+                break;
+
+            case LanguageDefinition.IfBlock:
+                Console.WriteLine("not done: if/else");
+                break;
+
+            case LanguageDefinition.Loop:
+                Console.WriteLine("not done: loop");
+                break;
+
             default:
                 Console.WriteLine($"Unexpected tag at program counter: '{_programPointer.Tag ?? "<null>"}'");
                 return false;
@@ -103,7 +116,7 @@ public class Interpreter
 
         var source = _programPointer.FirstByTag(LanguageDefinition.Expression);
         var target = _programPointer.FirstByTag(LanguageDefinition.Variable);
-        if (source is null) throw new Exception($"Invalid assignment at {_programPointer}");
+        if (source?.AnyMatch is null) throw new Exception($"Invalid assignment at {_programPointer}");
         if (target is null) throw new Exception($"Invalid assignment at {_programPointer}");
 
         // TODO: try to resolve a value, otherwise deal with calls to build a value
@@ -114,7 +127,45 @@ public class Interpreter
         // 3. When tree has a definite value, do the assignment
         // 4. If we have no value, and no reductions, throw exception.
 
+        var tree  = TreeNode.FromParserMatch(source.AnyMatch, prune: true);
+        var final = TreeNode.TransformTree(tree, ApplyOperation);
+
         Console.WriteLine($"Assign '{target.Value}' with '{source.Value}'");
+    }
+
+
+    private static TreeNode? ApplyOperation(TreeNode node)
+    {
+        if (node.Source.Tag is null)
+        {
+            if (node.Children.Count > 1) return node;
+            if (node.Children.Count > 0) return node.Children[0]; // pull child up through joining nodes
+            return null;
+        }
+
+        if (node.Source.Tag != LanguageDefinition.MathOp) return node; // only look at operation nodes
+        var operation = node.Source.Value;
+
+        if (node.Children.Count < 2) throw new Exception("Invalid expression");
+        var left  = node.Children[0].Source;
+        var right = node.Children[1].Source;
+
+        // TODO: might have strings, or numeric values
+        if (!double.TryParse(left.Value, out var a) || !double.TryParse(right.Value, out var b)) return node; // one of our children is not a number
+
+        // Both children are values: perform the operation
+        var result = operation switch
+        {
+            "+" => a + b,
+            "-" => a - b,
+            "*" => a * b,
+            "/" => a / b,
+            "^" => Math.Pow(a, b),
+            _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
+        };
+
+        // Return a new node with the calculated value
+        return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), LanguageDefinition.Number);
     }
 
     private static void PrintRecursive(ScopeNode node, int indent)

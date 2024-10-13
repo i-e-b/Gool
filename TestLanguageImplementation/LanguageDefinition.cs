@@ -88,6 +88,7 @@ public static class LanguageDefinition
 
         assign.EncloseScope().TagWith(Assignment);
         expression.TagWith(Expression);
+        loop.TagWith(Loop);
 
         add_sub.TagWith(MathOp).PivotScope();
         mul_div.TagWith(MathOp).PivotScope();
@@ -107,8 +108,10 @@ public static class LanguageDefinition
 
     public const string EqualityOp = "EqualityOp";
     public const string MathOp     = "MathOp";
+
     public const string Assignment = "Assignment";
     public const string Expression = "Expression";
+    public const string Loop       = "Loop";
 
     public const string Number   = "Number";
     public const string Variable = "Variable";
