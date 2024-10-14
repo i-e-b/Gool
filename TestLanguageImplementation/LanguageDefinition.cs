@@ -16,7 +16,7 @@ public static class LanguageDefinition
             declKey     = IdentifierString(),
             declValue   = +(AnyChar / ';'),
             declSetting = declKey > '=' > declValue,
-            headerDecl  = "#tli" > (declSetting < ';'),
+            headerDecl  = "#set" > (declSetting < ';'),
             comment     = '#' > -(AnyChar / LineEnd);
 
         shebang.NoAutoAdvance();

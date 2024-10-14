@@ -6,18 +6,37 @@ using SkinnyJson;
 namespace TestLanguageImplementation;
 
 /// <summary>
+/// State of execution, as stored in the interpreter return stack
+/// </summary>
+public class ProgramPtr
+{
+    /// <summary>
+    /// Location in program
+    /// </summary>
+    public ScopeNode? Location;
+
+    /// <summary>
+    /// Expression that is being resolved, if any
+    /// </summary>
+    public TreeNode? Expression;
+
+    /// <summary>
+    /// Expression node to be filled with function's return value
+    /// </summary>
+    public TreeNode? ReturnValue;
+}
+
+/// <summary>
 /// Language interpreter
 /// </summary>
 public class Interpreter
 {
     private readonly Dictionary<string, ScopeNode> _functionDefs = new();
     private readonly Dictionary<string, string>    _fileHeaders  = new();
-    private readonly Stack<ScopeNode>              _returnStack  = new();
+    private readonly Stack<ProgramPtr>             _returnStack  = new();
     private readonly Stack<VarScope>               _scopeStack   = new();
     private readonly Queue<string>                 _userInput    = new();
     private readonly StringBuilder                 _output       = new();
-
-    private  ScopeNode?                    _programPointer;
 
     public Interpreter(string program)
     {
@@ -68,11 +87,10 @@ public class Interpreter
         if (!_functionDefs.TryGetValue(entryFuncName, out var entryFunc))
             throw new Exception($"Did not find definition of entry function '{entryFuncName}'");
 
-        _returnStack.Push(entryFunc);
-        _programPointer = entryFunc.Children.FirstOrDefault();
+        _returnStack.Push(new ProgramPtr{Location = entryFunc.Children.FirstOrDefault()});
         _scopeStack.Push(new VarScope(null));
 
-        Console.WriteLine($"Should start at {entryFunc}, {_programPointer?.Value ?? "<null>"}");
+        Console.WriteLine($"Should start at {entryFunc}, {_returnStack.Peek().Location?.Value ?? "<null>"}");
     }
 
     /// <summary>
@@ -80,9 +98,15 @@ public class Interpreter
     /// </summary>
     public bool Step()
     {
-        if (_programPointer is null) return false;
+        if (_returnStack.Count < 1) return false; // end of program
+        var pc = _returnStack.Peek();
+        if (pc.Location is null)
+        {
+            _returnStack.Pop();
+            return true;
+        }
 
-        switch (_programPointer.Tag)
+        switch (pc.Location.Tag)
         {
             case LanguageDefinition.Assignment:
                 return AssignInScope();
@@ -100,7 +124,7 @@ public class Interpreter
                 break;
 
             default:
-                Console.WriteLine($"Unexpected tag at program counter: '{_programPointer.Tag ?? "<null>"}'");
+                Console.WriteLine($"Unexpected tag at program counter: '{pc.Location.Tag ?? "<null>"}'");
                 return false;
         }
 
@@ -112,12 +136,13 @@ public class Interpreter
 
     private bool AssignInScope()
     {
-        if (_programPointer is null) return false;
+        var pc = _returnStack.Peek();
+        if (pc.Location is null) return false;
 
-        var source = _programPointer.FirstByTag(LanguageDefinition.Expression);
-        var target = _programPointer.FirstByTag(LanguageDefinition.Variable);
-        if (source?.AnyMatch is null) throw new Exception($"Invalid assignment at {_programPointer}");
-        if (target is null) throw new Exception($"Invalid assignment at {_programPointer}");
+        var source = pc.Location.FirstByTag(LanguageDefinition.Expression);
+        var target = pc.Location.FirstByTag(LanguageDefinition.Variable);
+        if (source?.AnyMatch is null) throw new Exception($"Invalid assignment at {pc.Location}");
+        if (target is null) throw new Exception($"Invalid assignment at {pc.Location}");
 
         // TODO: try to resolve a value, otherwise deal with calls to build a value
 
@@ -147,6 +172,7 @@ public class Interpreter
         // need to resolve variables, or call functions
         //var toResolve = final.DeepestFirst().FirstOrDefault();
         // TODO: need to store 'final' as the next _programPointer.
+        pc.Expression = final;
 
         Console.WriteLine($"Assign '{target.Value}' with '{source.Value}'");
         throw new Exception("Not implemented");
@@ -154,22 +180,24 @@ public class Interpreter
 
     private void AdvanceProgramPointer()
     {
+        var pc = _returnStack.Peek();
         // Either move the pointer to its next sibling, or walk up stack and do the same
 
-        while (_programPointer is not null)
+        while (pc.Location is not null)
         {
-            var next = _programPointer.NextNode;
+            var next = pc.Location.NextNode;
             if (next is not null)
             {
                 Console.WriteLine($"Next -> {next.Value}");
-                _programPointer = next;
+                pc.Location = next;
                 return;
             }
 
-            _programPointer = _programPointer.Parent;
+            pc.Location = pc.Location.Parent;
         }
 
-        Console.WriteLine("End of program.");
+        Console.WriteLine("End of call");
+        _returnStack.Pop();
     }
 
     /// <summary>

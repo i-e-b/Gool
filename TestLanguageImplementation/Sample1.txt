@@ -1,4 +1,4 @@
-﻿#tli version=1;entry=main;
+﻿#set version=1; entry=main;
 
 # This is a comment
 

@@ -10,6 +10,8 @@ namespace Gool.Parsers;
 /// </summary>
 public abstract class Parser : IParser
 {
+    private readonly IParser _skippedElementsSrc = new NullParser("Skipped elements");
+
     /// <inheritdoc />
     public string? Tag { get; set; }
 
@@ -50,7 +52,7 @@ public abstract class Parser : IParser
         {
             scan.AddSuccess(newMatch);
 
-            if (scan.IncludeSkippedElements) return ParserMatch.Join(start, new NullParser("Skipped elements"), start, newMatch);
+            if (scan.IncludeSkippedElements) return ParserMatch.Join(start, _skippedElementsSrc, start, newMatch);
             return newMatch;
         }
 
