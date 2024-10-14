@@ -172,7 +172,7 @@ public class JsonTests
     /// <summary>
     /// Returns true if next item should be skipped
     /// </summary>
-    private static bool FillObject(ScopeNode node, object target)
+    private static bool FillObject<T>(ScopeNode<T> node, object target)
     {
         switch (node.NodeType)
         {
@@ -250,7 +250,7 @@ public class JsonTests
         return false;
     }
 
-    private static object GetNodeValue(ScopeNode node)
+    private static object GetNodeValue<T>(ScopeNode<T> node)
     {
         object value;
         switch (node.NodeType)
@@ -300,7 +300,7 @@ public class JsonTests
         return value;
     }
 
-    private static object GetPrimitiveValue(ScopeNode node)
+    private static object GetPrimitiveValue<T>(ScopeNode<T> node)
     {
         if (node.DataMatch is null) return "";
 
@@ -317,7 +317,7 @@ public class JsonTests
         return "unhandled value: " + node.DataMatch.Value.Trim().Trim('"');
     }
 
-    private static void PrintRecursive(ScopeNode node, int indent)
+    private static void PrintRecursive<T>(ScopeNode<T> node, int indent)
     {
         switch (node.NodeType)
         {

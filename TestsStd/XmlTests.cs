@@ -96,7 +96,7 @@ public class XmlTests
 
         foreach (var match in result.DepthFirstWalk())
         {
-            var tag = match.SourceParser?.Tag;
+            var tag = match.SourceParser.Tag;
             if (tag is null) continue;
             if (string.IsNullOrWhiteSpace(match.Value)) continue;
 
@@ -289,7 +289,7 @@ empty{}empty
         PrintRecursive(tree, 0);
     }
 
-    private static void PrintRecursive(ScopeNode node, int indent)
+    private static void PrintRecursive<T>(ScopeNode<T> node, int indent)
     {
         switch (node.NodeType)
         {

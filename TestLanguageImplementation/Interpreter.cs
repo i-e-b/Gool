@@ -13,17 +13,17 @@ public class ProgramPtr
     /// <summary>
     /// Location in program
     /// </summary>
-    public ScopeNode? Location;
+    public ScopeNode<None>? Location;
 
     /// <summary>
     /// Expression that is being resolved, if any
     /// </summary>
-    public TreeNode? Expression;
+    public TreeNode<Value>? Expression;
 
     /// <summary>
-    /// Expression node to be filled with function's return value
+    /// Final value of the expression
     /// </summary>
-    public TreeNode? ReturnValue;
+    public Value? ReturnValue;
 }
 
 /// <summary>
@@ -31,7 +31,7 @@ public class ProgramPtr
 /// </summary>
 public class Interpreter
 {
-    private readonly Dictionary<string, ScopeNode> _functionDefs = new();
+    private readonly Dictionary<string, ScopeNode<None>> _functionDefs = new();
     private readonly Dictionary<string, string>    _fileHeaders  = new();
     private readonly Stack<ProgramPtr>             _returnStack  = new();
     private readonly Stack<VarScope>               _scopeStack   = new();
@@ -106,6 +106,13 @@ public class Interpreter
             return true;
         }
 
+        // Are we working on an expression?
+        if (pc.Expression is not null && pc.ReturnValue is null)
+        {
+            return ProcessExpression();
+        }
+
+        // Otherwise, process next statement
         switch (pc.Location.Tag)
         {
             case LanguageDefinition.Assignment:
@@ -134,6 +141,13 @@ public class Interpreter
         return false;
     }
 
+    private bool ProcessExpression()
+    {
+
+        Console.WriteLine("Not done: reduce expression to a value");
+        return false;
+    }
+
     private bool AssignInScope()
     {
         var pc = _returnStack.Peek();
@@ -152,30 +166,50 @@ public class Interpreter
         // 3. When tree has a definite value, do the assignment
         // 4. If we have no value, and no reductions, throw exception.
 
-        var tree  = TreeNode.FromParserMatch(source.AnyMatch, prune: true);
-        var final = TreeNode.TransformTree(tree, ApplyOperation);
-
-        if (final?.Children.Count == 0) // we have a single value or name
+        // Are we done?
+        if (pc.ReturnValue is not null)
         {
-            var isNumber = double.TryParse(final.Source.Value, out var num);
-            if (isNumber)
+            Console.WriteLine($"Assign '{target.Value}' with '{pc.ReturnValue}'");
+            SetScopeValue(target.Value, pc.ReturnValue);
+            AdvanceProgramPointer();
+            return true;
+        }
+
+        // Read the expression
+        TreeNode<Value> exprTree;
+        if (pc.Expression is not null)
+        {
+            exprTree = pc.Expression;
+        }
+        else
+        {
+            var tree = TreeNode<Value>.FromParserMatch(source.AnyMatch, prune: true);
+            exprTree = TreeNode<Value>.TransformTree(tree, ReduceExpressionWithMath) ?? throw new Exception($"Invalid expression: '{source.Value}'");
+            Console.WriteLine("===[ expression ]=======");
+            PrintRecursive(exprTree, 0);
+            Console.WriteLine("========================");
+        }
+
+        if (exprTree?.UserData is not null) // we have a single value or name
+        {
+            // Have we reduced to a single value?
+            if (exprTree.UserData is not null)
             {
-                SetScopeValue(name: target.Value, value: new Value(num));
+                SetScopeValue(name: target.Value, value: exprTree.UserData);
                 AdvanceProgramPointer();
                 return true;
             }
 
-            // a function call, string, or variable name
-            throw new Exception($"Not implemented: {final.Source.Tag}");
+            // Otherwise it contains a function call. We need to push a return frame and continue into the call
         }
 
         // need to resolve variables, or call functions
         //var toResolve = final.DeepestFirst().FirstOrDefault();
         // TODO: need to store 'final' as the next _programPointer.
-        pc.Expression = final;
+        pc.Expression = exprTree;
 
-        Console.WriteLine($"Assign '{target.Value}' with '{source.Value}'");
-        throw new Exception("Not implemented");
+        Console.WriteLine($"Will need to resolve '{source.Value}' to assign '{target.Value}'");
+        return true;
     }
 
     private void AdvanceProgramPointer()
@@ -209,9 +243,20 @@ public class Interpreter
         _scopeStack.Peek().Set(name, value);
     }
 
-
-    private static TreeNode? ApplyOperation(TreeNode node)
+    /// <summary>
+    /// Try to read a value.
+    /// If not found, returns invalid type
+    /// </summary>
+    private Value GetScopeValue(string name)
     {
+        return _scopeStack.Peek().Get(name);
+    }
+
+
+    private TreeNode<Value>? ReduceExpressionWithMath(TreeNode<Value> node)
+    {
+        if (node.UserData is not null) return node; // We've already handled this one
+
         if (node.Source.Tag is null)
         {
             if (node.Children.Count > 1) return node;
@@ -219,36 +264,101 @@ public class Interpreter
             return null;
         }
 
-        if (node.Source.Tag == LanguageDefinition.Expression)
+        // Lift value out of expression if we have it
+        if (node.Source.Tag == LanguageDefinition.Expression && node.Children.Count == 1) return node.Children[0];
+
+        // TODO: for single nodes, try and resolve a value from either double.Parse, "string", or variable name.
+        //     : then add this to the UserData.
+        //     : For nodes that are operations, check if we have two nodes with UserData.
+        //     : For nodes that are calls, check we have all children with UserData
+        //     : node.UserData = ...
+
+        if (double.TryParse(node.Source.Value, out var dbl))
         {
+            node.UserData = new Value { NumericValue = dbl, Kind = ValueKind.Numeric };
+            node.Children.Clear();
+            return node;
+        }
+
+        // Try and replace this node with a variable value
+        if (node.Source.Tag == LanguageDefinition.Variable)
+        {
+            var value = GetScopeValue(node.Source.Value);
+            if (value.Kind == ValueKind.Invalid) throw new Exception($"No such variable: '{node.Source.Value}'");
+            node.UserData = value;
+            return node;
         }
 
         if (node.Source.Tag != LanguageDefinition.MathOp) return node; // only look at operation nodes
         var operation = node.Source.Value;
 
         if (node.Children.Count < 2) throw new Exception("Invalid expression");
-        var left  = node.Children[0].Source;
-        var right = node.Children[1].Source;
+        var left  = node.Children[0].UserData;
+        var right = node.Children[1].UserData;
 
-        // TODO: might have strings, or numeric values
-        if (!double.TryParse(left.Value, out var a) || !double.TryParse(right.Value, out var b)) return node; // one of our children is not a number
+        // might have strings, numeric values, or nothing
+
+        if (left is null || right is null) return node; // not resolved yet
 
         // Both children are values: perform the operation
-        var result = operation switch
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
         {
-            "+" => a + b,
-            "-" => a - b,
-            "*" => a * b,
-            "/" => a / b,
-            "^" => Math.Pow(a, b),
-            _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
-        };
-
-        // Return a new node with the calculated value
-        return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), LanguageDefinition.Number);
+            var result = operation switch
+            {
+                "+" => left.NumericValue + right.NumericValue,
+                "-" => left.NumericValue - right.NumericValue,
+                "*" => left.NumericValue * right.NumericValue,
+                "/" => left.NumericValue / right.NumericValue,
+                "^" => Math.Pow(left.NumericValue, right.NumericValue),
+                _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
+            };
+            node.UserData = new Value
+            {
+                Kind = ValueKind.Numeric, NumericValue = result
+            };
+            node.Children.Clear();
+            return node;
+        }
+        else // one child is a string. Do string operations
+        {
+            var a = left.Kind == ValueKind.String ? left.StringValue : left.NumericValue.ToString(CultureInfo.InvariantCulture);
+            var b = right.Kind == ValueKind.String ? right.StringValue : right.NumericValue.ToString(CultureInfo.InvariantCulture);
+            var result = operation switch
+            {
+                "+" => a + b,
+                _ => throw new NotImplementedException($"Operation not valid for strings: '{operation}'")
+            };
+            node.UserData = new Value
+            {
+                Kind = ValueKind.String, StringValue = result
+            };
+            node.Children.Clear();
+            return node;
+        }
     }
 
-    private static void PrintRecursive(ScopeNode node, int indent)
+    private static void PrintRecursive(TreeNode<Value>? node, int indent)
+    {
+        if (node is null) return;
+
+        var nextIndent = indent;
+        if (node.Source.Tag is not null)
+        {
+            nextIndent++;
+            Console.WriteLine($"{I(indent)}{node.Source.Value} [{node.Source.Tag}, {node.UserData?.ToString() ?? "<null>"}]");
+        }
+        else
+        {
+            Console.WriteLine($"...{node.Source.Value}");
+        }
+
+        foreach (var childNode in node.Children)
+        {
+            PrintRecursive(childNode, nextIndent);
+        }
+    }
+
+    private static void PrintRecursive<T>(ScopeNode<T> node, int indent)
     {
         switch (node.NodeType)
         {

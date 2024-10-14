@@ -4,41 +4,58 @@ using System.Collections.Generic;
 namespace Gool.Results;
 
 /// <summary>
+/// A <see cref="TreeNode{T}"/> with no user data.
+/// <p/>
 /// Hierarchy derived from a <see cref="ParserMatch"/> tree.
 /// This can be manipulated and transformed, using visitor functions.
 /// </summary>
-public class TreeNode
+public class TreeNode : TreeNode<None>
+{
+}
+
+/// <summary>
+/// Hierarchy derived from a <see cref="ParserMatch"/> tree.
+/// This can be manipulated and transformed, using visitor functions.
+/// </summary>
+/// <typeparam name="T">Type of user data</typeparam>
+public class TreeNode<T>
 {
     /// <summary>
     /// Parser that created this match
     /// </summary>
     public ParserMatch Source { get; private set; } = ParserMatch.NullMatch("Unknown source in TreeNode");
-    
+
     /// <summary>
     /// Nodes below this match
     /// </summary>
-    public List<TreeNode> Children { get; } = new();
+    public List<TreeNode<T>> Children { get; } = new();
+
+    /// <summary>
+    /// Consumer-supplied context data.
+    /// The parser system does not supply or use this, it is for tracking consumer processes.
+    /// </summary>
+    public T? UserData { get; set; }
 
     /// <summary>
     /// Build a tree from a parser match
     /// </summary>
     /// <param name="match">Top parser match to process</param>
     /// <param name="prune">If true, empty nodes will be removed</param>
-    public static TreeNode? FromParserMatch(ParserMatch match, bool prune)
+    public static TreeNode<T>? FromParserMatch(ParserMatch match, bool prune)
     {
         var tree = BasicTreeFromMatch(match);
 
         if (prune) tree = PruneTree(tree);
-        
+
         return PivotTree(tree);
     }
-    
+
     /// <summary>
     /// Build a tree node from a single string value
     /// </summary>
-    public static TreeNode FromString(string match, string? tag = null)
+    public static TreeNode<T> FromString(string match, string? tag = null)
     {
-        return new TreeNode
+        return new TreeNode<T>
         {
             Source = new ParserMatch(match, tag)
         };
@@ -57,31 +74,53 @@ public class TreeNode
     /// <p>If no reduction is possible, return the given node</p>
     /// <p>If the node should be entirely removed, return <c>null</c></p>
     /// </param>
-    public static TreeNode? TransformTree(TreeNode? node, Func<TreeNode, TreeNode?> transform)
+    public static TreeNode<T>? TransformTree(TreeNode<T>? node, Func<TreeNode<T>, TreeNode<T>?> transform)
     {
         if (node is null) return null;
-        
+
         var cursor = node;
-        while (true)
+        var tries  = 2;
+        while (tries > 0)
         {
             var changes = false;
             cursor = ApplyTransformRec(cursor, transform, ref changes);
-            if (!changes) return cursor;
+            if (!changes) tries--;
         }
+
+        return cursor;
     }
 
     #region Inner workings
-    
-    
+
     /// <summary>
     /// If a node has no meta-data, and one or zero children;
     /// then remove that node, attaching children to their grandparent.
     /// </summary>
-    private static TreeNode? ApplyTransformRec(TreeNode? node, Func<TreeNode, TreeNode?> transform, ref bool changes)
+    private static TreeNode<T>? ApplyTransformRec(TreeNode<T>? node, Func<TreeNode<T>, TreeNode<T>?> transform, ref bool changes)
     {
-        // Apply to this node. If any changes, return
         if (node is null) return null;
-        
+
+        // Go down to children first (assuming most trees work bottom-up)
+        for (var index = 0; index < node.Children.Count; index++)
+        {
+            bool transformChanges = false;
+
+            var before = node.Children[index];
+            var after  = ApplyTransformRec(before, transform, ref transformChanges);
+
+            if (transformChanges || after != before || !Equals(after.UserData, before.UserData)) changes = true;
+
+            if (after is null)
+            {
+                node.Children.RemoveAt(index);
+                index--;
+                continue;
+            }
+
+            node.Children[index] = after;
+        }
+
+        // Now handle this node
         var newNode = transform(node);
         if (newNode is null)
         {
@@ -89,41 +128,23 @@ public class TreeNode
             return null;
         }
 
-        if (node != newNode)
+        if (node != newNode || !Equals(node.UserData, newNode.UserData))
         {
             changes = true;
             return newNode;
         }
 
-        // No changes to this node, go down to children
-        for (var index = 0; index < node.Children.Count; index++)
-        {
-            var before = node.Children[index];
-            var after = ApplyTransformRec(before, transform, ref changes);
-
-            if (after != before) changes = true;
-            
-            if (after is null)
-            {
-                node.Children.RemoveAt(index);
-                index--;
-                continue;
-            }
-            node.Children[index] = after;
-        }
-
         return node;
     }
-    
-    
+
     /// <summary>
     /// If a node has no meta-data, and one or zero children;
     /// then remove that node, attaching children to their grandparent.
     /// </summary>
-    private static TreeNode? PruneTree(TreeNode? node)
+    private static TreeNode<T>? PruneTree(TreeNode<T>? node)
     {
         if (node is null) return null;
-        
+
         for (var index = 0; index < node.Children.Count; index++)
         {
             var child = PruneTree(node.Children[index]);
@@ -133,8 +154,9 @@ public class TreeNode
                 index--;
                 continue;
             }
+
             node.Children[index] = child;
-            
+
             if (!child.Source.HasMetaData()) // if this node is not interesting on its own,
             {
                 if (child.Children.Count == 1) // pull single child up
@@ -155,12 +177,12 @@ public class TreeNode
     /// <summary>
     /// Build a tree from a parser match
     /// </summary>
-    private static TreeNode? BasicTreeFromMatch(ParserMatch match)
+    private static TreeNode<T>? BasicTreeFromMatch(ParserMatch match)
     {
         // Recurse, skipping any non-meta nodes
         if (!match.HasMetaData() && !match.HasChildren) return null;
-        
-        var cursor = new TreeNode { Source = match };
+
+        var cursor = new TreeNode<T> { Source = match };
 
         foreach (var child in match.Children())
         {
@@ -184,12 +206,12 @@ public class TreeNode
     /// The new parent is the last pivot node in order,
     /// or the first pivot if non-pivot nodes come first.
     /// </summary>
-    private static TreeNode? PivotTree(TreeNode? node)
+    private static TreeNode<T>? PivotTree(TreeNode<T>? node)
     {
         if (node is null) return null;
 
-        TreeNode? lastPivot = null;
-        TreeNode? prePivot  = null;
+        TreeNode<T>? lastPivot = null;
+        TreeNode<T>? prePivot  = null;
         for (var index = 0; index < node.Children.Count; index++)
         {
             var child = PivotTree(node.Children[index]);
@@ -199,8 +221,9 @@ public class TreeNode
                 index--;
                 continue;
             }
+
             node.Children[index] = child;
-            
+
             if (child.Source.Scope == ScopeType.Pivot)
             {
                 lastPivot = child;
@@ -227,5 +250,11 @@ public class TreeNode
 
         return node;
     }
+
+    /// <summary>
+    /// Output a diagnostic string
+    /// </summary>
+    public override string ToString() => Source.ToString();
+
     #endregion Inner workings
 }

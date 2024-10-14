@@ -80,13 +80,12 @@ public static class LanguageDefinition
         equality.TagWith(EqualityOp);
 
         definition.EncloseScope().TagWith(FunctionDefinition);
-        function.TagWith(FunctionName);
         call.TagWith(FunctionCall).EncloseScope();
         if_block.EncloseScope().TagWith(IfBlock);
         else_block.EncloseScope().TagWith(ElseBlock);
 
         assign.EncloseScope().TagWith(Assignment);
-        rootExpr.TagWith(Expression);
+        rootExpr.EncloseScope().TagWith(Expression);
         loop.TagWith(Loop);
 
         add_sub.TagWith(MathOp).PivotScope();
@@ -99,8 +98,10 @@ public static class LanguageDefinition
         continue_call.TagWith(ContinueCall).EncloseScope();
         return_call.TagWith(ReturnCall).EncloseScope();
 
+        function.TagWith(FunctionName);
         number.TagWith(Number);
         variable.TagWith(Variable);
+        quotedString.TagWith(QuotedString);
 
         return language.WithOptions(Options.SkipWhitespace);
     }
@@ -116,8 +117,9 @@ public static class LanguageDefinition
     public const string Expression = "Expression";
     public const string Loop       = "Loop";
 
-    public const string Number   = "Number";
-    public const string Variable = "Variable";
+    public const string Number       = "Number";
+    public const string Variable     = "Variable";
+    public const string QuotedString = "QuotedString";
 
     public const string StartBlock = "StartBlock";
     public const string EndBlock   = "EndBlock";

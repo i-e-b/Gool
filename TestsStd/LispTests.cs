@@ -150,7 +150,7 @@ public class LispTests
     }
 
 
-    private static void PrintRecursive(ScopeNode node, int indent)
+    private static void PrintRecursive<T>(ScopeNode<T> node, int indent)
     {
         switch (node.NodeType)
         {

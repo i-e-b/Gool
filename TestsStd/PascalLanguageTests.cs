@@ -232,7 +232,7 @@ public class PascalLanguageTests
         }
     }
 
-    private static void PrintRecursive(ScopeNode node, int indent, ref bool line)
+    private static void PrintRecursive<T>(ScopeNode<T> node, int indent, ref bool line)
     {
         switch (node.NodeType)
         {
@@ -282,7 +282,7 @@ public class PascalLanguageTests
         }
     }
     
-    private static void PrintRecursive(ScopeNode node, StringBuilder sb)
+    private static void PrintRecursive<T>(ScopeNode<T> node, StringBuilder sb)
     {
         switch (node.NodeType)
         {

@@ -40,7 +40,7 @@ public class Wrapper : Unary
         if (innerMatch.Success && _action is not null) innerMatch = _action(innerMatch);
 
         return innerMatch.Success
-            ? scan.CreateMatch(this, innerMatch.Offset, innerMatch.Length, previousMatch)
+            ? innerMatch.ReSource(this)
             : scan.NoMatch(this, innerMatch);
     }
 

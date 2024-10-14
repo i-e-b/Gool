@@ -6,14 +6,29 @@ using Gool.Parsers;
 
 namespace Gool.Results;
 
+
+
+/// <summary>
+/// A <see cref="ScopeNode{T}"/> with no user data.
+/// <p/>
+/// Hierarchy node for scoped-and-tagged parser matches.
+/// This is derived from a <see cref="ParserMatch"/> tree, but
+/// the structure comes from <see cref="IParser.Tag"/> and <see cref="IParser.Scope"/>
+/// rather that the structure of parsers.
+/// </summary>
+public class ScopeNode : ScopeNode<None>
+{
+}
+
 /// <summary>
 /// Hierarchy node for scoped-and-tagged parser matches.
 /// This is derived from a <see cref="ParserMatch"/> tree, but
 /// the structure comes from <see cref="IParser.Tag"/> and <see cref="IParser.Scope"/>
 /// rather that the structure of parsers.
 /// </summary>
+/// <typeparam name="T">Type of user data</typeparam>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-public class ScopeNode
+public class ScopeNode<T>
 {
     /// <summary>
     /// Type of node
@@ -25,6 +40,12 @@ public class ScopeNode
     /// <c>null</c> if this is a scope change.
     /// </summary>
     public ParserMatch? DataMatch { get; private set; }
+
+    /// <summary>
+    /// Consumer-supplied context data.
+    /// The parser system does not supply or use this, it is for tracking consumer processes.
+    /// </summary>
+    public T? UserData { get; set; }
 
     /// <summary>
     /// ParserMatch that opened the current scope.
@@ -49,23 +70,23 @@ public class ScopeNode
     /// <summary>
     /// Next node in this scope, if any
     /// </summary>
-    public ScopeNode? NextNode { get; private set; }
+    public ScopeNode<T>? NextNode { get; private set; }
 
     /// <summary>
     /// Previous node in this scope, if any
     /// </summary>
-    public ScopeNode? PrevNode { get; private set; }
+    public ScopeNode<T>? PrevNode { get; private set; }
 
     /// <summary>
     /// Nodes within this scope
     /// </summary>
-    public List<ScopeNode> Children { get; } = new();
+    public List<ScopeNode<T>> Children { get; } = new();
 
     /// <summary>
     /// Parent node of this scope.
     /// <c>null</c> if root level
     /// </summary>
-    public ScopeNode? Parent { get; set; }
+    public ScopeNode<T>? Parent { get; set; }
     
     /// <summary>
     /// Walk the tree, and remove <see cref="ScopeNodeType.Data"/> nodes tagged with <paramref name="generalTag"/>;
@@ -75,7 +96,7 @@ public class ScopeNode
     /// <param name="specialTags">Tags that specialise the general tag</param>
     public void Specialise(string generalTag, params string[] specialTags)
     {
-        var nodesToPrune = new List<ScopeNode>();
+        var nodesToPrune = new List<ScopeNode<T>>();
         DepthFirstWalk(n =>
         {
             if (n.NodeType != ScopeNodeType.Data) return;
@@ -121,7 +142,7 @@ public class ScopeNode
     /// <summary>
     /// Remove a single node from this node's child list
     /// </summary>
-    private void RemoveChild(ScopeNode node)
+    private void RemoveChild(ScopeNode<T> node)
     {
         Children.Remove(node);
     }
@@ -138,7 +159,7 @@ public class ScopeNode
         };
     }
 
-    private void Link(ScopeNode newChild)
+    private void Link(ScopeNode<T> newChild)
     {
         if (Children.Count > 0)
         {
@@ -154,10 +175,10 @@ public class ScopeNode
     /// Perform an action on every node of the tree, visiting nodes breadth-first.
     /// See also <see cref="DepthFirstWalk"/>
     /// </summary>
-    public void BreadthFirstWalk(Action<ScopeNode> action)
+    public void BreadthFirstWalk(Action<ScopeNode<T>> action)
     {
         action(this);
-        var nextSet = new Queue<ScopeNode>(Children);
+        var nextSet = new Queue<ScopeNode<T>>(Children);
 
         while (nextSet.Count > 0)
         {
@@ -172,7 +193,7 @@ public class ScopeNode
     /// Perform an action on every node of the tree, visiting nodes depth-first.
     /// See also <see cref="BreadthFirstWalk"/>
     /// </summary>
-    public void DepthFirstWalk(Action<ScopeNode> action)
+    public void DepthFirstWalk(Action<ScopeNode<T>> action)
     {
         DepthFirstWalkRec(this, action);
     }
@@ -181,7 +202,7 @@ public class ScopeNode
     /// Perform an action on every node of the tree with the matching tag, visiting nodes depth-first.
     /// See also <see cref="DepthFirstWalk"/>
     /// </summary>
-    public void DepthFirstVisitTags(string tag, Action<ScopeNode> action)
+    public void DepthFirstVisitTags(string tag, Action<ScopeNode<T>> action)
     {
         DepthFirstWalkRec(this, n =>
         {
@@ -206,7 +227,7 @@ public class ScopeNode
     /// </summary>
     public ParserMatch? AnyMatch => DataMatch ?? OpeningMatch ?? ClosingMatch;
 
-    private static void DepthFirstWalkRec(ScopeNode node, Action<ScopeNode> action)
+    private static void DepthFirstWalkRec(ScopeNode<T> node, Action<ScopeNode<T>> action)
     {
         action(node);
         foreach (var child in node.Children)
@@ -222,7 +243,7 @@ public class ScopeNode
     /// </summary>
     internal void AddDataFrom(ParserMatch match)
     {
-        Link(new ScopeNode
+        Link(new ScopeNode<T>
         {
             NodeType = ScopeNodeType.Data,
             DataMatch = match,
@@ -238,9 +259,9 @@ public class ScopeNode
     /// <see cref="ClosingMatch"/> of the new node will be <c>null</c>.
     /// </summary>
     /// <returns>The new scope node</returns>
-    internal ScopeNode OpenScope(ParserMatch match)
+    internal ScopeNode<T> OpenScope(ParserMatch match)
     {
-        var newScope = new ScopeNode
+        var newScope = new ScopeNode<T>
         {
             NodeType = ScopeNodeType.ScopeChange,
             DataMatch = null,
@@ -256,9 +277,9 @@ public class ScopeNode
     /// <summary>
     /// Create a new root node
     /// </summary>
-    private static ScopeNode RootNode()
+    private static ScopeNode<T> RootNode()
     {
-        return new ScopeNode
+        return new ScopeNode<T>
         {
             NodeType = ScopeNodeType.Root,
             Parent = null
@@ -271,18 +292,18 @@ public class ScopeNode
     /// <p/>
     /// Breadth-first scopes are good for building data structure trees
     /// </summary>
-    public static ScopeNode FromMatch(ParserMatch root)
+    public static ScopeNode<T> FromMatch(ParserMatch root)
     {
         var points = ParserMatch.DepthFirstWalk(root, m => !m.Empty && (m.Tag is not null || m.Scope != ScopeType.None));
 
         return BuildScope(points);
     }
 
-    private static ScopeNode BuildScope(IEnumerable<ParserMatch> points)
+    private static ScopeNode<T> BuildScope(IEnumerable<ParserMatch> points)
     {
         var scopeEnds = new Stack<int>(); // right-edges of single-sided scopes
         var root = RootNode();
-        var cursor = (ScopeNode?)root;
+        var cursor = (ScopeNode<T>?)root;
         foreach (var match in points)
         {
             // Exit ranged scope if we've got to the end of it
@@ -323,10 +344,10 @@ public class ScopeNode
         return PivotNodes(root);
     }
 
-    private static ScopeNode PivotNodes(ScopeNode node)
+    private static ScopeNode<T> PivotNodes(ScopeNode<T> node)
     {
-        ScopeNode? lastPivot = null;
-        var        prePivot  = new List<ScopeNode>();
+        ScopeNode<T>? lastPivot = null;
+        var        prePivot  = new List<ScopeNode<T>>();
 
         for (var index = 0; index < node.Children.Count; index++)
         {
@@ -369,7 +390,7 @@ public class ScopeNode
     /// <summary>
     /// Find the first scope node, breadth-first, that has the given tag.
     /// </summary>
-    public ScopeNode? FirstByTag(string tagName)
+    public ScopeNode<T>? FirstByTag(string tagName)
     {
         if (Tag == tagName) return this;
         foreach (var child in Children)
@@ -383,7 +404,7 @@ public class ScopeNode
 }
 
 /// <summary>
-/// Type of node in a <see cref="ScopeNode"/> instance
+/// Type of node in a <see cref="ScopeNode{T}"/> instance
 /// </summary>
 public enum ScopeNodeType
 {

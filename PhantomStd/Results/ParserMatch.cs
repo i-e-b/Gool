@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Gool.Parsers;
 using Gool.Parsers.Terminals;
+using Gool.Parsers.Transforms;
 using Gool.Scanners;
 
 namespace Gool.Results;
@@ -67,7 +68,7 @@ public class ParserMatch
 
     /// <summary>
     /// Create a match from a string, that represents that entire string.
-    /// This is used to represent transformed values in <see cref="TreeNode"/>s.
+    /// This is used to represent transformed values in <see cref="TreeNode{T}"/>s.
     /// </summary>
     public ParserMatch(string value, string? tag = null)
     {
@@ -480,5 +481,16 @@ public class ParserMatch
     public ParserMatch Compact()
     {
         return new ParserMatch(SourceParser, Scanner, Offset, Length, Previous);
+    }
+
+    /// <summary>
+    /// Create a copy of this parser match, with a new source parser (used for Wrapper)
+    /// </summary>
+    internal ParserMatch ReSource(IParser newSource)
+    {
+        return new ParserMatch(newSource, Scanner, Offset, Length, Previous) {
+            _leftChild = _leftChild,
+            _rightChild = _rightChild
+        };
     }
 }

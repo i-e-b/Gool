@@ -58,13 +58,13 @@ public class ArithmeticTests
         
         sw.Restart();
         // Get a tree from the matches
-        var tree = TreeNode.FromParserMatch(result, prune: true);
+        var tree = TreeNode<double>.FromParserMatch(result, prune: true);
         PrintRecursive(tree, 0);
         
         Console.WriteLine("\r\n=================================================================================");
 
         // Try to reduce to a single value
-        var final = TreeNode.TransformTree(tree, ApplyOperation);
+        var final = TreeNode<double>.TransformTree(tree, ApplyOperation);
         PrintRecursive(final, 0);
 
         Assert.That(final?.Children.Count, Is.Zero, "Should have a final result");
@@ -107,7 +107,7 @@ public class ArithmeticTests
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
         var expectedPr = parser.ParseEntireString("8 * pi + cos(3 * phi) + random()");
-        var expectedTn = TreeNode.FromParserMatch(expectedPr, prune: true);
+        var expectedTn = TreeNode<double>.FromParserMatch(expectedPr, prune: true);
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -123,13 +123,13 @@ public class ArithmeticTests
         Console.WriteLine("\r\n=================================================================================");
 
         // Get a tree from the matches
-        var tree = TreeNode.FromParserMatch(result, prune: true);
+        var tree = TreeNode<double>.FromParserMatch(result, prune: true);
         PrintRecursive(tree, 0);
 
         Console.WriteLine("\r\n=================================================================================");
 
         // Try to reduce to a single value
-        var final = TreeNode.TransformTree(tree, ApplyOperation);
+        var final = TreeNode<double>.TransformTree(tree, ApplyOperation);
         var sb1   = new StringBuilder();
         PrintRecursive(final, 0, sb1);
         Console.Write(sb1.ToString());
@@ -143,7 +143,7 @@ public class ArithmeticTests
         Assert.That(sb1.ToString(), Is.EqualTo(sb2.ToString()));
     }
 
-    private static TreeNode? ApplyOperation(TreeNode node)
+    private static TreeNode<double>? ApplyOperation(TreeNode<double> node)
     {
         if (node.Source.Tag is null)
         {
@@ -173,17 +173,17 @@ public class ArithmeticTests
         };
 
         // Return a new node with the calculated value
-        return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), ArithmeticExample.Value);
+        return TreeNode<double>.FromString(result.ToString(CultureInfo.InvariantCulture), ArithmeticExample.Value);
     }
 
-    private static void PrintRecursive(TreeNode? node, int indent)
+    private static void PrintRecursive(TreeNode<double>? node, int indent)
     {
         var sb = new StringBuilder();
         PrintRecursive(node, indent, sb);
         Console.Write(sb.ToString());
     }
 
-    private static void PrintRecursive(TreeNode? node, int indent, StringBuilder sb)
+    private static void PrintRecursive(TreeNode<double>? node, int indent, StringBuilder sb)
     {
         if (node is null) return;
 

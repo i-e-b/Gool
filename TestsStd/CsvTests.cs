@@ -153,7 +153,7 @@ public class CsvTests
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
         Assert.That (result.Success, Is.True);
 
-        var tree = ScopeNode.FromMatch(result);
+        var tree = ScopeNode<None>.FromMatch(result);
         
         var document = new CsvDocument();
         foreach (var row in tree.Children)
@@ -253,7 +253,7 @@ public class CsvRow
 
     public List<string> Entries { get; set; } = new();
 
-    public static List<string> ReadRow(List<ScopeNode> list)
+    public static List<string> ReadRow(List<ScopeNode<None>> list)
     {
         return list.Select(item=>item.DataMatch?.Value ?? "").ToList();
     }

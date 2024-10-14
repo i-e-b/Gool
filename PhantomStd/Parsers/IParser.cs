@@ -27,7 +27,7 @@ public interface IParser
 	/// <summary>
 	/// Optional scope behaviour.
 	/// Scopes are used to build result trees from <see cref="Tag"/>ged matches,
-	/// using <see cref="ScopeNode.FromMatch"/>.
+	/// using <see cref="ScopeNode{T}.FromMatch"/>.
 	/// <ul>
 	/// <li>Positive values open a new scope</li>
 	/// <li>Negative values close the current scope</li>
