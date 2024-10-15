@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Gool.Parsers;
+using Gool.Parsers.Terminals;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -15,18 +16,21 @@ public class ScanStrings : IScanner
     private string? _furthestTag;
 
     private readonly string                      _input;
-    private readonly List<ParserPoint>           _failurePoints     = new();
-    private readonly Dictionary<object, object?> _contexts          = new();
-    private readonly HashSet<string>             _failedTags        = new();
+    private readonly bool                        _recordDiagnostics;
+    private readonly List<ParserPoint>           _failurePoints = new();
+    private readonly Dictionary<object, object?> _contexts      = new();
+    private readonly HashSet<string>             _failedTags    = new();
     private readonly int                         _inputLength;
 
     /// <summary>
     /// Create a new scanner from an input string.
     /// </summary>
     /// <param name="input">String to scan</param>
-    public ScanStrings(string input)
+    /// <param name="recordDiagnostics">If true, record extra details for failure diagnosis</param>
+    public ScanStrings(string input, bool recordDiagnostics = true)
     {
         _input = input;
+        _recordDiagnostics = recordDiagnostics;
         _inputLength = input.Length;
         FurthestOffset = 0;
         _completed = false;
@@ -65,6 +69,7 @@ public class ScanStrings : IScanner
     /// </summary>
     public void AddSuccess(ParserMatch newMatch)
     {
+        if (!_recordDiagnostics) return;
         if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
         _furthestTag = LastTag;
         _failurePoints.Clear();
@@ -92,6 +97,7 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public void AddFailure(IParser failedParser, ParserMatch failMatch)
     {
+        if (!_recordDiagnostics) return;
         if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
         if (LastTag is not null) _failedTags.Add(LastTag);
         _failurePoints.Add(new ParserPoint(failedParser, failMatch, this));

@@ -93,7 +93,7 @@ public class JsonTests
 
 
         phantomTime.Restart();
-        var result = parser.ParsePartialString(valid_sample);
+        var result = parser.ParsePartialString(valid_sample, diagnostics: false);
         phantomTime.Stop();
         Console.WriteLine($"Parsing took {phantomTime.Time()}");
 

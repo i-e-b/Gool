@@ -272,10 +272,10 @@ empty{}empty
         var input = File.ReadAllText(@"Samples/xml_spec.xml");
 
         sw.Restart();
-        var result = parser.ParseEntireString(input);
+        var result = parser.ParseEntireString(input, diagnostics:false);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(input.Length)}");
-
+/*
         foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
@@ -286,7 +286,7 @@ empty{}empty
         sw.Stop();
         Console.WriteLine($"Reinterpreting parser tree took {sw.Elapsed.TotalMilliseconds} ms");
 
-        PrintRecursive(tree, 0);
+        PrintRecursive(tree, 0);*/
     }
 
     private static void PrintRecursive<T>(ScopeNode<T> node, int indent)

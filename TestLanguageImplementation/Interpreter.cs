@@ -130,6 +130,10 @@ public class Interpreter
                 Console.WriteLine("not done: loop");
                 break;
 
+            case LanguageDefinition.Comment:
+                AdvanceProgramPointer();
+                return true;
+
             default:
                 Console.WriteLine($"Unexpected tag at program counter: '{pc.Location.Tag ?? "<null>"}'");
                 return false;

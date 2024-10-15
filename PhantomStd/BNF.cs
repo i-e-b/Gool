@@ -89,12 +89,13 @@ public class BNF : IParser
 	/// <param name="offset">Optional: Offset into the input to start parsing</param>
 	/// <param name="options">Optional: Settings for parsing, which can significantly change result</param>
 	/// <param name="autoAdvance">Optional: Custom auto-advance. This overrides <c>Options.SkipWhitespace</c></param>
+	/// <param name="recordDiagnostics">Optional, default <c>true</c>: If true, record diagnostics for error reporting. Parsing is faster without</param>
 	/// <param name="mustConsumeAll">
 	/// Optional, default = <c>false</c>.
 	/// If true, parsing will fail if it does not consume all of the input.</param>
-	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, IParser? autoAdvance = null, bool mustConsumeAll = false)
+	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, IParser? autoAdvance = null, bool recordDiagnostics = true, bool mustConsumeAll = false)
 	{
-		var scanner = new ScanStrings(input);
+		var scanner = new ScanStrings(input, recordDiagnostics);
 		
 		if (options.HasFlag(Options.SkipWhitespace)) scanner.AutoAdvance = WhiteSpaceString;
 		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
@@ -938,11 +939,12 @@ public class BNF : IParser
 		/// </summary>
 		/// <param name="input">The string to parse</param>
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
-		public ParserMatch ParsePartialString(string input, int offset = 0)
+		/// <param name="diagnostics">Optional (default: true). Record diagnostic info. Parsing is faster without</param>
+		public ParserMatch ParsePartialString(string input, int offset = 0, bool diagnostics = true)
 		{
-			return _bnf.ParseString(input, offset, _options, AutoAdvance, mustConsumeAll: false);
+			return _bnf.ParseString(input, offset, _options, AutoAdvance, diagnostics, mustConsumeAll: false);
 		}
-		
+
 		/// <summary>
 		/// Parse an input string, returning a match tree.
 		/// This will return a failed match if it does not consume the entire input.
@@ -951,9 +953,10 @@ public class BNF : IParser
 		/// </summary>
 		/// <param name="input">The string to parse</param>
 		/// <param name="offset">Optional. Position in the input to start parsing</param>
-		public ParserMatch ParseEntireString(string input, int offset = 0)
+		/// <param name="diagnostics">Optional (default: true). Record diagnostic info. Parsing is faster without</param>
+		public ParserMatch ParseEntireString(string input, int offset = 0, bool diagnostics = true)
 		{
-			return _bnf.ParseString(input, offset, _options, AutoAdvance, mustConsumeAll: true);
+			return _bnf.ParseString(input, offset, _options, AutoAdvance, diagnostics, mustConsumeAll: true);
 		}
 	}
 

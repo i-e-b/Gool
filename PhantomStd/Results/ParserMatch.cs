@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Gool.Parsers;
 using Gool.Parsers.Terminals;
-using Gool.Parsers.Transforms;
 using Gool.Scanners;
 
 namespace Gool.Results;
@@ -53,10 +52,11 @@ public class ParserMatch
     public ParserMatch(IParser source, IScanner scanner, int offset, int length, ParserMatch? previous)
     {
         SourceParser = source;
-
         Scanner = scanner;
+
         Offset = offset;
         Length = length;
+        Success = Length >= 0;
         Right = length > 0 ? offset + length : offset;
         Previous = previous;
 
@@ -78,6 +78,7 @@ public class ParserMatch
         Scanner = new ScanStrings(value);
         Offset = 0;
         Length = value.Length;
+        Success = Length >= 0;
         Right = Offset + Length;
     }
 
@@ -111,7 +112,7 @@ public class ParserMatch
     /// <summary>
     /// The parser that generated this match
     /// </summary>
-    public readonly IParser SourceParser;
+    public IParser SourceParser;
 
     /// <summary>
     /// Scanner
@@ -156,7 +157,7 @@ public class ParserMatch
     /// <summary>
     /// True if match successful
     /// </summary>
-    public bool Success => Length >= 0;
+    public bool Success;
 
     /// <summary>
     /// True if match empty
@@ -239,7 +240,7 @@ public class ParserMatch
         // then we should re-arrange the output so the pivot is the parent
         // and non-pivot are children
 
-        if (IsValidPivot(left, right))
+        if ((left.Scope == ScopeType.Pivot) ^ (right.Scope == ScopeType.Pivot))
         {
             if (left.Scope == ScopeType.Pivot)
             {
@@ -279,15 +280,6 @@ public class ParserMatch
     private static bool NoMeta(ParserMatch left, ParserMatch right)
     {
         return (!left.HasMetaData()) && (!right.HasMetaData());
-    }
-
-    /// <summary>
-    /// If one of the parsers is a pivot, but not both
-    /// </summary>
-    private static bool IsValidPivot(ParserMatch left, ParserMatch right)
-    {
-        if (left.Scope == ScopeType.Pivot && right.Scope == ScopeType.Pivot) return false;
-        return left.Scope == ScopeType.Pivot || right.Scope == ScopeType.Pivot;
     }
 
     /// <summary>
@@ -402,6 +394,7 @@ public class ParserMatch
         if (newLength > Length)
         {
             Length = newLength;
+            Success = Length >= 0;
             Right = Offset + Length;
         }
     }
@@ -427,7 +420,14 @@ public class ParserMatch
 
         // If the parser doesn't add any meta-data, skip joining
         if (!source.HasMetaData()) return this;
-        
+
+        // If the existing match doesn't have any meta, just copy ourselves in
+        if (!HasMetaData())
+        {
+            SourceParser = source;
+            return this;
+        }
+
         // Make a match covering this one, with the new source
         var joinMatch = new ParserMatch(source, Scanner, Offset, Length, previous);
         
