@@ -1,4 +1,6 @@
-﻿using Gool;
+﻿using System.Globalization;
+using Gool;
+using Gool.Results;
 using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
@@ -23,17 +25,18 @@ public static class LanguageDefinition
         comment.NoAutoAdvance();
 
         BNF // Strings
-            unicodeEsc   = "\\u" > CharacterInRanges(('0', '9'), ('a', 'f'), ('A', 'F')).Repeat(4),
+            unicodeEsc   = "\\u" > FixedSizeInteger(0, 0xffff, 4, useHex: true),
             escape       = '\\' > OneOf('"', '\\', '/', 'b', 'f', 'n', 'r', 't'),
-            character    = NoneOf('"', '\\') | escape | unicodeEsc,
+            literalChar  = NoneOf('"', '\\'),
+            character    = literalChar | escape | unicodeEsc,
             characters   = -character,
             quotedString = '"' > characters > '"';
 
-
         BNF // identifier types
-            variable = IdentifierString(),
-            number   = FractionalDecimal(),
-            function = IdentifierString();
+            variable  = IdentifierString(),
+            parameter = IdentifierString(),
+            number    = FractionalDecimal(),
+            function  = IdentifierString();
 
         BNF // block delimiters
             start_block = '{',
@@ -46,7 +49,7 @@ public static class LanguageDefinition
 
         var _innerExpr = Forward();
         BNF // general expression
-            factor     = quotedString | number | variable | (function > '(' > !_innerExpr > ')') | ('(' > _innerExpr > ')'),
+            factor     = quotedString | number | variable | (function > '(' > !(_innerExpr % ',') > ')') | ('(' > _innerExpr > ')'),
             power      = factor > !(exponent > factor),
             term       = power % mul_div,
             expression = term % add_sub,
@@ -55,7 +58,7 @@ public static class LanguageDefinition
 
         var _statement = Forward();
         BNF // Parts
-            call          = function > '(' > rootExpr > ')' > ';',
+            call          = function > '(' > !(rootExpr % ',') > ')' > ';',
             assign        = variable > '=' > rootExpr > ';',
             equality      = OneOf("=", "<", ">", "<=", ">="),
             else_block    = "else" > start_block > (-_statement) > end_block,
@@ -69,7 +72,7 @@ public static class LanguageDefinition
         _statement.Is(statement);
 
         BNF // Func definition and full program file.
-            definition = "fn" > function > start_block > -(statement) > end_block,
+            definition = "fn" > function > !(parameter % ',') > start_block > -(statement) > end_block,
             language   = !shebang > headerDecl > -(comment | definition);
 
         comment.Atomic().TagWith(Comment);
@@ -102,10 +105,10 @@ public static class LanguageDefinition
         number.TagWith(Number);
         variable.TagWith(Variable);
         quotedString.TagWith(QuotedString);
+        parameter.TagWith(Parameter);
 
         return language.WithOptions(Options.SkipWhitespace);
     }
-
 
     // ReSharper disable MemberCanBePrivate.Global
     public const string Comment = "Comment";
@@ -120,6 +123,7 @@ public static class LanguageDefinition
     public const string Number       = "Number";
     public const string Variable     = "Variable";
     public const string QuotedString = "QuotedString";
+    public const string Parameter    = "Parameter";
 
     public const string StartBlock = "StartBlock";
     public const string EndBlock   = "EndBlock";

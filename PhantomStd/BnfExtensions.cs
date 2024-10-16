@@ -73,7 +73,7 @@ public static class BnfExtensions
     /// Perform an action when the parser is matched.
     /// This returns a new parser without modifying the base.
     /// </summary>
-    public static BNF WithMatchAction(this IParser src, Func<ParserMatch, ParserMatch> action)
+    public static BNF WithMatchAction(this IParser src, Action<ParserMatch> action)
     {
         return new Wrapper(src, action);
     }

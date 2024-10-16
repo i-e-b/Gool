@@ -50,7 +50,7 @@ public class Value
             case ValueKind.Numeric:
                 return NumericValue.ToString(CultureInfo.InvariantCulture);
             case ValueKind.String:
-                return "'" + StringValue + "'";
+                return StringValue;
             default:
                 throw new ArgumentOutOfRangeException();
         }

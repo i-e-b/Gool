@@ -401,6 +401,21 @@ public class ScopeNode<T>
 
         return null;
     }
+
+    /// <summary>
+    /// Find all direct child nodes with the given tag.
+    /// </summary>
+    public IEnumerable<ScopeNode<T>> ChildrenByTag(string tagName)
+    {
+        var result = new List<ScopeNode<T>>();
+
+        foreach (var child in Children)
+        {
+            if (child.Tag == tagName) result.Add(child);
+        }
+
+        return result;
+    }
 }
 
 /// <summary>

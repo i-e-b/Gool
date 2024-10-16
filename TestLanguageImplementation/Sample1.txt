@@ -8,9 +8,9 @@
 # handle languages more complex than Lisp or Basic.
 
 fn main {
-    k = 3;              # assign a number to a variable
-    j = (10 + 1) * k;   # do math with numbers and variables
-    name = get_name();  # get user name in sub-function
+    k = 3;                                   # assign a number to a variable
+    j = (10 + 1) * k;                        # do math with numbers and variables
+    name = get_input("\u0048ello", "name");  # get user name in sub-function
 
     # Output a response, based on the input
     if name = "" {
@@ -20,7 +20,6 @@ fn main {
     }
 
     # Output numbers in a loop
-
     i = j / 3 - 11;     # Should end up as zero
     loop countingLoop {
         i = i + 1;
@@ -29,8 +28,8 @@ fn main {
     }
 }
 
-fn get_name {
-    print("Hello. What is your name?\r\n");
+fn get_input greet, thing {
+    print(greet + ". What is your " + thing + "?\r\n");
     name = read_line();
     return name;
 }

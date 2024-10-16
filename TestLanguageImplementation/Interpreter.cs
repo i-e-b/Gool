@@ -21,7 +21,7 @@ public class ProgramPtr
     public TreeNode<Value>? Expression;
 
     /// <summary>
-    /// Final value of the expression
+    /// Container for final value of the expression or function call
     /// </summary>
     public Value? ReturnValue;
 }
@@ -32,11 +32,11 @@ public class ProgramPtr
 public class Interpreter
 {
     private readonly Dictionary<string, ScopeNode<None>> _functionDefs = new();
-    private readonly Dictionary<string, string>    _fileHeaders  = new();
-    private readonly Stack<ProgramPtr>             _returnStack  = new();
-    private readonly Stack<VarScope>               _scopeStack   = new();
-    private readonly Queue<string>                 _userInput    = new();
-    private readonly StringBuilder                 _output       = new();
+    private readonly Dictionary<string, string>          _fileHeaders  = new();
+    private readonly Stack<ProgramPtr>                   _returnStack  = new();
+    private readonly Stack<VarScope>                     _scopeStack   = new();
+    private readonly Queue<string>                       _userInput    = new();
+    private readonly StringBuilder                       _output       = new();
 
     public Interpreter(string program)
     {
@@ -46,7 +46,7 @@ public class Interpreter
         if (!result.Success) throw new Exception("Program is invalid.\r\n" + string.Join("\r\n", result.Scanner.ListFailures()));
 
         var scopeTree = ScopeNode.FromMatch(result);
-        PrintRecursive(scopeTree, 0);
+        //PrintRecursive(scopeTree, 0);
 
         // Read header, check entry point and version
         Console.WriteLine("=[ Read headers ]=================================================");
@@ -87,7 +87,7 @@ public class Interpreter
         if (!_functionDefs.TryGetValue(entryFuncName, out var entryFunc))
             throw new Exception($"Did not find definition of entry function '{entryFuncName}'");
 
-        _returnStack.Push(new ProgramPtr{Location = entryFunc.Children.FirstOrDefault()});
+        _returnStack.Push(new ProgramPtr { Location = entryFunc.Children.FirstOrDefault() });
         _scopeStack.Push(new VarScope(null));
 
         Console.WriteLine($"Should start at {entryFunc}, {_returnStack.Peek().Location?.Value ?? "<null>"}");
@@ -107,9 +107,9 @@ public class Interpreter
         }
 
         // Are we working on an expression?
-        if (pc.Expression is not null && pc.ReturnValue is null)
+        if (pc.Expression is not null && pc.ReturnValue is null && pc.Expression.UserData is null)
         {
-            return ProcessExpression();
+            return ContinueExpression();
         }
 
         // Otherwise, process next statement
@@ -119,8 +119,7 @@ public class Interpreter
                 return AssignInScope();
 
             case LanguageDefinition.FunctionCall:
-                Console.WriteLine("not done: func");
-                break;
+                return CallFunction();
 
             case LanguageDefinition.IfBlock:
                 Console.WriteLine("not done: if/else");
@@ -134,6 +133,10 @@ public class Interpreter
                 AdvanceProgramPointer();
                 return true;
 
+            case LanguageDefinition.ReturnCall:
+                Console.WriteLine("Need to do function return!");
+                break;
+
             default:
                 Console.WriteLine($"Unexpected tag at program counter: '{pc.Location.Tag ?? "<null>"}'");
                 return false;
@@ -145,13 +148,166 @@ public class Interpreter
         return false;
     }
 
-    private bool ProcessExpression()
+    /// <summary>
+    /// Handle a statement that is a function call
+    /// </summary>
+    private bool CallFunction()
     {
+        var pc = _returnStack.Peek();
+        pc.ReturnValue = null;
 
-        Console.WriteLine("Not done: reduce expression to a value");
-        return false;
+        var func = pc.Location ?? throw new Exception($"Invalid function call at {pc.Location}");
+
+        // Handle the entire call as if it was an expression we want the value from
+        var done = HandleExpression(pc, func);
+        if (done)
+        {
+            // Ignore any value that came back, move on.
+            AdvanceProgramPointer();
+        }
+
+        return true;
     }
 
+    /// <summary>
+    /// Handle built-in functions (print, read_line)
+    /// </summary>
+    private bool HandleBuiltInFunction(string funcName, List<Value?> paramValues)
+    {
+        switch (funcName)
+        {
+            case "print":
+            {
+                Console.WriteLine($"===[ print ]=====> '{paramValues.FirstOrDefault()}'");
+                _output.Append(paramValues.FirstOrDefault());
+                return true;
+            }
+            case "read_line":
+            {
+                if (_userInput.Count < 1) throw new Exception("Not enough user input supplied");
+                var input = _userInput.Dequeue();
+                Console.WriteLine($"===[ read_line ]==> '{input}'");
+
+                var pc = _returnStack.Peek();
+                pc.ReturnValue = new Value(input);
+                return true;
+            }
+
+            default: return false;
+        }
+    }
+
+    /// <summary>
+    /// Step through an in-progress expression
+    /// </summary>
+    private bool ContinueExpression()
+    {
+        var pc         = _returnStack.Peek();
+        var actionable = pc.Expression!.FindBy(IsFunctionReadyToCall).ToList(); // this returns the function name node
+
+        if (actionable.Count < 1) throw new Exception($"Could not find an expression node to reduce! {pc.Expression}");
+
+        var functionToCall = actionable[0]; // this is the function name
+        var paramValues    = ParametersOf(functionToCall.Parent);
+
+        Console.WriteLine($"To process: '{functionToCall.Source.Value}' / {functionToCall.Source.Tag}");
+        return DispatchFunctionCall(functionToCall, paramValues);
+    }
+
+    /// <summary>
+    /// Call a function in an expression tree
+    /// </summary>
+    private bool DispatchFunctionCall(TreeNode<Value> function, IEnumerable<TreeNode<Value>> paramExpressions)
+    {
+        var name          = function.Source.Value;
+        var parameterVals = paramExpressions.Select(c => c.UserData).ToList();
+
+        if (HandleBuiltInFunction(name, parameterVals))
+        {
+            var pc = _returnStack.Peek();
+            if (pc.ReturnValue is not null)
+            {
+                function.UserData = pc.ReturnValue;
+                pc.ReturnValue = null;
+            }
+            else
+            {
+                AdvanceProgramPointer(); //???
+            }
+
+            /*
+            // TODO: handle this in a return structure.
+            var pc = _returnStack.Peek();
+            if (pc.Location?.Tag == LanguageDefinition.Assignment)
+            {
+                Console.WriteLine($"Need to assign '{pc.ReturnValue}' to {function.Parent}?");
+                return false;
+            }
+
+            */
+            return true;
+        }
+
+        var ok = _functionDefs.TryGetValue(name, out var target);
+        if (!ok) throw new Exception($"Function '{name}' is not defined");
+
+        var location = target?.Children.FirstOrDefault();
+        if (location is null) throw new Exception($"Function '{name}' is invalid");
+
+        var parameterSpec = target!.Parent!.ChildrenByTag(LanguageDefinition.Parameter).Select(p => p.Value).ToList();
+
+        if (parameterVals.Count != parameterSpec.Count) throw new Exception($"Call to '{name}' has {parameterVals.Count} parameters, but the function defines {parameterSpec.Count}.");
+
+        _returnStack.Push(new ProgramPtr
+        {
+            Location = location,
+            Expression = null,
+            ReturnValue = function.UserData
+        });
+
+        var newScope = new VarScope( /*currentScope*/null); // maybe function calls should have no parent link?
+        _scopeStack.Push(newScope);
+
+        // Pass in parameters into new scope
+        for (var index = 0; index < parameterSpec.Count; index++)
+        {
+            var paramValue = parameterVals[index];
+            var paramName  = parameterSpec[index];
+            newScope.Set(paramName, paramValue ?? new Value());
+        }
+
+
+        Console.WriteLine($"Calling '{name}' at {target}");
+
+        return true;
+    }
+
+    /// <summary>
+    /// Check if all a function's parameters have a value (or if there are no parameters)
+    /// </summary>
+    private static bool IsFunctionReadyToCall(TreeNode<Value> node)
+    {
+        // Note: 'All' should return true if the Children are empty
+        return node.UserData is null // not already resolved
+            && node.Source.Tag == LanguageDefinition.FunctionName // is a function
+            && ParametersOf(node.Parent).All(n => n.Source.Tag != LanguageDefinition.Parameter || n.UserData is not null) == true; // has no parameters, or all are resolved
+    }
+
+    /// <summary>
+    /// Return the call parameters for a function call in an expression
+    /// </summary>
+    private static IEnumerable<TreeNode<Value>> ParametersOf(TreeNode<Value>? parent)
+    {
+        if (parent is null) return Array.Empty<TreeNode<Value>>();
+        if (parent.Children.Count < 2) return Array.Empty<TreeNode<Value>>();
+
+        if (parent.Children[1].UserData is not null) return [parent.Children[1]]; // bare expression
+        return parent.Children[1].Children; // set of values
+    }
+
+    /// <summary>
+    /// Try to progress an assignment statement. Might make multiple function calls if required.
+    /// </summary>
     private bool AssignInScope()
     {
         var pc = _returnStack.Peek();
@@ -161,24 +317,30 @@ public class Interpreter
         var target = pc.Location.FirstByTag(LanguageDefinition.Variable);
         if (source?.AnyMatch is null) throw new Exception($"Invalid assignment at {pc.Location}");
         if (target is null) throw new Exception($"Invalid assignment at {pc.Location}");
-
-        // TODO: try to resolve a value, otherwise deal with calls to build a value
-
-        // Will need some way doing the 'Step()' thing, with potentially multiple calls to resolve.
-        // 1. Build the expression TreeNode, attach it to our program pointer (probably need another data structure)
+        // 1. Build the expression TreeNode, attach it to our program pointer
         // 2. Reduce the expression tree, switching to a new program pointer as required.
         // 3. When tree has a definite value, do the assignment
         // 4. If we have no value, and no reductions, throw exception.
 
-        // Are we done?
-        if (pc.ReturnValue is not null)
+        if (HandleExpression(pc, source))
         {
-            Console.WriteLine($"Assign '{target.Value}' with '{pc.ReturnValue}'");
-            SetScopeValue(target.Value, pc.ReturnValue);
+            // Got a final value
+            if (pc.ReturnValue is null) throw new Exception("Invalid return value");
+            SetScopeValue(name: target.Value, value: pc.ReturnValue);
             AdvanceProgramPointer();
-            return true;
         }
 
+        // May need to handle the expression further
+        //Console.WriteLine($"Need to call '{source.Value}' to assign result to '{target.Value}'");
+
+        return true;
+    }
+
+    /// <summary>
+    /// Try to reduce an expression. Returns true if a final value is resolved
+    /// </summary>
+    private bool HandleExpression(ProgramPtr pc, ScopeNode<None> source)
+    {
         // Read the expression
         TreeNode<Value> exprTree;
         if (pc.Expression is not null)
@@ -187,40 +349,39 @@ public class Interpreter
         }
         else
         {
-            var tree = TreeNode<Value>.FromParserMatch(source.AnyMatch, prune: true);
+            var tree = TreeNode<Value>.FromParserMatch(source.AnyMatch!, prune: true);
             exprTree = TreeNode<Value>.TransformTree(tree, ReduceExpressionWithMath) ?? throw new Exception($"Invalid expression: '{source.Value}'");
             Console.WriteLine("===[ expression ]=======");
             PrintRecursive(exprTree, 0);
             Console.WriteLine("========================");
         }
 
-        if (exprTree?.UserData is not null) // we have a single value or name
+        if (exprTree?.UserData is not null && exprTree.UserData is not null)
         {
+            pc.ReturnValue = exprTree.UserData;
+            pc.Expression = null;
             // Have we reduced to a single value?
-            if (exprTree.UserData is not null)
-            {
-                SetScopeValue(name: target.Value, value: exprTree.UserData);
-                AdvanceProgramPointer();
-                return true;
-            }
-
-            // Otherwise it contains a function call. We need to push a return frame and continue into the call
+            return true;
         }
 
-        // need to resolve variables, or call functions
-        //var toResolve = final.DeepestFirst().FirstOrDefault();
-        // TODO: need to store 'final' as the next _programPointer.
-        pc.Expression = exprTree;
 
-        Console.WriteLine($"Will need to resolve '{source.Value}' to assign '{target.Value}'");
-        return true;
+        // Otherwise it contains a function call. We will save the expression and handle it next time
+        pc.Expression = exprTree;
+        return false;
     }
 
+    /// <summary>
+    /// Current statement is complete. Move forward
+    /// </summary>
     private void AdvanceProgramPointer()
     {
         var pc = _returnStack.Peek();
-        // Either move the pointer to its next sibling, or walk up stack and do the same
 
+        // Reset values we track for a single program position
+        pc.Expression = null;
+        pc.ReturnValue = null;
+
+        // Either move the pointer to its next sibling, or walk up stack and do the same
         while (pc.Location is not null)
         {
             var next = pc.Location.NextNode;
@@ -236,6 +397,7 @@ public class Interpreter
 
         Console.WriteLine("End of call");
         _returnStack.Pop();
+        _scopeStack.Pop();
     }
 
     /// <summary>
@@ -256,7 +418,9 @@ public class Interpreter
         return _scopeStack.Peek().Get(name);
     }
 
-
+    /// <summary>
+    /// Try to reduce an expression tree by applying operators and resolving variables
+    /// </summary>
     private TreeNode<Value>? ReduceExpressionWithMath(TreeNode<Value> node)
     {
         if (node.UserData is not null) return node; // We've already handled this one
@@ -271,12 +435,7 @@ public class Interpreter
         // Lift value out of expression if we have it
         if (node.Source.Tag == LanguageDefinition.Expression && node.Children.Count == 1) return node.Children[0];
 
-        // TODO: for single nodes, try and resolve a value from either double.Parse, "string", or variable name.
-        //     : then add this to the UserData.
-        //     : For nodes that are operations, check if we have two nodes with UserData.
-        //     : For nodes that are calls, check we have all children with UserData
-        //     : node.UserData = ...
-
+        // Is it a literal number?
         if (double.TryParse(node.Source.Value, out var dbl))
         {
             node.UserData = new Value { NumericValue = dbl, Kind = ValueKind.Numeric };
@@ -284,9 +443,18 @@ public class Interpreter
             return node;
         }
 
-        // Try and replace this node with a variable value
+        // Is it a literal string?
+        if (node.Source.Tag == LanguageDefinition.QuotedString)
+        {
+            var value = UnpackQuotedString(node);
+            node.UserData = value;
+            return node;
+        }
+
+        // Is it a variable reference?
         if (node.Source.Tag == LanguageDefinition.Variable)
         {
+            // Try and replace this node with a variable value
             var value = GetScopeValue(node.Source.Value);
             if (value.Kind == ValueKind.Invalid) throw new Exception($"No such variable: '{node.Source.Value}'");
             node.UserData = value;
@@ -341,6 +509,88 @@ public class Interpreter
         }
     }
 
+    /// <summary>
+    /// Convert string with outer quotes removed, and escapes resolved
+    /// </summary>
+    private static Value UnpackQuotedString(TreeNode<Value> node)
+    {
+        var src = node.Source.Value;
+        var dst = new StringBuilder();
+
+        for (var i = 1; i < src.Length - 1; i++)
+        {
+            var c = src[i];
+            if (c == '\\')
+            {
+                i++;
+                var t = src[i];
+                switch (t)
+                {
+                    case 'u':
+                    {
+                        dst.Append(
+                            char.ConvertFromUtf32(int.Parse("" + src[i + 1] + src[i + 2] + src[i + 3] + src[i + 4],
+                                NumberStyles.HexNumber)));
+                        i += 4;
+                        break;
+                    }
+
+                    case '\\':
+                        dst.Append('\\');
+                        break;
+                    case '"':
+                        dst.Append('"');
+                        break;
+                    case '/':
+                        dst.Append('/');
+                        break;
+                    case 'b':
+                        dst.Append('\b');
+                        break;
+                    case 'f':
+                        dst.Append('\f');
+                        break;
+                    case 'n':
+                        dst.Append('\n');
+                        break;
+                    case 'r':
+                        dst.Append('\r');
+                        break;
+                    case 't':
+                        dst.Append('\t');
+                        break;
+                }
+            }
+            else dst.Append(c);
+        }
+
+        Console.WriteLine($"'{node.Source.Value}' -> '{dst}'");
+        var value = new Value(dst.ToString());
+        node.UserData = value;
+        return value;
+    }
+
+    /// <summary>
+    /// Simulate sending user input to the interpreter
+    /// </summary>
+    public void SendLine(string input)
+    {
+        _userInput.Enqueue(input);
+    }
+
+    /// <summary>
+    /// Get the console output written so far, and clear it
+    /// </summary>
+    public string GetOutput()
+    {
+        var outp = _output.ToString();
+        _output.Clear();
+        return outp;
+    }
+
+
+    #region Diagnostic stuff
+
     private static void PrintRecursive(TreeNode<Value>? node, int indent)
     {
         if (node is null) return;
@@ -391,21 +641,5 @@ public class Interpreter
         return new string(' ', indent * 2);
     }
 
-    /// <summary>
-    /// Simulate sending user input to the interpreter
-    /// </summary>
-    public void SendLine(string input)
-    {
-        _userInput.Enqueue(input);
-    }
-
-    /// <summary>
-    /// Get the console output written so far, and clear it
-    /// </summary>
-    public string GetOutput()
-    {
-        var outp = _output.ToString();
-        _output.Clear();
-        return outp;
-    }
+    #endregion Diagnostic stuff
 }

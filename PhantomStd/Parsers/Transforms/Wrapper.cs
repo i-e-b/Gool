@@ -14,7 +14,7 @@ namespace Gool.Parsers.Transforms;
 /// </summary>
 public class Wrapper : Unary
 {
-    private readonly Func<ParserMatch, ParserMatch>? _action;
+    private readonly Action<ParserMatch>? _action;
 
     /// <summary>
     /// Create a wrapper around another parser
@@ -26,7 +26,7 @@ public class Wrapper : Unary
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
-    public Wrapper(IParser parser, Func<ParserMatch, ParserMatch> action) : base(parser)
+    public Wrapper(IParser parser, Action<ParserMatch> action) : base(parser)
     {
         _action = action;
     }
@@ -37,7 +37,10 @@ public class Wrapper : Unary
         // apply the first parser
         var innerMatch = Parser.Parse(scan, previousMatch, allowAutoAdvance);
 
-        if (innerMatch.Success && _action is not null) innerMatch = _action(innerMatch);
+        if (innerMatch.Success && _action is not null)
+        {
+            _action(innerMatch);
+        }
 
         return innerMatch.Success
             ? innerMatch.ReSource(this)

@@ -322,11 +322,8 @@ public class BNF : IParser
 	/// <summary>
 	/// Perform an action when the parser is matched.
 	/// This modifies the current parser.
-	/// <p/>
-	/// The action should return a resulting ParserMatch. If no changes
-	/// are desired, return the given match.
 	/// </summary>
-	public void MatchAction(Func<ParserMatch, ParserMatch> action)
+	public void MatchAction(Action<ParserMatch> action)
 	{
 		_parserTree = _parserTree.WithMatchAction(action);
 	}

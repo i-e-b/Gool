@@ -31,6 +31,11 @@ public class TreeNode<T>
     public List<TreeNode<T>> Children { get; } = new();
 
     /// <summary>
+    /// Parent node. Will be null for root.
+    /// </summary>
+    public TreeNode<T>? Parent { get; set; }
+
+    /// <summary>
     /// Consumer-supplied context data.
     /// The parser system does not supply or use this, it is for tracking consumer processes.
     /// </summary>
@@ -43,7 +48,7 @@ public class TreeNode<T>
     /// <param name="prune">If true, empty nodes will be removed</param>
     public static TreeNode<T>? FromParserMatch(ParserMatch match, bool prune)
     {
-        var tree = BasicTreeFromMatch(match);
+        var tree = BasicTreeFromMatch(match, null);
 
         if (prune) tree = PruneTree(tree);
 
@@ -90,7 +95,35 @@ public class TreeNode<T>
         return cursor;
     }
 
+    /// <summary>
+    /// Search the tree node and all children, returning any nodes that match the predicate
+    /// </summary>
+    public IEnumerable<TreeNode<T>> FindBy(Func<TreeNode<T>, bool> predicate)
+    {
+        var everything = new List<TreeNode<T>>();
+        ListBottomUp(this, everything, predicate);
+        return everything;
+    }
+
     #region Inner workings
+
+
+    /// <summary>
+    /// Search the tree node and all children, starting at the bottom-most nodes
+    /// </summary>
+    private static void ListBottomUp(TreeNode<T>? node, List<TreeNode<T>> target, Func<TreeNode<T>, bool> predicate)
+    {
+        if (node is null) return;
+
+        // Go down to children first (assuming most trees work bottom-up)
+        foreach (var child in node.Children)
+        {
+            ListBottomUp(child, target, predicate);
+        }
+
+        // Now handle this node
+        if (predicate(node)) target.Add(node);
+    }
 
     /// <summary>
     /// If a node has no meta-data, and one or zero children;
@@ -177,16 +210,16 @@ public class TreeNode<T>
     /// <summary>
     /// Build a tree from a parser match
     /// </summary>
-    private static TreeNode<T>? BasicTreeFromMatch(ParserMatch match)
+    private static TreeNode<T>? BasicTreeFromMatch(ParserMatch match, TreeNode<T>? parent)
     {
         // Recurse, skipping any non-meta nodes
         if (!match.HasMetaData() && !match.HasChildren) return null;
 
-        var cursor = new TreeNode<T> { Source = match };
+        var cursor = new TreeNode<T> { Source = match, Parent = parent};
 
         foreach (var child in match.Children())
         {
-            var node = BasicTreeFromMatch(child);
+            var node = BasicTreeFromMatch(child, cursor);
             if (node is not null) cursor.Children.Add(node);
         }
 
@@ -194,7 +227,11 @@ public class TreeNode<T>
         {
             if (cursor.Children.Count < 0) return null; // prune empty results
 
-            if (cursor.Children.Count == 1) return cursor.Children[0]; // shorten empty lines
+            if (cursor.Children.Count == 1) // shorten empty lines
+            {
+                cursor.Children[0].Parent = parent;
+                return cursor.Children[0];
+            }
         }
 
         return cursor;
@@ -229,6 +266,7 @@ public class TreeNode<T>
                 lastPivot = child;
                 if (prePivot is not null)
                 {
+                    prePivot.Parent = lastPivot;
                     lastPivot.Children.Add(prePivot);
                     node.Children.Remove(prePivot);
                 }
@@ -237,6 +275,7 @@ public class TreeNode<T>
             }
             else if (lastPivot is not null)
             {
+                child.Parent = lastPivot;
                 lastPivot.Children.Add(child);
                 node.Children.Remove(child);
                 lastPivot = null;

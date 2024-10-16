@@ -72,7 +72,8 @@ public class FixedWidthIntegerRange : Parser
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = $"[f{(_useHex?"H":"D")}:{_lower.ToString("D"+_fixedWidth)}..{_upper.ToString("D"+_fixedWidth)}]";
+        var fmt  = _useHex ? "X" : "D";
+        var desc = $"[f{(_useHex?"H":"D")}:{_lower.ToString(fmt+_fixedWidth)}..{_upper.ToString(fmt+_fixedWidth)}]";
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";

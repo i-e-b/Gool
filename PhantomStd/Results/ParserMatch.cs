@@ -92,6 +92,16 @@ public class ParserMatch
     }
 
     /// <summary>
+    /// The left-side child match, if any
+    /// </summary>
+    public ParserMatch? LeftChild() => _leftChild;
+
+    /// <summary>
+    /// The right-side child match, if any
+    /// </summary>
+    public ParserMatch? RightChild() => _rightChild;
+
+    /// <summary>
     /// Add a child match. There are a maximum of two children per match.
     /// Each child may have its own children.
     /// </summary>
@@ -101,7 +111,8 @@ public class ParserMatch
         child.Parent = this;
         if (_leftChild is null) _leftChild = child;
         else if (_rightChild is null) _rightChild = child;
-        else Debug.Assert(false, "Too many children");
+        else
+            Debug.Assert(false, "Too many children");
     }
 
     /// <summary>
@@ -214,8 +225,17 @@ public class ParserMatch
             if (!right.Empty) chainResult.AddChild(right);
             return chainResult;
         }
-        
-        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
+
+        if (left.Scanner != right.Scanner)
+        {
+            // Can't do anything clever if a specialist sub-scanner is used.
+            //throw new ArgumentException("Can't Join between different scanners");
+            var mlength     = right.Right - left.Offset;
+            var mjoinResult = new ParserMatch(source, left.Scanner, left.Offset, mlength, previous);
+            if (!left.Empty) mjoinResult.AddChild(left);
+            if (!right.Empty) mjoinResult.AddChild(right);
+            return mjoinResult;
+        }
 
         // Reduce overlapping matches, if it doesn't loose information
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
@@ -224,18 +244,19 @@ public class ParserMatch
             if (!left.Empty) leftOnlyResult.AddChild(left);
             return leftOnlyResult;
         }
+
         if ((right.Contains(left) && NoMeta(left, right)) || left.Empty)
         {
             var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length, previous);
             if (!right.Empty) rightOnlyResult.AddChild(right);
             return rightOnlyResult;
         }
-        
-        
-        var length = right.Right - left.Offset;
+
+
+        var length     = right.Right - left.Offset;
         var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length, previous);
-        
-        
+
+
         // If one of the parsers is a 'pivot' scope, and the other isn't
         // then we should re-arrange the output so the pivot is the parent
         // and non-pivot are children
@@ -248,7 +269,7 @@ public class ParserMatch
                 joinResult.AddChild(left);
                 return joinResult;
             }
-            
+
             if (right.Scope == ScopeType.Pivot)
             {
                 right.AddChild(left);
@@ -289,7 +310,7 @@ public class ParserMatch
     {
         return (Offset <= other.Offset) && (Right >= other.Right);
     }
-    
+
     /// <summary>
     /// Walk *every* match in this match tree. This will usually result in
     /// duplicate matches.
@@ -308,7 +329,7 @@ public class ParserMatch
     {
         return DepthFirstWalk(this, node => !node.HasChildren);
     }
-    
+
     /// <summary>
     /// Return the bottom-most parser matches, including matches
     /// that aren't atoms, ignoring sub-atomic matches and ignoring this match
@@ -327,7 +348,7 @@ public class ParserMatch
     {
         return DepthFirstWalk(this, m => m.Tag is not null);
     }
-    
+
     /// <summary>
     /// Return all parser matches where the parser has been given a tag value.
     /// This can be used to convert the parser token results into a meaningful structure.
@@ -336,7 +357,7 @@ public class ParserMatch
     {
         return BreadthFirstWalk(this, m => m.Tag is not null);
     }
-    
+
     /// <summary>
     /// Return all parser matches where the parser has the exact requested tag value
     /// </summary>
@@ -352,7 +373,7 @@ public class ParserMatch
     public static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node, Func<ParserMatch, bool> select)
     {
         if (node is null) yield break;
-        
+
         if (select(node)) yield return node; // this match
 
         var check = (ParserMatch n) => DepthFirstWalk(n, select);
@@ -361,7 +382,7 @@ public class ParserMatch
             if (select(m)) yield return m;
         }
     }
-    
+
     /// <summary>
     /// Does a recursive, breadth-first search of this match and all children.
     /// Returns matches where <paramref name="select"/> returns <c>true</c>
@@ -370,16 +391,16 @@ public class ParserMatch
     public static IEnumerable<ParserMatch> BreadthFirstWalk(ParserMatch? root, Func<ParserMatch, bool> select)
     {
         if (root is null) yield break;
-        
+
         if (select(root)) yield return root; // this match
-        
+
         var nextSet = new Queue<ParserMatch>(root.Children());
 
         while (nextSet.Count > 0)
         {
             var node = nextSet.Dequeue();
             if (select(node)) yield return node; // this match
-            
+
             foreach (var child in node.Children()) nextSet.Enqueue(child);
         }
     }
@@ -421,8 +442,9 @@ public class ParserMatch
         // If the parser doesn't add any meta-data, skip joining
         if (!source.HasMetaData()) return this;
 
-        // If the existing match doesn't have any meta, just copy ourselves in
-        if (!HasMetaData())
+        // If the existing match doesn't have any meta, just copy ourselves in.
+        // Don't do this if our child set is full, as that might break later joins
+        if (!HasMetaData() && _rightChild is null)
         {
             SourceParser = source;
             return this;
@@ -430,12 +452,11 @@ public class ParserMatch
 
         // Make a match covering this one, with the new source
         var joinMatch = new ParserMatch(source, Scanner, Offset, Length, previous);
-        
+
         // Join this match to the result if we have any metadata to carry
         if (AnyMetaInTree()) joinMatch.AddChild(this);
 
         return joinMatch;
-
     }
 
     private bool AnyMetaInTree()
@@ -450,7 +471,7 @@ public class ParserMatch
     /// </summary>
     public ParserMatch? GetTag(string tag)
     {
-        return DepthFirstWalk(this, _ => true).FirstOrDefault(m=>m.Tag == tag);
+        return DepthFirstWalk(this, _ => true).FirstOrDefault(m => m.Tag == tag);
     }
 
     /// <summary>
@@ -459,7 +480,7 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> FindByTag(string tag)
     {
-        return DepthFirstWalk(this, _ => true).Where(m=>m.Tag == tag);
+        return DepthFirstWalk(this, _ => true).Where(m => m.Tag == tag);
     }
 
     /// <summary>
@@ -488,9 +509,18 @@ public class ParserMatch
     /// </summary>
     internal ParserMatch ReSource(IParser newSource)
     {
-        return new ParserMatch(newSource, Scanner, Offset, Length, Previous) {
+        return new ParserMatch(newSource, Scanner, Offset, Length, Previous)
+        {
             _leftChild = _leftChild,
             _rightChild = _rightChild
         };
+    }
+
+    /// <summary>
+    /// Partly enclose a match that is being patched into a result
+    /// </summary>
+    public ParserMatch Enclose(IParser source, ParserMatch disconnectedMatch)
+    {
+        return new ParserMatch(source, disconnectedMatch.Scanner, Offset, Length, Previous);
     }
 }
