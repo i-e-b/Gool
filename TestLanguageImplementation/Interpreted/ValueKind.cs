@@ -1,4 +1,4 @@
-namespace TestLanguageImplementation;
+namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
 /// Type of a value

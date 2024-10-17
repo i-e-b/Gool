@@ -1,6 +1,6 @@
 ﻿using Gool.Results;
 
-namespace TestLanguageImplementation;
+namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
 /// State of execution, as stored in the interpreter return stack

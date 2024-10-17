@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace TestLanguageImplementation;
+namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
 /// Value for a variable

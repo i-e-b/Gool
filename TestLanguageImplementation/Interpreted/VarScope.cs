@@ -1,4 +1,4 @@
-namespace TestLanguageImplementation;
+namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
 /// Names and values for a lexical scope

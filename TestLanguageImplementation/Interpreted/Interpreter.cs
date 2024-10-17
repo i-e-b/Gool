@@ -3,7 +3,7 @@ using System.Text;
 using Gool.Results;
 using SkinnyJson;
 
-namespace TestLanguageImplementation;
+namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
 /// Language interpreter
