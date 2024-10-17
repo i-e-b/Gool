@@ -1,4 +1,5 @@
 using System.Globalization;
+using Gool.Results;
 
 namespace TestLanguageImplementation.Interpreted;
 
@@ -25,6 +26,12 @@ public class Value
         Kind = ValueKind.Invalid;
     }
 
+    public Value(ScopeNode<None> location)
+    {
+        Kind = ValueKind.Location;
+        LocationValue = location;
+    }
+
     /// <summary>
     /// Type of the value
     /// </summary>
@@ -34,6 +41,11 @@ public class Value
     /// Numeric value. Not defined if type is not numeric
     /// </summary>
     public double NumericValue { get; set; }
+
+    /// <summary>
+    /// Program location value. Not defined if type is not location
+    /// </summary>
+    public ScopeNode<None>? LocationValue { get; set; }
 
     /// <summary>
     /// String value. Not defined if type is not string
@@ -56,6 +68,7 @@ public class Value
             ValueKind.Numeric => NumericValue.ToString(CultureInfo.InvariantCulture),
             ValueKind.String => StringValue,
             ValueKind.Boolean => BoolValue.ToString(),
+            ValueKind.Location => LocationValue?.ToString()??"<null location>",
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -63,13 +76,12 @@ public class Value
     /// <summary>
     /// Cast the value to boolean
     /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     public bool ToBool()
     {
         return Kind switch
         {
             ValueKind.Invalid => false,
+            ValueKind.Location => false,
             ValueKind.Numeric => NumericValue is > 0.00001 or < -0.00001,
             ValueKind.String => !string.IsNullOrWhiteSpace(StringValue),
             ValueKind.Boolean => BoolValue,

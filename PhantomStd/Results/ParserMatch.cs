@@ -480,7 +480,7 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> FindByTag(string tag)
     {
-        return DepthFirstWalk(this, _ => true).Where(m => m.Tag == tag);
+        return DepthFirstWalk(this, m => m.Tag == tag);
     }
 
     /// <summary>

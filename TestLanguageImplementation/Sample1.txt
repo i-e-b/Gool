@@ -26,6 +26,8 @@ fn main {
         print(i);
         if i >= 5  { break countingLoop; }
     }
+
+    print("\r\nDone!");
 }
 
 fn get_input greet, thing {

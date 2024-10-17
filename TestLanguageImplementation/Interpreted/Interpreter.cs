@@ -6,7 +6,8 @@ using SkinnyJson;
 namespace TestLanguageImplementation.Interpreted;
 
 /// <summary>
-/// Language interpreter
+/// Language interpreter.
+/// This is intended as a demo, and is not guaranteed to work correctly for all valid programs
 /// </summary>
 public class Interpreter
 {
@@ -66,7 +67,8 @@ public class Interpreter
         if (!_functionDefs.TryGetValue(entryFuncName, out var entryFunc))
             throw new Exception($"Did not find definition of entry function '{entryFuncName}'");
 
-        _returnStack.Push(new ProgramPtr { Location = entryFunc.Children.FirstOrDefault() });
+        var firstStatement = entryFunc.Children.FirstOrDefault();
+        _returnStack.Push(new ProgramPtr { Location = firstStatement });
         _scopeStack.Push(new VarScope(null));
 
         Console.WriteLine($"Should start at {entryFunc}, {_returnStack.Peek().Location?.Value ?? "<null>"}");
@@ -77,7 +79,12 @@ public class Interpreter
     /// </summary>
     public bool Step()
     {
-        if (_returnStack.Count < 1) return false; // end of program
+        if (_returnStack.Count < 1)
+        {
+            Console.WriteLine("===[ END OF PROGRAM ]=========");
+            return false; // end of program
+        }
+
         var pc = _returnStack.Peek();
         if (pc.Location is null)
         {
@@ -95,28 +102,95 @@ public class Interpreter
         switch (pc.Location.Tag)
         {
             case LanguageDefinition.Assignment:
-                return AssignInScope();
+                return AssignInScope(pc);
 
             case LanguageDefinition.FunctionCall:
-                return CallFunction();
+                return CallFunction(pc);
 
             case LanguageDefinition.IfBlock:
-                return DoIfElse();
+                return DoIfElse(pc);
 
             case LanguageDefinition.Loop:
-                Console.WriteLine("not done: loop");
-                break;
+                return EnterLoop(pc);
 
             case LanguageDefinition.Comment:
                 AdvanceProgramPointer();
                 return true;
 
             case LanguageDefinition.ReturnCall:
-                return DoFunctionReturn();
+                return DoFunctionReturn(pc);
+
+            case LanguageDefinition.BreakCall:
+                return DoLoopBreak(pc);
 
             default:
                 Console.WriteLine($"Unexpected tag at program counter: '{pc.Location.Tag ?? "<null>"}'");
                 return false;
+        }
+    }
+
+    /// <summary>
+    /// Enter into a loop
+    /// </summary>
+    private bool EnterLoop(ProgramPtr pc)
+    {
+        // 1. Check that the loop name is not already assigned
+        // 2. Assign in scope
+        // 3. Move into the loop
+
+        var name = pc.Location?.ChildrenByTag(LanguageDefinition.Variable).FirstOrDefault()?.Value ?? throw new Exception("Invalid loop name!");
+
+        var existing = GetScopeValue(name);
+        if (existing.Kind != ValueKind.Invalid) throw new Exception($"Name '{name}' is already defined and can't be used for a loop name");
+
+        SetScopeValue(name, new Value(pc.Location));
+
+        var loopBody = pc.Location.FirstByTag(LanguageDefinition.StartBlock)?.Children;
+        if (loopBody is null || loopBody.Count < 1) throw new Exception("Invalid loop");
+
+        _returnStack.Push(new ProgramPtr { Location = loopBody[0] });
+        var parentScope = _scopeStack.Peek();
+        _scopeStack.Push(new VarScope(parentScope)); // Enclosed scope, we should have access to outer names
+
+        Console.WriteLine($"Starting loop '{name}' at {loopBody[0]}");
+        return true;
+    }
+
+    /// <summary>
+    /// Try to break out from a <b>specific</b> loop
+    /// </summary>
+    private bool DoLoopBreak(ProgramPtr pc)
+    {
+        // Try to find the loop in our location's parent. Keep unwinding until found
+        var loopName = pc.Location?.FirstByTag(LanguageDefinition.Variable)?.Value ?? throw new Exception("Invalid break");
+
+        var targetScope = GetScopeValue(loopName);
+        if (targetScope.Kind != ValueKind.Location) throw new Exception($"'{loopName}' is not an enclosing scope");
+
+        Console.WriteLine($"Unwinding to after loop '{loopName}'");
+
+        while (_returnStack.Count > 0)
+        {
+            // Unwind once
+            _returnStack.Pop();
+            _scopeStack.Pop();
+
+            pc = _returnStack.Peek();
+
+            var loc = pc.Location;
+            if (loc is null) throw new Exception("Invalid stack");
+
+            Console.WriteLine($"Unwound to '{ShortenString(loc.ToString())}'");
+
+            // Check
+            var target = targetScope.LocationValue;
+
+            if (loc == target)
+            {
+                Console.WriteLine("Escaped loop");
+                AdvanceProgramPointer(); // go to next statement after the loop
+                return true;
+            }
         }
 
         return false;
@@ -125,10 +199,8 @@ public class Interpreter
     /// <summary>
     /// Check an inequality, pick and start new scope.
     /// </summary>
-    private bool DoIfElse()
+    private bool DoIfElse(ProgramPtr pc)
     {
-        var pc = _returnStack.Peek();
-
         var ifElse = pc.Location ?? throw new Exception("Invalid if/else");
 
         // This should be a tree, with a comparison at the root, and things to be compared on either side
@@ -138,7 +210,8 @@ public class Interpreter
         if (HandleExpression(pc, comparison))
         {
             // True path
-            if (pc.ReturnValue?.ToBool() == true){
+            if (pc.ReturnValue?.ToBool() == true)
+            {
                 var ifPath = ifElse.FirstByTag(LanguageDefinition.StartBlock) ?? throw new Exception("Invalid if path");
                 Console.WriteLine($"taking true path '{ifPath}'");
 
@@ -174,10 +247,8 @@ public class Interpreter
     /// <summary>
     /// Handle a function return. This should feed return a value back as required
     /// </summary>
-    private bool DoFunctionReturn()
+    private bool DoFunctionReturn(ProgramPtr pc)
     {
-        var pc = _returnStack.Peek();
-
         var retCall = pc.Location ?? throw new Exception("Invalid return");
 
         if (retCall.Children.Count < 1) // bare `return;`
@@ -223,9 +294,8 @@ public class Interpreter
     /// <summary>
     /// Handle a statement that is a function call
     /// </summary>
-    private bool CallFunction()
+    private bool CallFunction(ProgramPtr pc)
     {
-        var pc = _returnStack.Peek();
         pc.ReturnValue = null;
 
         var func = pc.Location ?? throw new Exception("Invalid function call");
@@ -350,8 +420,8 @@ public class Interpreter
     private static bool IsFunctionReadyToCall(TreeNode<Value> node)
     {
         // Note: 'All' should return true if the Children are empty
-        return node.UserData is null                               // not already resolved
-            && node.Source.Tag == LanguageDefinition.FunctionName  // is a function
+        return node.UserData is null // not already resolved
+            && node.Source.Tag == LanguageDefinition.FunctionName // is a function
             && ParametersOf(node.Parent).All(ParameterIsResolved); // has no parameters, or all are resolved
     }
 
@@ -379,9 +449,8 @@ public class Interpreter
     /// <summary>
     /// Try to progress an assignment statement. Might make multiple function calls if required.
     /// </summary>
-    private bool AssignInScope()
+    private bool AssignInScope(ProgramPtr pc)
     {
-        var pc = _returnStack.Peek();
         if (pc.Location is null) return false;
 
         var source = pc.Location.FirstByTag(LanguageDefinition.Expression);
@@ -455,20 +524,35 @@ public class Interpreter
             pc.ReturnValue = null;
 
             // Either move the pointer to its next sibling, or walk up stack and do the same
-            while (pc.Location is not null)
+            var next = pc.Location?.NextNode;
+            if (next != null)
             {
-                var next = pc.Location.NextNode;
-                if (next is not null)
-                {
-                    Console.WriteLine($"Next -> {next.Value}");
-                    pc.Location = next;
-                    return;
-                }
-
-                pc.Location = pc.Location.Parent;
+                Console.WriteLine($"Next -> {ShortenString(next.Value)}");
+                pc.Location = next;
+                return;
             }
 
-            Console.WriteLine("End of call");
+            var topOfBlock = pc.Location?.FirstAncestorBy(node =>
+                node.Tag is LanguageDefinition.Loop
+                         or LanguageDefinition.FunctionDefinition
+                         or LanguageDefinition.ElseBlock
+                         or LanguageDefinition.IfBlock
+            );
+
+            if (topOfBlock?.Tag == LanguageDefinition.Loop)
+            {
+                // Go back to the top of the loop
+                var loopBody = topOfBlock.FirstByTag(LanguageDefinition.StartBlock)?.Children;
+                if (loopBody is null || loopBody.Count < 1) throw new Exception("Invalid loop");
+                pc.Location = loopBody[0];
+                Console.WriteLine($"Continuing loop '{topOfBlock.FirstByTag(LanguageDefinition.Variable)?.Value ?? "<invalid>"}' at '{loopBody[0]}'");
+                return;
+            }
+
+            // Exiting a block normally
+            var exitName = topOfBlock?.Value ?? "<unknown>";
+            Console.WriteLine($"End of call '{ShortenString(exitName)}...'");
+
             _returnStack.Pop();
             _scopeStack.Pop();
         }
@@ -480,21 +564,6 @@ public class Interpreter
     /// </summary>
     private void SetScopeValue(string name, Value value)
     {
-        // First, try to find existing name
-        var scope = _scopeStack.Peek();
-
-        while (scope is not null)
-        {
-            var v = scope.Get(name);
-            if (v.Kind != ValueKind.Invalid)
-            {
-                scope.Set(name, value);
-            }
-
-            scope = scope.Parent;
-        }
-
-        // If no existing value, set in the immediate scope
         _scopeStack.Peek().Set(name, value);
     }
 
@@ -565,7 +634,7 @@ public class Interpreter
 
         // Only look at operation nodes
         if (node.Source.Tag != LanguageDefinition.MathOp
-            && node.Source.Tag != LanguageDefinition.EqualityOp) return node;
+         && node.Source.Tag != LanguageDefinition.EqualityOp) return node;
 
         var operation = node.Source.Value;
 
@@ -599,43 +668,6 @@ public class Interpreter
         };
         node.Children.Clear();
         return node;
-
-        /*
-        // Both children are values: perform the operation
-        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
-        {
-            var result = operation switch
-            {
-                "+" => left.NumericValue + right.NumericValue,
-                "-" => left.NumericValue - right.NumericValue,
-                "*" => left.NumericValue * right.NumericValue,
-                "/" => left.NumericValue / right.NumericValue,
-                "^" => Math.Pow(left.NumericValue, right.NumericValue),
-                _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
-            };
-            node.UserData = new Value
-            {
-                Kind = ValueKind.Numeric, NumericValue = result
-            };
-            node.Children.Clear();
-            return node;
-        }
-        else // one child is a string. Do string operations
-        {
-            var a = left.Kind == ValueKind.String ? left.StringValue : left.NumericValue.ToString(CultureInfo.InvariantCulture);
-            var b = right.Kind == ValueKind.String ? right.StringValue : right.NumericValue.ToString(CultureInfo.InvariantCulture);
-            var result = operation switch
-            {
-                "+" => a + b,
-                _ => throw new NotImplementedException($"Operation not valid for strings: '{operation}'")
-            };
-            node.UserData = new Value
-            {
-                Kind = ValueKind.String, StringValue = result
-            };
-            node.Children.Clear();
-            return node;
-        }*/
     }
 
     private static Value DoIsEqual(Value left, Value right)
@@ -836,6 +868,13 @@ public class Interpreter
 
     #region Diagnostic stuff
 
+    private static string ShortenString(string? str)
+    {
+        if (str is null) return "";
+        if (str.Length < 25) return str;
+        return str[..25];
+    }
+
     private static void PrintRecursive(TreeNode<Value>? node, int indent)
     {
         if (node is null) return;
@@ -866,10 +905,10 @@ public class Interpreter
                 if (node.OpeningMatch is not null || node.ClosingMatch is not null) Console.WriteLine("Unbalanced scopes!");
                 break;
             case ScopeNodeType.Data:
-                Console.WriteLine(I(indent) + node.Value + " [" + node.Tag + "]");
+                Console.WriteLine($"{I(indent)}{node.Value} [{node.Tag}]{(node.NextNode is null ? "." : ",")}");
                 break;
             case ScopeNodeType.ScopeChange:
-                Console.WriteLine(I(indent) + node.Value + " >[" + node.Tag + "]");
+                Console.WriteLine($"{I(indent)}{node.Value} >[{node.Tag}]");
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

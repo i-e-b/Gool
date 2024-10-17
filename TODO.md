@@ -15,7 +15,7 @@
 - [x] SQL connection strings
 - [x] Full XML: https://cs.lmu.edu/~ray/notes/xmlgrammar/
 - [x] cron expressions: https://docs.rs/cronexpr/latest/cronexpr/
-- [ ] Complete basic programming language (including interpreter and sample programs)
+- [x] Complete basic programming language (including interpreter and sample programs)
 - [ ] Syntax highlighting plug-in? 
     - https://github.com/jetbrains/resharper-rider-plugin
     - https://plugins.jetbrains.com/docs/intellij/rider.html#open-source-rider-plugins

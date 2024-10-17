@@ -14,8 +14,8 @@ public class LanguageExampleTests
     /// <param name="input">User input for the program</param>
     /// <param name="expected">Expected 'print()' output</param>
     [Test]
-    [TestCase("Boris", "Hello. What is your name?\r\nGreetings, Boris!\r\n12345")]
-    [TestCase("", "Hello. What is your name?\r\nAll right then, keep your secrets.\r\n12345")]
+    [TestCase("Boris", "Hello. What is your name?\r\nGreetings, Boris!\r\n12345\r\nDone!")]
+    [TestCase("", "Hello. What is your name?\r\nAll right then, keep your secrets.\r\n12345\r\nDone!")]
     public void running_a_program_in_an_interpreter(string input, string expected)
     {
         var prog = File.ReadAllText("Sample1.txt");

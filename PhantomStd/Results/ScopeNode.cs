@@ -16,6 +16,7 @@ namespace Gool.Results;
 /// the structure comes from <see cref="IParser.Tag"/> and <see cref="IParser.Scope"/>
 /// rather that the structure of parsers.
 /// </summary>
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class ScopeNode : ScopeNode<None>
 {
 }
@@ -28,6 +29,8 @@ public class ScopeNode : ScopeNode<None>
 /// </summary>
 /// <typeparam name="T">Type of user data</typeparam>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class ScopeNode<T>
 {
     /// <summary>
@@ -154,7 +157,7 @@ public class ScopeNode<T>
         {
             ScopeNodeType.Root => $"Root ({OpeningMatch}, {ClosingMatch}, {Children.Count} children) ",
             ScopeNodeType.Data => DataMatch?.Tag is null ? $"Data ({DataMatch}) " : $"Data {DataMatch?.Tag} ({DataMatch}) ",
-            ScopeNodeType.ScopeChange => $"Scope ({OpeningMatch}, {ClosingMatch}, {Children.Count} children) ",
+            ScopeNodeType.ScopeChange => (OpeningMatch == ClosingMatch) ? $"Scope ({OpeningMatch}, {Children.Count} children) " : $"Scope ({OpeningMatch}, {ClosingMatch}, {Children.Count} children) ",
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -235,13 +238,11 @@ public class ScopeNode<T>
             DepthFirstWalkRec(child, action);
         }
     }
-    
-    
 
     /// <summary>
     /// Add a data node as a child to this node
     /// </summary>
-    internal void AddDataFrom(ParserMatch match)
+    public void AddDataFrom(ParserMatch match)
     {
         Link(new ScopeNode<T>
         {
@@ -259,7 +260,7 @@ public class ScopeNode<T>
     /// <see cref="ClosingMatch"/> of the new node will be <c>null</c>.
     /// </summary>
     /// <returns>The new scope node</returns>
-    internal ScopeNode<T> OpenScope(ParserMatch match)
+    private ScopeNode<T> OpenScope(ParserMatch match)
     {
         var newScope = new ScopeNode<T>
         {
@@ -415,6 +416,22 @@ public class ScopeNode<T>
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Search parents for the closest node that matches the predicate
+    /// </summary>
+    public ScopeNode<T>? FirstAncestorBy(Func<ScopeNode<T>, bool> predicate)
+    {
+        var cursor = Parent;
+
+        while (cursor is not null)
+        {
+            if (predicate(cursor)) return cursor;
+            cursor = cursor.Parent;
+        }
+
+        return null;
     }
 }
 

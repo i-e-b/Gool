@@ -66,7 +66,7 @@ public static class LanguageDefinition
             if_block      = "if" > comparison > start_block > (-_statement) > end_block > !else_block,
             break_call    = "break" > variable > ';',
             continue_call = "continue" > variable > ';',
-            loop          = "loop" > variable > '{' > (-_statement) > '}',
+            loop          = "loop" > variable > start_block > (+_statement) > end_block,
             return_call   = "return" > !variable > ';',
             statement     = call | assign | if_block | loop | break_call | continue_call | return_call | comment;
 
@@ -92,7 +92,7 @@ public static class LanguageDefinition
 
         assign.EncloseScope().TagWith(Assignment);
         rootExpr.EncloseScope().TagWith(Expression);
-        loop.TagWith(Loop);
+        loop.EncloseScope().TagWith(Loop);
 
         add_sub.TagWith(MathOp).PivotScope();
         mul_div.TagWith(MathOp).PivotScope();

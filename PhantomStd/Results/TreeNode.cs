@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Gool.Results;
 
@@ -9,6 +10,7 @@ namespace Gool.Results;
 /// Hierarchy derived from a <see cref="ParserMatch"/> tree.
 /// This can be manipulated and transformed, using visitor functions.
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public class TreeNode : TreeNode<None>
 {
 }
@@ -18,6 +20,8 @@ public class TreeNode : TreeNode<None>
 /// This can be manipulated and transformed, using visitor functions.
 /// </summary>
 /// <typeparam name="T">Type of user data</typeparam>
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public class TreeNode<T>
 {
     /// <summary>
