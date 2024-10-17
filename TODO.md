@@ -3,6 +3,7 @@
 
 - [x] Parser show tags of failed results as the "expected" if parsing can't continue.
 - [ ] Demo of segmenting parser: break input into (lines|expressions|statements), then parse each of those. Example of recovering parser if one line is bad.
+  - This should really be a 'BadLine' / 'BadBlock' part of the main pattern? 
 - [ ] Generate a BNF graphic (display of parser structure) -- maybe Mermaid syntax?
 - [ ] Generate parser result graphic (like https://dubroy.com/blog/visualizing-packrat-parsing/ )
 - [x] "Immediate stop" parser? If this is successful, we stop any other parsing and return the result up-to the stop parser.
