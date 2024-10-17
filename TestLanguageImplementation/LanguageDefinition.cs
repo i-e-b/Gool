@@ -61,12 +61,13 @@ public static class LanguageDefinition
             call          = function > '(' > !(rootExpr % ',') > ')' > ';',
             assign        = variable > '=' > rootExpr > ';',
             equality      = OneOf("=", "<", ">", "<=", ">="),
+            comparison    = rootExpr > equality > rootExpr,
             else_block    = "else" > start_block > (-_statement) > end_block,
-            if_block      = "if" > rootExpr > equality > rootExpr > start_block > (-_statement) > end_block > !else_block,
+            if_block      = "if" > comparison > start_block > (-_statement) > end_block > !else_block,
             break_call    = "break" > variable > ';',
             continue_call = "continue" > variable > ';',
             loop          = "loop" > variable > '{' > (-_statement) > '}',
-            return_call   = "return" > variable > ';',
+            return_call   = "return" > !variable > ';',
             statement     = call | assign | if_block | loop | break_call | continue_call | return_call | comment;
 
         _statement.Is(statement);
@@ -80,12 +81,14 @@ public static class LanguageDefinition
         declKey.TagWith(FileHeaderKey);
         declValue.TagWith(FileHeaderValue);
         declSetting.EncloseScope().TagWith(FileHeaderSetting);
-        equality.TagWith(EqualityOp);
 
         definition.EncloseScope().TagWith(FunctionDefinition);
         call.TagWith(FunctionCall).EncloseScope();
         if_block.EncloseScope().TagWith(IfBlock);
         else_block.EncloseScope().TagWith(ElseBlock);
+
+        comparison.EncloseScope().TagWith(Comparison);
+        equality.TagWith(EqualityOp).PivotScope();
 
         assign.EncloseScope().TagWith(Assignment);
         rootExpr.EncloseScope().TagWith(Expression);
@@ -116,6 +119,7 @@ public static class LanguageDefinition
     public const string EqualityOp = "EqualityOp";
     public const string MathOp     = "MathOp";
 
+    public const string Comparison = "Comparison";
     public const string Assignment = "Assignment";
     public const string Expression = "Expression";
     public const string Loop       = "Loop";

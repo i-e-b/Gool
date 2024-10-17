@@ -6,14 +6,18 @@ namespace TestLanguageImplementation;
 public class VarScope
 {
     private readonly Dictionary<string, Value> _values = new();
-    private readonly VarScope?                 _parent;
+
+    /// <summary>
+    /// Next scope up, if there is one
+    /// </summary>
+    public VarScope? Parent { get; }
 
     /// <summary>
     /// Create a new scope, linked to a parent
     /// </summary>
     public VarScope(VarScope? parent)
     {
-        _parent = parent;
+        Parent = parent;
     }
 
     public Value Get(string name)
@@ -37,10 +41,11 @@ public class VarScope
                 return;
             }
 
-            scope = scope._parent;
+            scope = scope.Parent;
         }
 
         Console.WriteLine($"Wrote {value} to '{name}'");
         _values.Add(name, value);
     }
+
 }

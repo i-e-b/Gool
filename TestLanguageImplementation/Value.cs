@@ -40,19 +40,40 @@ public class Value
     /// </summary>
     public string StringValue { get; set; } = "";
 
+    /// <summary>
+    /// Boolean logic value. Not defined if type is not boolean
+    /// </summary>
+    public bool BoolValue { get; set; }
 
+    /// <summary>
+    /// Cast the value to string
+    /// </summary>
     public override string ToString()
     {
-        switch (Kind)
+        return Kind switch
         {
-            case ValueKind.Invalid:
-                return "<invalid>";
-            case ValueKind.Numeric:
-                return NumericValue.ToString(CultureInfo.InvariantCulture);
-            case ValueKind.String:
-                return StringValue;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            ValueKind.Invalid => "<invalid>",
+            ValueKind.Numeric => NumericValue.ToString(CultureInfo.InvariantCulture),
+            ValueKind.String => StringValue,
+            ValueKind.Boolean => BoolValue.ToString(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+
+    /// <summary>
+    /// Cast the value to boolean
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public bool ToBool()
+    {
+        return Kind switch
+        {
+            ValueKind.Invalid => false,
+            ValueKind.Numeric => NumericValue is > 0.00001 or < -0.00001,
+            ValueKind.String => !string.IsNullOrWhiteSpace(StringValue),
+            ValueKind.Boolean => BoolValue,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }

@@ -6,27 +6,6 @@ using SkinnyJson;
 namespace TestLanguageImplementation;
 
 /// <summary>
-/// State of execution, as stored in the interpreter return stack
-/// </summary>
-public class ProgramPtr
-{
-    /// <summary>
-    /// Location in program
-    /// </summary>
-    public ScopeNode<None>? Location;
-
-    /// <summary>
-    /// Expression that is being resolved, if any
-    /// </summary>
-    public TreeNode<Value>? Expression;
-
-    /// <summary>
-    /// Container for final value of the expression or function call
-    /// </summary>
-    public Value? ReturnValue;
-}
-
-/// <summary>
 /// Language interpreter
 /// </summary>
 public class Interpreter
@@ -122,8 +101,7 @@ public class Interpreter
                 return CallFunction();
 
             case LanguageDefinition.IfBlock:
-                Console.WriteLine("not done: if/else");
-                break;
+                return DoIfElse();
 
             case LanguageDefinition.Loop:
                 Console.WriteLine("not done: loop");
@@ -134,18 +112,112 @@ public class Interpreter
                 return true;
 
             case LanguageDefinition.ReturnCall:
-                Console.WriteLine("Need to do function return!");
-                break;
+                return DoFunctionReturn();
 
             default:
                 Console.WriteLine($"Unexpected tag at program counter: '{pc.Location.Tag ?? "<null>"}'");
                 return false;
         }
 
-        // TODO: walk the scope tree, and for expressions, build a TreeNode and reduce it.
-        // TODO: call stack and multiple `fn` defs.
-
         return false;
+    }
+
+    /// <summary>
+    /// Check an inequality, pick and start new scope.
+    /// </summary>
+    private bool DoIfElse()
+    {
+        var pc = _returnStack.Peek();
+
+        var ifElse = pc.Location ?? throw new Exception("Invalid if/else");
+
+        // This should be a tree, with a comparison at the root, and things to be compared on either side
+        var comparison = ifElse.FirstByTag(LanguageDefinition.Comparison) ?? throw new Exception("Invalid if/else");
+        if (comparison.Children.Count != 1 || comparison.Children[0].Tag != LanguageDefinition.EqualityOp) throw new Exception("Invalid comparison");
+
+        if (HandleExpression(pc, comparison))
+        {
+            // True path
+            if (pc.ReturnValue?.ToBool() == true){
+                var ifPath = ifElse.FirstByTag(LanguageDefinition.StartBlock) ?? throw new Exception("Invalid if path");
+                Console.WriteLine($"taking true path '{ifPath}'");
+
+                _returnStack.Push(new ProgramPtr { Location = ifPath.Children.FirstOrDefault() });
+                var parentScope = _scopeStack.Peek();
+                _scopeStack.Push(new VarScope(parentScope)); // Enclosed scope, we should have access to outer names
+
+                return true;
+            }
+
+            // Optional else path
+            var elsePath = ifElse.FirstByTag(LanguageDefinition.ElseBlock)?.FirstByTag(LanguageDefinition.StartBlock);
+            if (elsePath is not null)
+            {
+                Console.WriteLine($"taking false path of '{elsePath}'");
+
+                _returnStack.Push(new ProgramPtr { Location = elsePath.Children.FirstOrDefault() });
+                var parentScope = _scopeStack.Peek();
+                _scopeStack.Push(new VarScope(parentScope)); // Enclosed scope, we should have access to outer names
+
+                return true;
+            }
+
+            // Neither, continue after
+            AdvanceProgramPointer(); // this should see the entire if/else as one point
+            return true;
+        }
+
+        Console.WriteLine($"if/else needs more work to resolve: {comparison}");
+        return true;
+    }
+
+    /// <summary>
+    /// Handle a function return. This should feed return a value back as required
+    /// </summary>
+    private bool DoFunctionReturn()
+    {
+        var pc = _returnStack.Peek();
+
+        var retCall = pc.Location ?? throw new Exception("Invalid return");
+
+        if (retCall.Children.Count < 1) // bare `return;`
+        {
+            Console.WriteLine("End of call (bare return)");
+            _returnStack.Pop();
+            _scopeStack.Pop();
+            AdvanceProgramPointer();
+            return true;
+        }
+
+        // Handle the return expression
+        var expr = retCall.Children[0];
+        var done = HandleExpression(pc, expr);
+        if (done)
+        {
+            Console.WriteLine($"Resolved return data at '{pc.Location.Value}' as '{pc.ReturnValue}'");
+
+            var value = pc.ReturnValue; // save return value
+            var path  = pc.ReturnPath; // where should the data go?
+
+            _returnStack.Pop(); // return from call
+            _scopeStack.Pop();
+
+            if (path is not null) // if we were called to return data,
+            {
+                Console.WriteLine("Function call complete, injected return data");
+                path.UserData = value; // pass that data back, and the expression will continue in 'ContinueExpression'
+            }
+            else // no return data path
+            {
+                Console.WriteLine("Function call complete, no path for return data");
+                AdvanceProgramPointer(); // move on
+            }
+
+            return true;
+        }
+
+        Console.WriteLine($"Need to resolve an expression to return from '{pc.Location.Value}'");
+        return true;
     }
 
     /// <summary>
@@ -156,7 +228,7 @@ public class Interpreter
         var pc = _returnStack.Peek();
         pc.ReturnValue = null;
 
-        var func = pc.Location ?? throw new Exception($"Invalid function call at {pc.Location}");
+        var func = pc.Location ?? throw new Exception("Invalid function call");
 
         // Handle the entire call as if it was an expression we want the value from
         var done = HandleExpression(pc, func);
@@ -232,19 +304,9 @@ public class Interpreter
             }
             else
             {
-                AdvanceProgramPointer(); //???
+                AdvanceProgramPointer();
             }
 
-            /*
-            // TODO: handle this in a return structure.
-            var pc = _returnStack.Peek();
-            if (pc.Location?.Tag == LanguageDefinition.Assignment)
-            {
-                Console.WriteLine($"Need to assign '{pc.ReturnValue}' to {function.Parent}?");
-                return false;
-            }
-
-            */
             return true;
         }
 
@@ -262,7 +324,8 @@ public class Interpreter
         {
             Location = location,
             Expression = null,
-            ReturnValue = function.UserData
+            ReturnValue = function.UserData,
+            ReturnPath = function.Parent
         });
 
         var newScope = new VarScope( /*currentScope*/null); // maybe function calls should have no parent link?
@@ -276,7 +339,6 @@ public class Interpreter
             newScope.Set(paramName, paramValue ?? new Value());
         }
 
-
         Console.WriteLine($"Calling '{name}' at {target}");
 
         return true;
@@ -288,9 +350,18 @@ public class Interpreter
     private static bool IsFunctionReadyToCall(TreeNode<Value> node)
     {
         // Note: 'All' should return true if the Children are empty
-        return node.UserData is null // not already resolved
-            && node.Source.Tag == LanguageDefinition.FunctionName // is a function
-            && ParametersOf(node.Parent).All(n => n.Source.Tag != LanguageDefinition.Parameter || n.UserData is not null) == true; // has no parameters, or all are resolved
+        return node.UserData is null                               // not already resolved
+            && node.Source.Tag == LanguageDefinition.FunctionName  // is a function
+            && ParametersOf(node.Parent).All(ParameterIsResolved); // has no parameters, or all are resolved
+    }
+
+    /// <summary>
+    /// Check a parameter has a resolved value.
+    /// Returns <c>true</c> if the node is not a parameter.
+    /// </summary>
+    private static bool ParameterIsResolved(TreeNode<Value> n)
+    {
+        return n.Source.Tag != LanguageDefinition.Parameter || n.UserData is not null;
     }
 
     /// <summary>
@@ -375,29 +446,32 @@ public class Interpreter
     /// </summary>
     private void AdvanceProgramPointer()
     {
-        var pc = _returnStack.Peek();
-
-        // Reset values we track for a single program position
-        pc.Expression = null;
-        pc.ReturnValue = null;
-
-        // Either move the pointer to its next sibling, or walk up stack and do the same
-        while (pc.Location is not null)
+        while (_returnStack.Count > 0)
         {
-            var next = pc.Location.NextNode;
-            if (next is not null)
+            var pc = _returnStack.Peek();
+
+            // Reset values we track for a single program position
+            pc.Expression = null;
+            pc.ReturnValue = null;
+
+            // Either move the pointer to its next sibling, or walk up stack and do the same
+            while (pc.Location is not null)
             {
-                Console.WriteLine($"Next -> {next.Value}");
-                pc.Location = next;
-                return;
+                var next = pc.Location.NextNode;
+                if (next is not null)
+                {
+                    Console.WriteLine($"Next -> {next.Value}");
+                    pc.Location = next;
+                    return;
+                }
+
+                pc.Location = pc.Location.Parent;
             }
 
-            pc.Location = pc.Location.Parent;
+            Console.WriteLine("End of call");
+            _returnStack.Pop();
+            _scopeStack.Pop();
         }
-
-        Console.WriteLine("End of call");
-        _returnStack.Pop();
-        _scopeStack.Pop();
     }
 
     /// <summary>
@@ -406,6 +480,21 @@ public class Interpreter
     /// </summary>
     private void SetScopeValue(string name, Value value)
     {
+        // First, try to find existing name
+        var scope = _scopeStack.Peek();
+
+        while (scope is not null)
+        {
+            var v = scope.Get(name);
+            if (v.Kind != ValueKind.Invalid)
+            {
+                scope.Set(name, value);
+            }
+
+            scope = scope.Parent;
+        }
+
+        // If no existing value, set in the immediate scope
         _scopeStack.Peek().Set(name, value);
     }
 
@@ -415,7 +504,17 @@ public class Interpreter
     /// </summary>
     private Value GetScopeValue(string name)
     {
-        return _scopeStack.Peek().Get(name);
+        var scope = _scopeStack.Peek();
+
+        while (scope is not null)
+        {
+            var v = scope.Get(name);
+            if (v.Kind != ValueKind.Invalid) return v;
+            scope = scope.Parent;
+        }
+
+        Console.WriteLine($"Did not find '{name}'");
+        return new Value { Kind = ValueKind.Invalid };
     }
 
     /// <summary>
@@ -434,6 +533,9 @@ public class Interpreter
 
         // Lift value out of expression if we have it
         if (node.Source.Tag == LanguageDefinition.Expression && node.Children.Count == 1) return node.Children[0];
+
+        // Lift value out of comparison if we have it
+        if (node.Source.Tag == LanguageDefinition.Comparison && node.Children.Count == 1) return node.Children[0];
 
         // Is it a literal number?
         if (double.TryParse(node.Source.Value, out var dbl))
@@ -461,10 +563,14 @@ public class Interpreter
             return node;
         }
 
-        if (node.Source.Tag != LanguageDefinition.MathOp) return node; // only look at operation nodes
+        // Only look at operation nodes
+        if (node.Source.Tag != LanguageDefinition.MathOp
+            && node.Source.Tag != LanguageDefinition.EqualityOp) return node;
+
         var operation = node.Source.Value;
 
         if (node.Children.Count < 2) throw new Exception("Invalid expression");
+
         var left  = node.Children[0].UserData;
         var right = node.Children[1].UserData;
 
@@ -472,6 +578,29 @@ public class Interpreter
 
         if (left is null || right is null) return node; // not resolved yet
 
+
+        node.UserData = operation switch
+        {
+            // Math-like
+            "+" => DoAdd(left, right),
+            "-" => DoSubtract(left, right),
+            "*" => DoMultiply(left, right),
+            "/" => DoDivide(left, right),
+            "^" => DoPower(left, right),
+
+            // Inequalities "=", "<", ">", "<=", ">="
+            "=" => DoIsEqual(left, right),
+            "<" => DoLessThan(left, right),
+            ">" => DoGreaterThan(left, right),
+            "<=" => DoLessThanEq(left, right),
+            ">=" => DoGreaterThanEq(left, right),
+
+            _ => throw new NotImplementedException($"Operation not implemented: '{operation}'")
+        };
+        node.Children.Clear();
+        return node;
+
+        /*
         // Both children are values: perform the operation
         if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
         {
@@ -506,7 +635,123 @@ public class Interpreter
             };
             node.Children.Clear();
             return node;
+        }*/
+    }
+
+    private static Value DoIsEqual(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            var equal = Math.Abs(left.NumericValue - right.NumericValue) < 0.0000001;
+            return new Value { Kind = ValueKind.Boolean, BoolValue = equal };
         }
+
+        if (left.Kind == ValueKind.String || right.Kind == ValueKind.String)
+        {
+            var equal = left.ToString() == right.ToString();
+            return new Value { Kind = ValueKind.Boolean, BoolValue = equal };
+        }
+
+        throw new NotImplementedException($"Cannot test equality with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoLessThan(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            var ordered = left.NumericValue < right.NumericValue;
+            return new Value { Kind = ValueKind.Boolean, BoolValue = ordered };
+        }
+
+        throw new NotImplementedException($"Cannot test less-than with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoGreaterThan(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            var ordered = left.NumericValue > right.NumericValue;
+            return new Value { Kind = ValueKind.Boolean, BoolValue = ordered };
+        }
+
+        throw new NotImplementedException($"Cannot test greater-than with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoLessThanEq(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            var ordered = left.NumericValue <= right.NumericValue;
+            return new Value { Kind = ValueKind.Boolean, BoolValue = ordered };
+        }
+
+        throw new NotImplementedException($"Cannot test less-than-equal with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoGreaterThanEq(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            var ordered = left.NumericValue >= right.NumericValue;
+            return new Value { Kind = ValueKind.Boolean, BoolValue = ordered };
+        }
+
+        throw new NotImplementedException($"Cannot test greater-than-equal with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoAdd(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            return new Value { Kind = ValueKind.Numeric, NumericValue = left.NumericValue + right.NumericValue };
+        }
+
+        if (left.Kind == ValueKind.String || right.Kind == ValueKind.String)
+        {
+            return new Value { Kind = ValueKind.String, StringValue = left.ToString() + right };
+        }
+
+        throw new NotImplementedException($"Cannot add with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoSubtract(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            return new Value { Kind = ValueKind.Numeric, NumericValue = left.NumericValue - right.NumericValue };
+        }
+
+        throw new NotImplementedException($"Cannot subtract with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoMultiply(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            return new Value { Kind = ValueKind.Numeric, NumericValue = left.NumericValue * right.NumericValue };
+        }
+
+        throw new NotImplementedException($"Cannot multiply with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoDivide(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            return new Value { Kind = ValueKind.Numeric, NumericValue = left.NumericValue / right.NumericValue };
+        }
+
+        throw new NotImplementedException($"Cannot divide with '{left.Kind}' and '{right.Kind}'");
+    }
+
+    private static Value DoPower(Value left, Value right)
+    {
+        if (left.Kind == ValueKind.Numeric && right.Kind == ValueKind.Numeric)
+        {
+            return new Value { Kind = ValueKind.Numeric, NumericValue = Math.Pow(left.NumericValue, right.NumericValue) };
+        }
+
+        throw new NotImplementedException($"Cannot apply exponent with '{left.Kind}' and '{right.Kind}'");
     }
 
     /// <summary>
