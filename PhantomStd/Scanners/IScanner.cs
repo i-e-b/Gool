@@ -73,9 +73,6 @@ public interface IScanner: IScanningDiagnostics
 	/// <summary>Return an empty success match</summary>
 	[MustUseReturnValue]ParserMatch EmptyMatch(IParser source, int offset, ParserMatch? previous);
 
-	/// <summary> Return an empty failure match </summary>
-	[MustUseReturnValue]ParserMatch NullMatch(IParser source, int offset, ParserMatch? previous);
-
 	/// <summary>Advance one position through the input</summary>
 	/// <returns>Returns true while there is unconsumed input remaining</returns>
 	bool Read(ref int offset);

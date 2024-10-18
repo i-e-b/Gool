@@ -27,7 +27,7 @@ public class TerminatedList : Binary
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
-        var result = scan.NullMatch(this, previousMatch?.Right ?? 0, previousMatch);
+        var result = scan.NoMatch(this, previousMatch);
 
         while (!scan.EndOfInput(result.Right))
         {

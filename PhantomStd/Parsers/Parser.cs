@@ -56,7 +56,7 @@ public abstract class Parser : IParser
             return newMatch;
         }
 
-        scan.AddFailure(this, newMatch);
+        scan.AddFailure(newMatch);
         return newMatch.Through(this, previousMatch);
     }
 

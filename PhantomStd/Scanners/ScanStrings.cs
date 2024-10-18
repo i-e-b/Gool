@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Gool.Parsers;
-using Gool.Parsers.Terminals;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -17,7 +16,6 @@ public class ScanStrings : IScanner
 
     private readonly string                      _input;
     private readonly bool                        _recordDiagnostics;
-    private readonly List<ParserPoint>           _failurePoints = new();
     private readonly Dictionary<object, object?> _contexts      = new();
     private readonly HashSet<string>             _failedTags    = new();
     private readonly int                         _inputLength;
@@ -64,22 +62,16 @@ public class ScanStrings : IScanner
 
     #region IScanner Members
 
-    /// <summary>
-    /// Add a success path, for diagnostic use
-    /// </summary>
-    public void AddSuccess(ParserMatch newMatch)
-    {
-        if (!_recordDiagnostics) return;
-        if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
-        _furthestTag = LastTag;
-        _failurePoints.Clear();
-        _failedTags.Clear();
-    }
-
     /// <inheritdoc />
     public void Complete()
     {
         _completed = true;
+
+        // Remove links to reduce GC tracing
+        foreach (var match in _failedMatches) { match.Reset(); }
+        _failedMatches.Clear();
+        _freeStack.Clear();
+        _failStack.Clear();
     }
 
     /// <inheritdoc />
@@ -92,15 +84,6 @@ public class ScanStrings : IScanner
     public object? GetContext(IParser parser)
     {
         return _contexts.GetValueOrDefault(parser);
-    }
-
-    /// <inheritdoc />
-    public void AddFailure(IParser failedParser, ParserMatch failMatch)
-    {
-        if (!_recordDiagnostics) return;
-        if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
-        if (LastTag is not null) _failedTags.Add(LastTag);
-        _failurePoints.Add(new ParserPoint(failedParser, failMatch, this));
     }
 
     /// <inheritdoc />
@@ -128,7 +111,7 @@ public class ScanStrings : IScanner
         if (!showDetails) return lst;
 
 
-        foreach (var p in _failurePoints)
+        foreach (var p in _failedMatches)
         {
             if (p.Offset < minimumOffset) continue;
 
@@ -142,10 +125,10 @@ public class ScanStrings : IScanner
         return lst;
     }
 
-    private static string ParserStringFrag(ParserPoint p)
+    private static string ParserStringFrag(ParserMatch p)
     {
-        if (!string.IsNullOrWhiteSpace(p.Parser.Tag)) return p.Parser.Tag;
-        var str = p.Parser.ShortDescription(depth: 7);
+        if (!string.IsNullOrWhiteSpace(p.Tag)) return p.Tag;
+        var str = p.SourceParser.ShortDescription(depth: 7);
         return str;
     }
 
@@ -179,36 +162,11 @@ public class ScanStrings : IScanner
     /// </summary>
     public ParserMatch? DoAutoAdvance(ParserMatch? previous)
     {
-
-        /*
-         *
-       if (!SkipWhitespace) return previous;
-
-       var left = previous?.Right ?? 0;
-       if (EndOfInput(left)) return previous;
-
-       var ws     = NullMatch(_autoAdvanceParser, left, previous);
-       var offset = ws.Right;
-       var c      = Peek(offset);
-
-       while (char.IsWhiteSpace(c)) // if this is whitespace
-       {
-           ws.ExtendTo(offset + 1); // mark our match up to this character
-           if (!Read(ref offset)) break; // try to advance to next character
-           c = Peek(offset); // read that character
-       }
-       // It's very important to have auto-advance off!
-       if (AutoAdvance is null) return previous;
-
-       return ws;
-
-         */
         // It's very important to have auto-advance off!
         if (AutoAdvance is null) return previous;
 
-
         var left = previous?.Right ?? 0;
-        var prev   = NullMatch(AutoAdvance, left, previous);
+        var prev = NoMatch(AutoAdvance, previous);
         if (EndOfInput(left)) return prev;
 
         var skipMatch = AutoAdvance.Parse(this, prev, allowAutoAdvance: false);
@@ -257,33 +215,52 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public string? LastTag { get; set; }
 
-    /// <inheritdoc />
-    public ParserMatch NoMatch(IParser source, ParserMatch? previous)
+
+    private readonly GStack            _freeStack     = new("free");
+    private readonly GStack            _failStack     = new("fail");
+    private readonly List<ParserMatch> _failedMatches = new(); // failed matches
+
+    /// <summary>
+    /// Add a success path, for diagnostic use
+    /// </summary>
+    public void AddSuccess(ParserMatch newMatch)
     {
-        return new ParserMatch(source, this, previous?.Offset ?? 0, -1, previous);
+        // Deal with garbage
+        _freeStack.Absorb(_failStack);
+
+        if (!_recordDiagnostics) return;
+        if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
+        _furthestTag = LastTag;
+        _failedTags.Clear();
+        _failedMatches.Clear();
     }
 
     /// <inheritdoc />
-    public ParserMatch EmptyMatch(IParser source, int offset,ParserMatch? previous)
+    public void AddFailure(ParserMatch failMatch)
     {
-        return new ParserMatch(source, this, offset, 0, previous);
+        _failStack.PushNoMatch(failMatch);
+
+        if (!_recordDiagnostics) return;
+        if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
+        if (LastTag is not null) _failedTags.Add(LastTag);
+        _failedMatches.Add(failMatch); // store for later diagnostics
     }
 
     /// <inheritdoc />
-    public ParserMatch NullMatch(IParser source, int offset,ParserMatch? previous)
-    {
-        return new ParserMatch(source, this, offset, -1, previous);
-    }
+    public ParserMatch NoMatch(IParser source, ParserMatch? previous) => CreateMatch(source, previous?.Right ?? 0, -1, previous);
+
+    /// <inheritdoc />
+    public ParserMatch EmptyMatch(IParser source, int offset,ParserMatch? previous) => CreateMatch(source, offset, 0, previous);
 
     /// <inheritdoc />
     public ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous)
     {
-        if ((offset + length) > FurthestOffset)
-        {
-            FurthestOffset = offset + length;
-        }
+        if (length >= 0) FurthestOffset = Math.Max(offset + length, FurthestOffset);
 
-        return new ParserMatch(source, this, offset, length, previous);
+        if (!_freeStack.TryPop(out var m)) return new ParserMatch(source, this, offset, length, previous);
+
+        m.ResetTo(source, this, offset, length, previous);
+        return m;
     }
 
     #endregion

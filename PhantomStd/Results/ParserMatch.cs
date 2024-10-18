@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Gool.Parsers;
 using Gool.Parsers.Terminals;
@@ -17,6 +16,8 @@ namespace Gool.Results;
 /// </remarks>
 public class ParserMatch
 {
+    #region Data
+
     /// <summary> First child match, if any </summary>
     private ParserMatch? _leftChild;
 
@@ -27,98 +28,20 @@ public class ParserMatch
     /// Previous sibling parser match, if any.
     /// Will always be <c>null</c> for first match.
     /// </summary>
-    public readonly ParserMatch? Previous;
+    public ParserMatch? Previous;
 
+    /*
     /// <summary>
     /// Next sibling parser match, if any.
     /// Will always be <c>null</c> for last match.
     /// </summary>
     public ParserMatch? Next;
-
+*/
     /// <summary>
     /// Parent match, if any.
     /// Will always be <c>null</c> for root match.
     /// </summary>
     public ParserMatch? Parent;
-
-    /// <summary>
-    /// Builds a new match from a parser, input, and result range.
-    /// </summary>
-    /// <param name="source">The parser that made this match. This is required for tags and scopes</param>
-    /// <param name="scanner">Scanner for this match. This is used for the final output</param>
-    /// <param name="offset">Start of the match</param>
-    /// <param name="length">Number of characters in the match</param>
-    /// <param name="previous">Parser match before this one, to be part of prev/next chain</param>
-    public ParserMatch(IParser source, IScanner scanner, int offset, int length, ParserMatch? previous)
-    {
-        SourceParser = source;
-        Scanner = scanner;
-
-        Offset = offset;
-        Length = length;
-        Success = Length >= 0;
-        Right = length > 0 ? offset + length : offset;
-        Previous = previous;
-
-        if (previous is not null && (previous.Next is null || previous.Next.Length < 0))
-        {
-            previous.Next = this;
-        }
-    }
-
-    /// <summary>
-    /// Create a match from a string, that represents that entire string.
-    /// This is used to represent transformed values in <see cref="TreeNode{T}"/>s.
-    /// </summary>
-    public ParserMatch(string value, string? tag = null)
-    {
-        SourceParser = new NullParser("Match");
-        SourceParser.Tag = tag;
-
-        Scanner = new ScanStrings(value);
-        Offset = 0;
-        Length = value.Length;
-        Success = Length >= 0;
-        Right = Offset + Length;
-    }
-
-    /// <summary>
-    /// List of child matches (for traversing the syntax tree)
-    /// </summary>
-    public IEnumerable<ParserMatch> Children()
-    {
-        if (_leftChild is not null) yield return _leftChild;
-        if (_rightChild is not null) yield return _rightChild;
-    }
-
-    /// <summary>
-    /// The left-side child match, if any
-    /// </summary>
-    public ParserMatch? LeftChild() => _leftChild;
-
-    /// <summary>
-    /// The right-side child match, if any
-    /// </summary>
-    public ParserMatch? RightChild() => _rightChild;
-
-    /// <summary>
-    /// Add a child match. There are a maximum of two children per match.
-    /// Each child may have its own children.
-    /// </summary>
-    [SuppressMessage("ReSharper", "InvocationIsSkipped")]
-    private void AddChild(ParserMatch child)
-    {
-        child.Parent = this;
-        if (_leftChild is null) _leftChild = child;
-        else if (_rightChild is null) _rightChild = child;
-        else
-            Debug.Assert(false, "Too many children");
-    }
-
-    /// <summary>
-    /// Returns true if this node has child nodes
-    /// </summary>
-    public bool HasChildren => _leftChild is not null; // left should always be populated first
 
     /// <summary>
     /// The parser that generated this match
@@ -128,12 +51,12 @@ public class ParserMatch
     /// <summary>
     /// Scanner
     /// </summary>
-    public readonly IScanner Scanner;
+    public IScanner Scanner;
 
     /// <summary>
     /// Offset
     /// </summary>
-    public readonly int Offset;
+    public int Offset;
 
     /// <summary>
     /// Length
@@ -144,6 +67,20 @@ public class ParserMatch
     /// Next offset after this match
     /// </summary>
     public int Right;
+
+    /// <summary>
+    /// True if match successful
+    /// </summary>
+    public bool Success;
+
+    #endregion Data
+
+    #region Computed properties
+
+    /// <summary>
+    /// Returns true if this node has child nodes
+    /// </summary>
+    public bool HasChildren => _leftChild is not null; // left should always be populated first
 
     /// <summary>
     /// Extracts the match value
@@ -166,14 +103,82 @@ public class ParserMatch
     public ScopeType Scope => SourceParser.Scope;
 
     /// <summary>
-    /// True if match successful
-    /// </summary>
-    public bool Success;
-
-    /// <summary>
     /// True if match empty
     /// </summary>
     public bool Empty => (Length <= 0) && (!HasChildren);
+
+    /// <summary>
+    /// The left-side child match, if any
+    /// </summary>
+    public ParserMatch? LeftChild => _leftChild;
+
+    /// <summary>
+    /// The right-side child match, if any
+    /// </summary>
+    public ParserMatch? RightChild => _rightChild;
+
+    #endregion Computed properties
+
+    /// <summary>
+    /// Internal only blank constructor
+    /// </summary>
+    public ParserMatch()
+    {
+        SourceParser = new NullParser("Internal");
+        Scanner = new NullScanner();
+    }
+
+    /// <summary>
+    /// Builds a new match from a parser, input, and result range.
+    /// </summary>
+    /// <param name="source">The parser that made this match. This is required for tags and scopes</param>
+    /// <param name="scanner">Scanner for this match. This is used for the final output</param>
+    /// <param name="offset">Start of the match</param>
+    /// <param name="length">Number of characters in the match</param>
+    /// <param name="previous">Parser match before this one, to be part of prev/next chain</param>
+    internal ParserMatch(IParser source, IScanner scanner, int offset, int length, ParserMatch? previous)
+    {
+        SourceParser = source;
+        Scanner = scanner;
+
+        Offset = offset;
+        Length = length;
+        Success = Length >= 0;
+        Right = length > 0 ? offset + length : offset;
+        Previous = previous;
+/*
+        if (previous is not null && (previous.Next is null || previous.Next.Length < 0))
+        {
+            previous.Next = this;
+        }*/
+    }
+
+    /// <summary>
+    /// Create a match from a string, that represents that entire string.
+    /// This is used to represent transformed values in <see cref="TreeNode{T}"/>s.
+    /// </summary>
+    internal ParserMatch(string value, string? tag = null)
+    {
+        SourceParser = new NullParser("Match");
+        SourceParser.Tag = tag;
+
+        Scanner = new ScanStrings(value);
+        Offset = 0;
+        Length = value.Length;
+        Success = Length >= 0;
+        Right = Offset + Length;
+    }
+
+    #region Public
+
+    /// <summary>
+    /// List of child matches (for traversing the syntax tree)
+    /// </summary>
+    public IEnumerable<ParserMatch> Children()
+    {
+        if (_leftChild is not null) yield return _leftChild;
+        if (_rightChild is not null) yield return _rightChild;
+    }
 
     /// <summary>
     /// Return the match value string
@@ -221,7 +226,7 @@ public class ParserMatch
         if (left?.Success != true)
         {
             if (string.IsNullOrEmpty(source.Tag)) return right;
-            var chainResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length, previous);
+            var chainResult = right.Scanner.CreateMatch(source, right.Offset, right.Length, previous);
             if (!right.Empty) chainResult.AddChild(right);
             return chainResult;
         }
@@ -231,7 +236,7 @@ public class ParserMatch
             // Can't do anything clever if a specialist sub-scanner is used.
             //throw new ArgumentException("Can't Join between different scanners");
             var mlength     = right.Right - left.Offset;
-            var mjoinResult = new ParserMatch(source, left.Scanner, left.Offset, mlength, previous);
+            var mjoinResult = left.Scanner.CreateMatch(source, left.Offset, mlength, previous);
             if (!left.Empty) mjoinResult.AddChild(left);
             if (!right.Empty) mjoinResult.AddChild(right);
             return mjoinResult;
@@ -240,21 +245,21 @@ public class ParserMatch
         // Reduce overlapping matches, if it doesn't loose information
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
         {
-            var leftOnlyResult = new ParserMatch(source, left.Scanner, left.Offset, left.Length, previous);
+            var leftOnlyResult = left.Scanner.CreateMatch(source, left.Offset, left.Length, previous);
             if (!left.Empty) leftOnlyResult.AddChild(left);
             return leftOnlyResult;
         }
 
         if ((right.Contains(left) && NoMeta(left, right)) || left.Empty)
         {
-            var rightOnlyResult = new ParserMatch(source, right.Scanner, right.Offset, right.Length, previous);
+            var rightOnlyResult = right.Scanner.CreateMatch(source, right.Offset, right.Length, previous);
             if (!right.Empty) rightOnlyResult.AddChild(right);
             return rightOnlyResult;
         }
 
 
         var length     = right.Right - left.Offset;
-        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length, previous);
+        var joinResult = left.Scanner.CreateMatch(source, left.Offset, length, previous);
 
 
         // If one of the parsers is a 'pivot' scope, and the other isn't
@@ -292,23 +297,10 @@ public class ParserMatch
     public static ParserMatch Pair(ParserMatch? previous, IParser source, ParserMatch left, ParserMatch right)
     {
         var length     = right.Right - left.Offset;
-        var joinResult = new ParserMatch(source, left.Scanner, left.Offset, length, previous);
+        var joinResult = left.Scanner.CreateMatch(source, left.Offset, length, previous);
         joinResult.AddChild(left);
         joinResult.AddChild(right);
         return joinResult;
-    }
-
-    private static bool NoMeta(ParserMatch left, ParserMatch right)
-    {
-        return (!left.HasMetaData()) && (!right.HasMetaData());
-    }
-
-    /// <summary>
-    /// return <c>true</c> if this match entirely contains the other
-    /// </summary>
-    private bool Contains(ParserMatch other)
-    {
-        return (Offset <= other.Offset) && (Right >= other.Right);
     }
 
     /// <summary>
@@ -372,14 +364,27 @@ public class ParserMatch
     /// </summary>
     public static IEnumerable<ParserMatch> DepthFirstWalk(ParserMatch? node, Func<ParserMatch, bool> select)
     {
-        if (node is null) yield break;
-
-        if (select(node)) yield return node; // this match
-
-        var check = (ParserMatch n) => DepthFirstWalk(n, select);
-        foreach (var m in node.Children().SelectMany(check))
+        while (true)
         {
-            if (select(m)) yield return m;
+            if (node is null) yield break;
+
+            if (select(node)) yield return node; // this match
+
+            if (node._leftChild is not null)
+            {
+                foreach (var lm in DepthFirstWalk(node._leftChild, select))
+                {
+                    yield return lm;
+                }
+            }
+
+            if (node._rightChild is not null)
+            {
+                node = node._rightChild;
+                continue;
+            }
+
+            break;
         }
     }
 
@@ -402,21 +407,6 @@ public class ParserMatch
             if (select(node)) yield return node; // this match
 
             foreach (var child in node.Children()) nextSet.Enqueue(child);
-        }
-    }
-
-    /// <summary>
-    /// Extend this match's length so it reaches the given offset.
-    /// This should only by used by the scanner during auto-advance.
-    /// </summary>
-    internal void ExtendTo(int offset)
-    {
-        var newLength = offset - Offset;
-        if (newLength > Length)
-        {
-            Length = newLength;
-            Success = Length >= 0;
-            Right = Offset + Length;
         }
     }
 
@@ -451,18 +441,12 @@ public class ParserMatch
         }
 
         // Make a match covering this one, with the new source
-        var joinMatch = new ParserMatch(source, Scanner, Offset, Length, previous);
+        var joinMatch = Scanner.CreateMatch(source, Offset, Length, previous);
 
         // Join this match to the result if we have any metadata to carry
         if (AnyMetaInTree()) joinMatch.AddChild(this);
 
         return joinMatch;
-    }
-
-    private bool AnyMetaInTree()
-    {
-        if (SourceParser.HasMetaData()) return true;
-        return Children().Any(child => child.AnyMetaInTree());
     }
 
     /// <summary>
@@ -471,7 +455,7 @@ public class ParserMatch
     /// </summary>
     public ParserMatch? GetTag(string tag)
     {
-        return DepthFirstWalk(this, _ => true).FirstOrDefault(m => m.Tag == tag);
+        return DepthFirstWalk(this, m => m.Tag == tag).FirstOrDefault();
     }
 
     /// <summary>
@@ -501,26 +485,100 @@ public class ParserMatch
     /// </summary>
     public ParserMatch Compact()
     {
-        return new ParserMatch(SourceParser, Scanner, Offset, Length, Previous);
+        return Scanner.CreateMatch(SourceParser, Offset, Length, Previous);
     }
+
+    #endregion Public
+
+    #region Internal
 
     /// <summary>
     /// Create a copy of this parser match, with a new source parser (used for Wrapper)
     /// </summary>
     internal ParserMatch ReSource(IParser newSource)
     {
-        return new ParserMatch(newSource, Scanner, Offset, Length, Previous)
-        {
-            _leftChild = _leftChild,
-            _rightChild = _rightChild
-        };
+        var match = Scanner.CreateMatch(newSource, Offset, Length, Previous);
+        match._leftChild = _leftChild;
+        match._rightChild = _rightChild;
+        return match;
     }
 
     /// <summary>
-    /// Partly enclose a match that is being patched into a result
+    /// Extend this match's length so it reaches the given offset.
+    /// This should only by used by the scanner during auto-advance.
     /// </summary>
-    public ParserMatch Enclose(IParser source, ParserMatch disconnectedMatch)
+    internal void ExtendTo(int offset)
     {
-        return new ParserMatch(source, disconnectedMatch.Scanner, Offset, Length, Previous);
+        var newLength = offset - Offset;
+        if (newLength > Length)
+        {
+            Length = newLength;
+            Success = Length >= 0;
+            Right = Offset + Length;
+        }
+    }
+
+    private bool AnyMetaInTree()
+    {
+        if (SourceParser.HasMetaData()) return true;
+
+        if (_leftChild is not null && _leftChild.AnyMetaInTree()) return true;
+        if (_rightChild is not null && _rightChild.AnyMetaInTree()) return true;
+        return false;
+    }
+
+    private static bool NoMeta(ParserMatch left, ParserMatch right)
+    {
+        return (!left.HasMetaData()) && (!right.HasMetaData());
+    }
+
+    /// <summary>
+    /// return <c>true</c> if this match entirely contains the other
+    /// </summary>
+    private bool Contains(ParserMatch other)
+    {
+        return (Offset <= other.Offset) && (Right >= other.Right);
+    }
+
+    /// <summary>
+    /// Add a child match. There are a maximum of two children per match.
+    /// Each child may have its own children.
+    /// </summary>
+    private void AddChild(ParserMatch child)
+    {
+        child.Parent = this;
+        if (_leftChild is null) _leftChild = child;
+        else if (_rightChild is null) _rightChild = child;
+        else // ReSharper disable once InvocationIsSkipped
+            Debug.Assert(false, "Too many children");
+    }
+
+    /// <summary>
+    /// Remove references to other matches
+    /// </summary>
+    internal void Reset()
+    {
+        _leftChild = null;
+        _rightChild = null;
+        Previous = null;
+        //Next = null;
+        Parent = null;
+    }
+
+    #endregion Internal
+
+    /// <summary>
+    /// Test
+    /// </summary>
+    public void ResetTo(IParser source, ScanStrings scanner, int offset, int length, ParserMatch? previous)
+    {
+        SourceParser = source;
+        Scanner = scanner;
+
+        Offset = offset;
+        Length = length;
+        Success = Length >= 0;
+        Right = length > 0 ? offset + length : offset;
+        Previous = previous;
     }
 }

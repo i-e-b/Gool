@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Gool;
 using Gool.Parsers.Terminals;
-using Gool.Results;
 using Gool.Scanners;
 using NUnit.Framework;
 
@@ -58,19 +57,19 @@ public class TerminalBasicTests
         var result = subject.Parse(scanner, null);
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 0, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 0, 0, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 0, 12, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 0, 12, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 12, 1, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 12, 1, null));
         Assert.That(result.Success, Is.True);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 13, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 13, 0, null));
         Assert.That(result.Success, Is.True);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 0, 13, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 0, 13, null));
         Assert.That(result.Success, Is.True);
     }
 
@@ -88,25 +87,25 @@ public class TerminalBasicTests
         var result = subject.Parse(scanner, null);
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 1, 1, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 1, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 12, 3, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 12, 3, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 3, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 3, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(1));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 7, 0, null));
+        result = subject.Parse(scanner,scanner.CreateMatch(nullParser, 7, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(1));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 13, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 13, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(2));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 18, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 18, 0, null));
         Assert.That(result.Success, Is.False);
     }
 
@@ -121,7 +120,7 @@ public class TerminalBasicTests
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -148,7 +147,7 @@ public class TerminalBasicTests
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -178,21 +177,21 @@ public class TerminalBasicTests
         var result = subject.Parse(scanner, null);
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 1, 1, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 1, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 1, 6, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 6, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 8, 0, null));
+        result = subject.Parse(scanner,scanner.CreateMatch(nullParser, 8, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(5));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 1, 7, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 7, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(5));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 13, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 13, 0, null));
         Assert.That(result.Success, Is.False);
     }
 
@@ -210,21 +209,21 @@ public class TerminalBasicTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(3));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 0, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 0, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(3));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 4, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 4, 0, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 3, 1, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 3, 1, null));
         Assert.That(result.Success, Is.False);
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 8, 0, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 8, 0, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(3));
 
-        result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, 6, 2, null));
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 6, 2, null));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Length, Is.EqualTo(3));
     }
@@ -240,7 +239,7 @@ public class TerminalBasicTests
         var offset = 0;
         foreach (var c in input)
         {
-            var result = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, 0, null));
+            var result = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, 0, null));
             offset++;
 
             Console.Write(c);
@@ -732,7 +731,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
+            var match = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, index, null));
             if (match.Success) result.Append(c);
         }
 
@@ -755,7 +754,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
+            var match = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, index, null));
             if (match.Success) result.Append(c);
         }
 
@@ -778,7 +777,7 @@ public class TerminalBasicTests
         for (var index = 0; index < input.Length; index++)
         {
             var c     = input[index];
-            var match = subject.Parse(scanner, new ParserMatch(nullParser, scanner, offset, index, null));
+            var match = subject.Parse(scanner, scanner.CreateMatch(nullParser, offset, index, null));
             if (match.Success) result.Append(c);
         }
 

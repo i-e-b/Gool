@@ -115,15 +115,15 @@ public class XmlTests
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(FullXmlBasicDoc.Length)}");
 
-        foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
+        if (!result.Success) foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.Value, Is.EqualTo(SimpleXmlSample));
 
-        /*foreach (var match in result.TaggedTokensDepthFirst())
+        foreach (var match in result.TaggedTokensDepthFirst())
         {
             Console.WriteLine(match.Value);
-        }*/
+        }
 
         var tree = ScopeNode.FromMatch(result);
         PrintRecursive(tree, 0);
@@ -275,18 +275,13 @@ empty{}empty
         var result = parser.ParseEntireString(input, diagnostics:false);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Time()}; Per character = {sw.Time(input.Length)}");
-/*
-        foreach (var failPoint in result.Scanner.ListFailures()) Console.WriteLine(failPoint);
-
-        Assert.That(result.Success, Is.True, result + ": " + result.Value);
-        Assert.That(result.Value, Is.EqualTo(input));
 
         sw.Restart();
         var tree = ScopeNode.FromMatch(result);
         sw.Stop();
         Console.WriteLine($"Reinterpreting parser tree took {sw.Elapsed.TotalMilliseconds} ms");
 
-        PrintRecursive(tree, 0);*/
+        PrintRecursive(tree, 0);
     }
 
     private static void PrintRecursive<T>(ScopeNode<T> node, int indent)

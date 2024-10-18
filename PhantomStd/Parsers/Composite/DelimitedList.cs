@@ -23,7 +23,7 @@ public class DelimitedList : Binary
     /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
-        var result   = scan.NullMatch(this, previousMatch?.Right ?? 0, previousMatch); // failure until first match
+        var result   = scan.NoMatch(this, previousMatch); // failure until first match
         var trailing = result;
         
         while (!scan.EndOfInput(result.Right))

@@ -295,10 +295,13 @@ public class ScopeNode<T>
     /// </summary>
     public static ScopeNode<T> FromMatch(ParserMatch root)
     {
-        var points = ParserMatch.DepthFirstWalk(root, m => !m.Empty && (m.Tag is not null || m.Scope != ScopeType.None));
+        var points = ParserMatch.DepthFirstWalk(root, NotEmpty);
 
         return BuildScope(points);
     }
+
+    /// <summary> Helper for <see cref="FromMatch"/> </summary>
+    private static bool NotEmpty(ParserMatch m) => !m.Empty && (m.Tag is not null || m.Scope != ScopeType.None);
 
     private static ScopeNode<T> BuildScope(IEnumerable<ParserMatch> points)
     {

@@ -13,7 +13,7 @@ public class NullScanner : IScanner
     private const string ErrorMsg = "The scanner used is a place-holder. Please check you have passed in an input scanner.";
 
     /// <inheritdoc />
-    public void AddFailure(IParser failedParser, ParserMatch failMatch) => throw new InvalidOperationException(ErrorMsg);
+    public void AddFailure(ParserMatch failMatch) => throw new InvalidOperationException(ErrorMsg);
 
     /// <inheritdoc />
     public List<string> ListFailures(int minimumOffset = 0, bool showDetails = false) => throw new InvalidOperationException(ErrorMsg);

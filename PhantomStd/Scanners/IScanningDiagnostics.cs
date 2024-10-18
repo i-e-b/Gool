@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Gool.Parsers;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -11,7 +10,7 @@ public interface IScanningDiagnostics {
 	/// <summary>
 	/// Set a point at which a parser failed
 	/// </summary>
-	void AddFailure(IParser failedParser, ParserMatch failMatch);
+	void AddFailure(ParserMatch failMatch);
 
 	/// <summary>
 	/// Add a success path, for diagnostic use
