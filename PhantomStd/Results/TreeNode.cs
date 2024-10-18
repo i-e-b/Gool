@@ -22,6 +22,7 @@ public class TreeNode : TreeNode<None>
 /// <typeparam name="T">Type of user data</typeparam>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class TreeNode<T>
 {
     /// <summary>

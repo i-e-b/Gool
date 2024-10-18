@@ -10,7 +10,7 @@
 - [x] "Context" parser? Function that takes parser match tree so far, gives a new BNF. This continues as parser match, then continues to next result after the context parser.
 - [ ] More extensive read-me that covers all of BNF with examples
 - [x] Ability to turn off auto-advance within a specific parser and its children.
-- [ ] Attempt a low-GC way of doing ParserMatch
+- [x] Attempt a low-GC way of doing ParserMatch
 
 ## Examples
 

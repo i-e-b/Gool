@@ -306,8 +306,8 @@ public class ScopeNode<T>
     private static ScopeNode<T> BuildScope(IEnumerable<ParserMatch> points)
     {
         var scopeEnds = new Stack<int>(); // right-edges of single-sided scopes
-        var root = RootNode();
-        var cursor = (ScopeNode<T>?)root;
+        var root      = RootNode();
+        var cursor    = root;
         foreach (var match in points)
         {
             // Exit ranged scope if we've got to the end of it

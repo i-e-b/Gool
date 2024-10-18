@@ -30,19 +30,6 @@ public class ParserMatch
     /// </summary>
     public ParserMatch? Previous;
 
-    /*
-    /// <summary>
-    /// Next sibling parser match, if any.
-    /// Will always be <c>null</c> for last match.
-    /// </summary>
-    public ParserMatch? Next;
-*/
-    /// <summary>
-    /// Parent match, if any.
-    /// Will always be <c>null</c> for root match.
-    /// </summary>
-    public ParserMatch? Parent;
-
     /// <summary>
     /// The parser that generated this match
     /// </summary>
@@ -231,16 +218,7 @@ public class ParserMatch
             return chainResult;
         }
 
-        if (left.Scanner != right.Scanner)
-        {
-            // Can't do anything clever if a specialist sub-scanner is used.
-            //throw new ArgumentException("Can't Join between different scanners");
-            var mlength     = right.Right - left.Offset;
-            var mjoinResult = left.Scanner.CreateMatch(source, left.Offset, mlength, previous);
-            if (!left.Empty) mjoinResult.AddChild(left);
-            if (!right.Empty) mjoinResult.AddChild(right);
-            return mjoinResult;
-        }
+        if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
         // Reduce overlapping matches, if it doesn't loose information
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
@@ -546,7 +524,6 @@ public class ParserMatch
     /// </summary>
     private void AddChild(ParserMatch child)
     {
-        child.Parent = this;
         if (_leftChild is null) _leftChild = child;
         else if (_rightChild is null) _rightChild = child;
         else // ReSharper disable once InvocationIsSkipped
@@ -561,8 +538,6 @@ public class ParserMatch
         _leftChild = null;
         _rightChild = null;
         Previous = null;
-        //Next = null;
-        Parent = null;
     }
 
     #endregion Internal
