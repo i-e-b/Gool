@@ -245,7 +245,7 @@ empty{}empty
         var sw     = Stopwatch.StartNew();
         var parser = XmlExample.FullXmlParser();
         sw.Stop();
-        Console.WriteLine($"Constructing parser took {sw.Elapsed.TotalMicroseconds} µs");
+        Console.WriteLine($"Constructing parser took {sw.Time()}");
 
         sw.Restart();
         var result = parser.ParsePartialString(FullXmlDocTypeAndStyleSheetDoc);

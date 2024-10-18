@@ -71,7 +71,6 @@ public class ScanStrings : IScanner
         foreach (var match in _failedMatches) { match.Reset(); }
         _failedMatches.Clear();
         _freeStack.Clear();
-        _failStack.Clear();
     }
 
     /// <inheritdoc />
@@ -216,19 +215,18 @@ public class ScanStrings : IScanner
     public string? LastTag { get; set; }
 
 
-    private readonly GStack            _freeStack     = new("free");
-    private readonly GStack            _failStack     = new("fail");
-    private readonly List<ParserMatch> _failedMatches = new(); // failed matches
+    private readonly MatchPool         _freeStack     = new(64); // match pool, used to minimise dead match objects
+    private readonly List<ParserMatch> _failedMatches = new(); // failed matches, for diagnostics
 
     /// <summary>
     /// Add a success path, for diagnostic use
     /// </summary>
     public void AddSuccess(ParserMatch newMatch)
     {
-        // Deal with garbage
-        _freeStack.Absorb(_failStack);
+        _freeStack.Absorb(); // All failures can now be used
 
         if (!_recordDiagnostics) return;
+
         if (newMatch.Right > (FurthestMatch?.Right ?? 0)) FurthestMatch = newMatch;
         _furthestTag = LastTag;
         _failedTags.Clear();
@@ -238,9 +236,10 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public void AddFailure(ParserMatch failMatch)
     {
-        _failStack.PushNoMatch(failMatch);
+        _freeStack.PushNoMatch(failMatch);
 
         if (!_recordDiagnostics) return;
+
         if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
         if (LastTag is not null) _failedTags.Add(LastTag);
         _failedMatches.Add(failMatch); // store for later diagnostics
