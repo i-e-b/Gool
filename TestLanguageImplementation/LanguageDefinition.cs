@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using Gool;
-using Gool.Results;
+﻿using Gool;
 using static Gool.BNF;
 
 // ReSharper disable InconsistentNaming
@@ -13,7 +11,7 @@ public static class LanguageDefinition
 
     private static Package Def()
     {
-        BNF // Headers
+        BNF // Comments and Headers
             shebang     = "#!" > -(AnyChar / LineEnd),
             declKey     = IdentifierString(),
             declValue   = +(AnyChar / ';'),
@@ -32,7 +30,9 @@ public static class LanguageDefinition
             characters   = -character,
             quotedString = '"' > characters > '"';
 
-        BNF // identifier types
+        quotedString.NoAutoAdvance();
+
+        BNF // Identifier types
             variable  = IdentifierString(),
             parameter = IdentifierString(),
             number    = FractionalDecimal(),
@@ -42,13 +42,11 @@ public static class LanguageDefinition
             start_block = '{',
             end_block   = '}';
 
-        BNF // infix operators
-            add_sub  = OneOf('+', '-'),
-            mul_div  = OneOf('*', '/'),
-            exponent = '^';
-
         var _innerExpr = Forward();
-        BNF // general expression
+        BNF // General Expression
+            add_sub    = OneOf('+', '-'),
+            mul_div    = OneOf('*', '/'),
+            exponent   = '^',
             factor     = quotedString | number | variable | (function > '(' > !(_innerExpr % ',') > ')') | ('(' > _innerExpr > ')'),
             power      = factor > !(exponent > factor),
             term       = power % mul_div,
@@ -57,7 +55,7 @@ public static class LanguageDefinition
         _innerExpr.Is(expression);
 
         var _statement = Forward();
-        BNF // Parts
+        BNF // Statements and Blocks
             call          = function > '(' > !(rootExpr % ',') > ')' > ';',
             assign        = variable > '=' > rootExpr > ';',
             equality      = OneOf("=", "<", ">", "<=", ">="),
@@ -69,45 +67,46 @@ public static class LanguageDefinition
             loop          = "loop" > variable > start_block > (+_statement) > end_block,
             return_call   = "return" > !variable > ';',
             statement     = call | assign | if_block | loop | break_call | continue_call | return_call | comment;
-
         _statement.Is(statement);
 
         BNF // Func definition and full program file.
             definition = "fn" > function > !(parameter % ',') > start_block > -(statement) > end_block,
             language   = !shebang > headerDecl > -(comment | definition);
 
-        comment.Atomic().TagWith(Comment);
         headerDecl.TagWith(FileHeader);
         declKey.TagWith(FileHeaderKey);
         declValue.TagWith(FileHeaderValue);
         declSetting.EncloseScope().TagWith(FileHeaderSetting);
 
+        comment.Atomic().TagWith(Comment);
+
         definition.EncloseScope().TagWith(FunctionDefinition);
-        call.TagWith(FunctionCall).EncloseScope();
+        call.EncloseScope().TagWith(FunctionCall);
         if_block.EncloseScope().TagWith(IfBlock);
         else_block.EncloseScope().TagWith(ElseBlock);
 
         comparison.EncloseScope().TagWith(Comparison);
-        equality.TagWith(EqualityOp).PivotScope();
+        equality.PivotScope().TagWith(EqualityOp);
 
         assign.EncloseScope().TagWith(Assignment);
         rootExpr.EncloseScope().TagWith(Expression);
         loop.EncloseScope().TagWith(Loop);
 
-        add_sub.TagWith(MathOp).PivotScope();
-        mul_div.TagWith(MathOp).PivotScope();
-        exponent.TagWith(MathOp).PivotScope();
+        add_sub.PivotScope().TagWith(MathOp);
+        mul_div.PivotScope().TagWith(MathOp);
+        exponent.PivotScope().TagWith(MathOp);
 
-        start_block.TagWith(StartBlock).OpenScope();
-        end_block.TagWith(EndBlock).CloseScope();
-        break_call.TagWith(BreakCall).EncloseScope();
-        continue_call.TagWith(ContinueCall).EncloseScope();
-        return_call.TagWith(ReturnCall).EncloseScope();
+        start_block.OpenScope().TagWith(StartBlock);
+        end_block.CloseScope().TagWith(EndBlock);
+
+        break_call.EncloseScope().TagWith(BreakCall);
+        continue_call.EncloseScope().TagWith(ContinueCall);
+        return_call.EncloseScope().TagWith(ReturnCall);
 
         function.TagWith(FunctionName);
         number.TagWith(Number);
         variable.TagWith(Variable);
-        quotedString.TagWith(QuotedString);
+        quotedString.Atomic().TagWith(QuotedString);
         parameter.TagWith(Parameter);
 
         return language.WithOptions(Options.SkipWhitespace);
@@ -147,5 +146,4 @@ public static class LanguageDefinition
     public const string FileHeaderValue = "FileHeaderValue";
 
     public const string FileHeaderSetting = "FileHeaderSetting";
-    // ReSharper restore MemberCanBePrivate.Global
 }

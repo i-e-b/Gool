@@ -429,16 +429,6 @@ public class BNF : IParser
 	}
 
 	/// <summary>
-	/// Positive look-ahead. Non-consuming parser that must match the <i>right side</i>, but does not consume the match
-	/// </summary>
-	public static BNF operator ~(BNF a)
-	{
-		if (a == null) throw new ArgumentNullException(nameof(a), "Non-consuming parser is null");
-
-		return new BNF(new NonConsumingMatch(a));
-	}
-
-	/// <summary>
 	/// Delimited list parser that matches a list of <i>left side</i>, separated by <i>right side</i>
 	/// </summary>
 	public static BNF operator %(BNF a, BNF b)
@@ -489,6 +479,16 @@ public class BNF : IParser
 			throw new ArgumentNullException(nameof(b), "Right side of difference parser is null");
 
 		return new BNF(new Difference(a, b));
+	}
+
+	/// <summary>
+	/// Positive look-ahead. Non-consuming parser that must match the <i>right side</i>, but does not consume the match
+	/// </summary>
+	public static BNF operator ~(BNF a)
+	{
+		if (a == null) throw new ArgumentNullException(nameof(a), "Non-consuming parser is null");
+
+		return new BNF(new NonConsumingMatch(a));
 	}
 
 	/// <summary>

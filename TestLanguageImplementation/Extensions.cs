@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace TestsStd.Helpers;
+namespace TestLanguageImplementation;
 
 public static class Extensions
 {

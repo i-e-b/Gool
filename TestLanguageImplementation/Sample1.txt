@@ -2,10 +2,10 @@
 
 # This is a comment
 
-# The sample language is somewhat rust-like
+# The sample language is somewhat rust-like.
 # It's designed to be reasonably simple,
 # but still be complex enough to show how to
-# handle languages more complex than Lisp or Basic.
+# handle real-world programming languages.
 
 fn main {
     k = 3;                                   # assign a number to a variable

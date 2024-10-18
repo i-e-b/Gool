@@ -1,7 +1,7 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using Gool.Results;
-using SkinnyJson;
 
 namespace TestLanguageImplementation.Interpreted;
 
@@ -21,15 +21,30 @@ public class Interpreter
     public Interpreter(string program)
     {
         // Parse the program
-        var parser = LanguageDefinition.Instance;
-        var result = parser.ParseEntireString(program);
-        if (!result.Success) throw new Exception("Program is invalid.\r\n" + string.Join("\r\n", result.Scanner.ListFailures()));
 
+        var sw = Stopwatch.StartNew();
+        var parser = LanguageDefinition.Instance;
+        sw.Stop();
+        Console.WriteLine($"    Creating parser: {sw.Time()}");
+
+        sw.Restart();
+        var result = parser.ParseEntireString(program, diagnostics: false);
+        if (!result.Success)
+        {
+            result = parser.ParseEntireString(program, diagnostics: true);
+            throw new Exception("Program is invalid.\r\n" + string.Join("\r\n", result.Scanner.ListFailures()));
+        }
+
+        sw.Stop();
+        Console.WriteLine($"    Parse input: {sw.Time()}");
+
+        sw.Restart();
         var scopeTree = ScopeNode.FromMatch(result);
-        //PrintRecursive(scopeTree, 0);
+        sw.Stop();
+        Console.WriteLine($"    Build scope: {sw.Time()}");
 
         // Read header, check entry point and version
-        Console.WriteLine("=[ Read headers ]=================================================");
+        sw.Restart();
         foreach (var header in result.FindByTag(LanguageDefinition.FileHeaderSetting))
         {
             _fileHeaders.Add(
@@ -38,15 +53,12 @@ public class Interpreter
             );
         }
 
-        Console.WriteLine(Json.Freeze(_fileHeaders));
-
         if (!_fileHeaders.TryGetValue("version", out var version) || version != "1")
         {
             throw new Exception("Expected version 1 file, but was not found");
         }
 
         // Read function entry points, and store them
-        Console.WriteLine("=[ Mark Function Entry ]==========================================");
         foreach (var scope in scopeTree.Children)
         {
             if (scope.Tag != LanguageDefinition.FunctionDefinition) continue;
@@ -62,16 +74,15 @@ public class Interpreter
             Console.WriteLine($"'{name}' at {block.AnyMatch?.Offset}:{block.AnyMatch?.Length}");
         }
 
-        if (!_fileHeaders.TryGetValue("entry", out var entryFuncName))
-            throw new Exception("No entry point defined");
-        if (!_functionDefs.TryGetValue(entryFuncName, out var entryFunc))
-            throw new Exception($"Did not find definition of entry function '{entryFuncName}'");
+        if (!_fileHeaders.TryGetValue("entry", out var entryFuncName)) throw new Exception("No entry point defined");
+        if (!_functionDefs.TryGetValue(entryFuncName, out var entryFunc)) throw new Exception($"Did not find definition of entry function '{entryFuncName}'");
 
         var firstStatement = entryFunc.Children.FirstOrDefault();
         _returnStack.Push(new ProgramPtr { Location = firstStatement });
         _scopeStack.Push(new VarScope(null));
 
-        Console.WriteLine($"Should start at {entryFunc}, {_returnStack.Peek().Location?.Value ?? "<null>"}");
+        sw.Stop();
+        Console.WriteLine($"    Initialise interpreter: {sw.Time()}");
     }
 
     /// <summary>
@@ -180,8 +191,6 @@ public class Interpreter
             var loc = pc.Location;
             if (loc is null) throw new Exception("Invalid stack");
 
-            Console.WriteLine($"Unwound to '{ShortenString(loc.ToString())}'");
-
             // Check
             var target = targetScope.LocationValue;
 
@@ -213,7 +222,6 @@ public class Interpreter
             if (pc.ReturnValue?.ToBool() == true)
             {
                 var ifPath = ifElse.FirstByTag(LanguageDefinition.StartBlock) ?? throw new Exception("Invalid if path");
-                Console.WriteLine($"taking true path '{ifPath}'");
 
                 _returnStack.Push(new ProgramPtr { Location = ifPath.Children.FirstOrDefault() });
                 var parentScope = _scopeStack.Peek();
@@ -226,8 +234,6 @@ public class Interpreter
             var elsePath = ifElse.FirstByTag(LanguageDefinition.ElseBlock)?.FirstByTag(LanguageDefinition.StartBlock);
             if (elsePath is not null)
             {
-                Console.WriteLine($"taking false path of '{elsePath}'");
-
                 _returnStack.Push(new ProgramPtr { Location = elsePath.Children.FirstOrDefault() });
                 var parentScope = _scopeStack.Peek();
                 _scopeStack.Push(new VarScope(parentScope)); // Enclosed scope, we should have access to outer names
@@ -275,12 +281,10 @@ public class Interpreter
 
             if (path is not null) // if we were called to return data,
             {
-                Console.WriteLine("Function call complete, injected return data");
                 path.UserData = value; // pass that data back, and the expression will continue in 'ContinueExpression'
             }
             else // no return data path
             {
-                Console.WriteLine("Function call complete, no path for return data");
                 AdvanceProgramPointer(); // move on
             }
 
@@ -352,7 +356,6 @@ public class Interpreter
         var functionToCall = actionable[0]; // this is the function name
         var paramValues    = ParametersOf(functionToCall.Parent);
 
-        Console.WriteLine($"To process: '{functionToCall.Source.Value}' / {functionToCall.Source.Tag}");
         return DispatchFunctionCall(functionToCall, paramValues);
     }
 
@@ -470,9 +473,6 @@ public class Interpreter
             AdvanceProgramPointer();
         }
 
-        // May need to handle the expression further
-        //Console.WriteLine($"Need to call '{source.Value}' to assign result to '{target.Value}'");
-
         return true;
     }
 
@@ -582,7 +582,6 @@ public class Interpreter
             scope = scope.Parent;
         }
 
-        Console.WriteLine($"Did not find '{name}'");
         return new Value { Kind = ValueKind.Invalid };
     }
 
@@ -841,7 +840,6 @@ public class Interpreter
             else dst.Append(c);
         }
 
-        Console.WriteLine($"'{node.Source.Value}' -> '{dst}'");
         var value = new Value(dst.ToString());
         node.UserData = value;
         return value;
@@ -893,30 +891,6 @@ public class Interpreter
         foreach (var childNode in node.Children)
         {
             PrintRecursive(childNode, nextIndent);
-        }
-    }
-
-    private static void PrintRecursive<T>(ScopeNode<T> node, int indent)
-    {
-        switch (node.NodeType)
-        {
-            case ScopeNodeType.Root:
-                Console.WriteLine("Document");
-                if (node.OpeningMatch is not null || node.ClosingMatch is not null) Console.WriteLine("Unbalanced scopes!");
-                break;
-            case ScopeNodeType.Data:
-                Console.WriteLine($"{I(indent)}{node.Value} [{node.Tag}]{(node.NextNode is null ? "." : ",")}");
-                break;
-            case ScopeNodeType.ScopeChange:
-                Console.WriteLine($"{I(indent)}{node.Value} >[{node.Tag}]");
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        foreach (var childNode in node.Children)
-        {
-            PrintRecursive(childNode, indent + 1);
         }
     }
 
