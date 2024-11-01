@@ -456,6 +456,28 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Creates a Preference-Union (or 'preference-alternative') parser from two sub-parsers.
+	/// This returns the first successful match from the left
+	/// </summary>
+	public static BNF operator >=(BNF a, BNF b)
+	{
+		if (a == null)
+			throw new ArgumentNullException(nameof(a), "Left side of preference-union parser is null");
+		if (b == null)
+			throw new ArgumentNullException(nameof(b), "Right side of preference-union parser is null");
+
+		return new BNF(new PreferenceUnion(a, b));
+	}
+
+	/// <summary>
+	/// Not yet implemented
+	/// </summary>
+	public static BNF operator <=(BNF a, BNF b)
+	{
+		throw new NotImplementedException();
+	}
+
+	/// <summary>
 	/// Intersection parser that matches either (<i>left</i> then <i>right</i>) or (<i>right</i> then <i>left</i>)
 	/// </summary>
 	public static BNF operator &(BNF a, BNF b)

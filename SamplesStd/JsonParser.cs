@@ -47,9 +47,9 @@ public static class JsonParser
             array_block = array_enter > elements > array_leave;
 
         BNF // Single values
-            primitive = quoted_string | number | "true" | "false" | "null";
+            primitive = quoted_string >= number >= "true" >= "false" >= "null";
 
-        value.Is(object_block | array_block | primitive);
+        value.Is(object_block >= array_block >= primitive);
 
         array_enter.OpenScope().TagWith("array");
         array_leave.CloseScope();
