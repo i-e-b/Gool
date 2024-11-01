@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Gool.Results;
 using NUnit.Framework;
+using TestLanguageImplementation.Compiled;
 using TestLanguageImplementation.Helpers;
 using TestLanguageImplementation.Interpreted;
 
@@ -53,6 +54,32 @@ public class LanguageExampleTests
     [TestCase("", "Hello. What is your name?\r\nAll right then, keep your secrets.\r\n12345\r\nDone!")]
     public void running_a_program_with_compilation(string input, string expected)
     {
-        Assert.Fail("not done");
+        var prog = File.ReadAllText("Sample1.txt");
+        Console.WriteLine($"Starting at {Stopwatch.GetTimestamp()}");
+
+        var sw = Stopwatch.StartNew();
+
+        var code = new Compiler().Compile(prog);
+
+        sw.Stop();
+        Console.WriteLine($"Start-up, parsing, and compiling took {sw.Time()}");
+
+        var interp = new PCodeInterpreter(code);
+        interp.SendLine(input); // simulate user input
+
+        sw.Restart();
+        int i = 0;
+        while (i < 1000)
+        {
+            if (!interp.Step()) break;
+            i++;
+        }
+
+        sw.Stop();
+        Console.WriteLine($"Running p-code interpreter took {sw.Time()}");
+
+        Assert.That(i, Is.LessThan(900), "Interpreter got stuck?");
+
+        Assert.That(interp.GetOutput(), Is.EqualTo(expected));
     }
 }
