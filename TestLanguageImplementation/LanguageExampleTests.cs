@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Gool.Results;
 using NUnit.Framework;
+using TestLanguageImplementation.Helpers;
 using TestLanguageImplementation.Interpreted;
 
 namespace TestLanguageImplementation;
@@ -45,5 +46,13 @@ public class LanguageExampleTests
         Assert.That(i, Is.LessThan(900), "Interpreter got stuck?");
 
         Assert.That(interp.GetOutput(), Is.EqualTo(expected));
+    }
+
+    [Test]
+    [TestCase("Boris", "Hello. What is your name?\r\nGreetings, Boris!\r\n12345\r\nDone!")]
+    [TestCase("", "Hello. What is your name?\r\nAll right then, keep your secrets.\r\n12345\r\nDone!")]
+    public void running_a_program_with_compilation(string input, string expected)
+    {
+        Assert.Fail("not done");
     }
 }

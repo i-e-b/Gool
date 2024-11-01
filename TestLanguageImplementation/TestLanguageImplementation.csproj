@@ -22,4 +22,8 @@
       <ProjectReference Include="..\PhantomStd\PhantomStd.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Compiled\" />
+    </ItemGroup>
+
 </Project>

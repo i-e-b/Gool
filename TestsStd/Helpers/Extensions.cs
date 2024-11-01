@@ -5,6 +5,15 @@ namespace TestsStd.Helpers;
 public static class Extensions
 {
 
+    public static string Time(this TimeSpan elapsed)
+    {
+        if (elapsed.TotalMicroseconds < 2) return $"{elapsed.TotalNanoseconds} ns";
+        if (elapsed.TotalMicroseconds < 1000) return $"{elapsed.TotalMicroseconds} µs";
+        if (elapsed.TotalMilliseconds < 1000) return $"{elapsed.TotalMilliseconds} ms";
+        if (elapsed.TotalSeconds < 60) return $"{elapsed.TotalSeconds} s";
+        return elapsed.ToString();
+    }
+
     public static string Time(this Stopwatch sw)
     {
         var elapsed = sw.Elapsed;

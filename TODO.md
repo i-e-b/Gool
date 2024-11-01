@@ -11,6 +11,7 @@
 - [ ] More extensive read-me that covers all of BNF with examples
 - [x] Ability to turn off auto-advance within a specific parser and its children.
 - [x] Attempt a low-GC way of doing ParserMatch
+- [ ] Try to remove the `new BNF(new Parser())` wrapping layer.
 
 ## Examples
 

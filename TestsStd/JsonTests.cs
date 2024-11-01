@@ -36,17 +36,21 @@ public class JsonTests
     [Test]
     public void recursive_parsers_can_be_applied_multiple_times()
     {
-        var parser      = JsonParser.Json;
-        var phantomTime = new Stopwatch();
-        var result      = parser.ParsePartialString(valid_sample);
+        const int count       = 500;
+        var       parser      = JsonParser.Json;
+        var       phantomTime = new Stopwatch();
+        var       result      = parser.ParsePartialString(valid_sample);
+
         phantomTime.Start();
-        for (int i = 0; i < 99; i++)
+        for (int i = 0; i < count; i++)
         {
             result = parser.ParsePartialString(valid_sample);
         }
-
         phantomTime.Stop();
-        Console.WriteLine($"Parsing took {phantomTime.Time(100)}; Per character = {phantomTime.Time(100 * valid_sample.Length)}");
+
+        var gcTime = GC.GetTotalPauseDuration();
+
+        Console.WriteLine($"Parsing took {phantomTime.Time(count)}; Per character = {phantomTime.Time(count * valid_sample.Length)}; GC time={gcTime.Time()}");
         Assert.That(result.Success, Is.True);
     }
 
