@@ -122,4 +122,9 @@ public interface IScanner: IScanningDiagnostics
 	/// If not found, returns -1
 	/// </summary>
 	int IndexOf(int offset, string toFind, StringComparison comparisonType);
+
+	/// <summary>
+	/// Tell the scanner an old parser match can be recycled
+	/// </summary>
+	void Absorb(ParserMatch old);
 }

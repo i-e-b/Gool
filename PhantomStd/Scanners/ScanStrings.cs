@@ -245,6 +245,15 @@ public class ScanStrings : IScanner
         _failedMatches.Add(failMatch); // store for later diagnostics
     }
 
+
+    /// <summary>
+    /// Tell the scanner an old parser match can be recycled
+    /// </summary>
+    public void Absorb(ParserMatch old)
+    {
+        _freeStack.PushNoMatch(old);
+    }
+
     /// <inheritdoc />
     public ParserMatch NoMatch(IParser source, ParserMatch? previous) => CreateMatch(source, previous?.Right ?? 0, -1, previous);
 

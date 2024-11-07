@@ -215,16 +215,18 @@ public class ParserMatch
             if (string.IsNullOrEmpty(source.Tag)) return right;
             var chainResult = right.Scanner.CreateMatch(source, right.Offset, right.Length, previous);
             if (!right.Empty) chainResult.AddChild(right);
+            left?.Scanner.Absorb(left);
             return chainResult;
         }
 
         if (left.Scanner != right.Scanner) throw new ArgumentException("Can't Join between different scanners");
 
-        // Reduce overlapping matches, if it doesn't loose information
+        // Reduce overlapping matches, if it doesn't lose information
         if ((left.Contains(right) && NoMeta(left, right)) || right.Empty)
         {
             var leftOnlyResult = left.Scanner.CreateMatch(source, left.Offset, left.Length, previous);
             if (!left.Empty) leftOnlyResult.AddChild(left);
+            right.Scanner.Absorb(right);
             return leftOnlyResult;
         }
 
@@ -235,7 +237,6 @@ public class ParserMatch
             return rightOnlyResult;
         }
 
-
         var length     = right.Right - left.Offset;
         var joinResult = left.Scanner.CreateMatch(source, left.Offset, length, previous);
 
@@ -243,7 +244,6 @@ public class ParserMatch
         // If one of the parsers is a 'pivot' scope, and the other isn't
         // then we should re-arrange the output so the pivot is the parent
         // and non-pivot are children
-
         if ((left.Scope == ScopeType.Pivot) ^ (right.Scope == ScopeType.Pivot))
         {
             if (left.Scope == ScopeType.Pivot)
@@ -263,7 +263,11 @@ public class ParserMatch
 
         // Normal join between left and right
         if (!left.Empty) joinResult.AddChild(left);
+        else left.Scanner.Absorb(left);
+
         if (!right.Empty) joinResult.AddChild(right);
+        else right.Scanner.Absorb(right);
+
         return joinResult;
     }
 
@@ -540,12 +544,10 @@ public class ParserMatch
         Previous = null;
     }
 
-    #endregion Internal
-
     /// <summary>
-    /// Test
+    /// Change the content of a parser match
     /// </summary>
-    public void ResetTo(IParser source, ScanStrings scanner, int offset, int length, ParserMatch? previous)
+    internal void ResetTo(IParser source, IScanner scanner, int offset, int length, ParserMatch? previous)
     {
         SourceParser = source;
         Scanner = scanner;
@@ -556,4 +558,5 @@ public class ParserMatch
         Right = length > 0 ? offset + length : offset;
         Previous = previous;
     }
+    #endregion Internal
 }

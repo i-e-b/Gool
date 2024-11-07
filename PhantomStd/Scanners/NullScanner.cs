@@ -96,4 +96,7 @@ public class NullScanner : IScanner
 
     /// <inheritdoc />
     public int IndexOf(int offset, string toFind, StringComparison comparisonType) => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public void Absorb(ParserMatch old) => throw new InvalidOperationException(ErrorMsg);
 }
