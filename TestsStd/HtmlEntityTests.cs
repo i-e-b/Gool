@@ -40,8 +40,7 @@ public class HtmlEntityTests
 
                 case HtmlEntityExample.NamedEntity:
                 {
-                    var typedMatch = match.FindByParserType<Union>().FirstOrDefault();
-                    var entityName = typedMatch?.Value;
+                    var entityName = match.Value;
                     sb.Append(HtmlEntityExample.ConvertByName(entityName));
                     break;
                 }
