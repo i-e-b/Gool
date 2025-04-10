@@ -230,7 +230,7 @@ private static TreeNode ApplyOperation(TreeNode node)
 {
     if (node.Source.Tag is null) return node.Children[0]; // pull child up through joining nodes
 
-    if (node.Source.Tag != ArithmeticExample.Operation) return node; // only look at operation nodes
+    if (node.Source.Tag != Operation) return node; // only look at operation nodes
     var operation = node.Source.Value;
 
     if (node.Children.Count < 2) throw new Exception("Invalid expression");
@@ -252,7 +252,7 @@ private static TreeNode ApplyOperation(TreeNode node)
     };
 
     // Return a new node with the calculated value
-    return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), ArithmeticExample.Value);
+    return TreeNode.FromString(result.ToString(CultureInfo.InvariantCulture), Value);
 }
 ```
 
