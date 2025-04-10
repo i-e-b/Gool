@@ -19,6 +19,11 @@ public enum ScopeType
     /// This match represents the contents of a scope -- it is both an opening and closing match
     /// </summary>
     Enclosed = 3,
+
+    /// <summary>
+    /// This match should be kept separate in the results tree, even if it does not have a tag
+    /// </summary>
+    Trailing = 4,
 	
     /// <summary> This match is the start of a block </summary>
     OpenScope = 1,

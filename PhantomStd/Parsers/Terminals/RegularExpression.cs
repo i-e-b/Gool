@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Gool.Parsers.Capabilities;
 using Gool.Results;
 using Gool.Scanners;
 using JetBrains.Annotations;
@@ -10,7 +11,7 @@ namespace Gool.Parsers.Terminals;
 /// Parse for a regular expression match.
 /// NOTE: It's best to keep the regular expressions simple, and deal with any recursion in the Parser structure.
 /// </summary>
-public class RegularExpression : Parser
+public class RegularExpression : Parser, IParseRegex
 {
 	private readonly string _pattern;
 	private readonly Regex _test;
@@ -66,7 +67,13 @@ public class RegularExpression : Parser
 		if (Tag is null) return desc;
 		return desc + " Tag='" + Tag + "'";
 	}
-    
+
+	/// <inheritdoc />
+	public Match RegexMatch(ParserMatch match)
+	{
+		return _test.Match(match.Scanner.TransformedString, match.Offset, match.Length);
+	}
+
 	/// <inheritdoc />
 	public override string ShortDescription(int depth)
 	{

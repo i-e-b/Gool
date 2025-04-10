@@ -9,6 +9,35 @@ using Gool.Scanners;
 namespace Gool.Results;
 
 /// <summary>
+/// A <see cref="ParserMatch"/> with additional type information from the source parser
+/// </summary>
+/// <typeparam name="T">Type of the source parser</typeparam>
+public class ParserMatch<T> : ParserMatch
+{
+    /// <summary>
+    /// Parser that found this match
+    /// </summary>
+    public readonly T Parser;
+
+    /// <summary>
+    /// test
+    /// </summary>
+    public ParserMatch(ParserMatch m)
+    {
+        Parser = (T)m.SourceParser;
+        SrcLeftChild = m.LeftChild;
+        SrcRightChild = m.RightChild;
+        Previous = m.Previous;
+        SourceParser = m.SourceParser;
+        Scanner = m.Scanner;
+        Offset = m.Offset;
+        Length = m.Length;
+        Right = m.Right;
+        Success = m.Success;
+    }
+}
+
+/// <summary>
 /// Creates and stores parser matches, and their child matches.
 /// </summary>
 /// <remarks>
@@ -19,10 +48,10 @@ public class ParserMatch
     #region Data
 
     /// <summary> First child match, if any </summary>
-    private ParserMatch? _leftChild;
+    protected ParserMatch? SrcLeftChild;
 
     /// <summary> Second child match, if two children </summary>
-    private ParserMatch? _rightChild;
+    protected ParserMatch? SrcRightChild;
 
     /// <summary>
     /// Previous sibling parser match, if any.
@@ -67,7 +96,7 @@ public class ParserMatch
     /// <summary>
     /// Returns true if this node has child nodes
     /// </summary>
-    public bool HasChildren => _leftChild is not null; // left should always be populated first
+    public bool HasChildren => SrcLeftChild is not null; // left should always be populated first
 
     /// <summary>
     /// Extracts the match value
@@ -97,12 +126,12 @@ public class ParserMatch
     /// <summary>
     /// The left-side child match, if any
     /// </summary>
-    public ParserMatch? LeftChild => _leftChild;
+    public ParserMatch? LeftChild => SrcLeftChild;
 
     /// <summary>
     /// The right-side child match, if any
     /// </summary>
-    public ParserMatch? RightChild => _rightChild;
+    public ParserMatch? RightChild => SrcRightChild;
 
     #endregion Computed properties
 
@@ -163,8 +192,8 @@ public class ParserMatch
     /// </summary>
     public IEnumerable<ParserMatch> Children()
     {
-        if (_leftChild is not null) yield return _leftChild;
-        if (_rightChild is not null) yield return _rightChild;
+        if (SrcLeftChild is not null) yield return SrcLeftChild;
+        if (SrcRightChild is not null) yield return SrcRightChild;
     }
 
     /// <summary>
@@ -352,17 +381,17 @@ public class ParserMatch
 
             if (select(node)) yield return node; // this match
 
-            if (node._leftChild is not null)
+            if (node.SrcLeftChild is not null)
             {
-                foreach (var lm in DepthFirstWalk(node._leftChild, select))
+                foreach (var lm in DepthFirstWalk(node.SrcLeftChild, select))
                 {
                     yield return lm;
                 }
             }
 
-            if (node._rightChild is not null)
+            if (node.SrcRightChild is not null)
             {
-                node = node._rightChild;
+                node = node.SrcRightChild;
                 continue;
             }
 
@@ -416,7 +445,7 @@ public class ParserMatch
 
         // If the existing match doesn't have any meta, just copy ourselves in.
         // Don't do this if our child set is full, as that might break later joins
-        if (!HasMetaData() && _rightChild is null)
+        if (!HasMetaData() && SrcRightChild is null)
         {
             SourceParser = source;
             return this;
@@ -447,6 +476,19 @@ public class ParserMatch
     public IEnumerable<ParserMatch> FindByTag(string tag)
     {
         return DepthFirstWalk(this, m => m.Tag == tag);
+    }
+
+
+    /// <summary>
+    /// Find and return all matches whose parser matches the given type.
+    /// Type can be a direct parser type, or an interface that it implements.
+    /// Returns empty if none found.
+    /// </summary>
+    public IEnumerable<ParserMatch<T>> FindByParserType<T>()
+    {
+        return DepthFirstWalk(this, m => {
+            return m.SourceParser is T;
+        }).Select(m => new ParserMatch<T>(m));
     }
 
     /// <summary>
@@ -480,8 +522,8 @@ public class ParserMatch
     internal ParserMatch ReSource(IParser newSource)
     {
         var match = Scanner.CreateMatch(newSource, Offset, Length, Previous);
-        match._leftChild = _leftChild;
-        match._rightChild = _rightChild;
+        match.SrcLeftChild = SrcLeftChild;
+        match.SrcRightChild = SrcRightChild;
         return match;
     }
 
@@ -504,8 +546,8 @@ public class ParserMatch
     {
         if (SourceParser.HasMetaData()) return true;
 
-        if (_leftChild is not null && _leftChild.AnyMetaInTree()) return true;
-        if (_rightChild is not null && _rightChild.AnyMetaInTree()) return true;
+        if (SrcLeftChild is not null && SrcLeftChild.AnyMetaInTree()) return true;
+        if (SrcRightChild is not null && SrcRightChild.AnyMetaInTree()) return true;
         return false;
     }
 
@@ -528,8 +570,8 @@ public class ParserMatch
     /// </summary>
     private void AddChild(ParserMatch child)
     {
-        if (_leftChild is null) _leftChild = child;
-        else if (_rightChild is null) _rightChild = child;
+        if (SrcLeftChild is null) SrcLeftChild = child;
+        else if (SrcRightChild is null) SrcRightChild = child;
         else // ReSharper disable once InvocationIsSkipped
             Debug.Assert(false, "Too many children");
     }
@@ -539,8 +581,8 @@ public class ParserMatch
     /// </summary>
     internal void Reset()
     {
-        _leftChild = null;
-        _rightChild = null;
+        SrcLeftChild = null;
+        SrcRightChild = null;
         Previous = null;
     }
 

@@ -640,6 +640,14 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Match the longest literal string from the given set
+	/// </summary>
+	public static BNF OneOf(IEnumerable<string> literals)
+	{
+		return new BNF(new Union(literals.Select(l=> new LiteralString(l))));
+	}
+
+	/// <summary>
 	/// Match any single character as long as its <b>NOT</b> in the given set
 	/// </summary>
 	public static BNF NoneOf(params char[] characters)
@@ -1157,4 +1165,5 @@ public class BNF : IParser
 	}
 
 	#endregion IParser pass-through
+
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Gool.Parsers.Capabilities;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -9,7 +11,7 @@ namespace Gool.Parsers.Terminals;
 /// Parse a variable width signed fractional decimal number.
 /// This does <b>not</b> try to fit the result in a float representation.
 /// </summary>
-public class VariableWidthFractionalDecimal : Parser
+public class VariableWidthFractionalDecimal : Parser, IParseNumericValue
 {
     private readonly bool   _allowLeadingWhitespace;
     private readonly string _groupMark;
@@ -242,5 +244,21 @@ public class VariableWidthFractionalDecimal : Parser
     public override string ShortDescription(int depth)
     {
         return ToString();
+    }
+
+    /// <inheritdoc />
+    public long AsInteger(ParserMatch match)
+    {
+        var clean = match.Value.Replace(_groupMark, "_").Replace(_decimalMark, ".");
+        if (double.TryParse(clean, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out var parsedValue)) return (long)parsedValue;
+        return 0;
+    }
+
+    /// <inheritdoc />
+    public double AsFloat(ParserMatch match)
+    {
+        var clean = match.Value.Replace(_groupMark, "_").Replace(_decimalMark, ".");
+        if (double.TryParse(clean, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out var parsedValue)) return parsedValue;
+        return double.NaN;
     }
 }

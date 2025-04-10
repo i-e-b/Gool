@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Gool.Parsers.Capabilities;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -10,7 +11,7 @@ namespace Gool.Parsers.Terminals;
 /// <summary>
 /// Parse a variable width unsigned integer, within a given value range.
 /// </summary>
-public class VariableWidthIntegerRange : Parser
+public class VariableWidthIntegerRange : Parser, IParseNumericValue
 {
     private readonly long _lower;
     private readonly long _upper;
@@ -97,5 +98,19 @@ public class VariableWidthIntegerRange : Parser
     public override string ShortDescription(int depth)
     {
         return ToString();
+    }
+
+    /// <inheritdoc />
+    public long AsInteger(ParserMatch match)
+    {
+        if (long.TryParse(match.Value, _style, NumberFormatInfo.InvariantInfo, out var parsedValue)) return parsedValue;
+        return 0;
+    }
+
+    /// <inheritdoc />
+    public double AsFloat(ParserMatch match)
+    {
+        if (long.TryParse(match.Value, _style, NumberFormatInfo.InvariantInfo, out var parsedValue)) return parsedValue;
+        return double.NaN;
     }
 }
