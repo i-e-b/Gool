@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dd7d50c9-2453-4aa8-93bd-1ac1a24e0690" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/GoolStd/BNF.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GoolStd/BNF.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="XML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/2aade6beb02ea367fd97c4070a4198802fe61c03/src/coreclr/System.Private.CoreLib/src/System/Threading/Monitor.CoreCLR.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/2aade6beb02ea367fd97c4070a4198802fe61c03/src/libraries/System.Collections/src/System/Collections/Generic/Stack.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/2aade6beb02ea367fd97c4070a4198802fe61c03/src/libraries/System.Private.CoreLib/src/System/DateTime.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/2aade6beb02ea367fd97c4070a4198802fe61c03/src/libraries/System.Private.CoreLib/src/System/String.Manipulation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/2aade6beb02ea367fd97c4070a4198802fe61c03/src/libraries/System.Text.RegularExpressions/src/System/Text/RegularExpressions/Regex.Match.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/02bfa03b73f94f5b8947ec21da8cdcba74518/25/75714e08/UnicodeCategory.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/02bfa03b73f94f5b8947ec21da8cdcba74518/43/7064a9bf/Char.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4ca0d39736624a928a80d33b13fb992e74510/ae/53917a27/Object.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4ca0d39736624a928a80d33b13fb992e74510/e1/9dd0f146/Char.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/52cd5c4d39a94506a9b030dd79903537b510/d2/82c5642a/List`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9fee118093474478b67adc4e116397848310/2e/5a9f291a/Regex.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dd601e4ca8404f2c873e55fdefb34c7274508/04/c601e88c/NumberFormatInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dd601e4ca8404f2c873e55fdefb34c7274508/29/fe71e684/UnicodeCategory.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/dd601e4ca8404f2c873e55fdefb34c7274508/5a/7a9ea770/Object.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f37909f09b9b4d7d99b07191c9005bae24000/29/20f1687d/NUnitTestMethod.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f37909f09b9b4d7d99b07191c9005bae24000/33/e48adee2/TestMethod.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f37909f09b9b4d7d99b07191c9005bae24000/b7/2c0ee735/Reflect.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fbb06006ad9e463ba132452910bfae4b74508/ad/4f9029dd/Debug.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fcec9f9d02054c1c937d88f9299e88adb510/35/3fd655e7/List`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/20885d5d627d4da82a4a22d7c55abb3d50afdd1ab121738514d59792dc9993/Select.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3234e0217846877639a0d72d3ab253a68fff4043b0fe6cc763c426d3a9781/Assert.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36f346b6c0454bc8a6afa7aed38119fe5bbffcc983298d9bfa4dbd5f49461f/Monitor.CoreCLR.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3c9fcf3545eeb2ff2cba80c87da4cb5bea1b7831bfa68e51e6d585b8a6688cf/Contains.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4045ad381dc69b9a8c076afe4c122961b5a86158d8dd0c76c117243ce72b/TimeSpan.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5dd3c6bdef6bb6cb25b4af726e8ff88c071135193db44586b57feb53054a/BeforeAndAfterTestCommand.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/98514e314f1feddb3082dbe8507ecec1a81b6491c0db7dc53c2e8c13949e4360/Assert.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e74c29b9b88b6bc79d45c8ecf5f99fb6781203f77d1554ecb64e2d022ab6d4a/GC.CoreCLR.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="SWEA" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2je6cY7wjT9unBSVEnUuCerSm5N" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;0da01572-479e-471b-bc1c-23d526a0864f.executor&quot;: &quot;Debug&quot;,
+    &quot;1cbadce0-05c6-4eaa-a7f3-81bb566085bb.executor&quot;: &quot;Debug&quot;,
+    &quot;25b1cdaa-7bb9-4177-9a2a-fd46c7a8892f.executor&quot;: &quot;Debug&quot;,
+    &quot;581795ed-5625-416f-847e-5b2011673ec7.executor&quot;: &quot;Debug&quot;,
+    &quot;61919e7c-8aa5-4740-976a-79be250c8949.executor&quot;: &quot;Debug&quot;,
+    &quot;6daede96-9239-412c-8fa6-3864628c89e4.executor&quot;: &quot;Debug&quot;,
+    &quot;9815589d-d417-4c3e-ac1f-556254fdc364.executor&quot;: &quot;Debug&quot;,
+    &quot;985f45d6-4323-4f25-a05d-3f6629d499af.executor&quot;: &quot;Debug&quot;,
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;ad4e6564-679c-4ac0-ab2b-123bac4b7e6f.executor&quot;: &quot;Debug&quot;,
+    &quot;b99d7ec0-f026-4f0c-9639-92ecc68c8aab.executor&quot;: &quot;Debug&quot;,
+    &quot;c4b32e81-1d96-41de-88c2-95244ff8391a.executor&quot;: &quot;Debug&quot;,
+    &quot;d585e426-e82b-4ba6-9166-04b976930e10.executor&quot;: &quot;Debug&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dd7d50c9-2453-4aa8-93bd-1ac1a24e0690" name="Changes" comment="" />
+      <created>1721735274708</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1721735274708</updated>
+      <workItem from="1721735276085" duration="3535000" />
+      <workItem from="1721833036687" duration="1251000" />
+      <workItem from="1721834321543" duration="25148000" />
+      <workItem from="1721908092212" duration="444000" />
+      <workItem from="1722505267040" duration="11195000" />
+      <workItem from="1722523167865" duration="2425000" />
+      <workItem from="1722525625803" duration="4072000" />
+      <workItem from="1722537562833" duration="9983000" />
+      <workItem from="1722851155533" duration="1202000" />
+      <workItem from="1722873757900" duration="1617000" />
+      <workItem from="1722930886644" duration="16297000" />
+      <workItem from="1722953283547" duration="2726000" />
+      <workItem from="1723023640053" duration="4731000" />
+      <workItem from="1723103652654" duration="84754000" />
+      <workItem from="1723536346745" duration="7301000" />
+      <workItem from="1723551919102" duration="18451000" />
+      <workItem from="1723623726364" duration="29686000" />
+      <workItem from="1723997607865" duration="150000" />
+      <workItem from="1723998071263" duration="20508000" />
+      <workItem from="1724085027906" duration="11466000" />
+      <workItem from="1724176019259" duration="10857000" />
+      <workItem from="1724252314888" duration="227000" />
+      <workItem from="1724358609946" duration="148000" />
+      <workItem from="1725260916695" duration="52000" />
+      <workItem from="1725521778528" duration="1919000" />
+      <workItem from="1725624636127" duration="318000" />
+      <workItem from="1725808869567" duration="3399000" />
+      <workItem from="1725874504437" duration="665000" />
+      <workItem from="1725975736026" duration="115000" />
+      <workItem from="1725976698391" duration="168000" />
+      <workItem from="1726128879260" duration="13046000" />
+      <workItem from="1726164939241" duration="12003000" />
+      <workItem from="1726253293161" duration="1957000" />
+      <workItem from="1726563724046" duration="14535000" />
+      <workItem from="1726583141254" duration="237000" />
+      <workItem from="1726583652050" duration="162000" />
+      <workItem from="1726656898961" duration="14778000" />
+      <workItem from="1727084262566" duration="53988000" />
+      <workItem from="1727267530725" duration="16405000" />
+      <workItem from="1727340731046" duration="4705000" />
+      <workItem from="1727421660206" duration="45000" />
+      <workItem from="1727452118080" duration="9757000" />
+      <workItem from="1727546330051" duration="10759000" />
+      <workItem from="1727704394901" duration="23929000" />
+      <workItem from="1727788764454" duration="9947000" />
+      <workItem from="1727862306160" duration="8793000" />
+      <workItem from="1728047288041" duration="6434000" />
+      <workItem from="1728392227120" duration="9529000" />
+      <workItem from="1728403042568" duration="1523000" />
+      <workItem from="1728478090813" duration="9346000" />
+      <workItem from="1728638319528" duration="28609000" />
+      <workItem from="1728893769706" duration="1580000" />
+      <workItem from="1728910942296" duration="11416000" />
+      <workItem from="1729004212909" duration="37168000" />
+      <workItem from="1729156448130" duration="18284000" />
+      <workItem from="1729237561739" duration="30187000" />
+      <workItem from="1729935383793" duration="3976000" />
+      <workItem from="1729955182702" duration="1494000" />
+      <workItem from="1730458580154" duration="2132000" />
+      <workItem from="1730465587695" duration="8504000" />
+      <workItem from="1730988973468" duration="5411000" />
+      <workItem from="1740994393192" duration="723000" />
+      <workItem from="1744285262059" duration="8985000" />
+      <workItem from="1744299455349" duration="525000" />
+      <workItem from="1744808175321" duration="6706000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/TestLanguageImplementation/Compiled/Compiler.cs</url>
+          <line>38</line>
+          <properties documentPath="C:\gits\Phantom2\TestLanguageImplementation\Compiled\Compiler.cs" containingFunctionPresentation="Method 'CompileFunction'">
+            <startOffsets>
+              <option value="1241" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1268" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/GoolStd/Results/ParserMatch.cs</url>
+          <line>489</line>
+          <properties documentPath="C:\gits\Phantom2\PhantomStd\Results\ParserMatch.cs" containingFunctionPresentation="Lambda expression inside Method 'FindByParserType'">
+            <startOffsets>
+              <option value="15859" />
+            </startOffsets>
+            <endOffsets>
+              <option value="15886" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

@@ -228,21 +228,24 @@ public class BNF : IParser
 	#region Contextual and recursive
 	/// <summary>
 	/// Create a self-recursive parser structure.
-	/// <p/>
-	/// The function is given a 
-	/// <p/>
-	/// See <see cref="Recursion"/>
+	/// <p>
+	/// The <paramref name="parserTreeFunction"/> is passed a representation of itself,
+	/// and should return a new BNF structure which can include this self-referencing parameter.
+	/// </p><p>
+	/// A recursive parser must make progress through the scanner input to be considered a successful match.
+	/// Paths through the parser which recurse without advancing are curtailed.
+	/// </p>
 	/// </summary>
 	/// <example><code><![CDATA[
+	/// var myParser = BNF.Recursive(tree => +( '{' > -(tree | BNF.Letter ) > '}')).Result();
+	///
 	/// var input = new ScanStrings("{{{w}{x}y}z}");
-	/// var myParser = BNF.Recursive(tree => +( '{' > -(tree | BNF.Regex("[^{}]+") ) > '}')).Result();
 	/// var result = myParser.Parse(input);
 	/// ]]></code>
 	/// </example>
+	/// <seealso cref="Recursion"/>
 	public static BNF Recursive(Func<BNF, BNF> parserTreeFunction)
 	{
-		// BNF.Recursive(tree => !(open_tag > -(text | tree) > close_tag)).Result();
-		// The way this works involves a lot of bad-practice and hidden typecasts.
 		var hold = new Recursion();
 
 		var src = parserTreeFunction(hold);
@@ -822,6 +825,26 @@ public class BNF : IParser
 	{
 		return new BNF(new AnyCharacterInCategory(category));
 	}
+
+	/// <summary>
+	/// Match any one character in any letter or a decimal digit Unicode category
+	/// </summary>
+	public static BNF AlphaNumeric => new(new CharacterPredicate(char.IsLetterOrDigit));
+
+	/// <summary>
+	/// Match any one character in any letter Unicode category
+	/// </summary>
+	public static BNF Letter => new(new CharacterPredicate(char.IsLetter));
+
+	/// <summary>
+	/// Match any one character in any decimal digit Unicode category
+	/// </summary>
+	public static BNF Digit => new(new CharacterPredicate(char.IsDigit));
+
+	/// <summary>
+	/// Match any one character which is a hexadecimal digit
+	/// </summary>
+	public static BNF HexDigit => CharacterInRanges(('a','f'),('A','F'),('0','9'));
 
 	/// <summary>
 	/// Match an empty string
