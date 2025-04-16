@@ -40,7 +40,7 @@ public class Compiler
         Console.WriteLine($"Start of function '{func.Name}'");
 
         // Otherwise, process next statement
-        foreach(var loc in func.Source.Children)
+        foreach (var loc in func.Source.Children)
         {
             switch (loc.Tag)
             {
@@ -229,8 +229,8 @@ public class Compiler
 
 public class CompiledFunction
 {
-    public string Name { get; set; }
-    public ScopeNode<None> Source { get; set; }
+    public string Name { get; set; } = "";
+    public ScopeNode<None> Source { get; set; } = new();
     public List<OpCode> OpCodes { get; } = new();
 }
 

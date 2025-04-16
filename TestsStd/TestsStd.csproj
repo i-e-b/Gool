@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PhantomStd\PhantomStd.csproj" />
+      <ProjectReference Include="..\GoolStd\GoolStd.csproj" />
       <ProjectReference Include="..\SamplesStd\SamplesStd.csproj" />
     </ItemGroup>
 

@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{6EAF4DB0-7
 		TODO.md = TODO.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhantomStd", "PhantomStd\PhantomStd.csproj", "{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoolStd", "GoolStd\GoolStd.csproj", "{4D43B091-F498-4583-B0F4-1B9BF72FEFFE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplesStd", "SamplesStd\SamplesStd.csproj", "{56CA085B-62D3-4792-B922-6FA8AA31842B}"
 EndProject
