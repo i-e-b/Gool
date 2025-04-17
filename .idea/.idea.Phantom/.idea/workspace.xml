@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dd7d50c9-2453-4aa8-93bd-1ac1a24e0690" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/GoolStd/BNF.cs" beforeDir="false" afterPath="$PROJECT_DIR$/GoolStd/BNF.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="dd7d50c9-2453-4aa8-93bd-1ac1a24e0690" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -170,7 +167,7 @@
       <workItem from="1740994393192" duration="723000" />
       <workItem from="1744285262059" duration="8985000" />
       <workItem from="1744299455349" duration="525000" />
-      <workItem from="1744808175321" duration="6706000" />
+      <workItem from="1744808175321" duration="6770000" />
     </task>
     <servers />
   </component>

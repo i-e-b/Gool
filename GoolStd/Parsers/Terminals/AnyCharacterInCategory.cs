@@ -29,12 +29,11 @@ public class AnyCharacterInCategory : Parser
         var offset = previousMatch?.Right ?? 0;
         if (scan.EndOfInput(offset)) return scan.NoMatch(this, previousMatch);
 
-        char c = scan.Peek(offset);
+        var c = scan.Peek(offset);
 
-        if (char.GetUnicodeCategory(c) != _category) return scan.NoMatch(this, previousMatch);
-
-        // if we arrive at this point, we have a match
-        return scan.CreateMatch(this, offset, 1, previousMatch);
+        return char.GetUnicodeCategory(c) != _category
+            ? scan.NoMatch(this, previousMatch)
+            : scan.CreateMatch(this, offset, 1, previousMatch);
     }
 
     /// <inheritdoc />

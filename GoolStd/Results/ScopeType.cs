@@ -23,7 +23,7 @@ public enum ScopeType
     /// <summary>
     /// This match should be kept separate in the results tree, even if it does not have a tag
     /// </summary>
-    Trailing = 4,
+    Tree = 4,
 	
     /// <summary> This match is the start of a block </summary>
     OpenScope = 1,

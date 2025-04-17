@@ -223,6 +223,18 @@ public class BNF : IParser
 		return this;
 	}
 
+	/// <summary>
+	/// Mark this parser as part of a scope tree.
+	/// Matches will be kept separate in the results tree, even if they do not have a tag
+	/// </summary>
+	public BNF TreeScope()
+	{
+		_parserTree.Scope = ScopeType.Tree;
+		return this;
+	}
+
+
+
 	#endregion Scopes
 
 	#region Contextual and recursive
@@ -307,9 +319,16 @@ public class BNF : IParser
 	/// Non-capturing: this returns an empty result if the pattern matches,
 	/// and a failure if not.
 	/// </summary>
-	public static BNF PreviousMatches(BNF pattern)
+	/// <param name="select">
+	/// Optional function to select parts of the match to use.
+	/// If not provided, the entire match will be given.
+	/// If the function is given, but returns null, the pattern will fail to match</param>
+	/// <param name="pattern">Pattern to try against previous match</param>
+	/// <param name="matchEntire">If <c>true</c>, the pattern must match the entire previous match.
+	/// Otherwise the match can be partial.</param>
+	public static BNF PreviousMatches(Func<ParserMatch, ParserMatch?>? select, BNF pattern, bool matchEntire = true)
 	{
-		return new PreviousMatchCheck(pattern);
+		return new PreviousMatchCheck(select, pattern, matchEntire);
 	}
 
 	/// <summary>
@@ -832,6 +851,16 @@ public class BNF : IParser
 	public static BNF AlphaNumeric => new(new CharacterPredicate(char.IsLetterOrDigit));
 
 	/// <summary>
+	/// Match any one character in the Unicode category 'UppercaseLetter'
+	/// </summary>
+	public static BNF Uppercase => new(new CharacterPredicate(char.IsUpper));
+
+	/// <summary>
+	/// Match any one character in the Unicode category 'LowercaseLetter'
+	/// </summary>
+	public static BNF Lowercase => new(new CharacterPredicate(char.IsLower));
+
+	/// <summary>
 	/// Match any one character in any letter Unicode category
 	/// </summary>
 	public static BNF Letter => new(new CharacterPredicate(char.IsLetter));
@@ -852,7 +881,8 @@ public class BNF : IParser
 	public static BNF Empty => new(new EmptyMatch());
 	
 	/// <summary>
-	/// Match the end of a line
+	/// Match the end of a line.
+	/// This will match the longest of either <c>\r</c>, <c>\n</c>, or <c>\r\n</c>
 	/// </summary>
 	public static BNF LineEnd => new(new EndOfLine());
 	
@@ -1175,6 +1205,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Try to match scanner data against the contained parser
 	/// </summary>
+	// ReSharper disable once UnusedMember.Global
 	internal ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		if (_parserTree is not Parser imp) throw new Exception($"Invalid parser tree: expected '{nameof(Parser)}', got '{_parserTree.GetType().Name}'");

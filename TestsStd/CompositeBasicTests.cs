@@ -13,7 +13,7 @@ public class CompositeBasicTests
 {
     private static BNF DelimitedListParserSample()
     {
-        BNF item = BNF.Regex("[a-zA-Z]+");
+        BNF item      = BNF.Regex("[a-zA-Z]+");
         BNF delimiter = ",";
 
         BNF list = item % delimiter;
@@ -55,7 +55,7 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", ",", "two", ",", "three", ",", "four" }).AsCollection);
     }
-    
+
     [Test]
     public void delimited_list_parser_accepts_single_item_input()
     {
@@ -88,7 +88,7 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one" }).AsCollection);
     }
-    
+
     [Test]
     public void delimited_list_parser_excludes_trailing_separator()
     {
@@ -125,7 +125,7 @@ public class CompositeBasicTests
     private static IParser DifferenceParserSample()
     {
         BNF item = BNF.Regex("[a-zA-Z]+");
-        BNF end = "end";
+        BNF end  = "end";
 
         BNF list = +(item / end);
 
@@ -143,7 +143,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = DifferenceParserSample();
+        var parser  = DifferenceParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -172,7 +172,7 @@ public class CompositeBasicTests
 
     private static IParser ExclusiveParserSample()
     {
-        BNF prefixed = BNF.Regex("px_[_a-zA-Z]+");
+        BNF prefixed  = BNF.Regex("px_[_a-zA-Z]+");
         BNF postfixed = BNF.Regex("[_a-zA-Z]+_pf");
 
         BNF list = +(prefixed ^ postfixed);
@@ -192,7 +192,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = ExclusiveParserSample();
+        var parser  = ExclusiveParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -241,7 +241,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = IntersectionParserSample();
+        var parser  = IntersectionParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -266,7 +266,7 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
     }
-    
+
     private static BNF.Package RepetitionParserSample()
     {
         BNF item = (BNF)"one" | "two" | "three" | "four";
@@ -313,7 +313,7 @@ public class CompositeBasicTests
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
     }
 
-    
+
     private static IParser SequenceParserSample()
     {
         BNF item = (BNF)"one" > "two" > "three" > "four";
@@ -324,7 +324,7 @@ public class CompositeBasicTests
 
         return list;
     }
-    
+
     [Test]
     public void sequence_parser_accepts_correct_input()
     {
@@ -334,7 +334,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = SequenceParserSample();
+        var parser  = SequenceParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         Console.WriteLine(parser.ToString());
@@ -364,7 +364,7 @@ public class CompositeBasicTests
 
     private static IParser TerminatedListParserSample()
     {
-        BNF item = BNF.Regex("[a-z]+");
+        BNF item       = BNF.Regex("[a-z]+");
         BNF terminator = ';';
 
         BNF list = item < terminator;
@@ -389,7 +389,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = TerminatedListParserSample();
+        var parser  = TerminatedListParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -428,7 +428,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = TerminatedListParserSample();
+        var parser  = TerminatedListParserSample();
         var scanner = new ScanStrings(incorrect_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -510,7 +510,7 @@ public class CompositeBasicTests
 
         return list;
     }
-    
+
     [Test]
     public void union_parser_accepts_correct_input()
     {
@@ -520,7 +520,7 @@ public class CompositeBasicTests
             """;
 
         Console.WriteLine("\r\n=================================================================================");
-        var parser = UnionParserSample();
+        var parser  = UnionParserSample();
         var scanner = new ScanStrings(correct_sample) { AutoAdvance = BNF.WhiteSpaceString };
 
         var sw = new Stopwatch();
@@ -535,7 +535,7 @@ public class CompositeBasicTests
             Console.Write(" ");
         }
 
-        Console.WriteLine(result.SourceParser?.ToString());
+        Console.WriteLine(result.SourceParser.ToString());
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -554,15 +554,15 @@ public class CompositeBasicTests
 
         var _wrapped = BNF.Forward();
         BNF
-            tag_id  = BNF.Regex("[a-zA-Z][a-zA-Z0-9]*"),
-            text    = -(BNF.AnyChar / "<"),
+            tag_id = BNF.Regex("[a-zA-Z][a-zA-Z0-9]*"),
+            text   = -(BNF.AnyChar / "<"),
             wrapped =
                 BNF.Context(
                     prefix: '<' > tag_id > '>',
                     select: result =>
                         result.GetTag("TagId"),
                     next: tag =>
-                        -(text|_wrapped) > "</" > ((BNF)tag.Value).TagWith("TagId") > '>'
+                        -(text | _wrapped) > "</" > ((BNF)tag.Value).TagWith("TagId") > '>'
                 );
 
         _wrapped.Is(wrapped);
@@ -596,7 +596,7 @@ public class CompositeBasicTests
             Console.Write(" ");
         }
 
-        Console.WriteLine(result.SourceParser?.ToString());
+        Console.WriteLine(result.SourceParser.ToString());
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -633,7 +633,7 @@ public class CompositeBasicTests
             Console.Write(" ");
         }
 
-        Console.WriteLine(result.SourceParser?.ToString());
+        Console.WriteLine(result.SourceParser.ToString());
 
         Console.WriteLine("\r\n=================================================================================");
 
@@ -687,7 +687,7 @@ public class CompositeBasicTests
                 u       = char.ToUpper(c), // upper case char
                 l       = char.ToLower(c), // lower case char
                 zs      = BNF.Repeat('0', 0, 4), // up to 4 '0'
-                esc     = ((int)c).ToString("X2") | BNF.CharacterInRanges(('g','z'),('G','Z')), // and two hex chars for the character
+                esc     = ((int)c).ToString("X2") | BNF.CharacterInRanges(('g', 'z'), ('G', 'Z')), // and two hex chars for the character
                 pattern = u | l | ('\\' > zs > esc); // any of the above
 
             return pattern;
@@ -732,21 +732,21 @@ public class CompositeBasicTests
 
     private static IParser ParallelSetParserSample()
     {
-        BNF words = +BNF.AnyChar;
+        BNF words                = +BNF.AnyChar;
         BNF starts_with_alphanum = BNF.Regex("^[a-zA-Z].*");
-        BNF ends_with_alphanum = BNF.Regex(".*[a-zA-Z]$");
-        BNF dns_length_limit = BNF.RemainingLength(min:2, max:80);
-        BNF domain_name = words.WithValidators(starts_with_alphanum, ends_with_alphanum, dns_length_limit);
+        BNF ends_with_alphanum   = BNF.Regex(".*[a-zA-Z]$");
+        BNF dns_length_limit     = BNF.RemainingLength(min: 2, max: 80);
+        BNF domain_name          = words.WithValidators(starts_with_alphanum, ends_with_alphanum, dns_length_limit);
 
         return domain_name;
     }
-    
+
     [Test]
     [TestCase("this.is.ok")]
     [TestCase("th1s . is . 0k")]
     public void parallel_set_accepts_valid_input(string correct_sample)
     {
-        var parser = ParallelSetParserSample();
+        var parser  = ParallelSetParserSample();
         var scanner = new ScanStrings(correct_sample);
 
         var sw = new Stopwatch();
@@ -771,7 +771,7 @@ public class CompositeBasicTests
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.ToString(), Is.EqualTo(correct_sample));
     }
-    
+
     [Test]
     [TestCase("not.ok-")]
     [TestCase("-nope")]
@@ -780,7 +780,7 @@ public class CompositeBasicTests
     [TestCase("far.too.looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong")]
     public void parallel_set_rejects_invalid_input(string bad_sample)
     {
-        var parser = ParallelSetParserSample();
+        var parser  = ParallelSetParserSample();
         var scanner = new ScanStrings(bad_sample);
 
         var sw = new Stopwatch();
@@ -815,7 +815,7 @@ public class CompositeBasicTests
             b_no_sp = 'b',
             space_c = BNF.RequiredWhiteSpace > 'c'; // 'RequiredWhiteSpace' allows us to resolve the ambiguity.
 
-        return -( (a_space | b_no_sp) > space_c > ',' > !BNF.WhiteSpace);
+        return -((a_space | b_no_sp) > space_c > ',' > !BNF.WhiteSpace);
     }
 
     [Test]
@@ -846,5 +846,60 @@ public class CompositeBasicTests
 
         Assert.That(result.Success, Is.True, result + ": " + result.Value);
         Assert.That(result.ToString(), Is.EqualTo(sample));
+    }
+
+
+
+
+    private static BNF PreviousMatchSplitSample()
+    {
+        // deliberately weird grammar
+        BNF
+            name  = BNF.IdentifierString(),
+            start = "START_" > name > BNF.LineEnd,
+            block = BNF.AnyWhiteSpace > BNF.IdentifierString() > ";" > BNF.LineEnd;
+
+        name.TagWith("name");
+        block.TagWith("block");
+
+        return BNF.Context(
+            prefix: start,                                                              // string starts with "START_" then any ident
+            select: result =>
+                result.GetTag("name"),                                                  // pick the ident string
+            next: match =>
+                +block                                                                  // many sets of " blah;\r\n"
+              > match.Value.CaseInsensitive().TagWith("end")                            // then must end with the same ident as start
+               >
+                (
+                    (BNF.PreviousMatches(m => m.GetTag("end"), +BNF.Uppercase) > "!")   // if the end ident is all uppercase, the final char must be '!'
+                  | "."                                                                 // otherwise the final char must be '.'
+                )
+        );
+    }
+
+    [Test]
+    [TestCase("START_test\r\n one;\n   two;\rthree;\r\ntest.")]
+    [TestCase("START_test\r\n one;\n   two;\rthree;\r\nTEST!")]
+    [TestCase("START_test\r\n one;\n   two;\rthree;\r\nTest.")]
+    public void split_decision_test(string input)
+    {
+        var parser  = PreviousMatchSplitSample();
+        var scanner = new ScanStrings(input);
+
+        var sw = new Stopwatch();
+        sw.Start();
+        var result = parser.Parse(scanner);
+        sw.Stop();
+        Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
+
+        Console.WriteLine("\r\n=================================================================================");
+
+        foreach (var fail in scanner.ListFailures())
+        {
+            Console.WriteLine(fail);
+        }
+
+        Assert.That(result.Success, Is.True, result + ": " + result.Value);
+        Assert.That(result.ToString(), Is.EqualTo(input));
     }
 }

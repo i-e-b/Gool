@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Gool;
 using Gool.Parsers.Terminals;
 using Gool.Scanners;
@@ -196,6 +197,170 @@ public class TerminalBasicTests
     }
 
     [Test]
+    public void _LiteralString_insensitive_()
+    {
+        var subject = new LiteralString("three", StringComparison.OrdinalIgnoreCase);
+        //                       1
+        //           012345678901234567
+        var input = "one two ThREe four";
+
+        var scanner    = new ScanStrings(input);
+        var nullParser = new NullParser("test");
+
+        var result = subject.Parse(scanner, null);
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 1, null));
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 6, null));
+        Assert.That(result.Success, Is.False);
+
+        result = subject.Parse(scanner,scanner.CreateMatch(nullParser, 8, 0, null));
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Length, Is.EqualTo(5));
+
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 1, 7, null));
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Length, Is.EqualTo(5));
+
+        result = subject.Parse(scanner, scanner.CreateMatch(nullParser, 13, 0, null));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _UtfCategory_()
+    {
+        var subject = BNF.UtfCategory(UnicodeCategory.MathSymbol);
+
+        var result  = subject.Parse(new ScanStrings("+"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("="));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("fish"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _AlphaNumeric_()
+    {
+        var subject = BNF.AlphaNumeric;
+
+        var result  = subject.Parse(new ScanStrings("A"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("q"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("5"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("?"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _Uppercase_()
+    {
+        var subject = BNF.Uppercase;
+
+        var result  = subject.Parse(new ScanStrings("A"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("Ш"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("5"));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("b"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _Lowercase_()
+    {
+        var subject = BNF.Lowercase;
+
+        var result  = subject.Parse(new ScanStrings("a"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("ш"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("5"));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("B"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _Letter_()
+    {
+        var subject = BNF.Letter;
+
+        var result  = subject.Parse(new ScanStrings("a"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("ш"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("B"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("5"));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("?"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _Digit_()
+    {
+        var subject = BNF.Digit;
+
+        var result  = subject.Parse(new ScanStrings("0"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("1"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("⅘"));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("."));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("q"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public void _HexDigit_()
+    {
+        var subject = BNF.HexDigit;
+
+        var result  = subject.Parse(new ScanStrings("0"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("1"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("A"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("f"));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("q"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
     public void _RegularExpression_()
     {
         var subject = new RegularExpression("(^one)|(one$)");
@@ -253,6 +418,28 @@ public class TerminalBasicTests
                 Assert.That(result.Success, Is.False, $"Is this whitespace? '{c}'");
             }
         }
+    }
+
+    [Test]
+    public void _WhiteSpaceCount_()
+    {
+        var subject = BNF.WhiteSpaceCount(2,4);
+
+        var result  = subject.Parse(new ScanStrings(" "));
+        Assert.That(result.Success, Is.False);
+
+        result  = subject.Parse(new ScanStrings("  "));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("   "));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("     "));
+        Assert.That(result.Success, Is.True);
+
+        result  = subject.Parse(new ScanStrings("     "));
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Length, Is.EqualTo(4));
     }
 
     [Test]
@@ -783,5 +970,17 @@ public class TerminalBasicTests
 
         Console.WriteLine(result.ToString());
         Assert.That(result.ToString(), Is.EqualTo(expected));
+    }
+
+
+    [Test]
+    public void fancy_quotes()
+    {
+        var subject = BNF.LeftSingleQuote > "A " > BNF.LeftDoubleQuote > "quote" > BNF.RightDoubleQuote > " for you" > BNF.RightSingleQuote;
+        var input   = "‘A “quote” for you’";
+        var scanner = new ScanStrings(input);
+
+        var result  = subject.Parse(scanner);
+        Assert.That(result.Success, Is.True);
     }
 }
