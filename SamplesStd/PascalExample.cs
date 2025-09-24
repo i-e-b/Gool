@@ -11,10 +11,10 @@ namespace Samples;
 /// </summary>
 public static class PascalExample
 {
-    public static readonly BNF.Package Parser = Pascal();
+    public static readonly ParserPackage Parser = Pascal();
 
     // https://archive.org/details/pascal-poster-v-3-a-1
-    private static BNF.Package Pascal()
+    private static ParserPackage Pascal()
     {
         // Forward references
         var _type       = BNF.Forward();
@@ -199,7 +199,7 @@ public static class PascalExample
         // Actions
         compilerDirective.MatchAction(match => throw new Exception("Hit the compiler directive: "+match));
 
-        return program.WithOptions(BNF.Options.IgnoreCase | BNF.Options.IncludeSkippedElements, autoAdvance: whiteSpaceOrComment);
+        return program.BuildWithOptions(BNF.Options.IgnoreCase | BNF.Options.IncludeSkippedElements, autoAdvance: whiteSpaceOrComment);
     }
 
     // ReSharper disable MemberCanBePrivate.Global

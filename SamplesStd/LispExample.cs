@@ -7,9 +7,9 @@ namespace Samples;
 
 public static class LispExample
 {
-    public static readonly Package Parser = MakeParser();
+    public static readonly ParserPackage Parser = MakeParser();
 
-    private static Package MakeParser()
+    private static ParserPackage MakeParser()
     {
         // This isn't any particular lisp dialect
 
@@ -40,7 +40,7 @@ public static class LispExample
         quoted_list.OpenScope().TagWith(Quote);
         end_list.CloseScope().TagWith(End);
 
-        return document.WithOptions(Options.SkipWhitespace);
+        return document.BuildWithOptions(Options.SkipWhitespace);
     }
 
     public const string Quote  = "Quote";

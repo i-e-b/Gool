@@ -13,7 +13,7 @@ namespace Samples;
 /// </summary>
 public static class SqlConnectionStringExample
 {
-    public static Package Parser()
+    public static ParserPackage Parser()
     {
         BNF
             key = +(AnyChar / '='),
@@ -27,7 +27,7 @@ public static class SqlConnectionStringExample
 
         key.TagWith("Key").PivotScope();
 
-        return settings.WithOptions(Options.IgnoreCase | Options.SkipWhitespace);
+        return settings.BuildWithOptions(Options.IgnoreCase | Options.SkipWhitespace);
     }
 
     private static BNF QuotedValue(char open, BNF content, char close)

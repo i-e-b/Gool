@@ -11,7 +11,7 @@ public static class CronParser
     /// <summary>
     /// Parser for cron expressions
     /// </summary>
-    public static Package Build()
+    public static ParserPackage Build()
     {
         BNF // Forms
             all        = OneOf('*', '?'),
@@ -120,7 +120,7 @@ public static class CronParser
             cronFull = minutePart > hourPart > dayOfMonthPart > monthPart > dayOfWeekPart > !yearPart > !timezone,
             cron     = macro | cronFull;
 
-        return cron.WithOptions(Options.IgnoreCase | Options.SkipWhitespace);
+        return cron.BuildWithOptions(Options.IgnoreCase | Options.SkipWhitespace);
     }
 
     public const string Macro    = "Macro";

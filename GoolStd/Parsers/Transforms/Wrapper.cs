@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gool.Parsers.Composite.Abstracts;
 using Gool.Results;
 using Gool.Scanners;
@@ -12,22 +13,29 @@ namespace Gool.Parsers.Transforms;
 /// reused with different tags in a larger composite;
 /// And allows an optional on-match function.
 /// </summary>
-public class Wrapper : Unary
+public class Wrapper : Parser
 {
     private readonly Action<ParserMatch>? _action;
 
     /// <summary>
+    /// The base parser
+    /// </summary>
+    protected IParser Parser { get; set; }
+
+    /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
-    public Wrapper(IParser parser) : base(parser)
+    public Wrapper(IParser parser)
     {
+        Parser = parser;
     }
 
     /// <summary>
     /// Create a wrapper around another parser
     /// </summary>
-    public Wrapper(IParser parser, Action<ParserMatch> action) : base(parser)
+    public Wrapper(IParser parser, Action<ParserMatch> action)
     {
+        Parser = parser;
         _action = action;
     }
 
@@ -61,5 +69,10 @@ public class Wrapper : Unary
     public override string ShortDescription(int depth)
     {
         return Parser.ShortDescription(depth);
+    }
+
+    /// <inheritdoc />
+    public override IEnumerable<IParser> ChildParsers() {
+        yield return Parser;
     }
 }

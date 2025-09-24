@@ -20,6 +20,9 @@ public class ScanStrings : IScanner
     private readonly HashSet<string>             _failedTags    = new();
     private readonly int                         _inputLength;
 
+    private readonly MatchPool         _matchPool; // match pool, used to minimise dead match objects
+    private readonly List<ParserMatch> _failedMatches = new(); // failed matches, for diagnostics
+
     /// <summary>
     /// Create a new scanner from an input string.
     /// </summary>
@@ -32,6 +35,9 @@ public class ScanStrings : IScanner
         _inputLength = input.Length;
         FurthestOffset = 0;
         _completed = false;
+
+        var poolSize = Math.Max(16, _inputLength / 256);
+        _matchPool = new MatchPool(poolSize, this);
 
         Transform = new NoTransform();
     }
@@ -70,7 +76,7 @@ public class ScanStrings : IScanner
         // Remove links to reduce GC tracing
         foreach (var match in _failedMatches) { match.Reset(); }
         _failedMatches.Clear();
-        _freeStack.Clear();
+        _matchPool.Clear();
     }
 
     /// <inheritdoc />
@@ -214,16 +220,12 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public string? LastTag { get; set; }
 
-
-    private readonly MatchPool         _freeStack     = new(64); // match pool, used to minimise dead match objects
-    private readonly List<ParserMatch> _failedMatches = new(); // failed matches, for diagnostics
-
     /// <summary>
     /// Add a success path, for diagnostic use
     /// </summary>
     public void AddSuccess(ParserMatch newMatch)
     {
-        _freeStack.Absorb(); // All failures can now be used
+        _matchPool.Absorb(); // All failures can now be used
 
         if (!_recordDiagnostics) return;
 
@@ -236,7 +238,7 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public void AddFailure(ParserMatch failMatch)
     {
-        _freeStack.PushNoMatch(failMatch);
+        _matchPool.PushNoMatch(failMatch);
 
         if (!_recordDiagnostics) return;
 
@@ -251,7 +253,7 @@ public class ScanStrings : IScanner
     /// </summary>
     public void Absorb(ParserMatch old)
     {
-        _freeStack.PushNoMatch(old);
+        _matchPool.PushNoMatch(old);
     }
 
     /// <inheritdoc />
@@ -263,12 +265,8 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public ParserMatch CreateMatch(IParser source, int offset, int length, ParserMatch? previous)
     {
-        if (length >= 0) FurthestOffset = Math.Max(offset + length, FurthestOffset);
-
-        if (!_freeStack.TryPop(out var m)) return new ParserMatch(source, this, offset, length, previous);
-
-        m.ResetTo(source, this, offset, length, previous);
-        return m;
+        FurthestOffset = Math.Max(offset + length, FurthestOffset);
+        return _matchPool.Get(source, offset, length, previous);
     }
 
     #endregion

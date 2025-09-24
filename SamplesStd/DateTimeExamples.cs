@@ -17,7 +17,7 @@ public static class DateTimeExamples
     /// This is a very complex format. Compare to <see cref="Rfc3339"/>
     /// and even the syntax of a full programming language: <see cref="PascalExample.Parser"/>
     /// </summary>
-    public static Package Iso8601()
+    public static ParserPackage Iso8601()
     {
         BNF // Basic parts
             hyphen        = '-',
@@ -119,7 +119,7 @@ public static class DateTimeExamples
         date_y_day.TagWith(DayOfYear);
         p_mark.TagWith(PeriodMarker);
 
-        return ISO8691.WithOptions(Options.None);
+        return ISO8691.Build();
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public static class DateTimeExamples
     /// This is a vastly simplified version of <see cref="Iso8601"/>,
     /// And is really what most people mean when they say 'ISO 8601'
     /// </summary>
-    public static Package Rfc3339()
+    public static ParserPackage Rfc3339()
     {
         BNF // Fragments
             decimal_point = OneOf(',', '.'),
@@ -158,7 +158,7 @@ public static class DateTimeExamples
             full_time = partial_time > time_offset,
             date_time = full_date > time_marker > full_time;
 
-        return date_time.WithOptions(Options.None);
+        return date_time.Build();
     }
 
     // Period tags

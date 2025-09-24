@@ -14,7 +14,7 @@ using JetBrains.Annotations;
 namespace Gool;
 
 /// <summary>
-/// Provides a <i>Backus–Naur form</i>-like syntax for building parsers.<br/>
+/// Provides a <i>Backus–Naur form</i>-like syntax for building parser trees.<br/>
 /// <p/>
 /// <b>Atomic parsers:</b>
 /// <dl>
@@ -78,69 +78,30 @@ public class BNF : IParser
 	//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
 
 	/// <summary>
-	/// Regular expression options passed to a regexes build with BNF
+	/// Wrap this BNF up with the default scanner options,
+	/// ready for user to pass in strings.
 	/// </summary>
-	public static RegexOptions RegexSettings { get; set; }
-
-	/// <summary>
-	/// Parse an input string, returning a match tree.
-	/// </summary>
-	/// <param name="input">String to parse</param>
-	/// <param name="offset">Optional: Offset into the input to start parsing</param>
-	/// <param name="options">Optional: Settings for parsing, which can significantly change result</param>
-	/// <param name="autoAdvance">Optional: Custom auto-advance. This overrides <c>Options.SkipWhitespace</c></param>
-	/// <param name="recordDiagnostics">Optional, default <c>true</c>: If true, record diagnostics for error reporting. Parsing is faster without</param>
-	/// <param name="mustConsumeAll">
-	/// Optional, default = <c>false</c>.
-	/// If true, parsing will fail if it does not consume all of the input.</param>
-	public ParserMatch ParseString(string input, int offset = 0, Options options = Options.None, IParser? autoAdvance = null, bool recordDiagnostics = true, bool mustConsumeAll = false)
+	public ParserPackage Build()
 	{
-		var scanner = new ScanStrings(input, recordDiagnostics);
-		
-		if (options.HasFlag(Options.SkipWhitespace)) scanner.AutoAdvance = WhiteSpaceString;
-		if (options.HasFlag(Options.IgnoreCase)) scanner.Transform = new TransformToLower();
-		if (options.HasFlag(Options.IncludeSkippedElements)) scanner.IncludeSkippedElements = true;
-
-		if (autoAdvance is not null) scanner.AutoAdvance = autoAdvance;
-
-		// Parse as much input as we can
-		var result = _parserTree.Parse(scanner, scanner.CreateMatch(this, offset, -1, null));
-		(scanner as IScanningDiagnostics).Complete();
-
-		var endPosition = result.Right;
-
-		// If there is trailing insignificant data, consume it
-		if (scanner.AutoAdvance is not null)
-		{
-			var trailing = scanner.AutoAdvance.Parse(scanner, result, false);
-			if (trailing.Success)
-			{
-				if (scanner.IncludeSkippedElements) result = ParserMatch.Join(result, new NullParser("Skipped elements"), result, trailing);
-				else endPosition = trailing.Right;
-			}
-		}
-
-		if (mustConsumeAll && endPosition < input.Length) return scanner.NoMatch(_parserTree, null);
-		
-		return result;
+		return new ParserPackage(this, Options.None, null);
 	}
 
 	/// <summary>
 	/// Wrap this BNF up with the correct scanner options,
 	/// ready for user to pass in strings.
 	/// </summary>
-	public Package WithOptions(Options options)
+	public ParserPackage BuildWithOptions(Options options)
 	{
-		return new Package(this, options, null);
+		return new ParserPackage(this, options, null);
 	}
 
 	/// <summary>
 	/// Wrap this BNF up with the correct scanner options,
 	/// ready for user to pass in strings.
 	/// </summary>
-	public Package WithOptions(Options options, IParser autoAdvance)
+	public ParserPackage BuildWithOptions(Options options, IParser autoAdvance)
 	{
-		return new Package(this, options, autoAdvance);
+		return new ParserPackage(this, options, autoAdvance);
 	}
 
 	#region Tagging
@@ -556,7 +517,7 @@ public class BNF : IParser
 	/// <summary>
 	/// Turn off auto-advance when matching this pattern and its sub-patterns.
 	/// Has no effect if neither <see cref="Options.SkipWhitespace"/> nor
-	/// <see cref="Package.AutoAdvance"/> is set.
+	/// <see cref="ParserPackage.AutoAdvance"/> is set.
 	/// </summary>
 	public void NoAutoAdvance()
 	{
@@ -631,9 +592,17 @@ public class BNF : IParser
 	/// <summary>
 	/// Match a regular expression
 	/// </summary>
-	public static BNF Regex([RegexPattern]string pattern)
+	public static BNF Regex([RegexPattern] string pattern)
 	{
-		return new BNF(new RegularExpression(pattern, RegexSettings));
+		return new BNF(new RegularExpression(pattern));
+	}
+
+	/// <summary>
+	/// Match a regular expression
+	/// </summary>
+	public static BNF Regex([RegexPattern] string pattern, RegexOptions settings)
+	{
+		return new BNF(new RegularExpression(pattern, settings));
 	}
 	
 	/// <summary>
@@ -868,10 +837,17 @@ public class BNF : IParser
 	/// <summary>
 	/// Match any one character in any decimal digit Unicode category
 	/// </summary>
+	/// <seealso cref="DecimalDigit"/>
 	public static BNF Digit => new(new CharacterPredicate(char.IsDigit));
 
 	/// <summary>
-	/// Match any one character which is a hexadecimal digit
+	/// Match any one character which is a ASCII decimal digit 0..9
+	/// </summary>
+	/// <seealso cref="Digit"/>
+	public static BNF DecimalDigit => CharacterInRanges(('0','9'));
+
+	/// <summary>
+	/// Match any one character which is a hexadecimal digit, ignoring case
 	/// </summary>
 	public static BNF HexDigit => CharacterInRanges(('a','f'),('A','F'),('0','9'));
 
@@ -986,58 +962,6 @@ public class BNF : IParser
 		/// will be added to the result tree.
 		/// </summary>
 		IncludeSkippedElements = 4,
-	}
-	
-	/// <summary>
-	/// BNF structure, plus the correct scanner options
-	/// </summary>
-	public class Package
-	{
-		private readonly BNF      _bnf;
-		private readonly Options  _options;
-
-		/// <summary>
-		/// [Optional] Parser used to skip insignificant patterns in the input.
-		/// </summary>
-		public IParser? AutoAdvance { get; }
-
-		/// <summary>
-		/// BNF structure, plus the correct scanner options
-		/// </summary>
-		internal Package(BNF bnf, Options options, IParser? autoAdvance)
-		{
-			_bnf = bnf;
-			_options = options;
-			AutoAdvance = autoAdvance;
-		}
-
-		/// <summary>
-		/// Parse an input string, returning a match tree.
-		/// <p/>
-		/// This can return successful matches that consume only part of the input.
-		/// To ensure that the entire input matches the parser, use <see cref="ParseEntireString"/>
-		/// </summary>
-		/// <param name="input">The string to parse</param>
-		/// <param name="offset">Optional. Position in the input to start parsing</param>
-		/// <param name="diagnostics">Optional (default: true). Record diagnostic info. Parsing is faster without</param>
-		public ParserMatch ParsePartialString(string input, int offset = 0, bool diagnostics = true)
-		{
-			return _bnf.ParseString(input, offset, _options, AutoAdvance, diagnostics, mustConsumeAll: false);
-		}
-
-		/// <summary>
-		/// Parse an input string, returning a match tree.
-		/// This will return a failed match if it does not consume the entire input.
-		/// <p/>
-		/// To allow matches that use only part of the input, see <see cref="ParsePartialString"/>
-		/// </summary>
-		/// <param name="input">The string to parse</param>
-		/// <param name="offset">Optional. Position in the input to start parsing</param>
-		/// <param name="diagnostics">Optional (default: true). Record diagnostic info. Parsing is faster without</param>
-		public ParserMatch ParseEntireString(string input, int offset = 0, bool diagnostics = true)
-		{
-			return _bnf.ParseString(input, offset, _options, AutoAdvance, diagnostics, mustConsumeAll: true);
-		}
 	}
 
 	/// <summary>
@@ -1154,6 +1078,11 @@ public class BNF : IParser
 	/// Internal reference to the real parser instance
 	/// </summary>
 	private IParser _parserTree;
+
+	/// <summary>
+	/// Internal reference to the real root parser instance
+	/// </summary>
+	public IParser InnerParser => _parserTree;
 
 	/// <summary>
 	/// Create a BNF wrapper for an <see cref="IParser"/> instance

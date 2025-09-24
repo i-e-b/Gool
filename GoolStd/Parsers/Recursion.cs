@@ -12,12 +12,12 @@ namespace Gool.Parsers;
 /// This is for use with mutually dependent parser trees.
 /// </summary>
 public class Recursion : Parser
-{
+{/*
 	/// <summary>
 	/// Set to <c>true</c> to write diagnostic output
 	/// </summary>
 	public static bool TraceRecursion = false;
-
+*/
 	/// <summary> Global fall-back for an invalid recursion definition </summary>
 	private static readonly IParser  _fallbackParser = new NullParser("Unassigned recursion parser");
 
@@ -44,12 +44,12 @@ public class Recursion : Parser
 	internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
 	{
 		// Recursion safety checks:
-		var key  = ((long)(previousMatch?.SourceParser?.GetHashCode() ?? 0) << 32) + (previousMatch?.Right ?? 0);
+		var key  = ((long)(previousMatch?.SourceParser.GetHashCode() ?? 0) << 32) + (previousMatch?.Right ?? 0);
 		var hits = GetContext(scan);
 
 		if (!hits.Add(key))
 		{
-			if (TraceRecursion) Console.WriteLine($"Recursion re-applied to same location at: {previousMatch?.Description() ?? "zero"}; Parser={Source.ShortDescription(5)};");
+			//if (TraceRecursion) Console.WriteLine($"Recursion re-applied to same location at: {previousMatch?.Description() ?? "zero"}; Parser={Source.ShortDescription(5)};");
 			return scan.NoMatch(this, previousMatch); // recursion must not re-apply to same location
 		}
 
@@ -57,7 +57,7 @@ public class Recursion : Parser
 
 		if (result.SameAs(previousMatch))
 		{
-			if (TraceRecursion) Console.WriteLine($"Recursion did not progress from: {result.Description()}; Parser={Source.ShortDescription(5)};");
+			//if (TraceRecursion) Console.WriteLine($"Recursion did not progress from: {result.Description()}; Parser={Source.ShortDescription(5)};");
 			return scan.NoMatch(this, previousMatch); // recursion must progress
 		}
 

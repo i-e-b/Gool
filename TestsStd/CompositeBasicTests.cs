@@ -11,7 +11,7 @@ namespace TestsStd;
 [TestFixture]
 public class CompositeBasicTests
 {
-    private static BNF DelimitedListParserSample()
+    private static ParserPackage DelimitedListParserSample()
     {
         BNF item      = BNF.Regex("[a-zA-Z]+");
         BNF delimiter = ",";
@@ -21,7 +21,7 @@ public class CompositeBasicTests
         item.TagWith("item");
         delimiter.TagWith("comma");
 
-        return list;
+        return list.BuildWithOptions(BNF.Options.SkipWhitespace);
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class CompositeBasicTests
         Console.WriteLine("\r\n=================================================================================");
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParsePartialString(correct_sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -68,7 +68,7 @@ public class CompositeBasicTests
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParsePartialString(correct_sample);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -101,7 +101,7 @@ public class CompositeBasicTests
 
         var sw = new Stopwatch();
         sw.Start();
-        var result = DelimitedListParserSample().ParseString(correct_sample, options: BNF.Options.SkipWhitespace);
+        var result = DelimitedListParserSample().ParseStringWithCustomOptions(correct_sample, options: BNF.Options.SkipWhitespace);
         sw.Stop();
         Console.WriteLine($"Parsing took {sw.Elapsed.TotalMicroseconds} µs");
 
@@ -267,7 +267,7 @@ public class CompositeBasicTests
         Assert.That(result.TaggedTokensDepthFirst().Select(t => t.Value), Is.EqualTo(new[] { "one", "two", "two", "one" }).AsCollection);
     }
 
-    private static BNF.Package RepetitionParserSample()
+    private static ParserPackage RepetitionParserSample()
     {
         BNF item = (BNF)"one" | "two" | "three" | "four";
 
@@ -275,7 +275,7 @@ public class CompositeBasicTests
 
         item.TagWith("item");
 
-        return list.WithOptions(BNF.Options.SkipWhitespace);
+        return list.BuildWithOptions(BNF.Options.SkipWhitespace);
     }
 
     [Test]

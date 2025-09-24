@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Gool;
+﻿using Gool;
 using static Gool.BNF;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -27,11 +26,8 @@ public static class XmlExample
     /// "SimpleXmlParser" isn't a serious parser -- it can't handle real world XML.
     /// But it does show off simple parsing of a recursive data structure
     /// </summary>
-    public static Package SimpleXmlParser()
+    public static ParserPackage SimpleXmlParser()
     {
-        RegexSettings = RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline;
-
-
         BNF // Fragments
             text       = StringTerminatedBy("<"),
             identifier = IdentifierString(),
@@ -51,14 +47,15 @@ public static class XmlExample
         open_tag.TagWith(OpenElement).OpenScope();
         close_tag.TagWith(CloseElement).CloseScope();
 
-        return Recursive(tree => -(open_tag > -(tree | text) > close_tag)).WithOptions(Options.None);
+        return Recursive(tree => -(open_tag > -(tree | text) > close_tag))
+            .Build();
     }
 
     /// <summary>
     /// This is another toy parser that shows how to use a <see cref="BNF.Context"/>
     /// to correctly match the opening and closing tags without a post-process.
     /// </summary>
-    public static Package ContextualXmlParser()
+    public static ParserPackage ContextualXmlParser()
     {
 
         var _wrapped = Forward();
@@ -89,7 +86,7 @@ public static class XmlExample
         attribute.TagWith(Attribute);
         text.TagWith(Text);
 
-        return wrapped.WithOptions(Options.None);
+        return wrapped.Build();
     }
 
     /*
@@ -217,7 +214,7 @@ public static class XmlExample
     /// Based on https://cs.lmu.edu/~ray/notes/xmlgrammar/
     /// which consolidates https://www.w3.org/TR/REC-xml plus some errata.
     /// </summary>
-    public static Package FullXmlParser()
+    public static ParserPackage FullXmlParser()
     {
         BNF // Character ranges and whitespace (XML spec is very specific about ranges)
             ws             = +(OneOf(' ', '\t', '\n', '\r')),
@@ -236,7 +233,7 @@ public static class XmlExample
             nm_token  = +name_char;
 
         BNF // Character and Entity References
-            char_ref     = ("&#" > Regex("[0-9]+") > ';') | ("&#x" > Regex("[0-9a-fA-F]+") > ';'),
+            char_ref     = ("&#" > (+DecimalDigit) > ';') | ("&#x" > (+HexDigit) > ';'),
             entity_ref   = '&' > name > ';',
             reference    = entity_ref | char_ref,
             pe_reference = '%' > name > ';';
@@ -368,7 +365,7 @@ public static class XmlExample
         start_tag.TagWith(OpenElement).OpenScope();
         end_tag.TagWith(CloseElement).CloseScope();
 
-        return document.WithOptions(Options.None);
+        return document.Build();
     }
 
 }

@@ -13,9 +13,9 @@ namespace Samples;
 /// </summary>
 public static class EmailAddressExample
 {
-    public static readonly Package Parser = Email();
+    public static readonly ParserPackage Parser = Email();
 
-    private static Package Email()
+    private static ParserPackage Email()
     {
         var _mailbox = Forward();
 
@@ -65,7 +65,7 @@ public static class EmailAddressExample
         domain.TagWith(Domain);
         local_part.TagWith(User);
 
-        return address.WithOptions(Options.SkipWhitespace);
+        return address.BuildWithOptions(Options.SkipWhitespace);
     }
 
     public const string Address = "Address";

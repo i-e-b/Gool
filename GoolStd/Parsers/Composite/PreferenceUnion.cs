@@ -11,23 +11,26 @@ namespace Gool.Parsers.Composite;
 /// </summary>
 public class PreferenceUnion : Parser
 {
-    private readonly List<IParser> _parsers = new();
+    private readonly IParser[] _parsers;
 
     /// <summary>
     /// Creates a Preference-Union (or 'preference-alternative') parser from two sub-parsers.
     /// </summary>
     public PreferenceUnion(IParser left, IParser right)
     {
+        var parserSet = new List<IParser>();
         if (left is PreferenceUnion leftUnion)
         {
-            _parsers.AddRange(leftUnion._parsers);
+            parserSet.AddRange(leftUnion._parsers);
         }
         else
         {
-            _parsers.Add(left);
+            parserSet.Add(left);
         }
 
-        _parsers.Add(right);
+        parserSet.Add(right);
+
+        _parsers = parserSet.ToArray();
     }
 
     /// <inheritdoc />

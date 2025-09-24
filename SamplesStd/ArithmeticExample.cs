@@ -7,7 +7,7 @@ namespace Samples;
 
 public static class ArithmeticExample
 {
-    public static Package Arithmetic()
+    public static ParserPackage Arithmetic()
     {
         var _expression = Forward();
 
@@ -30,11 +30,11 @@ public static class ArithmeticExample
         exponent.TagWith(Operation).PivotScope();
         number.TagWith(Value);
 
-        return expression.WithOptions(Options.SkipWhitespace);
+        return expression.BuildWithOptions(Options.SkipWhitespace);
     }
 
 
-    public static Package ExpressionWithVariablesAndFunctions()
+    public static ParserPackage ExpressionWithVariablesAndFunctions()
     {
         var _expression = Forward();
 
@@ -61,7 +61,7 @@ public static class ArithmeticExample
         variable.TagWith(Variable);
         function.TagWith(Function);
 
-        return expression.WithOptions(Options.SkipWhitespace);
+        return expression.BuildWithOptions(Options.SkipWhitespace);
     }
 
     public const string Operation = "operation";

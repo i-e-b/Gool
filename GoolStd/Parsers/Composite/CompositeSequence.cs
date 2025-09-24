@@ -11,14 +11,14 @@ namespace Gool.Parsers.Composite;
 /// </summary>
 public class CompositeSequence : Parser
 {
-    private readonly List<IParser> _parsers;
+    private readonly IParser[] _parsers;
 
     /// <summary>
     /// Match an ordered sequence of sub-parsers as a single match
     /// </summary>
     public CompositeSequence(IEnumerable<IParser> parsers)
     {
-        _parsers = new List<IParser>(parsers);
+        _parsers = parsers.ToArray();
     }
 
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)

@@ -43,7 +43,7 @@ public abstract class Parser : IParser
     /// <returns>Match (success of failure) of the parser against the scanner</returns>
     public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance = true)
     {
-        var start = allowAutoAdvance ? scan.DoAutoAdvance(previousMatch) : previousMatch;
+        var start = (allowAutoAdvance && scan.AutoAdvance is not null) ? scan.DoAutoAdvance(previousMatch) : previousMatch;
 
         if (Tag is not null) scan.LastTag = Tag;
 

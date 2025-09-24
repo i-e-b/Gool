@@ -24,7 +24,7 @@ public class LineCountingTest
         Look at the crowds of water-gazers there.
         """;
 
-    private static BNF.Package MakeParser()
+    private static ParserPackage MakeParser()
     {
         BNF line_text = +BNF.NoneOf('\r', '\n');
         BNF line_end = BNF.LineEnd;
@@ -34,7 +34,7 @@ public class LineCountingTest
         line_text.TagWith("text");
         line_end.TagWith("line");
 
-        return word_list.WithOptions(BNF.Options.None);
+        return word_list.Build();
     }
 
     [Test]

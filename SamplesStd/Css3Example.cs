@@ -18,7 +18,7 @@ public static class Css3Example
     /// This is translated from https://github.com/antlr/grammars-v4/tree/master/css3
     /// which is a set of samples for Antlr.
     /// </summary>
-    public static Package Css3_Antlr()
+    public static ParserPackage Css3_Antlr()
     {
         #region Lexer side
 
@@ -331,7 +331,7 @@ public static class Css3Example
 
         #endregion Tagging
 
-        return stylesheet.WithOptions(Options.None);
+        return stylesheet.Build();
     }
 
     /// <summary> Handle characters for case-insensitive AND escapable CSS keywords </summary>

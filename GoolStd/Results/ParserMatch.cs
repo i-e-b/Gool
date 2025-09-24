@@ -9,35 +9,6 @@ using Gool.Scanners;
 namespace Gool.Results;
 
 /// <summary>
-/// A <see cref="ParserMatch"/> with additional type information from the source parser
-/// </summary>
-/// <typeparam name="T">Type of the source parser</typeparam>
-public class ParserMatch<T> : ParserMatch
-{
-    /// <summary>
-    /// Parser that found this match
-    /// </summary>
-    public readonly T Parser;
-
-    /// <summary>
-    /// test
-    /// </summary>
-    public ParserMatch(ParserMatch m)
-    {
-        Parser = (T)m.SourceParser;
-        SrcLeftChild = m.LeftChild;
-        SrcRightChild = m.RightChild;
-        Previous = m.Previous;
-        SourceParser = m.SourceParser;
-        Scanner = m.Scanner;
-        Offset = m.Offset;
-        Length = m.Length;
-        Right = m.Right;
-        Success = m.Success;
-    }
-}
-
-/// <summary>
 /// Creates and stores parser matches, and their child matches.
 /// </summary>
 /// <remarks>
@@ -476,19 +447,6 @@ public class ParserMatch
     public IEnumerable<ParserMatch> FindByTag(string tag)
     {
         return DepthFirstWalk(this, m => m.Tag == tag);
-    }
-
-
-    /// <summary>
-    /// Find and return all matches whose parser matches the given type.
-    /// Type can be a direct parser type, or an interface that it implements.
-    /// Returns empty if none found.
-    /// </summary>
-    public IEnumerable<ParserMatch<T>> FindByParserType<T>()
-    {
-        return DepthFirstWalk(this, m => {
-            return m.SourceParser is T;
-        }).Select(m => new ParserMatch<T>(m));
     }
 
     /// <summary>

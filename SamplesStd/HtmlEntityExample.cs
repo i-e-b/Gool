@@ -32,9 +32,9 @@ public static class HtmlEntityExample
     };
     #endregion
 
-    public static readonly Package Parser = MakeParser();
+    public static readonly ParserPackage Parser = MakeParser();
 
-    private static Package MakeParser()
+    private static ParserPackage MakeParser()
     {
         BNF // Character and Entity References
             entity_name = OneOf(_entityMap.Keys),
@@ -53,7 +53,7 @@ public static class HtmlEntityExample
         entity_name.TagWith(NamedEntity);
         text.TagWith(Text);
 
-        return document.WithOptions(Options.None);
+        return document.Build();
     }
 
     public const string HexEntity = "decimal";

@@ -7,9 +7,9 @@ namespace TestLanguageImplementation;
 
 public static class LanguageDefinition
 {
-    public static readonly Package Instance = Def();
+    public static readonly ParserPackage Instance = Def();
 
-    private static Package Def()
+    private static ParserPackage Def()
     {
         BNF // Comments and Headers
             shebang     = "#!" > -(AnyChar / LineEnd),
@@ -109,7 +109,7 @@ public static class LanguageDefinition
         quotedString.Atomic().TagWith(QuotedString);
         parameter.TagWith(Parameter);
 
-        return language.WithOptions(Options.SkipWhitespace);
+        return language.BuildWithOptions(Options.SkipWhitespace);
     }
 
     // ReSharper disable MemberCanBePrivate.Global

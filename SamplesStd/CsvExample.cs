@@ -12,7 +12,7 @@ namespace Samples;
 /// </summary>
 public static class CsvExample
 {
-    public static BNF.Package Csv(bool hasHeader, string columnBreakStr, string rowBreakStr)
+    public static ParserPackage Csv(bool hasHeader, string columnBreakStr, string rowBreakStr)
     {
         BNF column_break = columnBreakStr;       // Column break (comma in CSV, tab in TSV)
         BNF row_break = rowBreakStr;             // Row break (usually line break)
@@ -37,7 +37,7 @@ public static class CsvExample
         record.EncloseScope().TagWith(Row);     // 'EncloseScope' is like an Open and Close scope, from its start to end
         header.EncloseScope().TagWith(Header);  //       (like a tagged empty result at either end of the child match range)
 
-        return file.WithOptions(BNF.Options.None);
+        return file.Build();
     }
     
 

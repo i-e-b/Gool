@@ -7,12 +7,12 @@ namespace Samples;
 
 public static class JsonParser
 {
-    public static readonly Package Json = BuildBnf();
+    public static readonly ParserPackage Json = BuildBnf();
 
     /// <summary>
     /// JSON parser directly from the spec at https://www.json.org/json-en.html
     /// </summary>
-    private static Package BuildBnf()
+    private static ParserPackage BuildBnf()
     {
         var value = Forward();
 
@@ -60,6 +60,6 @@ public static class JsonParser
         member_key.TagWith("key");
         primitive.TagWith("value");
 
-        return element.WithOptions(Options.None);
+        return element.Build();
     }
 }

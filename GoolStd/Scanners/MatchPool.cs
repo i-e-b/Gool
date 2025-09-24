@@ -1,4 +1,5 @@
 ﻿using System;
+using Gool.Parsers;
 using Gool.Results;
 
 namespace Gool.Scanners;
@@ -9,11 +10,16 @@ namespace Gool.Scanners;
 /// </summary>
 internal class MatchPool
 {
+    /// <summary> Placeholder parser match </summary>
+    private static readonly ParserMatch _nothing = new();
+
     /// <summary> Array full of pooled parser matches </summary>
     private readonly ParserMatch[] _buffer;
 
     /// <summary> Capacity of the buffer </summary>
     private readonly int _capacity;
+
+    private readonly IScanner _scanner;
 
     /// <summary> Last accepted push </summary>
     private ParserMatch _compare = _nothing;
@@ -30,39 +36,24 @@ internal class MatchPool
     /// <summary> Number of items stored </summary>
     private int _size;
 
-    /// <summary> Placeholder parser match </summary>
-    private static readonly ParserMatch _nothing = new();
-
     /// <summary>
     /// Initializes a new match pool with a fixed size
     /// </summary>
-    public MatchPool(int capacity)
+    public MatchPool(int capacity, IScanner scanner)
     {
         _capacity = capacity;
+        _scanner = scanner;
         _buffer = new ParserMatch[capacity];
+
+        // Experimental pre-fill
+        for (int i = 0; i < capacity; i++)
+        {
+            PushNoMatch(new ParserMatch());
+        }
+
         _size = 0;
         _start = 0;
         _end = 0;
-    }
-
-    /// <summary>
-    /// Remove and return an item, if there are any
-    /// </summary>
-    public bool TryPop(out ParserMatch item)
-    {
-        if (_available < 1)
-        {
-            item = _nothing;
-            return false;
-        }
-
-        var result = _buffer[_start++];
-        if (_start == _capacity) _start = 0;
-        _size--;
-        item = result;
-        _available--;
-        _compare = _available > 0 ? _buffer[_start] : _nothing;
-        return true;
     }
 
     /// <summary>
@@ -70,7 +61,7 @@ internal class MatchPool
     /// </summary>
     public void PushNoMatch(ParserMatch item)
     {
-        if (_size >= _capacity) return; // full
+        if (_size >= _capacity) return; // full. Leave to the GC.
         if (ReferenceEquals(item, _compare)) return; // duplicate
 
         _compare = item;
@@ -98,5 +89,24 @@ internal class MatchPool
     public void Absorb()
     {
         _available = _size;
+    }
+
+    /// <summary>
+    /// Recover a match from the pool, or create a new match
+    /// </summary>
+    public ParserMatch Get(IParser source, int offset, int length, ParserMatch? previous)
+    {
+        if (_available < 1)
+        {
+            return new ParserMatch(source, _scanner, offset, length, previous);
+        }
+
+        var result = _buffer[_start++];
+        if (_start == _capacity) _start = 0;
+        _size--;
+        _available--;
+        _compare = _available > 0 ? _buffer[_start] : _nothing;
+        result.ResetTo(source, _scanner, offset, length, previous);
+        return result;
     }
 }

@@ -11,23 +11,26 @@ namespace Gool.Parsers.Composite;
 /// </summary>
 public class Union : Parser
 {
-	private readonly List<IParser> _parsers = new();
+	private readonly IParser[] _parsers;
 	
 	/// <summary>
 	/// Creates a Union (or 'alternative') parser from two sub-parsers.
 	/// </summary>
 	public Union(IParser left, IParser right)
 	{
+		var parserSet = new List<IParser>();
 		if (left is Union leftUnion)
 		{
-			_parsers.AddRange(leftUnion._parsers);
+			parserSet.AddRange(leftUnion._parsers);
 		}
 		else
 		{
-			_parsers.Add(left);
+			parserSet.Add(left);
 		}
 
-		_parsers.Add(right);
+		parserSet.Add(right);
+
+		_parsers = parserSet.ToArray();
 	}
 
 	/// <summary>
@@ -35,7 +38,7 @@ public class Union : Parser
 	/// </summary>
 	public Union(IEnumerable<IParser> parsers)
 	{
-		_parsers.AddRange(parsers);
+		_parsers = parsers.ToArray();
 	}
 
 	/// <inheritdoc />
@@ -43,8 +46,9 @@ public class Union : Parser
 	{
 		ParserMatch? longestMatch = null;
 
-		foreach (var parser in _parsers)
+		for (var index = 0; index < _parsers.Length; index++)
 		{
+			var parser = _parsers[index];
 			var result = parser.Parse(scan, previousMatch, allowAutoAdvance);
 			if (result.Success && (result.Length > (longestMatch?.Length ?? -1))) longestMatch = result;
 		}

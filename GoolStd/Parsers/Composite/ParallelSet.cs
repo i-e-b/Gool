@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -12,7 +13,7 @@ namespace Gool.Parsers.Composite;
 public class ParallelSet : Parser
 {
     private readonly IParser _capture;
-    private readonly List<IParser> _parsers = new();
+    private readonly IParser[] _parsers;
 	
     /// <summary>
     /// If the <c>capture</c> parser matches, test the <b>match text</b> against a further
@@ -22,7 +23,7 @@ public class ParallelSet : Parser
     public ParallelSet(IParser capture, IEnumerable<IParser> set)
     {
         _capture = capture;
-        _parsers.AddRange(set);
+        _parsers = set.ToArray();
     }
 
     /// <inheritdoc />
@@ -52,7 +53,7 @@ public class ParallelSet : Parser
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = $"[\u220f {_capture} / {_parsers.Count}]";
+        var desc = $"[\u220f {_capture} / {_parsers.Length}]";
 			
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";
@@ -62,6 +63,6 @@ public class ParallelSet : Parser
     public override string ShortDescription(int depth)
     {
         if (depth < 1) return GetType().Name;
-        return $"[\u220f {_capture.ShortDescription(depth-1)} / {_parsers.Count}]";
+        return $"[\u220f {_capture.ShortDescription(depth-1)} / {_parsers.Length}]";
     }
 }
