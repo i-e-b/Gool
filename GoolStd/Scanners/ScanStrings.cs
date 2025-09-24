@@ -33,12 +33,12 @@ public class ScanStrings : IScanner
         _input = input;
         _recordDiagnostics = recordDiagnostics;
         _inputLength = input.Length;
-        FurthestOffset = 0;
         _completed = false;
 
-        var poolSize = Math.Max(16, _inputLength / 256);
+        var poolSize = Math.Max(32, _inputLength / 256);
         _matchPool = new MatchPool(poolSize, this);
 
+        FurthestOffset = 0;
         Transform = new NoTransform();
     }
 
@@ -238,13 +238,16 @@ public class ScanStrings : IScanner
     /// <inheritdoc />
     public void AddFailure(ParserMatch failMatch)
     {
-        _matchPool.PushNoMatch(failMatch);
-
-        if (!_recordDiagnostics) return;
-
-        if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
-        if (LastTag is not null) _failedTags.Add(LastTag);
-        _failedMatches.Add(failMatch); // store for later diagnostics
+        if (_recordDiagnostics)
+        {
+            if (failMatch.Right > (FurthestTest?.Right ?? 0)) FurthestTest = failMatch;
+            if (LastTag is not null) _failedTags.Add(LastTag);
+            _failedMatches.Add(failMatch); // store for later diagnostics
+        }
+        else
+        {
+            _matchPool.PushNoMatch(failMatch);
+        }
     }
 
 

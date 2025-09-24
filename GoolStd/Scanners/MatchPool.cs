@@ -46,10 +46,12 @@ internal class MatchPool
         _buffer = new ParserMatch[capacity];
 
         // Experimental pre-fill
-        for (int i = 0; i < capacity; i++)
+        var halfFull = capacity / 2;
+        for (int i = 0; i < halfFull; i++)
         {
             PushNoMatch(new ParserMatch());
         }
+        Absorb();
 
         _size = 0;
         _start = 0;
