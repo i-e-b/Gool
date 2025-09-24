@@ -52,9 +52,6 @@ public class PreviousMatchCheck : Unary
     }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override string ToString()
     {
         var desc = "<--{" + Parser + "}";

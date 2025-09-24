@@ -28,9 +28,6 @@ public class ExcludingCharacterSet : Parser
     public override IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var offset = previousMatch?.Right ?? 0;

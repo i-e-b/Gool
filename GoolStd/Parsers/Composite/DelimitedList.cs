@@ -52,9 +52,6 @@ public class DelimitedList : Binary
     }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override string ToString()
     {
         if (Tag is null) return LeftParser + " % " + RightParser;

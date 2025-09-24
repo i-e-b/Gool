@@ -38,9 +38,6 @@ public class PreviousCharacterCheck : Unary
     }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override string ToString()
     {
         var desc = "<--[" + Parser + "]";

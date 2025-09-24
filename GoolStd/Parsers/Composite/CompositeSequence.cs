@@ -40,9 +40,6 @@ public class CompositeSequence : Parser
     public override IEnumerable<IParser> ChildParsers() => _parsers;
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override string ShortDescription(int depth)
     {
         if (depth < 1) return "Composite";

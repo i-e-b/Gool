@@ -67,9 +67,6 @@ public class Recursion : Parser
 	/// <inheritdoc />
 	public override IEnumerable<IParser> ChildParsers() { yield break; } // we treat this as empty to prevent accidental stack overflow if traversing
 
-	/// <inheritdoc />
-	public override bool IsOptional() => _parser.IsOptional();
-
 	private HashSet<long> GetContext(IScanner scan)
 	{
 		if (scan.GetContext(this) is HashSet<long> hits) return hits;

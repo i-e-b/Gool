@@ -19,9 +19,6 @@ public class AnyCharacter : Parser
     }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />

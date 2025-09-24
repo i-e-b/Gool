@@ -26,9 +26,6 @@ public class RangeExcludingCharacterSet : Parser
     }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     internal override ParserMatch TryMatch(IScanner scan, ParserMatch? previousMatch, bool allowAutoAdvance)
     {
         var offset = previousMatch?.Right ?? 0;

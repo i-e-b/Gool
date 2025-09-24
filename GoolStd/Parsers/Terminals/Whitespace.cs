@@ -67,9 +67,6 @@ public class Whitespace : Parser
     public override IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false;
-
-    /// <inheritdoc />
     public override string ToString()
     {
         var desc = "<ws>";

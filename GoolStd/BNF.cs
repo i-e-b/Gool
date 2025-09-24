@@ -1103,9 +1103,6 @@ public class BNF : IParser
 	public IEnumerable<IParser> ChildParsers() => _parserTree.ChildParsers();
 
 	/// <inheritdoc />
-	public bool IsOptional() => _parserTree.IsOptional();
-
-	/// <inheritdoc />
 	public string? Tag
 	{
 		get => _parserTree.Tag;

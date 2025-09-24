@@ -19,9 +19,6 @@ public abstract class Parser : IParser
     public ScopeType Scope { get; set; }
 
     /// <inheritdoc />
-    public abstract bool IsOptional();
-
-    /// <inheritdoc />
     public bool HasMetaData()
     {
         return !(Tag is null && Scope == ScopeType.None);
@@ -58,17 +55,6 @@ public abstract class Parser : IParser
 
         scan.AddFailure(newMatch);
         return newMatch.Through(this, previousMatch);
-    }
-
-    private bool AnyOptionalChildren(IParser node)
-    {
-        if (node.IsOptional()) return true;
-        foreach (var child in node.ChildParsers())
-        {
-            if (AnyOptionalChildren(child)) return true;
-        }
-
-        return false;
     }
 
     /// <summary>

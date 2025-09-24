@@ -61,9 +61,6 @@ public class Union : Parser
 	public override IEnumerable<IParser> ChildParsers() => _parsers;
 
 	/// <inheritdoc />
-	public override bool IsOptional() => _parsers.All(p => p.IsOptional());
-
-	/// <inheritdoc />
 	public override string ToString()
 	{
 		var desc = "{" + string.Join(" | ", _parsers.Select(p => p.ToString())) + "}";

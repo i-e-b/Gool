@@ -24,9 +24,6 @@ public class RemainingLength : Parser
     /// <inheritdoc />
     public override IEnumerable<IParser> ChildParsers() { yield break; }
 
-    /// <inheritdoc />
-    public override bool IsOptional() => _min < 1;
-
     /// <summary>
     /// Test the regular expression.
     /// </summary>

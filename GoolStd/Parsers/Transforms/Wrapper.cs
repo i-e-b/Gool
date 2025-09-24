@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gool.Parsers.Composite.Abstracts;
 using Gool.Results;
 using Gool.Scanners;
 
@@ -54,9 +53,6 @@ public class Wrapper : Parser
             ? innerMatch.ReSource(this)
             : scan.NoMatch(this, innerMatch);
     }
-
-    /// <inheritdoc />
-    public override bool IsOptional() => Parser.IsOptional();
 
     /// <inheritdoc />
     public override string ToString()

@@ -51,6 +51,7 @@ public class IdentifierString : Parser
             }
             else if (c is '-')
             {
+                if (!_allowHyphen) break;
                 if (count == 0) break;
                 valid = false;
             }
@@ -69,9 +70,6 @@ public class IdentifierString : Parser
 
     /// <inheritdoc />
     public override IEnumerable<IParser> ChildParsers() { yield break; }
-
-    /// <inheritdoc />
-    public override bool IsOptional() => false;
 
     /// <inheritdoc />
     public override string ToString()

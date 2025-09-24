@@ -80,9 +80,6 @@ public class Repetition : Unary
 	}
 
 	/// <inheritdoc />
-	public override bool IsOptional() => _lowerBound == 0 || Parser.IsOptional();
-
-	/// <inheritdoc />
 	public override string ShortDescription(int depth)
 	{
 		if (depth < 1) return GetType().Name;

@@ -20,9 +20,6 @@ public class EmptyMatch : Parser
     public override IEnumerable<IParser> ChildParsers() { yield break; }
 
     /// <inheritdoc />
-    public override bool IsOptional() => false; // because it's always empty
-
-    /// <inheritdoc />
     public override string ToString()
     {
         var desc = "(empty)";

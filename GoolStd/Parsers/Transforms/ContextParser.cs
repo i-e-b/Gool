@@ -54,9 +54,6 @@ public class ContextParser : Parser
     public override IEnumerable<IParser> ChildParsers() { yield break; } // we treat this as empty
 
     /// <inheritdoc />
-    public override bool IsOptional() => false; // it could be, but probably not worth calculating
-
-    /// <inheritdoc />
     public override string ShortDescription(int depth)
     {
         return $"Context({_prefix.ShortDescription(depth - 1)})";

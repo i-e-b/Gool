@@ -29,9 +29,6 @@ public class RegularExpression : Parser, IParseRegex
 	/// <inheritdoc />
 	public override IEnumerable<IParser> ChildParsers() { yield break; }
 
-	/// <inheritdoc />
-	public override bool IsOptional() => false;
-
 	/// <summary>
 	/// Create a regular expression parser with customised options
 	/// </summary>

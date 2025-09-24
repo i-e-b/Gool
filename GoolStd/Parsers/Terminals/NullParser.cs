@@ -20,9 +20,6 @@ public class NullParser : IParser
     }
 
     /// <inheritdoc />
-    public bool IsOptional() => false;
-
-    /// <inheritdoc />
     public ParserMatch Parse(IScanner scan, ParserMatch? previousMatch = null, bool allowAutoAdvance = true)
     {
         throw new System.InvalidOperationException();

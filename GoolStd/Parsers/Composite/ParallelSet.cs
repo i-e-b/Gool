@@ -48,9 +48,6 @@ public class ParallelSet : Parser
     public override IEnumerable<IParser> ChildParsers() => _parsers;
 
     /// <inheritdoc />
-    public override bool IsOptional() => _capture.IsOptional();
-
-    /// <inheritdoc />
     public override string ToString()
     {
         var desc = $"[\u220f {_capture} / {_parsers.Length}]";
