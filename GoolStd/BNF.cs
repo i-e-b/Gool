@@ -250,7 +250,7 @@ public class BNF : IParser
 	/// <param name="next">
 	/// Function to generate the next parser fragment
 	/// </param>
-	public static BNF Context(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF> next)
+	public static BNF Context(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF?> next)
 	{
 		return new ContextParser(prefix, select, next);
 	}
@@ -790,13 +790,13 @@ public class BNF : IParser
 	}
 
 	/// <summary>
-	/// Match any length of string, upto but not including the terminating sub-string.
-	/// If the terminator is not found, this fails to match.
+	/// Match any length of string, upto but not including the one of the terminating sub-strings.
+	/// If no terminators are found, this fails to match.
 	/// </summary>
-	/// <param name="terminator">String that ends the match</param>
-	public static BNF StringTerminatedBy(string terminator)
+	/// <param name="terminators">Strings that end the match</param>
+	public static BNF StringTerminatedBy(params string[] terminators)
 	{
-		return new BNF(new StringTerminatedString(terminator));
+		return new BNF(new StringTerminatedString(terminators));
 	}
 	#endregion Composite/combination helpers
 

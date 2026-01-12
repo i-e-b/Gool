@@ -10,15 +10,17 @@ namespace Gool.Parsers.Terminals;
 /// </summary>
 public class StringTerminatedString : Parser
 {
-    private readonly string           _terminator;
+    private readonly string[]         _terminators;
+    private readonly bool             _endOfInputIsMatch;
     private readonly StringComparison _comparisonType;
 
     /// <summary>
-    /// Parser that matches an exact string sequence
+    /// Parser that matches any of the exact string sequences provided
     /// </summary>
-    public StringTerminatedString(string terminator, StringComparison comparisonType = StringComparison.Ordinal)
+    public StringTerminatedString(string[] terminators, bool endOfInputIsMatch = false, StringComparison comparisonType = StringComparison.Ordinal)
     {
-        _terminator = terminator;
+        _terminators = terminators;
+        _endOfInputIsMatch = endOfInputIsMatch;
         _comparisonType = comparisonType;
     }
 
@@ -30,17 +32,19 @@ public class StringTerminatedString : Parser
     {
         var offset = previousMatch?.Right ?? 0;
 
-        var index = scan.IndexOf(offset, _terminator, _comparisonType);
+        foreach (var terminator in _terminators)
+        {
+            var index = scan.IndexOf(offset, terminator, _comparisonType);
 
-        return index >= offset
-            ? scan.CreateMatch(this, offset, index - offset, previousMatch)
-            : scan.NoMatch(this, previousMatch);
+            if (index >= offset) return scan.CreateMatch(this, offset, index - offset, previousMatch);
+        }
+        return scan.NoMatch(this, previousMatch);
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = "Str(..."+_terminator+")";
+        var desc = "Str(..."+_terminators+")";
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";

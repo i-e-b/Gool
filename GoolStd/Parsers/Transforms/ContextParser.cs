@@ -10,8 +10,8 @@ namespace Gool.Parsers.Transforms;
 /// </summary>
 public class ContextParser : Parser
 {
-    private readonly BNF                              _prefix;
-    private readonly Func<ParserMatch, BNF>           _next;
+    private readonly BNF                             _prefix;
+    private readonly Func<ParserMatch, BNF?>         _next;
     private readonly Func<ParserMatch, ParserMatch?> _select;
 
     /// <summary>
@@ -28,7 +28,7 @@ public class ContextParser : Parser
     /// <param name="next">
     /// Function to generate the next parser fragment
     /// </param>
-    public ContextParser(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF> next)
+    public ContextParser(BNF prefix, Func<ParserMatch, ParserMatch?>? select, Func<ParserMatch, BNF?> next)
     {
         _prefix = prefix;
         _next = next;
@@ -44,6 +44,8 @@ public class ContextParser : Parser
         if (fragment is null) return scan.NoMatch(this, previousMatch);
 
         var appendix = _next(fragment);
+        if (appendix is null) return scan.NoMatch(this, previousMatch);
+
         var result = appendix.Parse(scan, preamble);
 
         if (result.Success) return ParserMatch.Join(previousMatch, this, preamble, result);
