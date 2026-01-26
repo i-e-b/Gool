@@ -339,7 +339,7 @@ public class BNF : IParser
 	/// </remarks>
 	public static implicit operator BNF(char c)
 	{
-		return new BNF(new LiteralCharacterSet(c));
+		return new BNF(new LiteralCharacter(c));
 	}
 
 	/// <summary>
@@ -352,9 +352,9 @@ public class BNF : IParser
 	/// </summary>
 	public static implicit operator BNF(string s)
 	{
-		return s.Length < 1
-			? new BNF(new EmptyMatch())
-			: new BNF(new LiteralString(s));
+		if (s.Length < 1) return new BNF(new EmptyMatch());
+		if (s.Length == 1) return new BNF(new LiteralCharacter(s[0]));
+		return new BNF(new LiteralString(s));
 	}
 
 	/// <summary>
