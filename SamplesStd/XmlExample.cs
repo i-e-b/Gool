@@ -1,4 +1,6 @@
-﻿using Gool;
+﻿using System;
+using Gool;
+using Gool.Results;
 using static Gool.BNF;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -52,7 +54,7 @@ public static class XmlExample
     }
 
     /// <summary>
-    /// This is another toy parser that shows how to use a <see cref="BNF.Context"/>
+    /// This is another toy parser that shows how to use a <see cref="BNF.Context(BNF, Func{ParserMatch,ParserMatch?}, Func{ParserMatch, BNF?})"/>
     /// to correctly match the opening and closing tags without a post-process.
     /// </summary>
     public static ParserPackage ContextualXmlParser()
