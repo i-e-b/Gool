@@ -96,4 +96,7 @@ public class NullScanner : IScanner
 
     /// <inheritdoc />
     public void Absorb(ParserMatch old) => throw new InvalidOperationException(ErrorMsg);
+
+    /// <inheritdoc />
+    public int RemainingAfter(int offset) => throw new InvalidOperationException(ErrorMsg);
 }

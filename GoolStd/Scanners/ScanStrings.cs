@@ -172,7 +172,7 @@ public class ScanStrings : IScanner
 
         var left = previous?.Right ?? 0;
         var prev = NoMatch(AutoAdvance, previous);
-        if (EndOfInput(left)) return prev;
+        if (EndOfInput(left)) return previous;
 
         var skipMatch = AutoAdvance.Parse(this, prev, allowAutoAdvance: false);
         return (skipMatch.Length > 0) ? skipMatch : prev;
@@ -200,6 +200,14 @@ public class ScanStrings : IScanner
         var left = Math.Max(0, offset + length);
         length = offset - left;
         return InputString.Substring(left, length);
+    }
+
+    /// <inheritdoc />
+    public int RemainingAfter(int offset)
+    {
+        var remains = _inputLength - offset;
+        if (remains < 0) return 0;
+        return remains;
     }
 
     /// <inheritdoc />

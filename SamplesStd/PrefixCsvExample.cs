@@ -21,21 +21,24 @@ public static class PrefixCsvExample
         // custom implement a parser, but supporting this kind of
         // contextual parameter seems interesting to add to Gool.
 
-        var _list = Forward();
+        var _list_item = Forward();
 
         BNF
             item_count = IntegerRange(1, int.MaxValue).TagWith(ItemCount),
-            list_item  = StringTerminatedBy(",", "\r", "\n"),
-            sub_list   = Context('[' > item_count > ']', null, m => m.FindIntByTag(ItemCount, out var itemCount) ? Repeat(_list, itemCount, itemCount) : null),
-            list       = (list_item | sub_list) % ",",
-            document   = list % LineEnd;
+            data       = StringToEndOrTerminatedBy(",", "\r", "\n", "[") / "[",
+            sub_list = "[" >
+                       Context(
+                           item_count > ']',
+                           m => m.FindIntByTag(ItemCount, out var itemCount) ? Repeat(_list_item, itemCount, itemCount) : null),
+            list_item = (data > !("," | LineEnd)) | sub_list,
+            list      = -list_item;
 
-        _list.Is(list);
+        _list_item.Is(list_item);
 
-        list.TagWith(List);
-        list_item.TagWith(Item);
+        sub_list.TagWith(List);
+        data.TagWith(Item);
 
-        return document.BuildWithOptions(Options.SkipWhitespace);
+        return list.BuildWithOptions(Options.SkipWhitespace);
     }
 
     public const string ItemCount = "ItemCount";

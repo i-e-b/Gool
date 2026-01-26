@@ -38,13 +38,19 @@ public class StringTerminatedString : Parser
 
             if (index >= offset) return scan.CreateMatch(this, offset, index - offset, previousMatch);
         }
+
+        if (_endOfInputIsMatch && scan.RemainingAfter(offset) > 0)
+        {
+            return scan.CreateMatch(this, offset, scan.RemainingAfter(offset), previousMatch);
+        }
+
         return scan.NoMatch(this, previousMatch);
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        var desc = "Str(..."+_terminators+")";
+        var desc = "Str(...'"+string.Join("', '", _terminators)+"')";
 
         if (Tag is null) return desc;
         return desc + " Tag='" + Tag + "'";

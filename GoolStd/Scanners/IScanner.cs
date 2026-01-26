@@ -127,4 +127,9 @@ public interface IScanner: IScanningDiagnostics
 	/// Tell the scanner an old parser match can be recycled
 	/// </summary>
 	void Absorb(ParserMatch old);
+
+	/// <summary>
+	/// Length of input remaining after the given offset
+	/// </summary>
+	int RemainingAfter(int offset);
 }

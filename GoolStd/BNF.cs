@@ -256,6 +256,21 @@ public class BNF : IParser
 	}
 
 	/// <summary>
+	/// Create a contextualised parser from a previous result.
+	/// </summary>
+	/// <param name="prefix">
+	/// Parser that reads context. This must match for the generated parser to be run.
+	/// The result tree from this parser will be available to build the 'next' one.
+	/// </param>
+	/// <param name="next">
+	/// Function to generate the next parser fragment
+	/// </param>
+	public static BNF Context(BNF prefix, Func<ParserMatch, BNF?> next)
+	{
+		return new ContextParser(prefix, null, next);
+	}
+
+	/// <summary>
 	/// Test if the previous match's last character matches the given pattern.
 	/// Non-capturing: this returns an empty result if the pattern matches,
 	/// and a failure if not.
@@ -797,6 +812,17 @@ public class BNF : IParser
 	public static BNF StringTerminatedBy(params string[] terminators)
 	{
 		return new BNF(new StringTerminatedString(terminators));
+	}
+
+	/// <summary>
+	/// Match any length of string, upto but not including the one of the terminating sub-strings.
+	/// If no terminators are found, this fails to match.
+	/// Reaching the end of input is considered a valid terminator.
+	/// </summary>
+	/// <param name="terminators">Strings that end the match</param>
+	public static BNF StringToEndOrTerminatedBy(params string[] terminators)
+	{
+		return new BNF(new StringTerminatedString(terminators, endOfInputIsMatch:true));
 	}
 	#endregion Composite/combination helpers
 
