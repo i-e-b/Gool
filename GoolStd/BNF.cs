@@ -897,6 +897,11 @@ public class BNF : IParser
 	/// Match the end of input
 	/// </summary>
 	public static BNF EndOfInput => new(new EndOfInput());
+
+	/// <summary>
+	/// Match the rest of the input, as a single match
+	/// </summary>
+	public static BNF RestOfInput => new(new RemainingLength(0, int.MaxValue));
 	
 	/// <summary>
 	/// Match a single character of white-space
