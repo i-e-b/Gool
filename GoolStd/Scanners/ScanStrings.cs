@@ -35,7 +35,7 @@ public class ScanStrings : IScanner
         _inputLength = input.Length;
         _completed = false;
 
-        var poolSize = Math.Max(32, _inputLength / 256);
+        var poolSize = Math.Max(32, _inputLength / 32);
         _matchPool = new MatchPool(poolSize, this);
 
         FurthestOffset = 0;

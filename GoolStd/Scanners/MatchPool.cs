@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Gool.Parsers;
 using Gool.Results;
 
@@ -36,6 +37,7 @@ internal class MatchPool
     /// <summary> Number of items stored </summary>
     private int _size;
 
+
     /// <summary>
     /// Initializes a new match pool with a fixed size
     /// </summary>
@@ -45,6 +47,10 @@ internal class MatchPool
         _scanner = scanner;
         _buffer = new ParserMatch[capacity];
 
+        _size = 0;
+        _start = 0;
+        _end = 0;
+
         // Experimental pre-fill
         var halfFull = capacity / 2;
         for (int i = 0; i < halfFull; i++)
@@ -52,19 +58,23 @@ internal class MatchPool
             PushNoMatch(new ParserMatch());
         }
         Absorb();
-
-        _size = 0;
-        _start = 0;
-        _end = 0;
     }
 
     /// <summary>
     /// Push a new item only if it doesn't match the current top item
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushNoMatch(ParserMatch item)
     {
-        if (_size >= _capacity) return; // full. Leave to the GC.
-        if (ReferenceEquals(item, _compare)) return; // duplicate
+        if (_size >= _capacity)
+        {
+            return; // full. Leave to the GC.
+        }
+
+        if (ReferenceEquals(item, _compare))
+        {
+            return; // duplicate
+        }
 
         _compare = item;
         _buffer[_end++] = item;
@@ -75,6 +85,7 @@ internal class MatchPool
     /// <summary>
     /// Reset the stack to empty state
     /// </summary>
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Clear()
     {
         // to clear we just reset everything.
@@ -88,6 +99,7 @@ internal class MatchPool
     /// <summary>
     /// Move the read head up to the write head
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Absorb()
     {
         _available = _size;
@@ -96,6 +108,7 @@ internal class MatchPool
     /// <summary>
     /// Recover a match from the pool, or create a new match
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ParserMatch Get(IParser source, int offset, int length, ParserMatch? previous)
     {
         if (_available < 1)
