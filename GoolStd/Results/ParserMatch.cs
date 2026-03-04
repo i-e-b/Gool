@@ -559,4 +559,52 @@ public class ParserMatch
         Previous = previous;
     }
     #endregion Internal
+
+    /// <summary>
+    /// Try to fill the writable properties of <paramref name="target"/>
+    /// with values from the parser match.
+    /// Values will be taken from the first sub-match whose <c>Tag</c>
+    /// matches the property name.
+    /// <p>
+    /// If the match is a failure, or does not have a tag for a property,
+    /// the target's property will not be changed.
+    /// </p>
+    /// This is a very basic helper and won't handle complex types.
+    /// </summary>
+    public void TagsToProperties(object target)
+    {
+        var props = target.GetType().GetProperties();
+        foreach (var prop in props)
+        {
+            if (!prop.CanWrite) continue;
+
+            var first = GetTag(prop.Name);
+            if (first is null) continue;
+
+            if (prop.PropertyType == typeof(int))
+            {
+                if (int.TryParse(first.Value, out var iVal)) prop.SetValue(target, iVal);
+            }
+            else if (prop.PropertyType == typeof(long))
+            {
+                if (long.TryParse(first.Value, out var lVal)) prop.SetValue(target, lVal);
+            }
+            else if (prop.PropertyType == typeof(string))
+            {
+                prop.SetValue(target, first.Value);
+            }
+            else if (prop.PropertyType == typeof(double))
+            {
+                if (double.TryParse(first.Value, out var dVal)) prop.SetValue(target, dVal);
+            }
+            else if (prop.PropertyType == typeof(float))
+            {
+                if (float.TryParse(first.Value, out var fVal)) prop.SetValue(target, fVal);
+            }
+            else if (prop.PropertyType.IsEnum)
+            {
+                if (Enum.TryParse(prop.PropertyType, first.Value, true, out var eVal)) prop.SetValue(target, eVal);
+            }
+        }
+    }
 }
