@@ -553,6 +553,34 @@ public class TerminalBasicTests
         
     }
 
+    [Test]
+    public void _VariableWidthIntegerRange_with_range_expression()
+    {
+        // Range expressions are meant to be positive only;
+        // They also only work in `int` range, and not `long`.
+        // This is nice for small ranges like in date/times
+        var subject = BNF.Integer(1..31);
+        Console.WriteLine(subject.ToString());
+
+        var result = subject.Parse(new ScanStrings("23!"));
+        Assert.That(result.Success, Is.True); // in range, correct length
+
+        result = subject.Parse(new ScanStrings("0"));
+        Assert.That(result.Success, Is.False); // out-of-range
+
+        result = subject.Parse(new ScanStrings("999"));
+        Assert.That(result.Success, Is.False); // out-of-range
+
+        result = subject.Parse(new ScanStrings("31"));
+        Assert.That(result.Success, Is.True); // in range
+
+        result = subject.Parse(new ScanStrings("0028"));
+        Assert.That(result.Success, Is.True); // in range
+
+        result = subject.Parse(new ScanStrings(" 30"));
+        Assert.That(result.Success, Is.False); // in range, correct length, wrong leader
+    }
+
 
     [Test]
     public void _VariableWidthFractionalDecimal_does_not_eat_trailing_E()

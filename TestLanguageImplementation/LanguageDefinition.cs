@@ -44,8 +44,8 @@ public static class LanguageDefinition
 
         var _innerExpr = Forward();
         BNF // General Expression
-            add_sub    = OneOf('+', '-'),
-            mul_div    = OneOf('*', '/'),
+            add_sub    = ['+', '-'],
+            mul_div    = ['*', '/'],
             exponent   = '^',
             factor     = quotedString | number | variable | (function > '(' > !(_innerExpr % ',') > ')') | ('(' > _innerExpr > ')'),
             power      = factor > !(exponent > factor),

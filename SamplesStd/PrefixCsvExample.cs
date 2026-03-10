@@ -24,7 +24,7 @@ public static class PrefixCsvExample
         var _list_item = Forward();
 
         BNF
-            item_count = IntegerRange(1, int.MaxValue).TagWith(ItemCount),
+            item_count = Integer(1..).TagWith(ItemCount),
             data       = StringToEndOrTerminatedBy(",", "\r", "\n", "[") / "[",
             sub_list = "[" >
                        Context(

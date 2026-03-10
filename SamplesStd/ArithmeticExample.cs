@@ -12,8 +12,8 @@ public static class ArithmeticExample
         var _expression = Forward();
 
         BNF
-            add_sub  = OneOf('+', '-'),
-            mul_div  = OneOf('*', '/'),
+            add_sub  = ['+', '-'],
+            mul_div  = ['*', '/'],
             exponent = '^';
 
         BNF
@@ -41,8 +41,8 @@ public static class ArithmeticExample
         BNF
             variable = IdentifierString(),
             function = IdentifierString(),
-            add_sub  = OneOf('+', '-'),
-            mul_div  = OneOf('*', '/'),
+            add_sub  = ['+', '-'],
+            mul_div  = ['*', '/'],
             exponent = '^';
 
         BNF

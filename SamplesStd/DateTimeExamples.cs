@@ -1,5 +1,6 @@
 ﻿using Gool;
 using static Gool.BNF;
+// ReSharper disable RedundantRangeBound
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
@@ -22,22 +23,22 @@ public static class DateTimeExamples
         BNF // Basic parts
             hyphen        = '-',
             opt_colon     = Optional(':'),
-            decimal_point = OneOf(',', '.'),
-            plus_minus    = OneOf('+', '-'),
+            decimal_point = [',', '.'],
+            plus_minus    = ['+', '-'],
             digits        = Regex("[0-9]+"),
-            time_marker   = OneOf('T', 't', ' '),
-            zulu_marker   = OneOf('Z', 'z'); // UTC time
+            time_marker   = ['T', 't', ' '],
+            zulu_marker   = ['Z', 'z']; // UTC time
 
         BNF // Date
-            date_century    = FixedSizeInteger(min: 0, max: 99, width: 2), // 00-99
-            date_decade     = FixedSizeInteger(min: 0, max: 9, width: 1), // 0-9
-            date_sub_decade = FixedSizeInteger(min: 0, max: 9, width: 1), // 0-9
+            date_century    = FixedSizeInteger(00..99, width: 2), // 00-99
+            date_decade     = FixedSizeInteger(0..9, width: 1),   // 0-9
+            date_sub_decade = FixedSizeInteger(0..9, width: 1),   // 0-9
             date_year       = date_decade > date_sub_decade,
-            date_month      = FixedSizeInteger(min: 1, max: 12, width: 2), // 01-12
-            date_w_day      = FixedSizeInteger(min: 1, max: 7, width: 1), // 1-7
-            date_m_day      = FixedSizeInteger(min: 1, max: 31, width: 2), // 01-31
-            date_y_day      = FixedSizeInteger(min: 1, max: 366, width: 3), // 001-365
-            date_week       = FixedSizeInteger(min: 1, max: 53, width: 2), // 01-53
+            date_w_day      = FixedSizeInteger(01..07, width: 1),   // 1-7
+            date_month      = FixedSizeInteger(01..12, width: 2),   // 01-12
+            date_m_day      = FixedSizeInteger(01..31, width: 2),   // 01-31
+            date_week       = FixedSizeInteger(01..53, width: 2),   // 01-53
+            date_y_day      = FixedSizeInteger(001..366, width: 3), // 001-365
             date_year_part  = (!date_century) > (date_year);
 
         BNF datePart_fullYear = date_year_part > (!hyphen),
@@ -59,9 +60,9 @@ public static class DateTimeExamples
             dateSpec_y_day = dateOpt_fullYear > date_y_day;
 
         BNF // Time
-            time_hour       = FixedSizeInteger(min: 0, max: 24, width: 2), // 00-24
-            time_minute     = FixedSizeInteger(min: 0, max: 59, width: 2), // 00-59
-            time_second     = FixedSizeInteger(min: 0, max: 60, width: 2), // 00-59, or 60 if leap-second
+            time_hour       = FixedSizeInteger(00..24, width: 2), // 00-24
+            time_minute     = FixedSizeInteger(00..59, width: 2), // 00-59
+            time_second     = FixedSizeInteger(00..60, width: 2), // 00-59, or 60 if leap-second
             time_fraction   = decimal_point > digits, // .1234
             time_offset_num = plus_minus > time_hour > !(opt_colon > time_minute),
             time_zone       = zulu_marker > (!time_offset_num).Tagged(TimeZone);
@@ -131,21 +132,21 @@ public static class DateTimeExamples
     public static ParserPackage Rfc3339()
     {
         BNF // Fragments
-            decimal_point = OneOf(',', '.'),
-            plus_minus    = OneOf('+', '-'),
             digits        = Regex("[0-9]+"),
-            time_marker   = OneOf('T', 't', ' '),
-            zulu_marker   = OneOf('Z', 'z'); // UTC time
+            decimal_point = [',', '.'],
+            plus_minus    = ['+', '-'],
+            time_marker   = ['T', 't', ' '],
+            zulu_marker   = ['Z', 'z']; // UTC time
 
         BNF // Date
-            date_fullYear = FixedSizeInteger(min: 0, max: 9999, width: 4), // 0000-9999
-            date_month    = FixedSizeInteger(min: 1, max: 12, width: 2), // 01-12
-            date_m_day    = FixedSizeInteger(min: 1, max: 31, width: 2); // 01-31
+            date_fullYear = FixedSizeInteger(0000..9999, width: 4), // 0000-9999
+            date_month    = FixedSizeInteger(01..12, width: 2),     // 01-12
+            date_m_day    = FixedSizeInteger(01..31, width: 2);     // 01-31
 
         BNF // Time
-            time_hour   = FixedSizeInteger(min: 0, max: 23, width: 2), // 00-23
-            time_minute = FixedSizeInteger(min: 0, max: 59, width: 2), // 00-59
-            time_second = FixedSizeInteger(min: 0, max: 60, width: 2); // 00-60
+            time_hour   = FixedSizeInteger(00..23, width: 2), // 00-23
+            time_minute = FixedSizeInteger(00..59, width: 2), // 00-59
+            time_second = FixedSizeInteger(00..60, width: 2); // 00-60
 
         BNF // Sub-units
             time_secFrac   = decimal_point > digits,

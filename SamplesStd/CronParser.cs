@@ -1,5 +1,6 @@
 ﻿using Gool;
 using static Gool.BNF;
+// ReSharper disable RedundantRangeBound
 
 namespace Samples;
 
@@ -14,18 +15,18 @@ public static class CronParser
     public static ParserPackage Build()
     {
         BNF // Forms
-            all        = OneOf('*', '?'),
+            all        = ['*', '?'],
             list       = ',',
             range      = '-',
             every      = '/', // "*/5" in the minutes field indicates every 5 minutes
             nthDay     = '#', // "5#3" in the day-of-week field corresponds to the third Friday of every month
-            month      = IntegerRange(1, 12) | OneOf("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"),
-            dayOfWeek  = IntegerRange(0, 6) | OneOf("sun", "mon", "tue", "wed", "thu", "fri", "sat"),
-            dayOfMonth = IntegerRange(1, 31),
-            hours      = IntegerRange(0, 23),
-            minutes    = IntegerRange(0, 59),
-            weekNumber = IntegerRange(0, 5),
-            year       = IntegerRange(1970, 2099) | FixedSizeInteger(0, 99, 2),
+            month      = 1..12 | OneOf("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"),
+            dayOfWeek  = 0..6 | OneOf("sun", "mon", "tue", "wed", "thu", "fri", "sat"),
+            dayOfMonth = 1..31,
+            hours      = 0..23,
+            minutes    = 0..59,
+            weekNumber = 0..5,
+            year       = 1970..2099 | FixedSizeInteger(0..99, 2),
             timezone   = IdentifierString(allowUnderscore: false, allowHyphen: true) > !('/' > IdentifierString(allowUnderscore: false, allowHyphen: true)),
             macro      = OneOf("@yearly", "@annually", "@monthly", "@weekly", "@daily", "@midnight", "@hourly", "@reboot");
 
@@ -79,7 +80,7 @@ public static class CronParser
 
         BNF // Month compounds
             monthRange = (month > range > month),
-            monthSteps = (month | monthRange | all) > every > IntegerRange(1, 12),
+            monthSteps = (month | monthRange | all) > every > 1..12,
             monthList  = (month | monthRange) % list,
             monthAny   = all.Copy(),
             monthPart  = monthAny | monthList | monthSteps;
@@ -91,7 +92,7 @@ public static class CronParser
 
         BNF // Day-of-Week compounds
             dayOfWeekRange = (dayOfWeek > range > dayOfWeek),
-            dayOfWeekSteps = (dayOfWeek | dayOfWeekRange | all) > every > IntegerRange(1, 7),
+            dayOfWeekSteps = (dayOfWeek | dayOfWeekRange | all) > every > 1..7,
             dayOfWeekNth   = (dayOfWeek > nthDay > weekNumber),
             dayOfWeekList  = (dayOfWeek | dayOfWeekRange | dayOfWeekNth) % list,
             dayOfWeekAny   = all.Copy(),

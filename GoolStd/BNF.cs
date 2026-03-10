@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -70,7 +71,7 @@ namespace Gool;
 ///	See <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#1243-operator-overloading">C# language spec</a>
 /// </remarks>
 // ReSharper disable once InconsistentNaming
-public class BNF : IParser
+public class BNF : IParser, IEnumerable<char>
 {
 	// Inspired by Spirit parser http://boost-spirit.com/home/
 	// There are a few changes compared to Spirit, all due to overloading restrictions in C#.
@@ -103,6 +104,45 @@ public class BNF : IParser
 	{
 		return new ParserPackage(this, options, autoAdvance);
 	}
+
+	#region Character set conversion
+
+	/// <summary>
+	/// Do not call this directly.
+	/// </summary>
+	/// <remarks>
+	/// Required constructor for implicit conversion from <c>char[]</c> expressions to BNF.
+	/// </remarks>
+	public BNF()
+	{
+		_parserTree = new LiteralCharacterSet();
+	}
+
+	/// <summary>
+	/// Do not call this directly.
+	/// </summary>
+	/// <remarks>
+	/// Add a character to a literal character set.
+	/// </remarks>
+	public void Add(char c)
+	{
+		if (_parserTree is LiteralCharacterSet lcs)
+		{
+			_parserTree = lcs.Merge(c);
+		}
+	}
+
+	/// <summary>
+	/// Not supported
+	/// </summary>
+	public IEnumerator<char> GetEnumerator() { yield break; }
+
+	/// <summary>
+	/// Not supported
+	/// </summary>
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	#endregion Character set conversion
 
 	#region Tagging
 	/// <summary>
@@ -363,6 +403,27 @@ public class BNF : IParser
 	public static implicit operator BNF(Parser p)
 	{
 		return new BNF(p);
+	}
+
+	/// <summary>
+	/// Implicitly convert a <c>x..y</c> expression
+	/// into an unsigned decimal integer parser in that range
+	/// </summary>
+	/// <seealso cref="Integer"/>
+	/// <seealso cref="IntegerRange"/>
+	public static implicit operator BNF(Range range)
+	{
+		return Integer(range);
+	}
+
+	/// <summary>
+	/// Implicitly convert a ['a','b','c'] expression
+	/// into a pick-one-of parser.
+	/// </summary>
+	/// <seealso cref="OneOf(char[])"/>
+	public static implicit operator BNF(char[] oneOf)
+	{
+		return OneOf(oneOf);
 	}
 
 	/// <summary>
@@ -708,6 +769,30 @@ public class BNF : IParser
 	{
 		return new BNF(new FixedWidthIntegerRange(min, max, width, allowLeadingWhitespace, useHex));
 	}
+
+	/// <summary>
+	/// Create a parser for a fixed width unsigned integer, within a given value range.
+	/// </summary>
+	/// <param name="range">Inclusive range to match</param>
+	/// <param name="width">Number of characters to read from input</param>
+	/// <param name="allowLeadingWhitespace">
+	/// Default = <c>false</c>.
+	/// If <c>true</c> the input may have leading whitespace to fill the fixed width.
+	/// If <c>false</c> the input must have digits in all places.
+	/// </param>
+	/// <param name="useHex">
+	/// Default = <c>false</c>.
+	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
+	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
+	/// </param>
+	/// <seealso cref="IntegerRange"/>
+	/// <seealso cref="FractionalDecimal"/>
+	public static BNF FixedSizeInteger(Range range, int width, bool allowLeadingWhitespace = false, bool useHex = false)
+	{
+		var lower = (range.Start.IsFromEnd) ? (int.MaxValue - range.Start.Value) : (range.Start.Value);
+		var upper = (range.End.IsFromEnd) ? (int.MaxValue - range.End.Value) : (range.End.Value);
+		return new BNF(new FixedWidthIntegerRange(lower, upper, width, allowLeadingWhitespace, useHex));
+	}
 	
 	/// <summary>
 	/// Create a parser for a variable width unsigned integer, within a given value range.
@@ -724,11 +809,24 @@ public class BNF : IParser
 	/// If <c>true</c> the input may have 0-9 and A-F/a-f; Number will be checked against range as a hexadecimal value.
 	/// If <c>false</c> the input may have 0-9 only; Number will be checked against range as a decimal value.
 	/// </param>
-	/// <seealso cref="FixedSizeInteger"/>
+	/// <seealso cref="FixedSizeInteger(long,long,int,bool,bool)"/>
 	/// <seealso cref="FractionalDecimal"/>
 	public static BNF IntegerRange(long min, long max, bool allowLeadingWhitespace = false, bool useHex = false)
 	{
 		return new BNF(new VariableWidthIntegerRange(min, max, allowLeadingWhitespace, useHex));
+	}
+
+	/// <summary>
+	/// Create a parser for a variable width unsigned decimal integer, within a given value range.
+	/// </summary>
+	/// <remarks>
+	///	This is equivalent to <see cref="IntegerRange"/>, but allows use of C# range expressions
+	/// </remarks>
+	public static BNF Integer(Range range)
+	{
+		var lower = (range.Start.IsFromEnd) ? (int.MaxValue - range.Start.Value) : (range.Start.Value);
+		var upper = (range.End.IsFromEnd) ? (int.MaxValue - range.End.Value) : (range.End.Value);
+		return IntegerRange(lower, upper);
 	}
 
 	/// <summary>
@@ -777,7 +875,7 @@ public class BNF : IParser
 	/// <param name="allowLeadingPlus">[Optional] Default = true.
 	///     If true, starting numbers with <c>+</c> is allowed, like <c>+5.0</c>.
 	///     Otherwise, only starting with a negative or digit is allowed, like <c>-1</c> or <c>42</c></param>
-	/// <seealso cref="FixedSizeInteger"/>
+	/// <seealso cref="FixedSizeInteger(long,long,int,bool,bool)"/>
 	/// <seealso cref="IntegerRange"/>
 	/// <seealso href="https://learn.microsoft.com/en-us/dotnet/api/System.Globalization.CultureInfo.CurrentCulture"/>
 	public static BNF FractionalDecimal(string? groupMark = null, string? decimalMark = null,
@@ -1169,6 +1267,7 @@ public class BNF : IParser
 		return imp.TryMatch(scan, previousMatch, allowAutoAdvance);
 	}
 
+
 	/// <inheritdoc />
 	public override string ToString()
 	{
@@ -1176,5 +1275,4 @@ public class BNF : IParser
 	}
 
 	#endregion IParser pass-through
-
 }

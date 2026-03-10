@@ -3,6 +3,7 @@ namespace TestLanguageImplementation.Compiled;
 
 public class PCodeInterpreter
 {
+    // ReSharper disable once UnusedParameter.Local
     public PCodeInterpreter(List<OpCode> code)
     {
         throw new NotImplementedException();

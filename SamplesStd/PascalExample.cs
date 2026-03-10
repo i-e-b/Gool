@@ -32,7 +32,7 @@ public static class PascalExample
             comment             = '{' > -(BNF.AnyChar / '}') > '}',
             whiteSpaceOrComment = +(BNF.WhiteSpaceString | comment),
             compilerDirective   = '#' > identifier > -(BNF.AnyChar / ';'),
-            plusOrMinus         = BNF.OneOf('-', '+');
+            plusOrMinus         = ['-', '+'];
 
         pascalString.NoAutoAdvance(); // Don't skip whitespace or comments in here
         pascalString.Atomic(); // compact all sub-matches into a single result

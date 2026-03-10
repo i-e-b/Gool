@@ -38,8 +38,8 @@ public static class HtmlEntityExample
     {
         BNF // Character and Entity References
             entity_name = OneOf(_entityMap.Keys),
-            dec_value   = IntegerRange(1, 65535),
-            hex_value   = IntegerRange(1, 65535, useHex: true),
+            dec_value   = 1..65535,
+            hex_value   = IntegerRange(0x0001, 0xFFFF, useHex: true),
             char_ref    = ("&#" > dec_value > ';') | ("&#x" > hex_value > ';'),
             entity_ref  = '&' > entity_name > ';',
             reference   = entity_ref | char_ref;

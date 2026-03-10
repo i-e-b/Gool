@@ -22,7 +22,7 @@ public static class EmailAddressExample
         BNF // Fragments
             alpha    = CharacterInRanges(('a','z'), ('A','Z')),
             digit    = CharacterInRanges(('0','9')),
-            symbol   = OneOf('!', '#', '$', '%', '&', '\'', '*', '+', '-', '/', '=', '?', '^', '_', '`', '{', '|', '}', '~'),
+            symbol   = ['!', '#', '$', '%', '&', '\'', '*', '+', '-', '/', '=', '?', '^', '_', '`', '{', '|', '}', '~'],
             chr      = alpha | digit | symbol,
             atom     = +chr,
             dot_atom = atom % '.';
@@ -36,7 +36,7 @@ public static class EmailAddressExample
             local_part    = (atom | quoted_string) % '.';
 
         BNF // IP Addresses
-            ipv4_octet   = IntegerRange(0, 255),
+            ipv4_octet   = 0..255,
             ipv4_address = ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet > '.' > ipv4_octet;
 
         BNF // Domains

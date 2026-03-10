@@ -15,8 +15,8 @@ public static class ConfirmationMessageExample
     public static ParserPackage MPesa()
     {
         BNF
-            date = IntegerRange(1, 31) > '/' > IntegerRange(1, 12) > '/' > IntegerRange(0, 99),
-            time = IntegerRange(0, 24) > ':' > IntegerRange(0, 60) > ((BNF)"AM" | "PM"),
+            date = Integer(1..31) > '/' > (1..12) > '/' > (0..99),
+            time = Integer(0..24) > ':' > (0..60) > ((BNF)"AM" | "PM"),
 
             pattern = StringTerminatedBy(" ").TagWith(TransactionId)
                     > "Confirmed. Ksh"

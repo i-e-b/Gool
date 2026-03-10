@@ -209,8 +209,8 @@ public static Package Arithmetic()
     var _expression = Forward();
 
     BNF
-        add_sub = OneOf('+', '-'),
-        mul_div = OneOf('*', '/'),
+        add_sub = ['+', '-'],
+        mul_div = ['*', '/'],
         exp     = '^';
 
     BNF

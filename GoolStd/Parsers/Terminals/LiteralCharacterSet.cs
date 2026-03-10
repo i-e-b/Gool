@@ -20,8 +20,19 @@ public class LiteralCharacterSet : Parser
     public LiteralCharacterSet(params char[] c)
     {
         _test = c;
-        _lowest = _test.Min();
-        _highest = _test.Max();
+        if (_test.Length > 0)
+        {
+            _lowest = _test.Min();
+            _highest = _test.Max();
+        }
+    }
+
+    /// <summary>
+    /// Create a new LiteralCharacterSet with an additional accepted character.
+    /// </summary>
+    public LiteralCharacterSet Merge(params char[] c)
+    {
+        return new LiteralCharacterSet(_test.Concat(c).ToArray());
     }
 
     /// <inheritdoc />

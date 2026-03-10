@@ -162,6 +162,7 @@ public class Compiler
     /// <summary>
     /// Convert string with outer quotes removed, and escapes resolved
     /// </summary>
+    // ReSharper disable once UnusedMember.Local
     private static Value UnpackQuotedString(TreeNode<Value> node)
     {
         var src = node.Source.Value;
@@ -219,6 +220,7 @@ public class Compiler
         return value;
     }
 
+    // ReSharper disable once UnusedMember.Local
     private static string ShortenString(string? str)
     {
         if (str is null) return "";
