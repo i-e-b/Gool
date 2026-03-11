@@ -4,6 +4,7 @@ using static Gool.BNF;
 
 namespace Samples;
 
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public class MicroformatExample
 {
     public int Width { get; set; } = 320;
@@ -28,8 +29,8 @@ public class MicroformatExample
     private static ParserPackage Parser()
     {
         BNF
-            size = Integer(..).TagWith(nameof(Width)) > ',' > Integer(..).TagWith(nameof(Height)),
-            pattern = StringToEndOrTerminatedBy(":").TagWith(nameof(Source)) > ":" > size > ";" > RestOfInput.TagWith(nameof(Format));
+            size = Integer()[nameof(Width)] > ',' > Integer()[nameof(Height)],
+            pattern = StringToEndOrTerminatedBy(":")[nameof(Source)] > ":" > size > ";" > RestOfInput[nameof(Format)];
 
         return pattern.Build();
     }

@@ -71,12 +71,12 @@ namespace Gool;
 ///	See <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#1243-operator-overloading">C# language spec</a>
 /// </remarks>
 // ReSharper disable once InconsistentNaming
-public class BNF : IParser, IEnumerable<char>
+public class BNF : IParser, IEnumerable<object>
 {
 	// Inspired by Spirit parser http://boost-spirit.com/home/
 	// There are a few changes compared to Spirit, all due to overloading restrictions in C#.
 	//   1) >> replaced with >			(C# needs one operand of >> to be an integer)
-	//   2) * replaced with -			(C# has no normal pointer math, so no unary * )
+	//   2) * replaced with -			(C# does not allow overloading of unary * )
 
 	/// <summary>
 	/// Wrap this BNF up with the default scanner options,
@@ -111,11 +111,11 @@ public class BNF : IParser, IEnumerable<char>
 	/// Do not call this directly.
 	/// </summary>
 	/// <remarks>
-	/// Required constructor for implicit conversion from <c>char[]</c> expressions to BNF.
+	/// Required constructor for implicit conversion from <c>char[]</c> or <c>string[]</c> expressions to BNF.
 	/// </remarks>
 	public BNF()
 	{
-		_parserTree = new LiteralCharacterSet();
+		_parserTree = new ListComprehensionParser();
 	}
 
 	/// <summary>
@@ -126,21 +126,36 @@ public class BNF : IParser, IEnumerable<char>
 	/// </remarks>
 	public void Add(char c)
 	{
-		if (_parserTree is LiteralCharacterSet lcs)
+		if (_parserTree is ListComprehensionParser lcp)
 		{
-			_parserTree = lcs.Merge(c);
+			lcp.Add(c);
+		}
+	}
+
+	/// <summary>
+	/// Do not call this directly.
+	/// </summary>
+	/// <remarks>
+	/// Add a character to a literal character set.
+	/// </remarks>
+	public void Add(string s)
+	{
+		if (_parserTree is ListComprehensionParser lcp)
+		{
+			lcp.Add(s);
 		}
 	}
 
 	/// <summary>
 	/// Not supported
 	/// </summary>
-	public IEnumerator<char> GetEnumerator() { yield break; }
+	public IEnumerator<object> GetEnumerator() { yield break; }
 
 	/// <summary>
 	/// Not supported
 	/// </summary>
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
 
 	#endregion Character set conversion
 
@@ -149,6 +164,7 @@ public class BNF : IParser, IEnumerable<char>
 	/// Add a tag to the base parser.
 	/// This is used to interpret the parser result
 	/// </summary>
+	/// <seealso cref="Tagged"/>
 	public BNF TagWith(string tag)
 	{
 		_parserTree.Tag = tag;
@@ -158,6 +174,7 @@ public class BNF : IParser, IEnumerable<char>
 	/// <summary>
 	/// Create a copy of this BNF, with a new tag
 	/// </summary>
+	/// <seealso cref="TagWith"/>
 	public BNF Tagged(string name)
 	{
 		return Copy().TagWith(name);
@@ -181,6 +198,14 @@ public class BNF : IParser, IEnumerable<char>
 	{
 		return new BNF(new Wrapper(_parserTree));
 	}
+
+	/// <summary>
+	/// Add a tag to the base parser.
+	/// This is used to interpret the parser result
+	/// </summary>
+	/// <seealso cref="TagWith"/>
+	public BNF this[string tag] => TagWith(tag);
+
 	#endregion Tagging
 
 	#region Scopes
@@ -233,8 +258,6 @@ public class BNF : IParser, IEnumerable<char>
 		_parserTree.Scope = ScopeType.Tree;
 		return this;
 	}
-
-
 
 	#endregion Scopes
 
@@ -409,7 +432,8 @@ public class BNF : IParser, IEnumerable<char>
 	/// Implicitly convert a <c>x..y</c> expression
 	/// into an unsigned decimal integer parser in that range
 	/// </summary>
-	/// <seealso cref="Integer"/>
+	/// <seealso cref="Integer()"/>
+	/// <seealso cref="Integer(Range)"/>
 	/// <seealso cref="IntegerRange"/>
 	public static implicit operator BNF(Range range)
 	{
@@ -830,6 +854,14 @@ public class BNF : IParser, IEnumerable<char>
 	}
 
 	/// <summary>
+	/// Create a parser for a variable width unsigned decimal integer, in the range 0 to <see cref="long.MaxValue"/>
+	/// </summary>
+	public static BNF Integer()
+	{
+		return IntegerRange(0, long.MaxValue);
+	}
+
+	/// <summary>
 	/// Create a parser for a variable width signed decimal value.
 	/// This can contain number separators, decimal points, and 'E notation'.
 	/// <p/>
@@ -913,8 +945,7 @@ public class BNF : IParser, IEnumerable<char>
 	}
 
 	/// <summary>
-	/// Match any length of string, upto but not including the one of the terminating sub-strings.
-	/// If no terminators are found, this fails to match.
+	/// Match any length of string, upto but <b>not</b> including the one of the terminating sub-strings.
 	/// Reaching the end of input is considered a valid terminator.
 	/// </summary>
 	/// <param name="terminators">Strings that end the match</param>

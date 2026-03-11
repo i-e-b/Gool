@@ -1,5 +1,6 @@
 ﻿using Gool;
 using static Gool.BNF;
+// ReSharper disable RedundantRangeBound
 
 namespace Samples;
 
@@ -18,15 +19,15 @@ public static class ConfirmationMessageExample
             date = Integer(1..31) > '/' > (1..12) > '/' > (0..99),
             time = Integer(0..24) > ':' > (0..60) > ((BNF)"AM" | "PM"),
 
-            pattern = StringTerminatedBy(" ").TagWith(TransactionId)
+            pattern = StringTerminatedBy(" ")[TransactionId]
                     > "Confirmed. Ksh"
-                    > FractionalDecimal().TagWith(Value)
+                    > FractionalDecimal()[Value]
                     > "sent to eWATERservices Limited for account"
                     > FixedSizeInteger(0, 0xFFFFFFFF, 8, useHex: true).TagWith(TagId)
                     > "on"
-                    > date.TagWith(Date)
+                    > date[Date]
                     > "at"
-                    > time.TagWith(Time)
+                    > time[Time]
                     > RestOfInput;
 
         return pattern.BuildWithOptions(Options.SkipWhitespace);

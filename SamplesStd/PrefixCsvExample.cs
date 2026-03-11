@@ -17,14 +17,14 @@ public static class PrefixCsvExample
         // square brackets is found, the next 'n' values are a child
         // list, and this can continue recursively.
         //
-        // This is so simple that it would probably be better to
-        // custom implement a parser, but supporting this kind of
-        // contextual parameter seems interesting to add to Gool.
+        // This is so simple that it would probably be better to make
+        // a custom parser, but supporting this kind of contextual
+        // parameter use seems interesting to demonstrate with Gool.
 
         var _list_item = Forward();
 
         BNF
-            item_count = Integer(1..).TagWith(ItemCount),
+            item_count = Integer(1..)[ItemCount],
             data       = StringToEndOrTerminatedBy(",", "\r", "\n", "[") / "[",
             sub_list = "[" >
                        Context(

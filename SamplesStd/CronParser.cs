@@ -28,7 +28,7 @@ public static class CronParser
             weekNumber = 0..5,
             year       = 1970..2099 | FixedSizeInteger(0..99, 2),
             timezone   = IdentifierString(allowUnderscore: false, allowHyphen: true) > !('/' > IdentifierString(allowUnderscore: false, allowHyphen: true)),
-            macro      = OneOf("@yearly", "@annually", "@monthly", "@weekly", "@daily", "@midnight", "@hourly", "@reboot");
+            macro      = ["@yearly", "@annually", "@monthly", "@weekly", "@daily", "@midnight", "@hourly", "@reboot"];
 
         macro.TagWith(Macro);
         timezone.TagWith(Timezone);

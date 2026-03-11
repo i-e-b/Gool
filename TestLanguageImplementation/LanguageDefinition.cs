@@ -58,7 +58,7 @@ public static class LanguageDefinition
         BNF // Statements and Blocks
             call          = function > '(' > !(rootExpr % ',') > ')' > ';',
             assign        = variable > '=' > rootExpr > ';',
-            equality      = OneOf("=", "<", ">", "<=", ">="),
+            equality      = ["=", "<", ">", "<=", ">="],
             comparison    = rootExpr > equality > rootExpr,
             else_block    = "else" > start_block > (-_statement) > end_block,
             if_block      = "if" > comparison > start_block > (-_statement) > end_block > !else_block,

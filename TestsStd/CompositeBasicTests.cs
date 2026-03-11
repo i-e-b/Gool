@@ -562,7 +562,7 @@ public class CompositeBasicTests
                     select: result =>
                         result.GetTag("TagId"),
                     next: tag =>
-                        -(text | _wrapped) > "</" > ((BNF)tag.Value).TagWith("TagId") > '>'
+                        -(text | _wrapped) > "</" > ((BNF)tag.Value)["TagId"] > '>'
                 );
 
         _wrapped.Is(wrapped);

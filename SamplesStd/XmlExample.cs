@@ -2,6 +2,7 @@
 using Gool;
 using Gool.Results;
 using static Gool.BNF;
+// ReSharper disable SuggestVarOrType_SimpleTypes
 
 // ReSharper disable MemberCanBePrivate.Global
 
